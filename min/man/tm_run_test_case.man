@@ -1,0 +1,44 @@
+.TH TM_RUN_TEST_CASE 3  "Linux" "MIN Programmer's Manual"
+.SH NAME
+tm_run_test_case \- run a test casesfrom MIN test module
+.SH SYNOPSIS
+.ad l
+.B #include <test_module_api.h>
+.sp
+.BI "int tm_run_test_cases (unsigned int" id ",const char *" cfg_file ", TestCaseResult *" result);
+.ad b
+.SH DESCRIPTION
+Every MIN test module must implement  
+.BR tm_run_test_case.
+MIN test module controller forks a new process for test case execution, which
+calls this function. The test case result should be stored in 
+TestCaseResult struct.
+
+.nf
+typedef enum {
+        TP_CRASHED = -2,        /**< Test Process has crashed */
+        TP_TIMEOUTED = -1,      /**< Test Process has timeouted */
+        TP_PASSED = 0,          /**< Test Process has passed */
+        TP_FAILED = 1,          /**< Test Process has failed */
+        TP_NC = 2,              /**< Test Process has been not completed */
+        /** Test Process has exited because an error occured in the
+         *  component under test
+         */
+        TP_LEAVE = 3
+} TPResult;
+
+struct _TestCaseResult {
+        TPResult        result_;
+        char            desc_[MaxTestResultDescription];
+};
+.fi
+
+The 
+.I result_
+field contains the result of test case,
+.I desc_
+can be used to pass additional description of the result.
+
+.SH "SEE ALSO"
+.BR tm_get_test_cases (3)
+

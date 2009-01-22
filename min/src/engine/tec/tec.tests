@@ -1,0 +1,934 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Robert Galkowski
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+#include "check.h"
+
+/**
+ *  @file       tec.tests
+ *  @version    0.1
+ *  @brief      This file contains tests for MIN Test Engine Controller
+ */
+
+char **envp_;
+
+START_TEST(initialize)
+{
+        unit_test_result = 0;
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+        sleep(1);
+        //fail_unless(unit_test_result == 1,"message listener not started");
+        fail_unless(((available_modules != INITPTR)||(instantiated_modules != INITPTR)||(selected_cases != INITPTR)),"failed to initialize data");
+        mq_close_queue(mq_id);
+}
+
+END_TEST
+START_TEST(write_modules_list)
+{
+	char* fname;
+	test_module_info_s* first_module;
+        unit_test_result = 0;
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+        first_module = available_modules->head_->data_;
+        fname = first_module->module_filename_;
+        char* result = strstr(fname,"minDemoModule");
+        fail_unless( result != NULL,
+		    "wrong data in modules list:");
+        mq_close_queue(mq_id);
+}
+
+END_TEST
+START_TEST(module_instantiation)
+{
+        long mpid = 0;
+	    DLListIterator work_item;
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+        unit_test_result = ec_start_modules();
+        work_item = dl_list_head(instantiated_modules);
+        while (work_item != DLListNULLIterator)
+        {
+                mpid = tm_get_pid(work_item);
+                fail_unless(mpid = 666,"Fault during module instantiation");
+                work_item = dl_list_next(work_item);
+        }
+        ec_cleanup();
+}
+END_TEST
+START_TEST(handle_message)
+{
+        long addr;
+	ec_min_init(NULL,NULL,NULL,envp_,0);
+        addr = getpid();
+        mq_send_message2(mq_id,addr,MSG_OK,7,"test msg");
+        sleep(2);
+        fail_unless(unit_test_result != -1,"message handling failure");
+        mq_close_queue(mq_id);
+}
+
+END_TEST
+START_TEST(handle_unexpected_message)
+{
+	long addr;
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+        addr = getpid();
+        mq_send_message2(mq_id,addr,MSG_EXE,7,"test msg");
+        sleep(2);
+        fail_unless(1,"This test case fails only in case of SegFault");
+        mq_close_queue(mq_id);
+}
+
+END_TEST
+
+
+
+START_TEST(msg_ok_handler_test)
+{
+        long act_pid;
+	DLList *work_list;
+	test_module_info_s *work_module;
+        MsgBuffer message;
+	DLListIterator work_item;
+	instantiated_modules = dl_list_create();
+        work_list = dl_list_create();
+        dl_list_add(work_list,(void*)"dummycfg");
+	work_module = tm_create("dummyfile",work_list);
+        work_item = tm_add(instantiated_modules,work_module);
+        tm_set_status(work_item,TEST_MODULE_INITIALIZED);
+        act_pid = getpid();
+        tm_set_pid (work_item,act_pid);
+        mq_id = mq_open_queue('q');
+        mq_send_message2(mq_id, act_pid, MSG_OK, 7, "");
+        sleep(1);
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                ec_message_dispatch(&message);
+                }
+        fail_unless((tm_get_status(work_item))==TEST_MODULE_TC_SENDING,"Status not set");
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+START_TEST(msg_ok_handler_test_2)
+{
+        long act_pid;
+        DLList *work_list;
+        DLList*  work_cases_list = dl_list_create();
+        test_case_s* work_case;
+        test_module_info_s *work_module;
+        MsgBuffer message;
+        DLListIterator work_item;
+        DLListIterator work_case_item;
+        instantiated_modules = dl_list_create();
+        selected_cases = dl_list_create();
+        work_list = dl_list_create();
+        dl_list_add(work_list,(void*)"dummycfg");
+        work_module = tm_create("dummyfile",work_list);
+        work_item = tm_add(instantiated_modules,work_module);
+        work_case = tc_create(work_item,"dummy","dummy");
+        tc_add(selected_cases,work_case);
+        work_case_item = tc_add(work_cases_list,work_case);
+        tc_set_id(work_case_item,7);
+        tm_set_tclist(work_item,work_cases_list);
+        tm_set_status(work_item,TEST_MODULE_INITIALIZED_TEMP);
+        act_pid = getpid();
+        tm_set_pid (work_item,act_pid);
+        mq_id = mq_open_queue('q');
+        mq_send_message2(mq_id, act_pid, MSG_OK, 7, "");
+        sleep(1);
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                min_info("cp1");
+                ec_message_dispatch(&message);
+                }
+        fail_unless((tm_get_status(work_item))==TEST_MODULE_INITIALIZED_TEMP,"Status not set");
+        
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless((message.type_ == MSG_GTC),"Test case gathering not started");
+                }
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+
+START_TEST(msg_ko_handler_test)
+{
+        long act_pid;
+        DLList *work_list;
+        test_module_info_s *work_module;
+        MsgBuffer message;
+        DLListIterator work_item;
+        instantiated_modules = dl_list_create();
+        work_list = dl_list_create();
+        dl_list_add(work_list,(void*)"dummycfg");
+        work_module = tm_create("dummyfile",work_list);
+        work_item = tm_add(instantiated_modules,work_module);
+        act_pid = getpid();
+        tm_set_pid (work_item,act_pid);
+        tm_set_status(work_item,TEST_MODULE_INITIALIZED);
+        mq_id = mq_open_queue('q');
+        mq_send_message2(mq_id, act_pid, MSG_KO, 7, "");
+        sleep(1);
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                ec_message_dispatch(&message);
+                }
+        sleep(1);
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless((message.type_ == MSG_END),"Message not sent");
+                }
+        fail_unless(dl_list_head(instantiated_modules) == INITPTR,"Module not removed");
+        mq_close_queue(mq_id);
+}
+END_TEST
+START_TEST(msg_tcd_handler_test)
+{
+	DLList* work_list;
+	long act_pid;
+	test_module_info_s* work_module;
+	DLListIterator work_item;
+	DLList* work_tc_list;
+        MsgBuffer message;
+        instantiated_modules = dl_list_create();
+        work_list = dl_list_create();
+        dl_list_add(work_list,(void*)"dummycfg");
+        work_module = tm_create("dummyfile",work_list);
+        work_item = tm_add(instantiated_modules,work_module);
+        act_pid = getpid();
+        tm_set_pid(work_item,act_pid);
+        work_tc_list = dl_list_create();
+        tm_set_tclist(work_item,work_tc_list);
+        mq_id = mq_open_queue('q');
+        tm_set_status(work_item,TEST_MODULE_TC_SENDING);
+        mq_send_message2(mq_id,act_pid,MSG_TCD,1,"dummy_case");
+        sleep(1);
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                ec_msg_tcd_handler(&message);
+                }
+        work_tc_list = tm_get_tclist(work_item);
+        work_item = dl_list_head(work_tc_list);
+        fail_unless(0 ==strcmp(((test_case_s*)(dl_list_data(work_item)))->title_,"dummy_case"),"Test case writing failed");
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+START_TEST(module_start)
+{
+	long pid_check;
+	DLListIterator work_item;
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_start_modules();
+        work_item = dl_list_head(instantiated_modules);
+        do {
+                pid_check = tm_get_pid(work_item);
+                fail_unless(pid_check > 0,"Wrong PID data");
+                work_item = dl_list_next(work_item);
+        } while (work_item != DLListNULLIterator);
+        // wec_cleanup();
+}
+END_TEST
+START_TEST(start_one_case)
+{
+        DLList* work_list;
+        long act_pid;
+        test_module_info_s* work_module;
+        test_case_s* work_case;
+        DLListIterator work_module_item;
+        DLListIterator work_case_item;
+        DLList* work_tc_list;
+        MsgBuffer message;
+        instantiated_modules = dl_list_create();
+        selected_cases = dl_list_create();
+        work_list = dl_list_create();
+        results = dl_list_create();
+        dl_list_add(work_list,(void*)"dummycfg");
+        work_module = tm_create("dummyfile",work_list);
+        work_module_item = tm_add(instantiated_modules,work_module);
+        tm_set_status(work_module_item,TEST_MODULE_READY);
+        act_pid = getpid();
+        tm_set_pid(work_module_item,act_pid);
+        work_tc_list = dl_list_create();
+        tm_set_tclist(work_module_item,work_tc_list);
+        work_case = tc_create(work_module_item,"dummy.cfg","test_case");
+        work_case_item = tc_add(tm_get_tclist(work_module_item),work_case);
+        tc_set_id(work_case_item,6);
+        mq_id = mq_open_queue('q');
+        ec_exec_test_case(work_case_item);
+        sleep(1);
+        fail_unless(mq_peek_message(mq_id,act_pid),"Message not sent");
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless(message.type_ == MSG_EXE,"Wrong message");
+                }
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+START_TEST(msg_ret_handling_test)
+{
+        DLList* work_list;
+        long act_pid;
+        int test_res_type;
+        test_module_info_s* work_module;
+        test_case_s* work_case;
+        DLListIterator work_module_item;
+        DLListIterator work_case_item;
+        DLList* work_tc_list;
+        MsgBuffer message;
+        instantiated_modules = dl_list_create();
+        selected_cases = dl_list_create();
+        work_list = dl_list_create();
+        dl_list_add(work_list,(void*)"dummycfg");
+        work_module = tm_create("dummyfile",work_list);
+        work_module_item = tm_add(instantiated_modules,work_module);
+        act_pid = getpid();
+        tm_set_pid(work_module_item,act_pid);
+        work_tc_list = dl_list_create();
+        tm_set_tclist(work_module_item,work_tc_list);
+        work_case = tc_create(work_module_item,"dummy.cfg","test_case");
+        work_case_item = tc_add(tm_get_tclist(work_module_item),work_case);
+        tc_set_id(work_case_item,6);
+        tc_set_status(work_case_item,TEST_CASE_ONGOING);
+        tc_add(selected_cases,work_case);
+        tc_set_tr_list(work_case_item,dl_list_create());
+        test_result_s* work_result = tr_create_data_item(work_case_item);
+        DLListIterator work_result_item = tr_add(tc_get_tr_list(work_case_item),work_result);
+        mq_id = mq_open_queue('q');
+        mq_send_message2(mq_id,act_pid,MSG_RET,0,"result");
+        sleep(1);
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                ec_message_dispatch(&message);
+                }
+        test_res_type = tr_get_result_type(work_result_item);
+        fail_if(test_res_type == TEST_RESULT_NOT_RUN,"Results not updated");
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+START_TEST(msg_usr_handler_test)
+{
+        DLList* work_list;
+        long act_pid;
+        int test_res_type;
+        test_module_info_s* work_module;
+        test_case_s* work_case;
+        DLListIterator work_module_item;
+        DLListIterator work_case_item;
+        DLList* work_tc_list;
+        DLList* work_printout_list;
+        MsgBuffer message;
+        instantiated_modules = dl_list_create();
+        selected_cases = dl_list_create();
+        work_list = dl_list_create();
+        dl_list_add(work_list,(void*)"dummycfg");
+        work_module = tm_create("dummyfile",work_list);
+        work_module_item = tm_add(instantiated_modules,work_module);
+        act_pid = getpid();
+        tm_set_pid(work_module_item,act_pid);
+        work_tc_list = dl_list_create();
+        tm_set_tclist(work_module_item,work_tc_list);
+        work_case = tc_create(work_module_item,"dummy.cfg","test_case");
+        work_case_item = tc_add(tm_get_tclist(work_module_item),work_case);
+        tc_set_id(work_case_item,6);
+        tc_set_status(work_case_item,TEST_CASE_ONGOING);
+        tc_add(selected_cases,work_case);
+        tc_set_tr_list(work_case_item,dl_list_create());
+        test_result_s* work_result = tr_create_data_item(work_case_item);
+        DLListIterator work_result_item = tr_add(tc_get_tr_list(work_case_item),work_result);
+        work_printout_list = dl_list_create();
+        tr_set_priontouts_list(work_result_item,work_printout_list);
+        mq_id = mq_open_queue('q');
+        mq_send_message2(mq_id,act_pid,MSG_USR,0,"printout");
+        sleep(1);
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                ec_message_dispatch(&message);
+                }
+                
+        fail_unless(dl_list_size(work_printout_list) == 1 ,"printouts not updated");
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+
+
+
+
+
+START_TEST(pause_case_test)
+{
+        DLList* work_list;
+        long act_pid;
+        test_module_info_s* work_module;
+        test_case_s* work_case;
+        DLListIterator work_module_item;
+        DLListIterator work_case_item;
+        DLList* work_tc_list;
+        MsgBuffer message;
+        instantiated_modules = dl_list_create();
+        selected_cases = dl_list_create();
+        work_list = dl_list_create();
+        results = dl_list_create();
+        dl_list_add(work_list,(void*)"dummycfg");
+        work_module = tm_create("dummyfile",work_list);
+        work_module_item = tm_add(instantiated_modules,work_module);
+        act_pid = getpid();
+        tm_set_pid(work_module_item,act_pid);
+        work_tc_list = dl_list_create();
+        tm_set_tclist(work_module_item,work_tc_list);
+        work_case = tc_create(work_module_item,"dummy.cfg","test_case");
+        work_case_item = tc_add(tm_get_tclist(work_module_item),work_case);
+        tc_set_id(work_case_item,6);
+        tc_set_status(work_case_item,TEST_CASE_ONGOING);
+        mq_id = mq_open_queue('q');
+        ec_pause_test_case(work_case_item);
+        sleep(1);
+        fail_unless(mq_peek_message(mq_id,act_pid),"Message not sent");
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless(message.type_ == MSG_PAUSE,"Wrong message");
+                }
+        mq_close_queue(mq_id);
+}
+END_TEST
+START_TEST(resume_case_test)
+{
+        DLList* work_list;
+        long act_pid;
+        test_module_info_s* work_module;
+        test_case_s* work_case;
+        DLListIterator work_module_item;
+        DLListIterator work_case_item;
+        DLList* work_tc_list;
+        MsgBuffer message;
+        instantiated_modules = dl_list_create();
+        selected_cases = dl_list_create();
+        work_list = dl_list_create();
+        results = dl_list_create();
+        dl_list_add(work_list,(void*)"dummycfg");
+        work_module = tm_create("dummyfile",work_list);
+        work_module_item = tm_add(instantiated_modules,work_module);
+        act_pid = getpid();
+        tm_set_pid(work_module_item,act_pid);
+        work_tc_list = dl_list_create();
+        tm_set_tclist(work_module_item,work_tc_list);
+        work_case = tc_create(work_module_item,"dummy.cfg","test_case");
+        work_case_item = tc_add(tm_get_tclist(work_module_item),work_case);
+        tc_set_id(work_case_item,6);
+        tc_set_status(work_case_item,TEST_CASE_PAUSED);
+        mq_id = mq_open_queue('q');
+        ec_resume_test_case(work_case_item);
+        sleep(1);
+        fail_unless(mq_peek_message(mq_id,act_pid),"Message not sent");
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless(message.type_ == MSG_RESUME,"Wrong message");
+                }
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+
+START_TEST(remove_temp_module)
+{
+        instantiated_modules = dl_list_create();
+        DLList* empty_list = dl_list_create();
+        long act_pid = getpid();
+        mq_id = mq_open_queue('q');
+        MsgBuffer message;
+        test_module_info_s* temp_module = tm_create("fname",empty_list);
+        DLListIterator work_module_item = tm_add(instantiated_modules,temp_module);
+        tm_set_pid(work_module_item,act_pid);
+        ec_remove_module_temp(work_module_item);
+        fail_unless(mq_peek_message(mq_id,act_pid),"Message not sent");
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless(message.type_ == MSG_END,"Wrong message");
+                }
+        mq_close_queue(mq_id);
+        fail_unless(temp_module != INITPTR,"data not deleted");
+        fail_unless(dl_list_size(instantiated_modules) == 0, "module not removed from list");
+}
+END_TEST
+
+
+START_TEST(paralllel_exe)
+{
+        long act_pid = getpid();
+        instantiated_modules = dl_list_create();
+        selected_cases = dl_list_create();
+        int msg_count = 0;
+        MsgBuffer message;
+        DLList* empty_list = dl_list_create();
+        DLList* user_selected_cases = dl_list_create();
+        DLList* cases_list_1 = dl_list_create();
+        DLList* cases_list_2 = dl_list_create();
+        test_module_info_s* module_1;
+        test_module_info_s* module_2;
+        DLListIterator work_module_item_1;
+        DLListIterator work_module_item_2;
+        test_case_s* case_1;
+        test_case_s* case_2;
+        module_1 = tm_create("fname",empty_list);
+        module_2 = tm_create("fname2",empty_list);
+        work_module_item_1 = tm_add(instantiated_modules,module_1);
+        work_module_item_2 = tm_add(instantiated_modules,module_2);
+        tm_set_pid(work_module_item_1,act_pid);
+        tm_set_status(work_module_item_1,TEST_MODULE_READY);
+        tm_set_pid(work_module_item_2,act_pid);
+        tm_set_status(work_module_item_2,TEST_MODULE_READY);
+        case_1 = tc_create(work_module_item_1,"dummy","title1");
+        case_2 = tc_create(work_module_item_2,"dummy","title2");
+        tc_add(cases_list_1,case_1);
+        tc_add(cases_list_2,case_2);
+        tc_add(user_selected_cases,case_1);
+        tc_add(user_selected_cases,case_2);
+        mq_id = mq_open_queue('q');
+        ec_run_cases_par(user_selected_cases);
+        fail_unless(dl_list_size(selected_cases) == 2,"Cases not selected");
+        min_info("start waiting messages");
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless(message.type_ == MSG_EXE,"Wrong message");
+                msg_count ++;
+                }
+        sleep(1);
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless(message.type_ == MSG_EXE,"Wrong message");
+                msg_count ++;
+                }
+        fail_unless(msg_count == 2,"Missing messages");
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+
+START_TEST(sequence_exe)
+{
+        long act_pid = getpid();
+        instantiated_modules = dl_list_create();
+        selected_cases = dl_list_create();
+        int msg_count = 0;
+        MsgBuffer message;
+        DLList* empty_list = dl_list_create();
+        DLList* user_selected_cases = dl_list_create();
+        DLList* cases_list_1 = dl_list_create();
+        DLList* cases_list_2 = dl_list_create();
+        test_module_info_s* module_1;
+        test_module_info_s* module_2;
+        DLListIterator work_module_item_1;
+        DLListIterator work_module_item_2;
+        test_case_s* case_1;
+        test_case_s* case_2;
+        module_1 = tm_create("fname",empty_list);
+        module_2 = tm_create("fname2",empty_list);
+        work_module_item_1 = tm_add(instantiated_modules,module_1);
+        work_module_item_2 = tm_add(instantiated_modules,module_2);
+        tm_set_pid(work_module_item_1,act_pid);
+        tm_set_status(work_module_item_1,TEST_MODULE_READY);
+        tm_set_pid(work_module_item_2,act_pid);
+        tm_set_status(work_module_item_2,TEST_MODULE_READY);
+        case_1 = tc_create(work_module_item_1,"dummy","title1");
+        case_2 = tc_create(work_module_item_2,"dummy","title2");
+        tc_add(cases_list_1,case_1);
+        tc_add(cases_list_2,case_2);
+        tc_add(user_selected_cases,case_1);
+        tc_add(user_selected_cases,case_2);
+        mq_id = mq_open_queue('q');
+        ec_run_cases_seq(user_selected_cases);
+        fail_unless(dl_list_size(selected_cases) == 2,"Cases not selected");
+        min_info("start waiting messages");
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless(message.type_ == MSG_EXE,"Wrong message");
+                msg_count ++;
+                }
+        fail_unless(msg_count == 1,"Execution not started");
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+
+START_TEST(case_selection)
+{
+        long act_pid = getpid();
+        instantiated_modules = dl_list_create();
+        DLListIterator work_case_item;
+        DLListIterator result_case_item = INITPTR;
+        selected_cases = dl_list_create();
+        int msg_count = 0;
+        MsgBuffer message;
+        DLList* empty_list = dl_list_create();
+        DLList* user_selected_cases = dl_list_create();
+        DLList* cases_list_1 = dl_list_create();
+        test_module_info_s* module_1;
+        DLListIterator work_module_item_1;
+        test_case_s* case_1;
+        module_1 = tm_create("fname",empty_list);
+        work_module_item_1 = tm_add(instantiated_modules,module_1);
+        tm_set_pid(work_module_item_1,act_pid);
+        tm_set_status(work_module_item_1,TEST_MODULE_READY);
+        case_1 = tc_create(work_module_item_1,"dummy","title1");
+        work_case_item = tc_add(cases_list_1,case_1);
+        tm_set_tclist(work_module_item_1,cases_list_1);
+        result_case_item = ec_select_case(work_case_item,7);
+        fail_if(result_case_item == DLListNULLIterator,"Empty case returned");
+        fail_unless(dl_list_size(selected_cases) > 0,"Case not added to list"); 
+}
+END_TEST
+
+
+START_TEST(groupid_check)
+{
+        DLList* work_list;
+        long act_pid;
+        test_module_info_s* work_module;
+        test_case_s* work_case;
+        DLListIterator work_module_item;
+        DLListIterator work_case_item;
+        DLList* work_tc_list;
+        MsgBuffer message;
+        instantiated_modules = dl_list_create();
+        selected_cases = dl_list_create();
+        work_list = dl_list_create();
+        results = dl_list_create();
+        dl_list_add(work_list,(void*)"dummycfg");
+        work_module = tm_create("dummyfile",work_list);
+        work_module_item = tm_add(instantiated_modules,work_module);
+        tm_set_status(work_module_item,TEST_MODULE_READY);
+        act_pid = getpid();
+        tm_set_pid(work_module_item,act_pid);
+        work_tc_list = dl_list_create();
+        tm_set_tclist(work_module_item,work_tc_list);
+        work_case = tc_create(work_module_item,"dummy.cfg","test_case");
+        work_case_item = tc_add(tm_get_tclist(work_module_item),work_case);
+        tc_set_id(work_case_item,6);
+        tc_set_group_id(work_case_item,11);
+        mq_id = mq_open_queue('q');
+        tc_add(selected_cases,work_case);
+        ec_check_next_in_group(11);
+        fail_unless(mq_peek_message(mq_id,act_pid),"Message not sent");
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless(message.type_ == MSG_EXE,"Wrong message");
+                }
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+START_TEST(write_set_test)
+{
+        DLList* cfg_list = dl_list_create();
+        DLList* case_list = dl_list_create();
+        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list);
+        char* set_path;
+        DLListIterator work_module_item;
+        test_case_s* test_case_1;
+        test_case_s* test_case_2;
+        test_case_s* test_case_3;
+        available_modules = dl_list_create();
+        work_module_item = tm_add(available_modules,work_module);
+        tm_set_tclist(work_module_item,dl_list_create());
+        test_case_1 = tc_create(work_module_item,"somecfg","TestCase1");
+        test_case_2 = tc_create(work_module_item,"somecfg","TestCase2");
+        test_case_3 = tc_create(work_module_item,"somecfg","TestCase3");
+        tc_add(tm_get_tclist(work_module_item),test_case_1);
+        tc_add(tm_get_tclist(work_module_item),test_case_2);
+        tc_add(tm_get_tclist(work_module_item),test_case_3);
+        char* c_dir = getenv("HOME");
+        set_path = NEW2(char,strlen(c_dir) + 25);
+        sprintf(set_path,"%s/.min/check.set",c_dir);
+        remove(set_path);
+        ec_set_write_file(tm_get_tclist(work_module_item),set_path);
+        
+        FILE* set = fopen(set_path,"r");
+        fail_if(set == NULL,"File not written");
+        fclose(set);
+}
+END_TEST
+
+
+
+START_TEST(read_set_test)
+{
+        DLList* cfg_list = dl_list_create();
+        DLList* case_list = dl_list_create();
+        DLList* setcases = dl_list_create();
+        char* set_path;
+        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list);
+        DLListIterator work_module_item;
+        test_case_s* test_case_1;
+        test_case_s* test_case_2;
+        test_case_s* test_case_3;
+        available_modules = dl_list_create();
+        work_module_item = tm_add(available_modules,work_module);
+        tm_set_tclist(work_module_item,dl_list_create());
+        test_case_1 = tc_create(work_module_item,"somecfg","TestCase1");
+        test_case_2 = tc_create(work_module_item,"somecfg","TestCase2");
+        test_case_3 = tc_create(work_module_item,"somecfg","TestCase3");
+        tc_add(tm_get_tclist(work_module_item),test_case_1);
+        tc_add(tm_get_tclist(work_module_item),test_case_2);
+        tc_add(tm_get_tclist(work_module_item),test_case_3);
+        char* c_dir = getenv("HOME");
+        set_path = NEW2(char,strlen(c_dir) + 25);
+        sprintf(set_path,"%s/.min/",c_dir);
+        ec_set_read(setcases,"check.set");
+        fail_unless(dl_list_size(setcases) == 3,"Set cases list not filled");
+}
+END_TEST
+
+START_TEST(seq_set_exec)
+{
+        DLList* cfg_list = dl_list_create();
+        DLList* case_list = dl_list_create();
+        DLList* setcases = dl_list_create();
+        char* set_path;
+        MsgBuffer message;
+        long act_pid = getpid();
+        selected_cases = dl_list_create();
+        instantiated_modules = dl_list_create();
+        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list);
+        DLListIterator work_module_item;
+        test_case_s* test_case_1;
+        test_case_s* test_case_2;
+        test_case_s* test_case_3;
+        available_modules = dl_list_create();
+        work_module_item = tm_add(available_modules,work_module);
+        tm_set_tclist(work_module_item,dl_list_create());
+        test_case_1 = tc_create(work_module_item,"somecfg","TestCase1");
+        test_case_2 = tc_create(work_module_item,"somecfg","TestCase2");
+        test_case_3 = tc_create(work_module_item,"somecfg","TestCase3");
+        tc_add(tm_get_tclist(work_module_item),test_case_1);
+        tc_add(tm_get_tclist(work_module_item),test_case_2);
+        tc_add(tm_get_tclist(work_module_item),test_case_3);
+        tm_add(instantiated_modules,work_module);
+        tm_set_status(work_module_item,TEST_MODULE_READY);
+        tm_set_pid(work_module_item,act_pid);
+        tc_add(setcases,test_case_1);
+        tc_add(setcases,test_case_2);
+        tc_add(setcases,test_case_3);
+        
+        mq_id = mq_open_queue('q');
+        ec_run_set_seq(setcases);
+        usleep(20000);
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless(message.type_ == MSG_EXE,"Wrong message");
+                }
+        else {
+                fail_if(1 == 1,"Execution not started");
+        }
+        fail_unless(dl_list_size(selected_cases) == 3,"Cases not selected");
+        mq_close_queue(mq_id);
+}
+END_TEST
+
+START_TEST(par_set_exec)
+{
+        DLList* cfg_list = dl_list_create();
+        DLList* case_list = dl_list_create();
+        DLList* setcases = dl_list_create();
+        char* set_path;
+        int msg_count = 0;
+        MsgBuffer message;
+        long act_pid = getpid();
+        selected_cases = dl_list_create();
+        instantiated_modules = dl_list_create();
+        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list);
+        DLListIterator work_module_item;
+        test_case_s* test_case_1;
+        test_case_s* test_case_2;
+        test_case_s* test_case_3;
+        available_modules = dl_list_create();
+        work_module_item = tm_add(available_modules,work_module);
+        tm_set_tclist(work_module_item,dl_list_create());
+        test_case_1 = tc_create(work_module_item,"somecfg","TestCase1");
+        test_case_2 = tc_create(work_module_item,"somecfg","TestCase2");
+        test_case_3 = tc_create(work_module_item,"somecfg","TestCase3");
+        tc_add(tm_get_tclist(work_module_item),test_case_1);
+        tc_add(tm_get_tclist(work_module_item),test_case_2);
+        tc_add(tm_get_tclist(work_module_item),test_case_3);
+        tm_add(instantiated_modules,work_module);
+        tm_set_status(work_module_item,TEST_MODULE_READY);
+        tm_set_pid(work_module_item,act_pid);
+        tc_add(setcases,test_case_1);
+        tc_add(setcases,test_case_2);
+        tc_add(setcases,test_case_3);
+        mq_id = mq_open_queue('q');
+        ec_run_set_seq(setcases);
+        usleep(20000);
+        if (mq_peek_message(mq_id,act_pid)){
+                mq_read_message(mq_id,act_pid,&message);
+                fail_unless(message.type_ == MSG_EXE,"Wrong message");
+                msg_count ++;
+                }
+        else {
+                fail_if(1 == 1,"Execution not started");
+        
+        }
+        
+        fail_unless(dl_list_size(selected_cases) == 3,"Cases not selected");
+        fail_unless(dl_list_size(setcases) == 3,"Argument list corrupted");
+        mq_close_queue(mq_id);
+}
+END_TEST
+START_TEST(add_module)
+{
+        DLList* empty_list = dl_list_create();
+        int result = 0;
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+        
+        ec_add_module("minDemoModule",empty_list);
+        usleep(5000);
+        result = dl_list_size(instantiated_modules);
+        fail_unless(result != 1,"Module not added");
+}
+END_TEST
+
+START_TEST(add_module_full_path)
+{
+        DLList* empty_list = dl_list_create();
+        int result = 0;
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+        
+        ec_add_module("/usr/lib/min/minDemoModule.so",empty_list);
+        usleep(5000);
+        result = dl_list_size(instantiated_modules);
+        fail_unless(result != 1,"Module not added");
+}
+END_TEST
+
+START_TEST(test_sigsegv)
+{
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+	raise (SIGSEGV);
+	sleep (1);
+}
+END_TEST
+
+START_TEST(test_sigquit)
+{
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+	raise (SIGQUIT);
+	sleep (1);
+
+}
+END_TEST
+
+START_TEST(test_sigterm)
+{
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+	raise (SIGTERM);
+	sleep (1);
+}
+END_TEST
+
+START_TEST(test_sigkill)
+{
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+	raise (SIGKILL);
+	sleep (1);
+}
+END_TEST
+
+START_TEST(test_sigchld)
+{
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+	raise (SIGCHLD);
+	sleep (1);
+}
+END_TEST
+
+
+START_TEST(test_sigbus)
+{
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+	raise (SIGBUS);
+	sleep (1);
+}
+END_TEST
+
+START_TEST(test_sigint)
+{
+        ec_min_init(NULL,NULL,NULL,envp_,0);
+	raise (SIGINT);
+	sleep (1);
+}
+END_TEST
+
+#if 0
+#endif
+Suite* tec_suite()
+{
+        Suite * s = suite_create ("tec");
+        TCase* tc_core = tcase_create("tc_core");
+
+        /* Set new timeout limit */
+        tcase_set_timeout ( tc_core , 10 );
+
+        /*Add test cases*/
+        tcase_add_test(tc_core,initialize);
+        tcase_add_test(tc_core,write_modules_list);
+        tcase_add_test(tc_core,module_instantiation);
+        tcase_add_test(tc_core,handle_message);
+        tcase_add_test(tc_core,handle_unexpected_message);
+        tcase_add_test(tc_core,module_start);
+        tcase_add_test(tc_core,msg_ok_handler_test);
+        tcase_add_test(tc_core,msg_ok_handler_test_2);
+        tcase_add_test(tc_core,msg_tcd_handler_test);
+        tcase_add_test(tc_core,msg_ko_handler_test);
+        tcase_add_test(tc_core,msg_usr_handler_test);
+        tcase_add_test(tc_core,start_one_case);
+        tcase_add_test(tc_core,msg_ret_handling_test);
+        tcase_add_test(tc_core,pause_case_test);
+        tcase_add_test(tc_core,resume_case_test);
+        tcase_add_test(tc_core,remove_temp_module);
+        tcase_add_test(tc_core,paralllel_exe);
+        tcase_add_test(tc_core,sequence_exe);
+        tcase_add_test(tc_core,case_selection);
+        tcase_add_test(tc_core,groupid_check);
+        tcase_add_test(tc_core,write_set_test);
+        tcase_add_test(tc_core,read_set_test);
+        tcase_add_test(tc_core,seq_set_exec);
+        tcase_add_test(tc_core,par_set_exec);
+        tcase_add_test(tc_core,add_module);
+        tcase_add_test(tc_core,add_module_full_path);
+        suite_add_tcase (s, tc_core);
+        return s;
+}
+
+int tec_tests(char *evnp[])
+{
+        int number_failed;
+	Suite   * s;
+	SRunner * sr;
+	envp_ = envp;
+        // srunner_set_fork_status (sr,CK_NOFORK); 
+        number_failed = 0;
+        s  = tec_suite ();
+        sr = srunner_create (s);
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+
+        return number_failed;
+}

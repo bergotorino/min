@@ -1,0 +1,785 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Robert Galkowski
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       integration.tests
+ *  @version    0.1
+ *  @brief      This file contains integration check test cases
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+static char **envp_;
+DLList* extif_messages;
+
+
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+LOCAL void emptycallback1 (int run_id, int execution_result, int test_result, char *desc)
+{
+        return;
+}
+LOCAL void emptycallback2 (int run_id, char *text)
+{
+        return;
+}
+
+LOCAL void emptycallback3(char* text,int len)
+{
+        return;
+}
+
+void send_extif(char* message,int length)
+{
+        char* command = NULL;
+        MinItemParser* something;
+        char* extif_msg=NEW2(char,strlen(message)+1);
+        sprintf(extif_msg,"%s",message);
+        dl_list_add(extif_messages,(void*)extif_msg);
+        sleep(1);
+        something = mip_create(message,
+                               0,
+                               length);
+        mip_get_string(something,
+                       "",
+                       &command);
+        
+        if(strcmp(command,"reserve")==0){
+                min_if_message_received("response 0bb20000 deadbeef reserve 0",37);
+        }
+        if (strcmp(command,"release")==0){
+                min_if_message_received("response 0bb20000 deadbeef release 0",37);
+        }
+        if (strcmp(command,"remote")==0){
+                min_if_message_received("response 0bb20001 deadbeef remote run started",46);
+                sleep(1);
+                min_if_message_received("response 0bb20001 deadbeef remote run ready result=0",53);
+        }
+}
+
+
+
+void configure()
+{
+        char* homedir = getenv("HOME");
+        char* current = getenv("PWD");
+        FILE* conf;
+        FILE* script;
+        char* full_path = NEW2(char,strlen(homedir)+1+6+9+1);
+        sprintf(full_path,"%s/.min/min.conf",homedir);
+        remove(full_path);
+        remove("min.conf");
+        conf = fopen(full_path,"w");
+        fputs("\n[New_Module]\nModuleName=eventtestsTestModule\n[End_Module]\n\n[New_Module]\nModuleName=scripter\nTestCaseFile=ps2.conf\n[End_Module]\n\n[Logger_Defaults]\nCreateLogDirectories=YES\nEmulatorBasePath=/tmp\nEmulatorFormat=TXT\nEmulatorOutput=FILE\nHardwareBasePath=/tmp\nHardwareFormat=HTML\nHardwareOutput=NULL\nFileCreationMode=APPEND\nThreadIdToLogFile=NO\nWithTimeStamp=YES\nWithLineBreak=NO\nWithEventRanking=YES\n\n\n[End_Logger_Defaults]\n\n",conf);
+        fclose(conf);
+        DELETE(full_path);
+        full_path = NEW2(char,strlen(homedir)+1+6+8+1);
+        sprintf(full_path,"%s/.min/ps2.conf",homedir);
+        remove(full_path);
+        script = fopen(full_path,"w");
+        fputs("[Test]\ntitle aaa\nallocate phone somephone\nsleep 1000 \nfree somephone\n[Endtest]\n\n[Test]\ntitle bbb\nallocate phone otherphone\nremote otherphone run minDemoModule foo 1\nfree otherphone\n[Endtest]\n",script);
+        fclose(script);
+}
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(open_success)
+{
+        min_if_open(NULL,NULL,NULL,NULL,envp_);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        fail_unless( (  (available_modules != INITPTR) ||
+                        (instantiated_modules != INITPTR) ||
+                        (selected_cases != INITPTR) )
+                        ,"Unable to create list" );
+
+        //printf("zomg %d\n",dl_list_size(available_modules));
+        fail_unless(dl_list_size(available_modules) == 3,"Did not read modules");
+        fail_if(strstr(ec_settings.tmc_app_path_,"tmc") == NULL,"TMC not configured");
+        fail_unless(dl_list_size(instantiated_modules) == 3,"Modules not instantiated");
+        fail_unless(mq_id >= 0,"Failed to create message queue");
+        sleep(1);
+        min_if_close();
+}
+END_TEST
+
+START_TEST(close_min)
+{
+        min_if_open(NULL,NULL,NULL,NULL,NULL);
+        int mess_queue_id;
+
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        fail_unless( (  (available_modules != INITPTR) ||
+                        (instantiated_modules != INITPTR) ||
+                        (selected_cases != INITPTR) )
+                        ,"Unable to create list" );
+
+        fail_unless(dl_list_size(available_modules) == 3,"Did not read modules");
+        fail_if(strstr(ec_settings.tmc_app_path_,"tmc") == NULL,"TMC not configured");
+        fail_unless(dl_list_size(instantiated_modules) == 3,"Modules not instantiated");
+        fail_unless(mq_id >= 0,"Failed to create message queue");
+        mess_queue_id = mq_id;
+        sleep(1);
+        min_if_close();
+        FILE* fp;
+        char outpt [512];
+        memset(outpt,'\0',512);
+        outpt[511] = '\0';
+        fp = popen("ps aux | grep /tmc | grep -v grep","r");
+        fread(outpt,1,511,fp);
+        fclose (fp);
+        fail_if(strcasestr(outpt,"/tmc") != NULL, "TMC processes not killed" );
+}
+END_TEST
+
+START_TEST(get_cases_success)
+{
+        int result = 0;
+        module_info* av_mods;
+
+        min_if_open(NULL,NULL,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        sleep(1);
+        min_if_close();
+        fail_unless(result == 3,"Wrong number of modules");
+        fail_unless(av_mods[0].num_test_cases_ == 2,"Wrong number of test cases");
+        fail_unless(strcmp(av_mods[0].test_cases_[0].case_name_,"Demo_1") == 0,"Wrong case title : %s",av_mods[0].test_cases_[0].case_name_);
+        fail_unless(av_mods[0].test_cases_[0].case_id_ == 0,"wrong case id, %d",av_mods[0].test_cases_[0].case_id_);
+        fail_unless(strcmp(av_mods[0].test_cases_[1].case_name_,"Demo_2") == 0,"Wrong case title");
+        fail_unless(av_mods[0].test_cases_[1].case_id_ == 1,"wrong case id, %d",av_mods[0].test_cases_[1].case_id_);
+}
+END_TEST
+
+START_TEST( run_case_success )
+{
+        int result = 666;
+        module_info* av_mods;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3,"Modules not read");
+        result = min_if_exec_case(av_mods[0].module_name_,av_mods[0].test_cases_[1].case_id_);
+        fail_unless(result == 0,"Wrong return value from min_if_exex_case" );
+        sleep(6);
+        min_if_close();
+}
+END_TEST
+
+START_TEST( pause_case )
+{
+        int result = 666;
+        int status = 666;
+        module_info* av_mods;
+        DLListIterator work_case_item = DLListNULLIterator;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3,"Modules not read");
+        result = min_if_exec_case(av_mods[0].module_name_,av_mods[0].test_cases_[1].case_id_);
+        fail_unless(result == 0,"Wrong return value from min_if_exex_case" );
+        sleep(1);
+        min_if_pause_case(result);
+        sleep(1);
+        work_case_item = dl_list_at(selected_cases,result);
+        status = tc_get_status(work_case_item);
+        fail_unless(status == TEST_CASE_PAUSED,"Test case not paused");
+        min_if_close();
+}
+END_TEST
+
+START_TEST( resume_case )
+{
+        int result = 666;
+        int status = 666;
+        module_info* av_mods;
+        DLListIterator work_case_item = DLListNULLIterator;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3,"Modules not read");
+        result = min_if_exec_case(av_mods[0].module_name_,av_mods[0].test_cases_[1].case_id_);
+        fail_unless(result == 0,"Wrong return value from min_if_exex_case" );
+        sleep(1);
+        result = min_if_pause_case(result);
+        sleep(1);
+        work_case_item = dl_list_at(selected_cases,result);
+        status = tc_get_status(work_case_item);
+        fail_unless(status == TEST_CASE_PAUSED,"Test case not paused");
+        sleep(1);
+        min_if_resume_case(result);
+        sleep(1);
+        status = tc_get_status(work_case_item);
+        fail_unless(status == TEST_CASE_ONGOING,"Test case not resumed");
+        
+        min_if_close();
+}
+END_TEST
+
+START_TEST( cancel_case )
+{
+        int result = 666;
+        int status = 666;
+        module_info* av_mods;
+        DLListIterator work_case_item = DLListNULLIterator;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3,"Modules not read");
+        result = min_if_exec_case(av_mods[0].module_name_,av_mods[0].test_cases_[1].case_id_);
+        fail_unless(result == 0,"Wrong return value from min_if_exec_case" );
+        sleep(1);
+        min_if_cancel_case(result);
+        usleep(100000);
+        work_case_item = dl_list_at(selected_cases,result);
+        status = tc_get_status(work_case_item);
+        fail_unless(status == TEST_CASE_TERMINATED,"Test case not cancelled");
+        min_if_close();
+}
+END_TEST
+
+START_TEST ( run_two_cases_par )
+{
+        int result = 666;
+        module_info* av_mods;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3,"Modules not read");
+        result = min_if_exec_case(av_mods[0].module_name_,av_mods[0].test_cases_[1].case_id_);
+        fail_unless(result == 0,"Wrong return value from min_if_exec_case" );
+        usleep(1000);
+        result = min_if_exec_case(av_mods[0].module_name_,av_mods[0].test_cases_[0].case_id_);
+        fail_unless(result == 1,"Wrong return value from min_if_exec_case : %d",result );
+        sleep(6);
+        min_if_close();
+}
+END_TEST
+
+START_TEST ( run_2_cases_diff_modules )
+{
+        int result = 666;
+        module_info* av_mods;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3,"Modules not read");
+        result = min_if_exec_case(av_mods[0].module_name_,av_mods[0].test_cases_[1].case_id_);
+        fail_unless(result == 0,"Wrong return value from min_if_exec_case" );
+        result = min_if_exec_case(av_mods[0].module_name_,av_mods[0].test_cases_[0].case_id_);
+        fail_unless(result == 1,"Wrong return value from min_if_exec_case : %d",result );
+        sleep(6);
+        fail_unless(dl_list_size(selected_cases) == 2,"Not all cases executed");
+        min_if_close();
+}
+END_TEST
+
+START_TEST( wait_state_event )
+{
+        int result = 666;
+        int status;
+        DLListIterator work_case_item = DLListNULLIterator;
+        module_info* av_mods;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3, "Failed to get test cases");
+        result = min_if_exec_case(av_mods[1].module_name_,av_mods[1].test_cases_[2].case_id_);
+        sleep(3);
+        work_case_item = dl_list_head(selected_cases);
+        status = tc_get_status(work_case_item);
+        fail_if( status != TEST_CASE_ONGOING ,"Did not wait for event");
+        min_if_close();
+}
+END_TEST
+
+START_TEST( wait_state_event_received )
+{
+        int result = 666;
+        int status;
+        DLListIterator work_case_item = DLListNULLIterator;
+        module_info* av_mods;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3, "Failed to get test cases");
+        result = min_if_exec_case(av_mods[1].module_name_,av_mods[1].test_cases_[2].case_id_);
+        sleep(3);
+        work_case_item = dl_list_head(selected_cases);
+        status = tc_get_status(work_case_item);
+        fail_if( status != TEST_CASE_ONGOING ,"Did not wait for event");
+        result = min_if_exec_case(av_mods[1].module_name_,av_mods[1].test_cases_[1].case_id_);
+        usleep(100000);
+        status = tc_get_status(work_case_item);
+        fail_if( status == TEST_CASE_ONGOING ,"wait not ended");
+
+        min_if_close();
+}
+END_TEST
+
+START_TEST( set_and_unset_event )
+{
+        int result = 666;
+        int status;
+        DLListIterator work_case_item = DLListNULLIterator;
+        DLListIterator work_result_item = DLListNULLIterator;
+        module_info* av_mods;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        usleep(50000);
+        result = min_if_exec_case(av_mods[1].module_name_,av_mods[1].test_cases_[1].case_id_);
+        sleep(1);
+        work_case_item = dl_list_at( selected_cases, result );
+        work_result_item = dl_list_head(tc_get_tr_list(work_case_item));
+        result = tr_get_result_type(work_result_item);
+        fail_unless(result == TEST_RESULT_PASSED, "Setting state event failed %d : %d",result,TEST_RESULT_PASSED );
+        sleep(1);
+        result = min_if_exec_case(av_mods[1].module_name_,av_mods[1].test_cases_[3].case_id_);
+        usleep(50000);
+        work_case_item = dl_list_at( selected_cases, result );
+        work_result_item = dl_list_head(tc_get_tr_list(work_case_item));
+        result = tr_get_result_type(work_result_item);
+        fail_unless(result == TEST_RESULT_PASSED, "Un-setting state event failed" );
+        min_if_close();
+}
+END_TEST
+
+START_TEST( unset_not_set_event )
+{
+        int result = 666;
+        int status;
+        DLListIterator work_case_item = DLListNULLIterator;
+        DLListIterator work_result_item = DLListNULLIterator;
+        module_info* av_mods;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        sleep(1);
+        result = min_if_exec_case(av_mods[1].module_name_,av_mods[1].test_cases_[3].case_id_);
+        usleep(50000);
+        work_case_item = dl_list_at( selected_cases, result );
+        work_result_item = dl_list_head(tc_get_tr_list(work_case_item));
+        result = tr_get_result_type(work_result_item);
+        fail_unless(result == TEST_RESULT_FAILED, "Unset case not failed" );
+        min_if_close();
+}
+END_TEST
+
+
+START_TEST( wait_indication_event )
+{
+        int result = 666;
+        int status;
+        DLListIterator work_case_item = DLListNULLIterator;
+        module_info* av_mods;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3, "Failed to get test cases");
+        result = min_if_exec_case(av_mods[1].module_name_,av_mods[1].test_cases_[4].case_id_);
+        sleep(3);
+        work_case_item = dl_list_head(selected_cases);
+        status = tc_get_status(work_case_item);
+        fail_if( status != TEST_CASE_ONGOING ,"Did not wait for event" );
+        min_if_close();
+}
+END_TEST
+
+START_TEST( indication_event_received )
+{
+        int result = 666;
+        int status;
+        DLListIterator work_case_item = DLListNULLIterator;
+        module_info* av_mods;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3, "Failed to get test cases");
+        result = min_if_exec_case(av_mods[1].module_name_,av_mods[1].test_cases_[4].case_id_);
+        sleep(3);
+        work_case_item = dl_list_head(selected_cases);
+        status = tc_get_status(work_case_item);
+        fail_if( status != TEST_CASE_ONGOING ,"Did not wait for event");
+        result = min_if_exec_case(av_mods[1].module_name_,av_mods[1].test_cases_[5].case_id_);
+        usleep(50000);
+        status = tc_get_status(work_case_item);
+        fail_if( status == TEST_CASE_ONGOING ,"wait not ended");
+        min_if_close();
+}
+END_TEST
+
+
+START_TEST ( run_two_cases_seq )
+{
+        int result = 666;
+        module_info* av_mods;
+
+        min_if_open(emptycallback1,emptycallback2,NULL,NULL,NULL);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        result = min_if_get_cases(&av_mods);
+        fail_unless(result == 3,"Modules not read");
+        result = min_if_exec_case(av_mods[0].module_name_,av_mods[0].test_cases_[1].case_id_);
+        fail_unless(result == 0,"Wrong return value from min_if_exec_case" );
+        usleep(10000);
+        result = min_if_exec_case(av_mods[0].module_name_,av_mods[0].test_cases_[0].case_id_);
+        fail_unless(result == 1,"Wrong return value from min_if_exec_case : %d",result );
+        sleep(7);
+        min_if_close();
+}
+END_TEST
+
+START_TEST ( write_set )
+{
+        DLListIterator work_module_item = DLListNULLIterator;
+        DLList* work_list = INITPTR;
+        int cont_flag = 0;
+        int status;
+        FILE* result_f;
+        char* set_path;
+        char* c_dir = getenv("HOME");
+        ec_min_init(emptycallback1,emptycallback2,emptycallback3,envp_,0);
+        while( cont_flag == 0 ) {
+                usleep(100000);
+                work_module_item = dl_list_head(instantiated_modules);
+                while( work_module_item != DLListNULLIterator ) {
+                        status = tm_get_status(work_module_item);
+                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
+                        else                             cont_flag = 0;
+                        work_module_item = dl_list_next(work_module_item);
+                }
+        }
+        set_path = NEW2(char,strlen(c_dir) + 20);
+        sprintf(set_path,"%s/.min/integration.set",c_dir);
+        work_module_item = dl_list_head(instantiated_modules);
+        work_list = tm_get_tclist(work_module_item);
+        ec_set_write_file(work_list,set_path);
+        FILE* set = fopen(set_path,"r");
+        fail_if(set == NULL,"File not written");
+        fclose(set);
+        ec_cleanup();
+}
+END_TEST
+
+START_TEST ( read_set )
+{
+        DLListIterator work_module_item = DLListNULLIterator;
+        DLList* work_list = dl_list_create();
+        int cont_flag = 0;
+        int status;char* c_dir = getenv("HOME");
+        ec_min_init(emptycallback1,emptycallback2,emptycallback3,envp_,0);
+        while( cont_flag == 0 ) {
+                usleep(100000);
+                work_module_item = dl_list_head(instantiated_modules);
+                while( work_module_item != DLListNULLIterator ) {
+                        status = tm_get_status(work_module_item);
+                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
+                        else                             cont_flag = 0;
+                        work_module_item = dl_list_next(work_module_item);
+                }
+        }
+        ec_set_read(work_list,"integration.set");
+        fail_unless(dl_list_size(work_list) == 2,"Test set nod read");
+        ec_cleanup();
+}
+END_TEST
+
+START_TEST ( simple_master_case )
+{
+        module_info* test_modules;
+        DLListIterator work_case_item = DLListNULLIterator;
+        extif_messages = dl_list_create();
+        char* extif_msg;
+
+        min_if_open(emptycallback1,emptycallback2,send_extif,NULL,envp_);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        min_if_get_cases(&test_modules);
+        min_if_exec_case(test_modules[2].module_name_,test_modules[2].test_cases_[0].case_id_);
+        work_case_item = dl_list_head(selected_cases);
+        while (tc_get_status(work_case_item) == TEST_CASE_ONGOING){
+                sleep(1);
+        }
+        fail_unless(dl_list_size(extif_messages) == 2,"Missing extif messages : %s",dl_list_size(extif_messages));
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,0));
+        fail_unless(strcmp(extif_msg,"reserve deadbeef 00000000 phone")==0,"Wrong message sent : %s\n",extif_msg);
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,1));
+        fail_unless(strcmp(extif_msg,"release deadbeef 0bb20000 ")==0,"Wrong message sent : %s\n",extif_msg);
+        min_if_close();
+        dl_list_free(&extif_messages);
+}
+END_TEST
+
+START_TEST ( remote_run_case_ok )
+{
+        module_info* test_modules;
+        DLListIterator work_case_item = DLListNULLIterator;
+        extif_messages = dl_list_create();
+        char* extif_msg;
+
+        min_if_open(emptycallback1,emptycallback2,send_extif,NULL,envp_);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        min_if_get_cases(&test_modules);
+        min_if_exec_case(test_modules[2].module_name_,test_modules[2].test_cases_[1].case_id_);
+        work_case_item = dl_list_head(selected_cases);
+        while (tc_get_status(work_case_item) == TEST_CASE_ONGOING){
+                sleep(1);
+        }
+        fail_unless(dl_list_size(extif_messages) == 3,"Missing extif messages",dl_list_size(extif_messages));
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,0));
+        fail_unless(strcmp(extif_msg,"reserve deadbeef 00000000 phone")==0,"Wrong message sent : %s\n",extif_msg);
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,1));
+        fail_unless(strcmp(extif_msg,"remote deadbeef 0bb20000 run module=minDemoModule testcasefile=foo testcasenum=1")==0,
+                    "Wrong message sent : %s\n",extif_msg);
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,2));
+        fail_unless(strcmp(extif_msg,"release deadbeef 0bb20000 ")==0,"Wrong message sent : %s\n",extif_msg);
+        min_if_close();
+        dl_list_free(&extif_messages);
+}
+END_TEST
+
+START_TEST( slave_allocation )
+{
+        extif_messages = dl_list_create();
+        char* extif_msg = NULL;
+
+        min_if_open(emptycallback1,emptycallback2,send_extif,NULL,envp_);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        min_if_set_device_id(7);
+        min_if_message_received("reserve deadbeef 00000000 phone",32);
+        sleep(1);
+        min_if_close();
+        fail_unless(dl_list_size(extif_messages) == 1,"Message not sent from slave");
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,0));
+        fail_unless(strcmp(extif_msg,"response 00070000 deadbeef reserve 0") == 0,"Wrong message");
+        dl_list_free(&extif_messages);
+}
+END_TEST
+
+START_TEST( slave_allocation_and_freeing )
+{
+        extif_messages = dl_list_create();
+        char* extif_msg = NULL;
+
+        min_if_open(emptycallback1,emptycallback2,send_extif,NULL,envp_);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        min_if_set_device_id(7);
+        min_if_message_received("reserve deadbeef 00000000 phone",32);
+        sleep(1);
+        min_if_message_received("release deadbeef 00070000",26);
+        min_if_close();
+        fail_unless(dl_list_size(extif_messages) == 2,"Message not sent from slave");
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,0));
+        fail_unless(strcmp(extif_msg,"response 00070000 deadbeef reserve 0") == 0,"Wrong message");
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,1));
+        fail_unless(strcmp(extif_msg,"response 00070000 deadbeef release 0") == 0,"Wrong message");
+        dl_list_free(&extif_messages);
+}
+END_TEST
+
+START_TEST( run_case_in_slave )
+{
+        extif_messages = dl_list_create();
+        char* extif_msg = NULL;
+
+        min_if_open(emptycallback1,emptycallback2,send_extif,NULL,envp_);
+        min_if_module_add("minDemoModule",NULL);
+        min_if_module_add("eventtestsTestModule",NULL);
+        min_if_module_add("scripter","ps2.conf");
+
+        min_if_set_device_id(7);
+        min_if_message_received("reserve deadbeef 00000000 phone",32);
+        sleep(1);
+        min_if_message_received("remote deadbeef 00070000 run module=minDemoModule testcasenum=1",65);
+        sleep(1);
+        min_if_message_received("release deadbeef 00070000",26);
+        min_if_close();
+        fail_unless(dl_list_size(extif_messages) == 4,"Message not sent from slave");
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,0));
+        fail_unless(strcmp(extif_msg,"response 00070000 deadbeef reserve 0") == 0,"Wrong message");
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,1));
+        fail_unless(strcmp(extif_msg,"response 00070001 deadbeef remote run started") == 0,"Wrong message");
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,2));
+        fail_unless(strcmp(extif_msg,"response 00070001 deadbeef remote run ready result=0") == 0,"Wrong message");
+        extif_msg = (char*)dl_list_data(dl_list_at(extif_messages,3));
+        fail_unless(strcmp(extif_msg,"response 00070000 deadbeef release 0") == 0,"Wrong message");
+        dl_list_free(&extif_messages);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* integration_suite()
+{
+        Suite * s = suite_create ("integration");
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+
+        tcase_add_test ( tc_core , open_success );
+        tcase_add_test ( tc_core , get_cases_success );
+        tcase_add_test ( tc_core , run_case_success );
+        tcase_add_test ( tc_core , run_two_cases_par );
+        tcase_add_test ( tc_core , run_two_cases_seq );
+        tcase_add_test ( tc_core , close_min );
+        tcase_add_test ( tc_core , write_set );
+        tcase_add_test ( tc_core , read_set );
+        tcase_add_test ( tc_core , run_2_cases_diff_modules );
+        tcase_add_test ( tc_core , wait_state_event );
+        tcase_add_test ( tc_core , wait_state_event_received );
+        tcase_add_test ( tc_core , wait_indication_event );
+        tcase_add_test ( tc_core , indication_event_received );
+        tcase_add_test ( tc_core , set_and_unset_event );
+        tcase_add_test ( tc_core , unset_not_set_event );
+        tcase_add_test ( tc_core , pause_case );
+        tcase_add_test ( tc_core , resume_case );
+        tcase_add_test ( tc_core , cancel_case );
+        tcase_add_test ( tc_core , simple_master_case );
+        tcase_add_test ( tc_core , remote_run_case_ok );
+        tcase_add_test ( tc_core , slave_allocation );
+        tcase_add_test ( tc_core , slave_allocation_and_freeing );
+        tcase_add_test ( tc_core , run_case_in_slave );
+        tcase_set_timeout ( tc_core , 10 );
+
+        suite_add_tcase (s, tc_core);
+
+        return s;
+}
+
+int integration_tests( char *envp[] )
+{
+        int number_failed;
+        Suite   * s;
+        SRunner * sr;
+	
+	envp_ = envp;
+        number_failed = 0;
+        s  = integration_suite ();
+        sr = srunner_create (s);
+        configure();
+        //srunner_set_fork_status (sr,CK_NOFORK);
+        srunner_run_all(sr, CK_NORMAL);
+        
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        
+        return number_failed;
+}
+
+
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* End of file */

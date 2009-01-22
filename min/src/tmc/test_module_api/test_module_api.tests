@@ -1,0 +1,162 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Konrad Marek Zapalowicz
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       test_module_api.test
+ *  @version    0.1
+ *  @brief      This file contains test for Test Module API
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+void fun1( TestCaseResult * tcr );
+void fun2( TestCaseResult * tcr );
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+void fun1( TestCaseResult * tcr )
+{
+
+}
+void fun2( TestCaseResult * tcr )
+{
+
+}
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tmapi_entry_macro_1)
+{
+        DLList * list = dl_list_create();
+        fail_unless( list != INITPTR, "List creation error" );
+        ENTRY(list,"Test Case 1",fun1);
+        fail_unless( dl_list_size(list) == 1, "Entry macro not working (1)" );
+        ENTRY(list,"Test Case 2",fun2);
+        fail_unless( dl_list_size(list) == 2, "Entry macro not working (2)" );
+        dl_list_free(&list);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tmapi_entry_macro_2)
+{
+        DLList         * list = dl_list_create();
+        DLListIterator   it   = DLListNULLIterator;
+        TestCaseInfo   * tci  = INITPTR;
+        fail_unless( list != INITPTR, "List creation error" );
+        ENTRY(list,"Test Case 1",fun1);
+        it  = dl_list_head(list);
+        tci = (TestCaseInfo*)dl_list_data(it);
+        fail_unless(strcmp(tci->name_,"Test Case 1")==0,"TC name is wrong");
+        fail_unless(tci->id_ == 1,"TC id is wrong");
+        fail_unless(tci->test_ == fun1,"TC test function is wrong");
+        dl_list_free(&list);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tmapi_entry2_macro_1)
+{
+        DLList         * list = dl_list_create();
+        fail_unless( list != INITPTR, "List creation error" );
+        ENTRY2(list,"Test Case 1",1);
+        fail_unless( dl_list_size(list) == 1, "Entry2 macro not working (1)" );
+        ENTRY2(list,"Test Case 2",2);
+        fail_unless( dl_list_size(list) == 2, "Entry2 macro not working (2)" );
+        dl_list_free(&list);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tmapi_entry2_macro_2)
+{
+        DLList         * list = dl_list_create();
+        DLListIterator   it   = DLListNULLIterator;
+        TestCaseInfo   * tci  = INITPTR;
+        fail_unless( list != INITPTR, "List creation error" );
+        ENTRY2(list,"Test Case 1",2);
+        it  = dl_list_head(list);
+        tci = (TestCaseInfo*)dl_list_data(it);
+        fail_unless(strcmp(tci->name_,"Test Case 1")==0,"TC name is wrong");
+        fail_unless(tci->id_ == 2,"TC id is wrong");
+        fail_unless(tci->test_ == INITPTR,"TC test function is wrong");
+        dl_list_free(&list);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tmapi_result_macro)
+{
+        TestCaseResult tcr;
+        TestCaseResult* tmp = &tcr;
+        RESULT(tmp,10,"Result of a test");
+        fail_unless(tcr.result_ == 10,"Result value is wrong");
+        fail_unless( strcmp(tcr.desc_,"Result of a test") == 0
+                   , "Description is wrong" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* tmapi_suite()
+{
+        Suite * s = suite_create ("test module api");
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+        tcase_add_test (tc_core, test_tmapi_entry_macro_1);
+        tcase_add_test (tc_core, test_tmapi_entry_macro_2);
+        tcase_add_test (tc_core, test_tmapi_entry2_macro_1);
+        tcase_add_test (tc_core, test_tmapi_entry2_macro_2);
+        tcase_add_test (tc_core, test_tmapi_result_macro);
+        suite_add_tcase (s, tc_core);
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int tmapi_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = tmapi_suite ();
+        SRunner * sr = srunner_create (s);
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

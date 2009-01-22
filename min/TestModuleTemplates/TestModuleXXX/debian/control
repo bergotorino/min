@@ -1,0 +1,9 @@
+Package: min-testlib-TestModuleXXX
+Version: 1.0
+Section: devel
+Priority: extra
+Maintainer: john.doe@nokia.com
+Essential: no
+Architecture: i386
+Depends: min
+Description: MIN (Normal) test module TestModuleXXX

@@ -1,0 +1,1477 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Marko Hyyppä
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       check_dsa.tests
+ *  @version    0.1
+ *  @brief      This file contains implementation of DSA unit test codes
+ */
+
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDE FILES */
+#include <stdlib.h>
+#include <assert.h>
+#include <check.h>
+
+#include "../../engine/data_structures_api/data_api.h"
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL CONSTANTS AND MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MODULE DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ======================== FUNCTIONS ====================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+
+
+/* ================= OTHER EXPORTED FUNCTIONS ============================== */
+/* None */
+
+
+/* ================= TESTS FOR LOCAL FUNCTIONS ============================= */
+
+START_TEST(test_module_info_add_to_list)
+{
+    DLList* dllist = INITPTR;
+    DLListIterator dllist_item;
+    test_module_info_s* tm_data;
+    char TOO_LONG_FILENAME[MaxFileName + 30];
+    int i;
+    char ch = 65;   /* ASCII charachter 'A' */
+    
+    for (i=0; i<(MaxFileName + 29); i++) {
+        TOO_LONG_FILENAME[i] = ch;
+        ch++;
+        if (ch > 90) ch = 65;
+    }
+    
+    TOO_LONG_FILENAME[MaxFileName + 30] = '\0';
+    
+    tm_data = tm_create(TOO_LONG_FILENAME, INITPTR);
+    fail_unless(tm_data == INITPTR,
+                "failed to check too long filename string");
+
+    dllist = dl_list_create();
+    fail_unless (dllist != INITPTR, "failed to create linked list");
+    tm_data = tm_create("test_module1.dat", INITPTR);
+    fail_unless (tm_data != INITPTR,
+                 "failed to create Test Module Info data item");
+    
+    dllist_item = tm_add(dllist, tm_data);
+    fail_unless (dllist_item != INITPTR,
+                 "failed to add Test Module Info data item");
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_module_info_set_pid)
+{
+    const long TEST_PID = 100;
+    DLList* dllist = INITPTR;
+    DLListIterator dllist_item;
+    test_module_info_s* tm_data;
+    long retvalue;
+
+    dllist = dl_list_create();
+    fail_unless (dllist != INITPTR, "failed to create list");
+    
+    tm_data = tm_create("test_module1.dat", INITPTR);
+    fail_unless (tm_data != INITPTR,
+                 "failed to create Test Module Info data item");
+    
+    dllist_item = tm_add(dllist, tm_data);
+    fail_unless (dllist_item != INITPTR,
+                 "failed to add Test Module Info data item");
+    
+    tm_set_pid(dllist_item, TEST_PID);
+    retvalue=tm_get_pid(dllist_item);
+    fail_unless (retvalue == TEST_PID, "failed to add/get data item");
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_module_info_remove_from_list)
+{    
+    DLList* tm_list = INITPTR;
+    DLListIterator tm_data_item[5];
+    test_module_info_s* test_module[5];
+    const int CHECK_ID = 3;
+    DLListIterator check_item = INITPTR;    
+    BOOL data_found = FALSE;
+    int result;
+    int i;
+
+    tm_list = dl_list_create();
+    fail_unless (tm_list != INITPTR, "failed to create list");
+    
+    for (i=0; i<5; i++) {
+        test_module[i] = tm_create("test_module.dat", INITPTR);
+        fail_unless(test_module[i] != INITPTR,
+                    "failed to create Test Module Info data item");
+                
+        tm_data_item[i] = tm_add(tm_list, test_module[i]);
+        fail_unless(tm_data_item[i] != INITPTR,
+            "failed to add Test Module Info data item to list");
+    }
+    
+    tm_remove(tm_data_item[CHECK_ID]);
+    
+    check_item = dl_list_head(tm_list);
+    i = 0;
+    data_found = FALSE;
+    
+    while (check_item != INITPTR) {
+        if (check_item->data_ == tm_data_item[CHECK_ID])
+            data_found = TRUE; 
+        check_item = dl_list_next(check_item);
+        i++;    
+    }
+    
+    fail_unless((i == 4 && data_found == FALSE),
+        "failed to remove Test Case data item from list");
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_module_info_delete_data)
+{
+    DLList* tm_list = INITPTR;
+    test_module_info_s* test_module = INITPTR;
+    DLListIterator tm_data_item = INITPTR;
+    DLList* cfg_filename_list = INITPTR;
+    filename_t *FILENAME = INITPTR;
+    title_string_t TITLE = "TITLE EXAMPLE";
+    DLList* tc_list = INITPTR;
+    test_case_s* test_case[10];
+    DLListIterator tc_data_item[10];
+    int result = 0;
+    int i;
+    
+    tm_list = dl_list_create();
+    fail_unless(tm_list != INITPTR, "failed to create list");
+    
+    cfg_filename_list = dl_list_create();
+    fail_unless(cfg_filename_list != INITPTR, "failed to create list");
+
+    for (i=0; i<10; i++) {
+        FILENAME = NEW2(char, strlen("FILENAME.CFG")+1);
+        STRCPY(FILENAME,"FILENAME.CFG",13);
+        result = dl_list_add(cfg_filename_list, FILENAME);
+        fail_unless(result != -1,
+            "failed to add config filename string to list");
+    }
+        
+    test_module = tm_create("test_module.dat", cfg_filename_list);
+    fail_unless(test_module != INITPTR,
+                "failed to create Test Module Info data item");
+    
+    tm_data_item = tm_add(tm_list, test_module);
+    fail_unless(tm_data_item != INITPTR,
+                "failed to create Test Module Info data item");
+ 
+    tc_list = dl_list_create();
+    fail_unless(tc_list != INITPTR, "failed to create list");
+    
+    for (i=0; i<10; i++) {
+        test_case[i] = tc_create(INITPTR, FILENAME, TITLE);
+        fail_unless(test_case[i] != INITPTR,
+            "failed to create Test Case data structure");        
+        
+        tc_data_item[i] = tc_add(tc_list, test_case[i]);
+        fail_unless(tc_data_item[i] != INITPTR,
+            "failed to add Test Case data item to list");        
+    }
+    
+    tm_set_tclist(tm_data_item, tc_list);
+    result = tm_create_test_summary(tm_data_item);
+    fail_unless(result != -1,
+        "failed to create Test Summary data structure");        
+    
+    tm_delete(test_module);
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_module_info_set_and_get_cfg_filename_list)
+{
+    DLList* dllist = INITPTR;
+    DLListIterator dllist_item;
+    test_module_info_s* tm_data;
+    DLList* test_case_list = INITPTR;
+    DLList* list_ptr = INITPTR;
+    
+    dllist = dl_list_create();
+    fail_unless(dllist != INITPTR, "failed to create list");
+    
+    tm_data = tm_create("test_module1.dat", INITPTR);
+    fail_unless(tm_data != INITPTR,
+                "failed to create Test Module Info data item");
+    
+    dllist_item = tm_add(dllist, tm_data);
+    fail_unless(dllist_item != INITPTR,
+                "failed to add Test Module Info data item");
+    
+    test_case_list = dl_list_create();
+    
+    tm_set_cfg_filenames(dllist_item, test_case_list);
+    
+    list_ptr = tm_get_cfg_filenames(dllist_item);
+    fail_unless(list_ptr == test_case_list,
+                "failed to set and get config filename list");
+    
+    tm_remove(dllist_item);
+}
+END_TEST
+       
+/* ------------------------------------------------------------------------- */
+        
+START_TEST(test_module_info_get_ptr_by_pid)
+{
+    long TEST_PID = 40;
+    DLList* tm_list = INITPTR;
+    DLListIterator tm_data_item[10];
+    test_module_info_s* test_module[10];
+    DLListIterator found_data = INITPTR;
+    long compare_pid = 0;
+    long pid = 10;
+    DLListIterator compare_data = INITPTR;
+    int i;
+
+    tm_list = dl_list_create();
+    fail_unless(tm_list != INITPTR, "failed to create list");
+    
+    for (i = 0; i<10; i++) {
+        test_module[i] = tm_create("test_module.dat", INITPTR);    
+        fail_unless(test_module[i] != INITPTR,
+                    "failed to create Test Module Info data item");
+        
+        tm_data_item[i] = tm_add(tm_list, test_module[i]);
+        fail_unless(tm_data_item[i] != INITPTR,
+                    "failed to add Test Module Info data item");
+        
+        tm_set_pid(tm_data_item[i], pid);
+        
+        if (pid == TEST_PID) compare_data = tm_data_item[i];
+        pid += 10;
+    }
+    
+    found_data = tm_get_ptr_by_pid(tm_list, TEST_PID); 
+    fail_unless(found_data == compare_data,
+                "failed to found Test Module Info data by PID");
+    
+    compare_pid = tm_get_pid(found_data);
+    fail_unless(compare_pid == TEST_PID,
+                "failed to set Test Module Info PID");
+    
+    for (i = 0; i<10; i++)
+        free(test_module[i]);
+    
+    dl_list_free(&tm_list);
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_module_info_set_and_get_module_filename)
+{
+    DLList* dllist = INITPTR;
+    DLListIterator dllist_item;
+    test_module_info_s* tm_data;
+    filename_t TEST_FILENAME = "MODULE FILENAME TEST";
+    filename_t module_filename;
+    int result = 0;
+    
+    dllist = dl_list_create();
+    fail_unless(dllist != INITPTR, "failed to create list");
+    
+    tm_data = tm_create(TEST_FILENAME, INITPTR);
+    fail_unless(tm_data != INITPTR,
+                "failed to create Test Module Info data item");
+    
+    dllist_item = tm_add(dllist, tm_data);
+    fail_unless(dllist_item != INITPTR,
+                "failed to add Test Module Info data item");
+    
+    tm_get_module_filename(dllist_item, module_filename);
+    result = strcmp(module_filename, TEST_FILENAME);
+    
+    fail_unless(result == 0,
+                "failed to set and get module filename");
+    
+    tm_remove(dllist_item);
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+        
+START_TEST(test_module_info_ts_detail_expections)
+{
+    DLList* tm_list = INITPTR;
+    test_module_info_s* test_module;
+    DLListIterator tm_data_item;
+    filename_t TEST_MODULE_FILENAME = "TEST_MODULE.DAT";
+    int count = 0;
+    
+    tm_list = dl_list_create();
+    fail_unless(tm_list != INITPTR, "failed to create list");
+    
+    tm_data_item = INITPTR;
+    tm_set_test_summary_detail(tm_data_item, TEST_RESULT_PASSED, 10);
+    count = tm_get_test_summary_detail(tm_data_item, TEST_RESULT_PASSED);
+    fail_unless(count == -1,
+                "failed to check Test Module Info data INITPTR pointer");
+                
+    test_module = INITPTR;
+    tm_data_item = tm_add(tm_list, test_module);
+    fail_unless(tm_data_item != INITPTR,
+                "failed to add Test Module Info data item to list");
+    
+    tm_set_test_summary_detail(tm_data_item, TEST_RESULT_FAILED, 10);
+    count = tm_get_test_summary_detail(tm_data_item, TEST_RESULT_FAILED);
+    fail_unless(count == -1,
+                "failed to check Test Module Info data NULL pointer");
+                
+    test_module = tm_create(TEST_MODULE_FILENAME, INITPTR);
+    fail_unless(test_module != NULL,
+                "failed to create Test Module Info data item");
+    
+    tm_data_item = tm_add(tm_list, test_module);
+    tm_set_test_summary_data(tm_data_item, INITPTR);
+    tm_set_test_summary_detail(tm_data_item, TEST_RESULT_CRASHED, 10);
+    count = tm_get_test_summary_detail(tm_data_item, TEST_RESULT_CRASHED);
+    fail_unless(count == -1,
+                "failed to check Test Summary data NULL pointer");
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_module_info_get_and_set_ts_details)
+{
+    DLList* tm_list = INITPTR;
+    test_module_info_s* test_module;
+    DLListIterator tm_data_item;
+    filename_t TEST_MODULE_FILENAME = "TEST_MODULE.DAT";
+    int count = 0;
+    int result = 0;
+    int ts_type;
+    int ts_test_count;    
+        
+    tm_list = dl_list_create();
+    fail_unless(tm_list != INITPTR, "failed to create list");
+                    
+    test_module = tm_create(TEST_MODULE_FILENAME, INITPTR);
+    fail_unless(test_module != INITPTR,
+                "failed to create Test Module Info data item");
+    
+    tm_data_item = tm_add(tm_list, test_module);
+    fail_unless(tm_data_item != INITPTR,
+                "failed to add Test Module Info data item to list");
+                
+    result = tm_create_test_summary(tm_data_item);
+    fail_unless(result == 1,
+                "failed to create Test Summary data structure");
+
+    tm_set_test_summary_detail(tm_data_item, TEST_RESULT_NOT_RUN, 20);
+    count = tm_get_test_summary_detail(tm_data_item, TEST_RESULT_NOT_RUN);
+    fail_unless(count == -2,
+        "failed to check use of invalid enum value (check #1)");
+        
+    tm_set_test_summary_detail(tm_data_item, TEST_RESULT_ALL, 20);
+    count = tm_get_test_summary_detail(tm_data_item, TEST_RESULT_ALL);
+    fail_unless(count == -2,
+        "failed to check use of invalid enum value (check #2)");
+    
+    ts_type = TEST_RESULT_PASSED;
+    ts_test_count = 10;  
+     
+    while (ts_type < TEST_RESULT_ALL) {
+        tm_set_test_summary_detail(tm_data_item, ts_type, ts_test_count);
+        count = tm_get_test_summary_detail(tm_data_item, ts_type);
+        fail_unless(count == ts_test_count,
+            "failed to check Test Summary data details");
+        ts_type++;
+        ts_test_count += 10;
+    }
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_module_info_set_and_get_tclist)
+{
+    DLList* tm_list = INITPTR;
+    test_module_info_s* test_module;
+    DLListIterator tm_data_item;
+    
+    DLList* tc_list = INITPTR;
+    DLListIterator tc_data_item[10];
+    test_case_s* tc_data[10];
+    DLList* tc_list_test = INITPTR;
+    int i;
+
+    tm_list = dl_list_create();
+    fail_unless(tm_list != INITPTR, "failed to create list");
+                    
+    test_module = tm_create("TEST_MODULE.DAT", INITPTR);
+    fail_unless(test_module != INITPTR,
+                "failed to create Test Module Info data item");
+    
+    tm_data_item = tm_add(tm_list, test_module);
+    fail_unless(tm_data_item != INITPTR,
+                "failed to add Test Module Info data item to list");
+
+    tc_list = dl_list_create();
+    fail_unless(tc_list != INITPTR, "failed to create list");
+    
+    for (i=0; i<10; i++) {
+        tc_data[i] = tc_create(NULL, "TESTCASE.CFG", "Test Case");
+        fail_unless(tc_data[i] != INITPTR,
+                    "failed to create Test Case data item"); 
+        tc_data_item[i] = tc_add(tc_list, (void*)tc_data[i]);
+        fail_unless(tc_data_item[i] != INITPTR, 
+                    "failed to add data item to Test Case linked list");
+    }
+    
+    tm_set_tclist(tm_data_item, tc_list);
+    tc_list_test = tm_get_tclist(tm_data_item);
+    fail_unless(tc_list_test == tc_list,
+        "failed to set and get Test Case list to Test Module Info data");
+
+    tm_remove(tm_data_item);
+    dl_list_free(&tm_list);    
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_module_info_set_and_get_status)
+{
+    DLList* tm_list = INITPTR;
+    DLListIterator tm_data_item[2];
+    test_module_info_s* tm_data;
+    int TEST_STATUS = TEST_MODULE_READY;
+    int status = TEST_MODULE_NOT_STARTED;
+    int result = 0;
+
+    tm_list = dl_list_create();
+    fail_unless(tm_list != INITPTR, "failed to create list");
+    
+    tm_data_item[0] = tm_add(tm_list, INITPTR);
+    fail_unless(tm_data_item[0] != INITPTR,
+                "failed to add Test Module Info data item");
+
+    tm_set_status(tm_data_item[0], TEST_STATUS);
+    result = tm_get_status(tm_data_item[0]);
+    fail_unless(result == -1,
+        "failed to use INITPTR Test Module Info data with status value");
+    
+    tm_data = tm_create("TEST_MODULE.DAT", INITPTR);
+    fail_unless(tm_data != INITPTR,
+                "failed to create Test Module Info data item");
+    
+    tm_data_item[1] = tm_add(tm_list, tm_data);
+    fail_unless(tm_data_item[1] != INITPTR,
+                "failed to add Test Module Info data item");
+    
+    tm_set_status(tm_data_item[1], TEST_STATUS);
+    status = tm_get_status(tm_data_item[1]);
+    fail_unless(status == TEST_STATUS,
+                "failed to add/get data item");
+                
+    tm_remove(tm_data_item[0]);
+    tm_remove(tm_data_item[1]);
+    dl_list_free(&tm_list);
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_module_info_get_status_without_tm_data)
+{
+    DLList* tm_list = INITPTR;
+    DLListIterator tm_data_item = INITPTR;
+    int status = TEST_MODULE_NOT_STARTED;
+
+    tm_list = dl_list_create();
+    fail_unless(tm_list != INITPTR, "failed to create list");
+
+    tm_data_item = tm_add(tm_list, INITPTR);
+    fail_unless(dl_list_data(tm_data_item) == INITPTR,
+                "failed to add null Test Module Info data item");
+
+    dl_list_free(&tm_list);
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_module_info_get_test_summary_data)
+{
+    DLList* tm_list = INITPTR;
+    DLListIterator tm_data_item;
+    test_module_info_s* test_module = INITPTR;
+    test_summary_s* test_summary = INITPTR;
+    test_summary_s* ts_check = INITPTR;
+    int result = 0;
+
+    tm_list = dl_list_create();
+    fail_unless(tm_list != INITPTR, "failed to create list");
+
+    tm_data_item = INITPTR;    
+    ts_check = tm_get_test_summary_data(tm_data_item);
+    fail_unless(ts_check == INITPTR,
+                "failed to check INITPTR (Test Summary)");
+
+    tm_data_item = tm_add(tm_list, INITPTR);
+    fail_unless(dl_list_data(tm_data_item) == INITPTR,
+                "failed to add INITPTR Test Module Info data item");
+
+    test_module = tm_create("TEST_MODULE.DAT", INITPTR);
+    fail_unless(test_module != INITPTR,
+        "failed to create Test Module Info data");
+
+    tm_data_item = tm_add(tm_list, test_module);
+    fail_unless(tm_data_item != INITPTR,
+                "failed to add null Test Module Info data item");
+
+    result = tm_create_test_summary(tm_data_item);
+    fail_unless(result == 1,
+                "failed to create Test Summary data structure");
+
+    tm_set_test_summary_data(tm_data_item, test_summary);
+    ts_check = tm_get_test_summary_data(tm_data_item);
+    fail_unless(ts_check == test_summary,
+                "failed to get Test Summary data");
+}
+END_TEST
+
+/* ================= TEST CASE API TESTING FUNCTIONS ======================= */
+               
+START_TEST(test_case_create_data_item)
+{
+    test_case_s* tc_data = INITPTR;
+    
+    tc_data = tc_create(NULL, 
+                        "testcase1.cfg",
+                        "Test Case #1");
+    fail_unless (tc_data != INITPTR,
+                 "failed to create Test Case data item");
+    
+    if (tc_data != INITPTR) 
+        free(tc_data);
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+        
+START_TEST(test_case_title_under_size_limit)
+{
+    test_case_s* tc_data = INITPTR;
+    int TEST_SIZE = MaxTestCaseName - 10;
+    char TEST_LONG_TITLE[TEST_SIZE];
+    int i, n = 0;
+    
+    for (i=0; i<TEST_SIZE-1; i++) {
+        TEST_LONG_TITLE[i] = 48 + n;
+        n++;
+        if (n>9) n = 0;
+    }
+    TEST_LONG_TITLE[TEST_SIZE] = '\0';
+       
+    tc_data = tc_create(NULL, 
+                        "testcase2.cfg",
+                        TEST_LONG_TITLE);
+    
+    fail_if(tc_data == INITPTR,
+            "failed to test valid length title string");
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+        
+START_TEST(test_case_title_over_size_limit)
+{
+    test_case_s* tc_data = INITPTR;
+    int TEST_SIZE = MaxTestCaseName + 10;
+    char TEST_LONG_TITLE[TEST_SIZE];
+    int i, n = 0;
+    
+    for (i=0; i<TEST_SIZE-1; i++) {
+        TEST_LONG_TITLE[i] = 48 + n;
+        n++;
+        if (n>9) n = 0;
+    }
+    TEST_LONG_TITLE[TEST_SIZE] = '\0';
+       
+    tc_data = tc_create(NULL, 
+                        "testcase3.cfg",
+                        TEST_LONG_TITLE);
+    
+    fail_if(tc_data != INITPTR,
+            "failed to test too big title string");
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_case_add_to_list)
+{
+    DLList* dllist = NULL;
+    DLListIterator dllist_item = NULL;
+    test_case_s* tc_data = INITPTR;
+
+    dllist = dl_list_create();
+    fail_unless (dllist != NULL, "failed to create list");
+    
+    tc_data = tc_create(NULL, 
+                        "testcase4.cfg",
+                        "Test Case #4");
+    fail_unless (tc_data != INITPTR, "failed to create Test Case data item");
+    
+    dllist_item = tc_add(dllist, (void*)tc_data);
+    fail_unless (dllist_item != NULL, 
+                 "failed to add data item to Test Case linked list");
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_case_delete_data)
+{
+    test_case_s* test_case = INITPTR;
+    
+    test_case = tc_create(NULL, 
+                          "testcase5.cfg",
+                          "Test Case #5");
+    fail_unless(test_case != INITPTR, "failed to create Test Case data item");
+    
+    tc_delete(test_case);
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_case_remove_from_list)
+{
+    DLList* tc_list = NULL;
+    DLListIterator tc_data_item[5];
+    test_case_s* test_case[5];
+    const int CHECK_ID = 3;
+    DLListIterator check_item = INITPTR;    
+    BOOL data_found = FALSE;
+    int i;
+
+    tc_list = dl_list_create();
+    fail_unless (tc_list != INITPTR, "failed to create list");
+    
+    for (i=0; i<5; i++) {
+        test_case[i] = tc_create(NULL, "testcase.cfg", "Test Case");
+        fail_unless(test_case[i] != INITPTR,
+                    "failed to create Test Case data item");
+        tc_data_item[i] = tc_add(tc_list, test_case[i]);
+        fail_unless(tc_data_item != NULL,
+                    "failed to add data item to Test Case linked list");
+    }
+    
+    tc_remove(tc_data_item[CHECK_ID]);
+    
+    check_item = dl_list_head(tc_list);
+    i = 0;
+    data_found = FALSE;
+    
+    while (check_item != INITPTR) {
+        if (check_item->data_ == tc_data_item[CHECK_ID])
+            data_found = TRUE; 
+        check_item = dl_list_next(check_item);
+        i++;
+    }
+    
+    fail_unless((i == 4 && data_found == FALSE),
+        "failed to remove Test Case data item from list");
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_case_set_and_get_tc_id)
+{
+    DLList* tc_list = INITPTR;
+    DLListIterator tc_data_item = INITPTR;
+    test_case_s* test_case = INITPTR;
+    const int TEST_ID = 100;
+    int test_case_id = 0;
+    
+    tc_list = dl_list_create();
+    fail_unless(tc_list != INITPTR, "failed to create list");
+    
+    tc_data_item = tc_add(tc_list, NULL);
+    fail_unless(tc_data_item != INITPTR, 
+                "failed to add null Test Case data item");
+                 
+    test_case_id = tc_get_id(tc_data_item);
+    fail_unless(test_case_id == -1, 
+                "failed to check Test Case ID error handling");
+                    
+    test_case = tc_create(NULL, 
+                          "TEST_CASE.CFG",
+                          "Test Case");
+    fail_unless(test_case != INITPTR,
+                "failed to create Test Case data item");
+    
+    tc_data_item = tc_add(tc_list, (void*)test_case);
+    fail_unless(tc_data_item != INITPTR, 
+                "failed to add data item to Test Case linked list");
+    
+    tc_set_id(tc_data_item, TEST_ID);
+    test_case_id = tc_get_id(tc_data_item);
+    fail_unless(test_case_id == TEST_ID, 
+                "failed to execute Test Case ID data handling");
+                
+    tc_remove(tc_data_item);
+    dl_list_free(&tc_list);
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+        
+START_TEST(test_case_set_and_get_tc_group_id)
+{
+    DLList* tc_list = NULL;
+    DLListIterator tc_data_item = NULL;
+    test_case_s* test_case = INITPTR;
+    const int TEST_GROUP_ID = 100;
+    int test_case_group_id = 0;
+    
+    tc_list = dl_list_create();
+    fail_unless(tc_list != NULL, "failed to create list");
+    
+    tc_data_item = tc_add(tc_list, NULL);
+    fail_unless(tc_data_item != INITPTR, 
+                "failed to add null Test Case data item");
+    
+    test_case_group_id = tc_get_group_id(tc_data_item);
+    fail_unless (test_case_group_id == -1, 
+        "failed to chech Test Case Group ID error handling");
+    
+    test_case = tc_create(NULL, "TESTCASE.CFG", "Test Case");
+    fail_unless(test_case != INITPTR,
+                "failed to create Test Case data item");
+    
+    tc_data_item = tc_add(tc_list, (void*)test_case);
+    fail_unless(tc_data_item != INITPTR, 
+                "failed to add data item to Test Case linked list");
+    
+    tc_set_group_id(tc_data_item, TEST_GROUP_ID);
+    test_case_group_id = tc_get_group_id(tc_data_item);
+    fail_unless (test_case_group_id == TEST_GROUP_ID, 
+                 "failed to execute Test Case group ID data handling");
+    
+    tc_remove(tc_data_item);
+    dl_list_free(&tc_list);
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+        
+START_TEST(test_case_set_and_get_tc_title)
+{
+    DLList* tc_list = INITPTR;
+    DLListIterator tc_data_item = INITPTR;
+    test_case_s* test_case = INITPTR;
+    title_string_t TEST_TITLE = "TEST CASE TITLE";
+    title_string_t test_case_title;
+    int result = 0;
+    
+    tc_list = dl_list_create();
+    fail_unless(tc_list != INITPTR, "failed to create list");
+    
+    tc_data_item = tc_add(tc_list, NULL);
+    fail_unless(tc_data_item != INITPTR, 
+        "failed to add null Test Case data item to list");
+
+    result = tc_get_title(tc_data_item, test_case_title);
+    fail_unless (result == -1, 
+                 "failed to check Test Case title error handling");
+
+    test_case = tc_create(NULL, "TEST_CASE.CFG", TEST_TITLE);
+    fail_unless(test_case != INITPTR,
+                "failed to create Test Case data item");
+    
+    tc_data_item = tc_add(tc_list, (void*)test_case);
+    fail_unless(tc_data_item != INITPTR, 
+                "failed to add data item to Test Case linked list");
+    
+    result = tc_get_title(tc_data_item, test_case_title);
+    fail_unless (result == 1, 
+                 "failed to get title from Test Case data item");
+    fail_unless (strncmp(test_case_title, TEST_TITLE,
+                 strlen(test_case_title)) == 0,
+                 "failed with title functions, strings not matched");
+    
+    tc_remove(tc_data_item);
+    dl_list_free(&tc_list);
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+        
+START_TEST(test_case_set_and_get_status)
+{
+    DLList* dllist = NULL;
+    DLListIterator dllist_item = NULL;
+    test_case_s* tc_data = INITPTR;
+    int test_status = TEST_RESULT_NOT_RUN;
+    
+    dllist = dl_list_create();
+    fail_unless (dllist != NULL, "failed to create list");
+    
+    tc_data = tc_create(NULL, 
+                        "testcase9.cfg", 
+                        "Test Case #9");
+    fail_unless (tc_data != INITPTR, "failed to create Test Case data item");
+    
+    dllist_item = tc_add(dllist, (void*)tc_data);
+    fail_unless (dllist_item != NULL, 
+                 "failed to add data item to Test Case linked list");
+    
+    tc_set_status(dllist_item, TEST_RESULT_PASSED);
+    test_status = tc_get_status(dllist_item);
+    fail_unless (test_status == TEST_RESULT_PASSED, 
+                 "failed to execute Test Case status data handling");
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+        
+START_TEST(test_case_set_and_get_config_filename)
+{
+    DLList* tc_list = INITPTR;
+    DLListIterator tc_data_item = INITPTR;
+    test_case_s* test_case = INITPTR;
+    filename_t TEST_CONFIG_FILENAME = "TEST_CASE.CFG";
+    filename_t tc_check_cfg_filename;
+    int compare_result;
+    
+    tc_list = dl_list_create();
+    fail_unless(tc_list != INITPTR, "failed to create list");
+    
+    test_case = tc_create(NULL, "TEST_CASE.CFG", "Test Case");
+    fail_unless(test_case != NULL,
+                "failed to create Test Case data item");
+    
+    tc_data_item = tc_add(tc_list, (void*)test_case);
+    fail_unless(tc_data_item != NULL, 
+                "failed to add data item to Test Case linked list");
+
+    tc_set_cfg_filename(tc_data_item, TEST_CONFIG_FILENAME);
+    tc_get_cfg_filename(tc_data_item, tc_check_cfg_filename);
+    compare_result = strncmp(tc_check_cfg_filename, TEST_CONFIG_FILENAME,
+                             strlen(tc_check_cfg_filename));
+    fail_unless(compare_result == 0, 
+        "failed to check Test Case config filename handling");
+
+    tc_remove(tc_data_item);
+    dl_list_free(&tc_list);
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_case_set_and_get_tc_priority)
+{
+    DLList* tc_list = INITPTR;
+    DLListIterator tc_data_item = INITPTR;
+    test_case_s* test_case = INITPTR;
+    int TEST_PRIORITY = 10;
+    int check_priority = 0;
+    
+    tc_list = dl_list_create();
+    fail_unless(tc_list != INITPTR, "failed to create list");
+    
+    tc_data_item = tc_add(tc_list, NULL);
+    fail_unless(tc_data_item != INITPTR, 
+                "failed to add null Test Case data item to list");
+
+    tc_set_priority(tc_data_item, TEST_PRIORITY);
+    check_priority = tc_get_priority(tc_data_item);
+    fail_unless(check_priority == -1, 
+        "failed to check Test Case priority error handling");
+    
+    test_case = tc_create(NULL, "TEST_CASE.CFG", "Test Case");
+    fail_unless(test_case != INITPTR,
+                "failed to create Test Case data item");
+    
+    tc_data_item = tc_add(tc_list, (void*)test_case);
+    fail_unless(tc_data_item != NULL, 
+                "failed to add data item to Test Case linked list");
+
+    tc_set_priority(tc_data_item, TEST_PRIORITY);
+    check_priority = tc_get_priority(tc_data_item);
+    fail_unless(check_priority == TEST_PRIORITY, 
+                "failed to check Test Case priority data handling");
+
+    tc_remove(tc_data_item);
+    dl_list_free(&tc_list);
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_case_set_and_get_test_module_ptr)
+{
+    DLList* tc_list = INITPTR;
+    DLListIterator tc_data_item = INITPTR;
+    test_case_s* test_case = INITPTR;
+    DLListIterator check_tm_ptr;
+    
+    DLList* tm_list = INITPTR;
+    DLListIterator tm_data_item = INITPTR;
+    test_module_info_s* test_module = NULL;
+    
+    tc_list = dl_list_create();
+    fail_unless(tc_list != INITPTR, "failed to create list");
+    
+    tc_data_item = tc_add(tc_list, NULL);
+    fail_unless(tc_data_item != INITPTR, 
+                "failed to add null Test Case data item to list");
+
+    check_tm_ptr = INITPTR;
+    check_tm_ptr = tc_get_test_module_ptr(tc_data_item);
+    fail_unless(check_tm_ptr == INITPTR, 
+        "failed to check Test Case test module ptr error handling");
+      
+    tm_list = dl_list_create();
+    fail_unless(tm_list != INITPTR, "failed to create list");
+  
+    test_module = tm_create("TEST_MODULE.DAT", INITPTR);
+    fail_unless(test_module != INITPTR,
+                "failed to create Test Module data structure");
+    
+    tm_data_item = tm_add(tm_list, test_module);
+    fail_unless(tm_data_item != INITPTR, 
+                "failed to add Test Module data item to list");
+  
+    test_case = tc_create(tm_data_item, "TEST_CASE.CFG", "Test Case");
+    fail_unless(test_case != NULL,
+                "failed to create Test Case data item");
+    
+    tc_data_item = tc_add(tc_list, (void*)test_case);
+    fail_unless(tc_data_item != NULL, 
+                "failed to add data item to Test Case linked list");
+
+    tc_set_test_module_ptr(tc_data_item, tm_data_item);
+    check_tm_ptr = tc_get_test_module_ptr(tc_data_item);
+    fail_unless(check_tm_ptr == tm_data_item, 
+        "failed to check Test Case test module ptr data handling");
+    
+    tm_remove(tm_data_item);
+    dl_list_free(&tm_list);
+
+    tc_remove(tc_data_item);
+    dl_list_free(&tc_list);
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+                
+START_TEST(test_case_set_and_get_tr_list)
+{
+    DLList* tc_list = INITPTR;
+    DLListIterator tc_data_item = INITPTR;
+    test_case_s* test_case = INITPTR;
+    DLList* tr_list = INITPTR;
+    DLListIterator tr_data_item[10];
+    test_result_s* test_result[10];
+    DLList* compare_list = INITPTR;
+    int i;
+    
+    tc_list = dl_list_create();
+    fail_unless(tc_list != INITPTR,
+                "failed to create Test Case list");
+        
+    test_case = tc_create(NULL, "TEST_CASE.CFG", "Test Case");
+    fail_unless(test_case != INITPTR,
+                "failed to create Test Case data item");
+    
+    tc_data_item = tc_add(tc_list, test_case);
+    fail_unless(tc_data_item != INITPTR, 
+                "failed to add data item to Test Case list");
+                
+    tr_list = dl_list_create();
+    fail_unless(tr_list != INITPTR,
+                "failed to create Test Result list");
+    
+    for (i=0; i<10; i++) {
+        test_result[i] = tr_create_data_item(tc_data_item);
+        fail_unless(test_result[i] != NULL,
+                "failed to create Test Result data item");
+                
+        tr_data_item[i] = tr_add(tr_list, test_result[i]);                   
+        fail_unless(tr_data_item[i] != INITPTR,
+                "failed to add data item to Test Result list");
+    }
+                
+    tc_set_tr_list(tc_data_item, tr_list);
+    compare_list = tc_get_tr_list(tc_data_item);
+    fail_unless(compare_list == tr_list,
+        "failed to check Test Result list data handling");
+
+    tc_remove(tc_data_item);
+    dl_list_free(&tc_list);
+}
+END_TEST
+                
+/* ================= TEST RESULT API TESTING FUNCTIONS ===================== */
+        
+START_TEST(test_result_create_tr_data_structure)
+{
+    test_result_s* test_result = NULL;
+    DLListIterator TEST_CASE_NULL = INITPTR;
+    
+    test_result = tr_create_data_item(TEST_CASE_NULL);
+    
+    fail_unless(test_result != NULL,
+                "failed to create Test Result data structure");
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+        
+START_TEST(test_result_add_tr_data_item)
+{
+    DLList* dllist = INITPTR;
+    DLListIterator dllist_item = INITPTR;
+    DLListIterator TEST_CASE_NULL = INITPTR;
+ 
+    test_result_s* test_result = NULL;
+    
+    dllist = dl_list_create();
+    fail_unless (dllist != NULL, "failed to create list");
+   
+    test_result = tr_create_data_item(TEST_CASE_NULL); 
+    fail_unless(test_result != NULL,
+                "failed to create Test Result data structure");
+    
+    dllist_item = tr_add(dllist, test_result);
+    fail_unless(dllist != INITPTR,
+                "failed to add Test Result data item to list");        
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+        
+START_TEST(test_result_remove_tr_data_item)
+{
+    DLList* dllist = INITPTR;
+    DLListIterator dllist_item = INITPTR;
+    DLListIterator TEST_CASE_NULL = INITPTR;
+ 
+    test_result_s* test_result = NULL;
+    
+    dllist = dl_list_create();
+    fail_unless (dllist != NULL, "failed to create list");
+   
+    test_result = tr_create_data_item(TEST_CASE_NULL); 
+    fail_unless(test_result != NULL,
+                "failed to create Test Result data structure");
+    
+    dllist_item = tr_add(dllist, test_result);
+    fail_unless(dllist_item != INITPTR,
+                "failed to add Test Result data item to list");
+            
+    tr_remove(dllist_item);
+    fail_unless(dllist_item != INITPTR,
+                "failed to remove Test Result Data item");
+}
+END_TEST
+        
+/* ------------------------------------------------------------------------- */
+ 
+START_TEST(test_result_set_and_get_result_type)
+{
+    DLList* dllist = INITPTR;
+    DLListIterator dllist_item = INITPTR;
+    DLListIterator TEST_CASE_NULL = INITPTR;
+    int TEST_RESULT_TYPE = TEST_RESULT_PASSED;
+    int result_type = TEST_RESULT_NOT_RUN;
+ 
+    test_result_s* test_result;
+    
+    dllist = dl_list_create();
+    fail_unless (dllist != NULL, "failed to create list");
+
+    tr_set_result_type(dllist_item, TEST_RESULT_TYPE);
+    result_type = tr_get_result_type(dllist_item);    
+    fail_unless (result_type == -1, 
+                 "failed to check Test Result INITPTR pointer");
+    
+    test_result = NULL;
+    dllist_item = tr_add(dllist, test_result);
+    fail_unless(dllist_item != INITPTR,
+                "failed to add Test Result data item to list");
+    
+    tr_set_result_type(dllist_item, TEST_RESULT_TYPE);
+    result_type = tr_get_result_type(dllist_item);
+    
+    fail_unless (result_type == -1, 
+                 "failed to check Test Result without data item");
+ 
+    test_result = tr_create_data_item(TEST_CASE_NULL);
+    dllist_item = tr_add(dllist, test_result);
+    fail_unless(dllist != INITPTR,
+                "failed to add Test Result data item to list");
+    
+    tr_set_result_type(dllist_item, TEST_RESULT_TYPE);
+    result_type = tr_get_result_type(dllist_item);
+    fail_unless (result_type == TEST_RESULT_TYPE, 
+                 "failed to set Test Result type value");
+}
+END_TEST
+                        
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_result_set_and_get_result_code)
+{
+    DLList* dllist = INITPTR;
+    DLListIterator dllist_item = INITPTR;
+    DLListIterator TEST_CASE_NULL = INITPTR;
+    int TEST_RESULT_CODE = 123;
+    int result_code = 0;
+ 
+    test_result_s* test_result;
+    
+    dllist = dl_list_create();
+    fail_unless (dllist != NULL, "failed to create list");
+
+    tr_set_result_code(dllist_item, TEST_RESULT_CODE);
+    result_code = tr_get_result_code(dllist_item);    
+    fail_unless (result_code == -1, 
+                 "failed to check Test Result INITPTR pointer");
+    
+    test_result = NULL;
+    dllist_item = tr_add(dllist, test_result);
+    fail_unless(dllist_item != INITPTR,
+                "failed to add Test Result data item to list");
+    
+    tr_set_result_code(dllist_item, TEST_RESULT_CODE);
+    result_code = tr_get_result_code(dllist_item);
+    fail_unless (result_code == -1, 
+                 "failed to check Test Result without data item");
+ 
+    test_result = tr_create_data_item(TEST_CASE_NULL);
+    dllist_item = tr_add(dllist, test_result);
+    fail_unless(dllist != INITPTR,
+                "failed to add Test Result data item to list");
+    
+    tr_set_result_code(dllist_item, TEST_RESULT_CODE);
+    result_code = tr_get_result_code(dllist_item);
+    fail_unless (result_code == TEST_RESULT_CODE, 
+                 "failed to set Test Result code value");
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_result_set_and_get_result_description)
+{
+    DLList* dllist = INITPTR;
+    DLListIterator dllist_item = INITPTR;
+    DLListIterator TEST_CASE_EMPTY = INITPTR;
+    result_description_t TEST_RESULT_DESCRIPTION = "DESCRIPTION";
+    result_description_t test_result_desc = "";
+    test_result_s* test_result;
+    
+    dllist = dl_list_create();
+    fail_unless (dllist != NULL, "failed to create list");
+
+    tr_set_result_description(dllist_item, TEST_RESULT_DESCRIPTION);
+    tr_get_result_description(dllist_item, test_result_desc);
+    fail_unless (strlen(test_result_desc) == 0, 
+                 "failed to check Test Result INITPTR pointer");
+    
+    test_result = NULL;
+    dllist_item = tr_add(dllist, test_result);
+    fail_unless(dllist_item != INITPTR,
+                "failed to add Test Result data item to list");
+    
+    tr_set_result_description(dllist_item, TEST_RESULT_DESCRIPTION);
+    tr_get_result_description(dllist_item, test_result_desc);
+    fail_unless (strlen(test_result_desc) == 0, 
+                 "failed to check Test Result without data item");
+ 
+    test_result = tr_create_data_item(TEST_CASE_EMPTY);
+    dllist_item = tr_add(dllist, test_result); 
+    fail_unless(dllist != INITPTR,
+                "failed to add Test Result data item to list");
+    
+    tr_set_result_description(dllist_item, TEST_RESULT_DESCRIPTION);
+    tr_get_result_description(dllist_item, test_result_desc);    
+    fail_unless (strncmp(test_result_desc, TEST_RESULT_DESCRIPTION,
+                 strlen(test_result_desc)) == 0, 
+                 "failed to set Test Result description text");
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_result_start_and_end_time_data_use)
+{
+    DLList* tr_list = INITPTR;
+    DLListIterator tr_data_item = INITPTR;
+    test_result_s* test_result = NULL;
+    long TEST_START_TIME = 10;
+    long TEST_END_TIME = 1000;
+    long check_time;
+    
+    tr_list = dl_list_create();
+    fail_unless(tr_list != INITPTR, "failed to create list");
+    
+    test_result = tr_create_data_item(INITPTR);
+    fail_unless(test_result != NULL,
+                "failed to create Test Result data item");
+    
+    tr_data_item = tr_add(tr_list, test_result);
+    fail_unless(tr_data_item != INITPTR,
+                "failed to add Test Result data item to list");
+
+    check_time = 0;
+    tr_set_start_time(tr_data_item, TEST_START_TIME);
+    check_time = tr_get_start_time(tr_data_item);
+    fail_unless(check_time == TEST_START_TIME,
+                "failed to test Test Result start time handling");
+
+    check_time = 0;
+    tr_set_end_time(tr_data_item, TEST_END_TIME);
+    check_time = tr_get_end_time(tr_data_item);
+    fail_unless(check_time == TEST_END_TIME,
+                "failed to test Test Result end time handling");
+
+    tr_remove(tr_data_item);
+    dl_list_free(&tr_list);
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_result_create_printout_data)
+{
+    test_result_printout_s* tr_printout[2];    
+    int TEST_PRIORITY = 10;
+    char* EMPTY_PRINTOUT = NULL;
+    char TEST_PRINTOUT[] = "This is a test prinout...";
+    int result = 0;
+
+    tr_printout[0] = NULL;
+
+    tr_printout[0] = tr_create_printout(TEST_PRIORITY, EMPTY_PRINTOUT);
+    fail_unless(tr_printout[0] != NULL,
+            "failed to create Test Result Prinout data structure");
+    fail_unless(tr_printout[0]->printout_ == NULL,
+            "failed to set NULL printout string to printout data");
+            
+    tr_printout[1] = NULL;
+    tr_printout[1] = tr_create_printout(TEST_PRIORITY, TEST_PRINTOUT);
+    fail_unless(tr_printout[1] != NULL,
+            "failed to create Test Result Prinout data structure");
+    fail_unless(tr_printout[1]->printout_ != NULL,
+            "failed to set example printout string to printout data");
+    fail_unless(tr_printout[1]->priority_ == TEST_PRIORITY,
+            "failed to check that priority data is setting correctly");
+
+    result = strncmp(tr_printout[1]->printout_, TEST_PRINTOUT,
+                     strlen(tr_printout[1]->printout_));
+    fail_unless(result == 0, 
+        "failed to check that printout data is setting correctly");
+                
+    tr_remove_printout(tr_printout[0]);          
+    tr_remove_printout(tr_printout[1]);
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_result_set_and_get_printouts_list)
+{
+    DLList* tr_list = INITPTR;
+    DLListIterator tr_data_item = INITPTR;
+    test_result_s* test_result = NULL;
+    DLListIterator TEST_CASE_NULL = INITPTR;
+
+    DLList* printouts_list = INITPTR;
+    test_result_printout_s* tr_printout[10];    
+    int TEST_PRIORITY = 10;
+    char TEST_PRINTOUT[] = "This is a test prinout...";
+    DLList* check_list = INITPTR;
+    int result = 0;
+    int i;
+    
+    tr_list = dl_list_create();
+    fail_unless(tr_list != INITPTR, "failed to create list");
+        
+    test_result = tr_create_data_item(TEST_CASE_NULL); 
+    fail_unless(test_result != NULL,
+        "failed to create Test Result data structure");
+    
+    tr_data_item = tr_add(tr_list, test_result);
+    fail_unless(tr_list != INITPTR,
+        "failed to add Test Result data item to list");
+    
+    printouts_list = dl_list_create();
+    fail_unless(printouts_list != INITPTR, "failed to create list");
+    
+    for (i=0; i<10; i++) {
+        tr_printout[i] = tr_create_printout(TEST_PRIORITY,
+                                            TEST_PRINTOUT);
+        fail_unless(tr_printout[i] != NULL,
+            "failed to create Test Result Prinout data structure");
+        fail_unless(tr_printout[i]->printout_ != NULL,
+            "failed to set example printout string to printout data");
+        fail_unless(tr_printout[i]->priority_ == TEST_PRIORITY,
+            "failed to check that priority data is setting correctly");
+                
+        result = dl_list_add(printouts_list, tr_printout[i]);
+        fail_unless(result == 0,
+            "failed to add Printouts data to linked list");
+    }
+
+    tr_set_priontouts_list(tr_data_item, printouts_list);
+    check_list = tr_get_priontouts_list(tr_data_item);
+    fail_unless(check_list == printouts_list,
+        "failed to set Printouts List pointer to data item");
+
+    tr_remove_printouts_list(tr_data_item);
+    fail_unless(test_result->printouts_list_ == INITPTR,
+        "failed to remove Printouts List data in Test Result data");
+    
+    tr_remove(tr_data_item);
+
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
+
+/* ================= DATA API SUITE FUNCTION =============================== */
+                
+Suite *data_api_suite(void)
+{
+    Suite *s = suite_create("data_api");
+
+    /* Core test case */
+    TCase *tc_core = tcase_create("Core");
+    
+    /* Test Module Info API tests */
+    tcase_add_test(tc_core, test_module_info_add_to_list);
+    tcase_add_test(tc_core, test_module_info_set_pid);
+    tcase_add_test(tc_core, test_module_info_remove_from_list);
+    tcase_add_test(tc_core, test_module_info_delete_data);
+    
+    /* Test Module Info data tests */
+    tcase_add_test(tc_core, test_module_info_get_ptr_by_pid);
+    tcase_add_test(tc_core, test_module_info_set_and_get_module_filename);
+    tcase_add_test(tc_core, test_module_info_set_and_get_cfg_filename_list);
+    tcase_add_test(tc_core, test_module_info_set_and_get_tclist);
+    tcase_add_test(tc_core, test_module_info_set_and_get_status);
+    tcase_add_test(tc_core, test_module_info_get_status_without_tm_data);
+    
+    /* Test Module Info test summary data tests */
+    tcase_add_test(tc_core, test_module_info_ts_detail_expections);
+    tcase_add_test(tc_core, test_module_info_get_and_set_ts_details);
+    tcase_add_test(tc_core, test_module_info_get_test_summary_data);
+    
+    /* Test Case data creating tests */
+    tcase_add_test(tc_core, test_case_create_data_item);
+    tcase_add_test(tc_core, test_case_add_to_list);
+    tcase_add_test(tc_core, test_case_remove_from_list);
+    tcase_add_test(tc_core, test_case_delete_data);
+    
+    /* Test Case function parameter tests */
+    tcase_add_test(tc_core, test_case_title_under_size_limit);
+    tcase_add_test(tc_core, test_case_title_over_size_limit);
+    
+    /* Test Case data tests */
+    tcase_add_test(tc_core, test_case_set_and_get_test_module_ptr);
+    tcase_add_test(tc_core, test_case_set_and_get_config_filename);
+    tcase_add_test(tc_core, test_case_set_and_get_tc_id);
+    tcase_add_test(tc_core, test_case_set_and_get_tc_group_id);
+    tcase_add_test(tc_core, test_case_set_and_get_tc_title);
+    tcase_add_test(tc_core, test_case_set_and_get_status);
+    tcase_add_test(tc_core, test_case_set_and_get_tc_priority);
+    tcase_add_test(tc_core, test_case_set_and_get_tr_list);
+    
+    /* Test Result API tests */
+    tcase_add_test(tc_core, test_result_create_tr_data_structure);
+    tcase_add_test(tc_core, test_result_add_tr_data_item);
+    tcase_add_test(tc_core, test_result_remove_tr_data_item);
+        
+    /* Test Result data tests */
+    tcase_add_test(tc_core, test_result_start_and_end_time_data_use);
+    tcase_add_test(tc_core, test_result_set_and_get_result_type);
+    tcase_add_test(tc_core, test_result_set_and_get_result_code);
+    tcase_add_test(tc_core, test_result_set_and_get_result_description);
+    
+    /* Test Result Printout data tests */
+    tcase_add_test(tc_core, test_result_create_printout_data);
+    tcase_add_test(tc_core, test_result_set_and_get_printouts_list);
+    
+    suite_add_tcase (s, tc_core);
+
+    return s;
+}

@@ -1,0 +1,2130 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Konrad Marek Zapalowicz
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       min_logger_output.test
+ *  @version    0.1
+ *  @brief      This file contains test for MIN Logger output plugins.
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create)
+{
+        TSChar*                  path = INITPTR;
+        TSChar*                  file = "somefile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo == INITPTR
+                   , "mnlo != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create2)
+{
+        TSChar*                  path = "somepath";
+        TSChar*                  file = INITPTR;
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo == INITPTR
+                   , "mnlo != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create3)
+{
+        TSChar*                  path = "somepath";
+        TSChar*                  file = "";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo == INITPTR
+                   , "mnlo != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create4)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo != INITPTR
+                   , "mnlo == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create5)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->loggertype_ == ESTxt
+                   , "Result differs from expected: loggertype=[%d]"
+                   , mnlo->loggertype_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create6)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->overwrite_ == ESTrue
+                   , "Result differs from expected: overwrite=[%d]"
+                   , mnlo->overwrite_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create7)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->withtimestamp_ == ESTrue
+                   , "Result differs from expected: withtimestamp=[%d]"
+                   , mnlo->withtimestamp_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create8)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->withlinebreak_ == ESTrue
+                   , "Result differs from expected: withlinebreak=[%d]"
+                   , mnlo->withlinebreak_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create9)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->witheventranking_ == ESTrue
+                   , "Result differs from expected: witheventranking=[%d]"
+                   , mnlo->witheventranking_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create10)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->pididtologfile_ == ESTrue
+                   , "Result differs from expected: pididtologfile=[%d]"
+                   , mnlo->pididtologfile_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create11)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->createlogdir_ == ESTrue
+                   , "Result differs from expected: createlogdir=[%d]"
+                   , mnlo->createlogdir_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create12)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->buffersize_ == 0
+                   , "Result differs from expected: buffersize=[%d]"
+                   , mnlo->buffersize_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create13)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->unicode_ == 0
+                   , "Result differs from expected: unicode=[%d]"
+                   , mnlo->unicode_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create14)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESHtml, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->loggertype_ == ESHtml
+                   , "Result differs from expected: loggertype=[%d]"
+                   , mnlo->loggertype_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create15)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 0, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->overwrite_ == ESFalse
+                   , "Result differs from expected: overwrite=[%d]"
+                   , mnlo->overwrite_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create16)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 0, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->withtimestamp_ == ESFalse
+                   , "Result differs from expected: withtimestamp=[%d]"
+                   , mnlo->withtimestamp_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create17)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 0, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->withlinebreak_ == ESFalse
+                   , "Result differs from expected: withlinebreak=[%d]"
+                   , mnlo->withlinebreak_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create18)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 0, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->witheventranking_ == ESFalse
+                   , "Result differs from expected: witheventranking=[%d]"
+                   , mnlo->witheventranking_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create19)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 0, 1, 0, 0 );
+        
+        fail_unless( mnlo->pididtologfile_ == ESFalse
+                   , "Result differs from expected: pididtologfile=[%d]"
+                   , mnlo->pididtologfile_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create20)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 0, 0, 0 );
+        
+        fail_unless( mnlo->createlogdir_ == ESFalse
+                   , "Result differs from expected: createlogdir=[%d]"
+                   , mnlo->createlogdir_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create21)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 512, 0 );
+        
+        fail_unless( mnlo->buffersize_ == 512
+                   , "Result differs from expected: buffersize=[%d]"
+                   , mnlo->buffersize_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create22)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 1 );
+        
+        fail_unless( mnlo->unicode_ == ESTrue
+                   , "Result differs from expected: unicode=[%d]"
+                   , mnlo->unicode_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create23)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->write_ == fo_write
+                   , "write_ differs from expected: write=[%p]"
+                   , mnlo->write_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create24)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->destroy_ == fo_destroy
+                   , "destroy_ differs from expected: destroy=[%p]"
+                   , mnlo->destroy_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create25)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->fileanddirname_ != INITPTR
+                   , "fileanddirname_ == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create26)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 0, 1, 0, 0 );
+        
+        fail_unless( strcmp(mnlo->fileanddirname_,"/tmp/testfile.txt") == 0
+                   , "fileanddirname_ differs from expected: [%s]"
+                   , mnlo->fileanddirname_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create27)
+{
+        TSChar*                  path = "/tmp/";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 0, 1, 0, 0 );
+        
+        fail_unless( strcmp(mnlo->fileanddirname_,"/tmp/testfile.txt") == 0
+                   , "fileanddirname_ differs from expected: [%s]"
+                   , mnlo->fileanddirname_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create28)
+{
+        TSChar*                  path = "/tmp/";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->file_ != INITPTR
+                   , "file_ differs from expected: [%p]"
+                   , mnlo->file_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create29)
+{
+        TSChar*                  path = "/tmp/";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 1, 0, 0 );
+        
+        fail_unless( mnlo->isfileopen_ == ESTrue
+                   , "isfileopen_ differs from expected: [%d]"
+                   , mnlo->isfileopen_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create30)
+{
+        TSChar*                  path = "/tmp/uuuu";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 0, 0, 0 );
+        
+        fail_unless( mnlo->file_ == NULL
+                   , "file_ differs from expected: [%d]"
+                   , mnlo->file_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create31)
+{
+        TSChar*                  path = "/tmp/uuuu";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 0, 0, 0 );
+        
+        fail_unless( mnlo->isfileopen_ == ESTrue
+                   , "isfileopen_ differs from expected: [%d]"
+                   , mnlo->isfileopen_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_destroy)
+{
+        MinLoggerFileOutput*   mnlo = INITPTR;
+        fo_destroy(&mnlo);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_destroy2)
+{
+        TSChar*                  path = "/tmp";
+        TSChar*                  file = "testfile.txt";
+        MinLoggerFileOutput*   mnlo = INITPTR;
+
+        mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 0, 0, 0 );
+       
+        fo_destroy(&mnlo);
+ 
+        fail_unless( mnlo == INITPTR
+                   , "mnlo != INITPTR after destruction" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_with_txt_type_and_no_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp/";
+        TSChar  test_file[]         = "testfile_create"; 
+        TSChar* filename            = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result              = 0;
+ 
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+
+        sprintf( filename, "%s%s.txt", test_path, test_file );
+        result = strncmp( filename, slfo->fileanddirname_, strlen( filename ) );  
+        fail_unless( result == 0,
+                "Filename of Output File is not valid in data structure." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_with_html_type_and_no_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp/";
+        TSChar  test_file[]         = "testfile_create"; 
+        TSChar* filename            = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result              = 0;
+ 
+        slfo->loggertype_          = ESHtml;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+
+        sprintf( filename, "%s%s.html", test_path, test_file );
+        result = strncmp( filename, slfo->fileanddirname_, strlen( filename ) );  
+        fail_unless( result == 0,
+                "Filename of Output File is not valid in data structure." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_with_txt_type_and_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp/";
+        TSChar  test_file[]         = "testfile_create"; 
+        TSChar* filename            = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        TSChar* pid                 = INITPTR;
+        TSChar* ext                 = INITPTR;
+        int    len                 = 0;
+        int    check_name          = 0;
+        int    check_ext           = 0;
+        int    result              = 0;
+        TSChar  name[ MaxFileName ]; 
+
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = ESTrue;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+
+        pid = strrchr( slfo->fileanddirname_, '_' );
+        ext = strrchr( slfo->fileanddirname_, '.' );
+        len = pid - slfo->fileanddirname_;
+        STRCPY( name, slfo->fileanddirname_, len );
+        name[ len ] = '\0';
+
+        check_name = strncmp( name, "/tmp/testfile_create", strlen( name ) );
+        check_ext  = strncmp( ext,  ".txt", strlen( ext ) );
+
+        if ( ( check_name    == 0 ) &&
+             ( strlen( pid ) == 9 ) &&
+             ( check_ext     == 0 ) ) {
+                result = 1;
+        } 
+
+        fail_unless( result == 1,
+                "Filename of Output File is not valid." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_with_html_type_and_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp/";
+        TSChar  test_file[]         = "testfile_create"; 
+        TSChar* filename            = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        TSChar* pid                 = INITPTR;
+        TSChar* ext                 = INITPTR;
+        int    len                 = 0;
+        int    check_name          = 0;
+        int    check_ext           = 0;
+        int    result              = 0;
+        TSChar  name[ MaxFileName ]; 
+ 
+        slfo->loggertype_          = ESHtml;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = ESTrue;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+
+        pid = strrchr( slfo->fileanddirname_, '_' );
+        ext = strrchr( slfo->fileanddirname_, '.' );
+        len = pid - slfo->fileanddirname_;
+        STRCPY( name, slfo->fileanddirname_, len );
+        name[ len ] = '\0';
+
+        check_name = strncmp( name, "/tmp/testfile_create", strlen( name ) );
+        check_ext  = strncmp( ext,  ".html", strlen( ext ) );
+
+        if ( ( check_name    == 0  ) &&
+             ( strlen( pid ) == 10 ) &&
+             ( check_ext     == 0  ) ) {
+                result = 1;
+        } 
+
+        fail_unless( result == 1,
+                "Filename of Output File is not valid." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_and_file_handle)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp/";
+        TSChar  test_file[]         = "testfile_create"; 
+        TSChar* filename            = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result              = 0;
+ 
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        
+        fail_unless( slfo->file_ != INITPTR,
+                "Output File is not created." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_without_last_slash)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp";
+        TSChar  test_file[]         = "testfile_create"; 
+        TSChar* filename            = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result              = 0;
+ 
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        
+        /* Following string format for expected path with valid slashes */        
+        sprintf( filename, "%s/%s", test_path, test_file );
+        result = strncmp( filename, slfo->fileanddirname_, strlen( filename ) );  
+        fail_unless( result == 0,
+                "Filename of Output File is not valid in data structure." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_and_file_open_flag)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp/";
+        TSChar  test_file[]         = "testfile_create"; 
+        TSChar* filename            = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result              = 0;
+ 
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+       
+        fail_unless( slfo->isfileopen_ == ESTrue,
+                "Output File is not opened." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_fullname_txt_and_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp/";
+        TSChar  test_file[]         = "testfile_create.txt"; 
+        TSChar* pid                 = INITPTR;
+        TSChar* ext                 = INITPTR;
+        int    len                 = 0;
+        int    check_name          = 0;
+        int    check_ext           = 0;
+        int    result              = 0;
+        TSChar  name[ MaxFileName ]; 
+ 
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = ESTrue;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+
+        pid = strrchr( slfo->fileanddirname_, '_' );
+        ext = strrchr( slfo->fileanddirname_, '.' );
+        len = pid - slfo->fileanddirname_;
+        STRCPY( name, slfo->fileanddirname_, len );
+        name[ len ] = '\0';
+
+        check_name = strncmp( name, "/tmp/testfile_create", strlen( name ) );
+        check_ext  = strncmp( ext,  ".txt", strlen( ext ) );
+
+        if ( ( check_name    == 0 ) &&
+             ( strlen( pid ) == 9 ) &&
+             ( check_ext     == 0 ) ) {
+                result = 1;
+        } 
+
+        fail_unless( result == 1,
+                "Filename of Output File is not valid." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_fullname_html_and_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp/";
+        TSChar  test_file[]         = "testfile_create.html"; 
+        TSChar* pid                 = INITPTR;
+        TSChar* ext                 = INITPTR;
+        int    len                 = 0;
+        int    check_name          = 0;
+        int    check_ext           = 0;
+        int    result              = 0;
+        TSChar  name[ MaxFileName ]; 
+ 
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = ESTrue;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+
+        pid = strrchr( slfo->fileanddirname_, '_' );
+        ext = strrchr( slfo->fileanddirname_, '.' );
+        len = pid - slfo->fileanddirname_;
+        STRCPY( name, slfo->fileanddirname_, len );
+        name[ len ] = '\0';
+
+        check_name = strncmp( name, "/tmp/testfile_create", strlen( name ) );
+        check_ext  = strncmp( ext,  ".html", strlen( ext ) );
+
+        if ( ( check_name    == 0  ) &&
+             ( strlen( pid ) == 10 ) &&
+             ( check_ext     == 0  ) ) {
+                result = 1;
+        } 
+
+        fail_unless( result == 1,
+                "Filename of Output File is not valid." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_name_without_txt_pid_use)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp/";
+        TSChar  test_file[]         = "testfile_create"; 
+        TSChar* pid                 = INITPTR;
+        TSChar* ext                 = INITPTR;
+        int    len                 = 0;
+        int    check_name          = 0;
+        int    check_ext           = 0;
+        int    result              = 0;
+        TSChar  name[ MaxFileName ]; 
+ 
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = ESTrue;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+
+        pid = strrchr( slfo->fileanddirname_, '_' );
+        ext = strrchr( slfo->fileanddirname_, '.' );
+        len = pid - slfo->fileanddirname_;
+        STRCPY( name, slfo->fileanddirname_, len );
+        name[ len ] = '\0';
+
+        check_name = strncmp( name, "/tmp/testfile_create", strlen( name ) );
+        check_ext  = strncmp( ext,  ".txt", strlen( ext ) );
+
+        if ( ( check_name    == 0 ) &&
+             ( strlen( pid ) == 9 ) &&
+             ( check_ext     == 0 ) ) {
+                result = 1;
+        } 
+
+        fail_unless( result == 1,
+                "Filename of Output File is not valid." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_create_new_file_name_without_html_pid_use)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[]         = "/tmp/";
+        TSChar  test_file[]         = "testfile_create"; 
+        TSChar* pid                 = INITPTR;
+        TSChar* ext                 = INITPTR;
+        int    len                 = 0;
+        int    check_name          = 0;
+        int    check_ext           = 0;
+        int    result              = 0;
+        TSChar  name[ MaxFileName ]; 
+ 
+        slfo->loggertype_          = ESHtml;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = ESTrue;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = 0;
+
+        fo_create_new_file( slfo, test_path, test_file );
+
+        pid = strrchr( slfo->fileanddirname_, '_' );
+        ext = strrchr( slfo->fileanddirname_, '.' );
+        len = pid - slfo->fileanddirname_;
+        STRCPY( name, slfo->fileanddirname_, len );
+        name[ len ] = '\0';
+
+        check_name = strncmp( name, "/tmp/testfile_create", strlen( name ) );
+        check_ext  = strncmp( ext,  ".html", strlen( ext ) );
+
+        if ( ( check_name    == 0  ) &&
+             ( strlen( pid ) == 10 ) &&
+             ( check_ext     == 0  ) ) {
+                result = 1;
+        } 
+
+        fail_unless( result == 1,
+                "Filename of Output File is not valid." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_open_existing_file_with_txt_type_and_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[] = "/tmp/";
+        TSChar  test_file[] = "testfile_open"; 
+        TSChar* filename    = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result      = 0;
+
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = ESTrue;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = ESFalse;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        fo_open_existing_file( slfo, test_path, test_file );
+        
+        sprintf( filename, "%s%s", test_path, test_file );
+        result = strncmp( filename, slfo->fileanddirname_, strlen( filename ) );  
+
+        fail_unless( result == 0,
+                "Filename of Output File is not valid in data structure." ); 
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_open_existing_file_with_html_type_and_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[] = "/tmp/";
+        TSChar  test_file[] = "testfile_open"; 
+        TSChar* filename    = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result      = 0;
+
+        slfo->loggertype_          = ESHtml;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = ESTrue;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = ESFalse;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        fo_open_existing_file( slfo, test_path, test_file );
+        
+        sprintf( filename, "%s%s", test_path, test_file );
+        result = strncmp( filename, slfo->fileanddirname_, strlen( filename ) );  
+
+        fail_unless( result == 0,
+                "Filename of Output File is not valid in data structure." ); 
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_open_existing_file_with_txt_type_no_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[] = "/tmp/";
+        TSChar  test_file[] = "testfile_open"; 
+        TSChar* filename    = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result      = 0;
+
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = ESFalse;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        fo_open_existing_file( slfo, test_path, test_file );
+        
+        sprintf( filename, "%s%s", test_path, test_file );
+        result = strncmp( filename, slfo->fileanddirname_, strlen( filename ) );  
+
+        fail_unless( result == 0,
+                "Filename of Output File is not valid in data structure." ); 
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_open_existing_file_with_html_type_no_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[] = "/tmp/";
+        TSChar  test_file[] = "testfile_open"; 
+        TSChar* filename    = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result      = 0;
+
+        slfo->loggertype_          = ESHtml;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = ESFalse;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        fo_open_existing_file( slfo, test_path, test_file );
+        
+        sprintf( filename, "%s%s", test_path, test_file );
+        result = strncmp( filename, slfo->fileanddirname_, strlen( filename ) );  
+
+        fail_unless( result == 0,
+                "Filename of Output File is not valid in data structure." ); 
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_open_existing_file_with_filetype_and_no_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[] = "/tmp/";
+        TSChar  test_file[] = "testfile_open.txt"; 
+        TSChar* filename    = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result      = 0;
+
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = ESFalse;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        fo_open_existing_file( slfo, test_path, test_file );
+        
+        sprintf( filename, "%s%s", test_path, test_file );
+        result = strncmp( filename, slfo->fileanddirname_, strlen( filename ) );  
+
+        fail_unless( result == 0,
+                "Filename of Output File is not valid in data structure." ); 
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_open_existing_file_with_filetype_and_pid)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[] = "/tmp/";
+        TSChar  test_file[] = "testfile_open.html"; 
+        TSChar* filename    = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result      = 0;
+
+        slfo->loggertype_          = ESHtml;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = ESTrue;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = ESFalse;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        fo_open_existing_file( slfo, test_path, test_file );
+        
+        sprintf( filename, "%s%s", test_path, test_file );
+        result = strncmp( filename, slfo->fileanddirname_, strlen( filename ) );  
+
+        fail_unless( result == 0,
+                "Filename of Output File is not valid in data structure." ); 
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_open_existing_file_without_last_slash)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[] = "/tmp";
+        TSChar  test_file[] = "testfile_open"; 
+        TSChar* filename    = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result      = 0;
+
+        slfo->loggertype_          = ESHtml;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = ESFalse;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        fo_open_existing_file( slfo, test_path, test_file );
+
+        /* Following string format for expected path with valid slashes */        
+        sprintf( filename, "%s/%s", test_path, test_file );
+        result = strncmp( filename, slfo->fileanddirname_, strlen( filename ) );  
+
+        fail_unless( result == 0,
+                "Filename of Output File has not valid path slashes." ); 
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_open_existing_file_and_file_handle)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[] = "/tmp/";
+        TSChar  test_file[] = "testfile_open"; 
+
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = ESFalse;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        fo_open_existing_file( slfo, test_path, test_file );
+        
+        fail_unless( slfo->file_ != INITPTR,
+                "Output File handle is not created." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_open_existing_file_and_file_open_flag)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[] = "/tmp/";
+        TSChar  test_file[] = "testfile_open"; 
+
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 0;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = ESFalse;
+
+        fo_create_new_file( slfo, test_path, test_file );
+        fo_open_existing_file( slfo, test_path, test_file );
+        
+        fail_unless( slfo->isfileopen_ == ESTrue,
+                "Output File is not opened." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_event_ranking)
+{
+        TSChar* tmp = INITPTR;
+        fo_event_ranking(tmp);
+        fail_unless( tmp == INITPTR, "tmp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_event_ranking2)
+{
+        TSChar tmp[11];
+        memset(tmp,'\0',11);
+        fo_event_ranking(tmp);
+        fail_unless( tmp != INITPTR, "tmp == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_event_ranking3)
+{
+        TSChar tmp[11];
+        memset(tmp,'\0',11);
+        fo_event_ranking(tmp);
+        fail_unless( strlen(tmp) == 9
+                   , "Event ranking length differs from expected [%d]"
+                   , strlen(tmp) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_open_existing_file_without_filetype)
+{
+        MinLoggerFileOutput* slfo = NEW(MinLoggerFileOutput);
+        TSChar  test_path[] = "/tmp/";
+        TSChar  test_file[] = "testfile_open"; 
+        TSChar* filename    = NEW2( TSChar, strlen( test_path ) + strlen( test_file ) + 1 );
+        int    result      = 0;
+
+        slfo->fileanddirname_      = INITPTR;
+        slfo->loggertype_          = ESTxt;
+        slfo->overwrite_           = ESFile;
+        slfo->withtimestamp_       = 0;
+        slfo->withlinebreak_       = 0;
+        slfo->witheventranking_    = 0;
+        slfo->pididtologfile_      = 1;
+        slfo->createlogdir_        = 0;
+        slfo->buffersize_          = 0;
+        slfo->file_                = INITPTR;
+        slfo->unicode_             = 0;
+        slfo->isfileopen_          = ESFalse;
+
+        fo_create_new_file( slfo, test_path, test_file );                
+
+        /* Modified new filename length must be 4 chars over original
+           New filename = Path + Filenam + '.' + filetype (min. 3 chars) */
+        if ( strlen( slfo->fileanddirname_ )  > ( strlen( test_path ) + strlen( test_file + 4 ) ) ) {
+                result = 1;
+        }        
+         
+        fail_unless( result == 1,
+                "Filename and filetype is not valid." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_add_timestamp_to_data)
+{
+        TSChar* test_data = NEW2( TSChar, 40 );
+        int    day       = 0;
+        int    year      = 0;
+        int    hour      = 0;
+        int    minute    = 0;
+        int    sec       = 0;
+        int    msec      = 0;
+        int    result    = 0;
+        int    result_ok = 7; /* Valid time variables sum is 7 */
+        TSChar  month[5];
+
+        /*
+           Timestamp string format: "DD.MON.YEAR HH:MM:SS.MSC"
+           DD   = Day number (01-31)
+           MON  = Month number (01-12)
+           YEAR = Year number (19xx)
+           HH   = Hours (00-11)
+           MM   = Minutes (00-59)
+           SS   = Seconds (00-59)
+           MSC  = Microseconds (000-999)
+        */
+
+        fo_add_timestamp_to_data( test_data );
+        sscanf( test_data, "%2d.%3s.%4d %2d:%2d:%2d.%3d",
+                &day, month, &year, &hour, &minute, &sec, &msec );
+
+        if ( ( day    >= 1 ) && ( day    <=  31 ) ) { result++; }
+        if (   strlen( month ) == 3               ) { result++; }
+        if (   year   > 1900                      ) { result++; }
+        if ( ( hour   >= 0 ) && ( hour   <= 23  ) ) { result++; }
+        if ( ( minute >= 0 ) && ( minute <= 59  ) ) { result++; } 
+        if ( ( sec    >= 0 ) && ( sec    <= 59  ) ) { result++; }
+        if ( ( msec   >= 0 ) && ( msec   <= 999 ) ) { result++; }
+
+        fail_unless( result == result_ok,
+                "Add Timestamp to File Output data failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_test_file_with_pid)
+{
+        TSChar    file[]         = "";
+        TSChar    newfile[MaxFileName];
+        memset(newfile,'\0',MaxFileName);
+        sprintf(newfile,"%s","aaa");
+
+        fo_test_file_with_pid(file,newfile);
+
+        fail_unless( strcmp(newfile,"aaa") == 0 
+                   , "Result differs from expected [%s]"
+                   , newfile );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_test_file_with_pid2)
+{
+        TSChar*    file = INITPTR;
+        TSChar    newfile[MaxFileName];
+        memset(newfile,'\0',MaxFileName);
+        sprintf(newfile,"%s","aaa");
+
+        fo_test_file_with_pid(file,newfile);
+
+        fail_unless( strcmp(newfile,"aaa") == 0 
+                   , "Result differs from expected [%s]"
+                   , newfile );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_test_file_with_pid3)
+{
+        TSChar    file[]         = "file";
+        TSChar*   newfile        = INITPTR;
+
+        fo_test_file_with_pid(file,newfile);
+
+        fail_unless( newfile == INITPTR 
+                   , "Result differs from expected: newfile!=INITPTR");
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_test_file_with_pid4)
+{
+        TSChar    file[]         = "file";
+        TSChar    newfile[MaxFileName];
+        memset(newfile,'\0',MaxFileName);
+
+        fo_test_file_with_pid(file,newfile);
+
+        fail_unless( strlen(newfile) != 0 
+                   , "Result differs from expected: slrlen(newfile)==0");
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_test_file_with_pid5)
+{
+        TSChar    file[]         = "file";
+        TSChar    newfile[MaxFileName];
+        memset(newfile,'\0',MaxFileName);
+
+        fo_test_file_with_pid(file,newfile);
+
+        fail_unless( strcmp(newfile,file) == 0 
+                   , "Result differs from expected: [%s]"
+                   , newfile );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_test_file_with_pid6)
+{
+        TSChar    file[]         = "file.txt";
+        TSChar    newfile[MaxFileName];
+        memset(newfile,'\0',MaxFileName);
+
+        fo_test_file_with_pid(file,newfile);
+
+        fail_unless( strlen(newfile) != 0 
+                   , "Result differs from expected: slrlen(newfile)==0");
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_test_file_with_pid7)
+{
+        TSChar    file[]         = "file.txt";
+        TSChar    newfile[MaxFileName];
+        memset(newfile,'\0',MaxFileName);
+
+        fo_test_file_with_pid(file,newfile);
+
+        fail_unless( newfile[0] == '_' 
+                   , "Result differs from expected: newfile == %s"
+                   , newfile );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESTxt;
+        slfo->overwrite_              = ESFile;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.txt", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type2)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESHtml;
+        slfo->overwrite_              = ESFile;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.html", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type3)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESData;
+        slfo->overwrite_              = ESFile;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.sth", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type4)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESTxt;
+        slfo->overwrite_              = ESFile;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type5)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESHtml;
+        slfo->overwrite_              = ESFile;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type6)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESData;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type7)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESTxt;
+        slfo->overwrite_              = ESFile;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.txt", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type8)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESHtml;
+        slfo->overwrite_              = ESFile;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.html", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type9)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESData;
+        slfo->overwrite_              = ESFile;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.sth", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type10)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESTxt;
+        slfo->overwrite_              = ESFile;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type11)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESHtml;
+        slfo->overwrite_              = ESFile;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type12)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESData;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( filetype != INITPTR
+                   , "filetype == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type13)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESTxt;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( strcmp(filetype,"") != 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type14)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESTxt;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.txt", &filetype );
+
+        fail_unless( strcmp(filetype,"") == 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type15)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESTxt;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( strcmp(filetype,".txt") == 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type16)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESTxt;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.txt", &filetype );
+
+        fail_unless( strcmp(filetype,"") == 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type17)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESHtml;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( strcmp(filetype,"") != 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type18)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESHtml;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.html", &filetype );
+
+        fail_unless( strcmp(filetype,"") == 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type19)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESHtml;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( strcmp(filetype,".html") == 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type20)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESHtml;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.html", &filetype );
+
+        fail_unless( strcmp(filetype,"") == 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type21)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESData;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( strcmp(filetype,"") != 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type22)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESData;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 1;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.sth", &filetype );
+
+        fail_unless( strcmp(filetype,"") == 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type23)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESData;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file", &filetype );
+
+        fail_unless( strcmp(filetype,"") == 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_fo_file_type24)
+{
+        char* filetype = INITPTR;
+        MinLoggerFileOutput* slfo    = NEW(MinLoggerFileOutput);
+        slfo->loggertype_             = ESData;
+        slfo->overwrite_              = ESTrue;
+        slfo->withtimestamp_          = 1;
+        slfo->withlinebreak_          = 1;
+        slfo->witheventranking_       = 0;
+        slfo->pididtologfile_         = 0;
+        slfo->createlogdir_           = 0;
+        slfo->buffersize_             = 0;
+        slfo->unicode_                = 0;
+        slfo->isfileopen_             = 0;
+
+        fo_file_type( slfo, "file.sth", &filetype );
+
+        fail_unless( strcmp(filetype,"") == 0
+                   , "Result differs from expected [%s]", filetype );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_so_create)
+{
+        MinLoggerSyslogOutput* sxso = INITPTR;
+
+        sxso = so_create( NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+        
+        fail_unless( sxso != INITPTR
+                   , "Syslog Output: sxso == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_so_destroy)
+{
+        MinLoggerSyslogOutput* sxso = INITPTR;
+        so_destroy(&sxso);
+
+        fail_unless( sxso == INITPTR
+                   , "SysLog Output: sxso != INITPTR after destruction" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_so_destroy2)
+{
+        MinLoggerSyslogOutput* sxso = INITPTR;
+
+        sxso = so_create( NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0 );       
+        so_destroy(&sxso);
+ 
+        fail_unless( sxso == INITPTR
+                   , "SysLog Output: sxso != INITPTR after destruction" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_so_write)
+{
+        MinLoggerSyslogOutput* sxso = INITPTR;
+        TSChar name[] = "SYSLOG TEST";
+        TSChar data[] = "LOGGER UNIT TESTING: Syslog Output message";
+
+        sxso = so_create( NULL, name, 0, 0, 0, 0, 0, 0, 0, 1000, 0 );
+        fail_unless( sxso != INITPTR
+                   , "Syslog Output: sxso == INITPTR" );
+
+        so_write( sxso, 0, 0, 0, data );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* min_logger_file_output_suite()
+{
+        Suite * s = suite_create ("min_logger_file_output");
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+
+        /* fo_create */
+        tcase_add_test (tc_core, test_fo_create );
+        tcase_add_test (tc_core, test_fo_create2 );
+        tcase_add_test (tc_core, test_fo_create3 );
+        tcase_add_test (tc_core, test_fo_create4 );
+        tcase_add_test (tc_core, test_fo_create5 );
+        tcase_add_test (tc_core, test_fo_create6 );
+        tcase_add_test (tc_core, test_fo_create7 );
+        tcase_add_test (tc_core, test_fo_create8 );
+        tcase_add_test (tc_core, test_fo_create9 );
+        tcase_add_test (tc_core, test_fo_create10 );
+        tcase_add_test (tc_core, test_fo_create11 );
+        tcase_add_test (tc_core, test_fo_create12 );
+        tcase_add_test (tc_core, test_fo_create13 );
+        tcase_add_test (tc_core, test_fo_create14 );
+        tcase_add_test (tc_core, test_fo_create15 );
+        tcase_add_test (tc_core, test_fo_create16 );
+        tcase_add_test (tc_core, test_fo_create17 );
+        tcase_add_test (tc_core, test_fo_create18 );
+        tcase_add_test (tc_core, test_fo_create19 );
+        tcase_add_test (tc_core, test_fo_create20 );
+        tcase_add_test (tc_core, test_fo_create21 );
+        tcase_add_test (tc_core, test_fo_create22 );
+        tcase_add_test (tc_core, test_fo_create23 );
+        tcase_add_test (tc_core, test_fo_create24 );
+        tcase_add_test (tc_core, test_fo_create25 );
+        tcase_add_test (tc_core, test_fo_create26 );
+        tcase_add_test (tc_core, test_fo_create27 );
+        tcase_add_test (tc_core, test_fo_create28 );
+        tcase_add_test (tc_core, test_fo_create29 );
+        tcase_add_test (tc_core, test_fo_create30 );
+        tcase_add_test (tc_core, test_fo_create31 );
+
+        /* fo_destroy */
+        tcase_add_test (tc_core, test_fo_destroy );
+        tcase_add_test (tc_core, test_fo_destroy2 );
+
+        /* fo_write */
+        /* Hard to be tested */
+
+        /* fo_create_directory */
+        /* Hard to be tested */
+
+        /* fo_open_existing_file */
+        tcase_add_test (tc_core, test_fo_open_existing_file_with_txt_type_no_pid );
+        tcase_add_test (tc_core, test_fo_open_existing_file_with_html_type_no_pid );
+        tcase_add_test (tc_core, test_fo_open_existing_file_with_txt_type_and_pid );
+        tcase_add_test (tc_core, test_fo_open_existing_file_with_html_type_and_pid );
+        tcase_add_test (tc_core, test_fo_open_existing_file_with_filetype_and_no_pid );
+  
+        tcase_add_test (tc_core, test_fo_open_existing_file_and_file_handle );
+        tcase_add_test (tc_core, test_fo_open_existing_file_and_file_open_flag );
+        tcase_add_test (tc_core, test_fo_open_existing_file_without_last_slash );
+
+        /* fo_create_new_file */
+        tcase_add_test (tc_core, test_fo_create_new_file_with_txt_type_and_no_pid );
+        tcase_add_test (tc_core, test_fo_create_new_file_with_html_type_and_no_pid );
+        tcase_add_test (tc_core, test_fo_create_new_file_with_txt_type_and_pid );
+        tcase_add_test (tc_core, test_fo_create_new_file_with_html_type_and_pid );
+
+        tcase_add_test (tc_core, test_fo_create_new_file_and_file_handle );
+        tcase_add_test (tc_core, test_fo_create_new_file_and_file_open_flag );
+        tcase_add_test (tc_core, test_fo_create_new_file_without_last_slash );
+
+        tcase_add_test (tc_core, test_fo_create_new_file_fullname_txt_and_pid );
+        tcase_add_test (tc_core, test_fo_create_new_file_fullname_html_and_pid );
+        tcase_add_test (tc_core, test_fo_create_new_file_name_without_txt_pid_use );
+        tcase_add_test (tc_core, test_fo_create_new_file_name_without_html_pid_use );
+        
+        /* fo_event_ranking */
+        tcase_add_test (tc_core, test_fo_event_ranking);
+        tcase_add_test (tc_core, test_fo_event_ranking2);
+        tcase_add_test (tc_core, test_fo_event_ranking3);
+
+        /* fo_add_timestamp_to_data */
+        tcase_add_test (tc_core, test_fo_add_timestamp_to_data );
+
+        /* fo_test_file_with_pid */
+        tcase_add_test (tc_core, test_fo_test_file_with_pid);
+        tcase_add_test (tc_core, test_fo_test_file_with_pid2);
+        tcase_add_test (tc_core, test_fo_test_file_with_pid3);
+        tcase_add_test (tc_core, test_fo_test_file_with_pid4);
+        tcase_add_test (tc_core, test_fo_test_file_with_pid5);
+        tcase_add_test (tc_core, test_fo_test_file_with_pid6);
+        tcase_add_test (tc_core, test_fo_test_file_with_pid7);
+
+        /* fo_file_type */
+        tcase_add_test (tc_core, test_fo_file_type);
+        tcase_add_test (tc_core, test_fo_file_type2);
+        tcase_add_test (tc_core, test_fo_file_type3);
+        tcase_add_test (tc_core, test_fo_file_type4);
+        tcase_add_test (tc_core, test_fo_file_type5);
+        tcase_add_test (tc_core, test_fo_file_type6);
+        tcase_add_test (tc_core, test_fo_file_type7);
+        tcase_add_test (tc_core, test_fo_file_type8);
+        tcase_add_test (tc_core, test_fo_file_type9);
+        tcase_add_test (tc_core, test_fo_file_type10);
+        tcase_add_test (tc_core, test_fo_file_type11);
+        tcase_add_test (tc_core, test_fo_file_type12);
+        tcase_add_test (tc_core, test_fo_file_type13);
+        tcase_add_test (tc_core, test_fo_file_type14);
+        tcase_add_test (tc_core, test_fo_file_type15);
+        tcase_add_test (tc_core, test_fo_file_type16);
+        tcase_add_test (tc_core, test_fo_file_type17);
+        tcase_add_test (tc_core, test_fo_file_type18);
+        tcase_add_test (tc_core, test_fo_file_type19);
+        tcase_add_test (tc_core, test_fo_file_type20);
+        tcase_add_test (tc_core, test_fo_file_type21);
+        tcase_add_test (tc_core, test_fo_file_type22);
+        tcase_add_test (tc_core, test_fo_file_type23);
+        tcase_add_test (tc_core, test_fo_file_type24);
+
+        /* so_create */
+        tcase_add_test (tc_core, test_so_create);
+        
+        /* so_destroy */
+        tcase_add_test (tc_core, test_so_destroy);
+        tcase_add_test (tc_core, test_so_destroy2);
+
+        /* so_write */
+        tcase_add_test (tc_core, test_so_write);
+
+        suite_add_tcase (s, tc_core);
+
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int min_logger_file_output_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = min_logger_file_output_suite ();
+        SRunner * sr = srunner_create (s);
+	srunner_set_fork_status (sr, CK_NOFORK);
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

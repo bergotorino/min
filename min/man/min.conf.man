@@ -1,0 +1,57 @@
+.\" Process this file with
+.\" groff -man -Tascii min.conf.1
+.\" 
+.TH MIN.CONF 5 % "December 2008" Linux "User Manuals"
+.SH NAME
+min.conf \- configuration file for MIN test framework
+.SH DESCRIPTION
+When starting,
+.B min 
+searches for files with name
+.I min.conf 
+in following order.
+.TS
+tab (@);
+l l.
+1@current working directory
+2@\fI~/.min\fR
+3@\fI/etc\fR
+.TE
+
+The  
+.I engine defaults
+and
+.I module definitions
+are appended to the original configuration. So, for example, test modules 
+configured in all three locations (mentioned above), become available to user. 
+The 
+.I logger defaults
+are read from only one place, the order of precedence being the one mentioned above.
+ 
+.SH EXAMPLE
+.nf
+[Engine_Defaults]
+ModSearchPath=/usr/lib/min
+ModSearchPath=$HOME/.min
+[End_Defaults]
+
+[New_Module]
+ModuleName=scripter
+TestCaseFile=scripted_tests.cfg
+[End_Module]
+
+[Logger_Defaults]
+EmulatorBasePath=/tmp
+EmulatorFormat=TXT
+EmulatorOutput=FILE SYSLOG
+ThreadIdToLogFile=NO
+LogLevel=TRACE
+[End_Logger_Defaults]
+.fi
+.EL
+.SH FILES
+.IR /etc/min.conf
+
+.IR ~/.min/min.conf
+.SH "SEE ALSO"
+.B min(1)

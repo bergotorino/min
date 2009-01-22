@@ -1,0 +1,9 @@
+INCLUDES = -I. -I.. -I../utils/logger -I../utils/parser -I../services/event_system -I../utils/dllist -I../utils/ipc -I../engine/tec -I../engine/data_structures_api -I../consoleui -I../utils/text
+METASOURCES = AUTO
+lib_LTLIBRARIES = libmintfwif.la
+check_LIBRARIES = libmintfwiftest.a
+libmintfwif_la_SOURCES = mintfwif.c
+libmintfwif_la_LIBADD = $(top_builddir)/src/engine/tec/libmintecext.la -lpthread
+libmintfwiftest_a_SOURCES = mintfwif.c mintfwif.tests
+libmintfwiftest_a_CFLAGS = -DMIN_UNIT_TEST
+include_HEADERS = mintfwif.h

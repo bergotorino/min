@@ -1,0 +1,385 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Sampo Saaristo
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+#include "check.h"
+
+/**
+ *  @file       tec_events.tests
+ *  @version    0.1
+ *  @brief      This file contains tests for Event System in 
+ *              MIN Test Engine Controller
+ */
+
+minTestEventParam_t ind_param, sta_param;
+
+#define FILL_IND() do {\
+ ind_param.event.event_name_ = (char *)malloc(strlen("test_indications") + 1);\
+ strcpy (ind_param.event.event_name_, "test_indications"); \
+ ind_param.event.event_type_ = EIndication;} while (0)
+
+#define FILL_STA() do {\
+  sta_param.event.event_name_ = (char *) malloc (strlen ("test_states") + 1);\
+  strcpy (sta_param.event.event_name_, "test_states");\
+  sta_param.event.event_type_ = EState;} while(0)
+
+
+void setup (void)
+{
+	FILL_IND();
+        FILL_STA();
+	event_system_init ();
+
+}
+
+void teardown (void)
+{
+	event_system_cleanup();
+}
+
+START_TEST(test_add_ind_event)
+{
+	min_event_t *e;
+	
+	e = add_ind_event (&ind_param);
+	fail_if (e == INITPTR);
+
+	e = add_ind_event (&sta_param);
+	fail_unless (e == INITPTR);
+}
+END_TEST
+
+START_TEST(test_find_ind)
+{
+	min_event_t *e, *ee;
+	e = find_ind_event (&ind_param, NULL);
+	fail_unless(e == INITPTR);
+
+	e = add_ind_event (&ind_param);
+	fail_if (e == INITPTR);
+
+	FILL_IND();
+
+	ee = find_ind_event (&ind_param, NULL);
+	
+	fail_unless (e == ee);
+}
+END_TEST
+
+START_TEST(test_registration)
+{
+	int ret;
+	min_event_t *e;
+	minEventSrc_t esrc;
+
+	esrc.remote = 0;
+	esrc.pid = 2345;
+
+	e = add_ind_event (&ind_param);
+	fail_if (e == INITPTR);
+
+	ret = event_is_registered (e, &esrc);
+	fail_unless (ret == 0);
+	
+	event_add_registration (e, &esrc);
+
+	ret = event_is_registered (e, &esrc);
+	fail_unless (ret == 1);
+	
+	ret = event_del_registration (e, &esrc);
+	fail_unless (ret == 0);
+
+	ret = event_is_registered (e, &esrc);
+	fail_unless (ret == 0);
+}
+END_TEST
+
+START_TEST(test_ind_request)
+{
+	int ret;
+	minEventSrc_t esrc;
+
+	esrc.remote = 0;
+	esrc.pid = 2211;
+
+	ret = ind_event_handle_request (&ind_param, &esrc);
+
+	fail_unless (ret == 0);
+
+	ind_param.event.event_name_ = NEW2(char *, 
+                                           strlen("test_indications") + 1);
+	STRCPY (ind_param.event.event_name_, "test_indications", 
+		MaxMinEventName);
+
+
+	ret = ind_event_handle_request (&ind_param, &esrc);
+
+	fail_unless (ret == 1);
+
+}
+END_TEST
+
+START_TEST(test_ind_waiting)
+{
+	int ret;
+
+	minEventSrc_t esrc;
+
+	esrc.remote = 0;
+	esrc.pid = 10;
+
+	ret = ind_event_handle_request (&ind_param, &esrc);
+	fail_unless (ret == 0);
+
+	FILL_IND();
+	ret = ind_event_handle_wait (&ind_param, &esrc);
+	fail_unless (ret == 0);
+
+	FILL_IND();
+	ret = ind_event_handle_wait (&ind_param, &esrc);
+	fail_unless (ret == 1);
+
+}
+END_TEST
+
+START_TEST(test_ind_release)
+{
+	int ret;
+	minEventSrc_t esrc;
+
+	esrc.remote = 0;
+	esrc.pid = 1000;
+
+	ret = ind_event_handle_request (&ind_param, &esrc);
+	fail_unless (ret == 0);
+
+	FILL_IND();
+
+	esrc.pid = 1001;
+	ret = ind_event_handle_release (&ind_param, &esrc);
+	fail_unless (ret == 1);
+
+	FILL_IND();
+
+	esrc.pid = 1000;
+	ret = ind_event_handle_release (&ind_param, &esrc);
+	fail_unless (ret == 0);
+
+}
+END_TEST
+
+
+START_TEST(test_add_state_event)
+{
+	min_event_t *e;
+	
+	e = add_state_event (&sta_param);
+	fail_if (e == INITPTR);
+
+        FILL_STA();
+
+	e = add_state_event (&ind_param);
+	fail_unless (e == INITPTR);
+}
+END_TEST
+
+START_TEST (test_set_set_unset_unset)
+{
+	int ret;
+	minEventSrc_t esrc;
+
+	esrc.remote = 0;
+	esrc.pid = 8180;
+
+	ret = state_event_handle_set (&sta_param, &esrc);
+	fail_unless (ret == 0);
+
+        FILL_STA();
+	ret = state_event_handle_set (&sta_param, &esrc);
+	fail_unless (ret == 1);
+	
+
+        FILL_STA();
+	ret = state_event_handle_unset (&sta_param, &esrc);
+	fail_unless (ret == 0);
+
+        FILL_STA();
+
+	ret = state_event_handle_unset (&sta_param, &esrc);
+	fail_unless (ret == 1);
+}
+END_TEST
+
+START_TEST (test_set_unset_set_unset)
+{
+	int ret;
+	minEventSrc_t esrc;
+
+	esrc.remote = 0;
+	esrc.pid = 8180;
+	
+	ret = state_event_handle_set (&sta_param, &esrc);
+	fail_unless (ret == 0);
+
+	FILL_STA();
+	ret = state_event_handle_unset (&sta_param, &esrc);
+
+        FILL_STA();
+	sta_param.event.event_type_ = EState;
+
+
+        FILL_STA();
+	ret = state_event_handle_set (&sta_param, &esrc);
+	fail_unless (ret == 0);
+
+        FILL_STA();
+	ret = state_event_handle_unset (&sta_param, &esrc);
+	fail_unless (ret == 0);
+	
+}
+END_TEST
+
+START_TEST (test_req_req_rel_rel)
+{
+	int ret;
+	minEventSrc_t esrc;
+
+	esrc.remote = 0;
+	esrc.pid = 1081;
+	
+	ret = state_event_handle_request (&sta_param, &esrc);
+	fail_unless (ret == 0);
+	
+        FILL_STA();
+	ret = state_event_handle_request (&sta_param, &esrc);
+	fail_unless (ret == 1);
+
+        FILL_STA();
+	ret = state_event_handle_release (&sta_param, &esrc);
+	fail_unless (ret == 0);
+	
+        FILL_STA();
+	ret = state_event_handle_release (&sta_param,  &esrc);
+	fail_unless (ret == 1);
+}
+END_TEST
+
+
+START_TEST (test_set_req_wait_rel_unset)
+{
+	int ret;
+	minEventSrc_t client, server;
+
+	client.remote = 0;
+	client.pid = 1010;
+	server.remote = 0;
+	server.pid = 2020;
+	
+	ret = state_event_handle_set (&sta_param, &server);
+	fail_unless (ret == 0);
+
+        FILL_STA();
+	ret = state_event_handle_request (&sta_param, &client);
+	fail_unless (ret == 0);
+
+        FILL_STA();
+	ret = state_event_handle_wait (&sta_param, &client);
+	fail_unless (ret == 0);
+
+        FILL_STA();
+	ret = state_event_handle_release (&sta_param, &client);
+	fail_unless (ret == 0);
+
+        FILL_STA();
+	ret = state_event_handle_unset (&sta_param, &server);
+	fail_unless (ret == 0);
+
+}
+END_TEST
+
+START_TEST (test_req_wait_wait_set)
+{
+	int ret;
+	minEventSrc_t client, server;
+
+	client.remote = 0;
+	client.pid = 100;
+	server.remote = 0;
+	server.pid = 200;
+	
+
+	ret = state_event_handle_request (&sta_param, &client);
+	fail_unless (ret == 0);
+
+        FILL_STA();
+	ret = state_event_handle_wait (&sta_param, &client);
+	fail_unless (ret == 0);
+
+        FILL_STA();
+	ret = state_event_handle_wait (&sta_param, &client);
+	fail_unless (ret == 1);
+	
+        FILL_STA();
+	ret = state_event_handle_set (&sta_param, &server);
+	fail_unless (ret == 0);
+
+}
+END_TEST
+
+Suite* tec_events_suite()
+{
+        Suite * s = suite_create ("tec_events");
+        TCase* core = tcase_create("core");
+
+	tcase_add_checked_fixture (core, setup, teardown);
+
+        tcase_add_test (core, test_add_ind_event);
+	tcase_add_test (core, test_find_ind);
+	tcase_add_test (core, test_registration);
+	tcase_add_test (core, test_ind_request);
+	tcase_add_test (core, test_ind_waiting);
+	tcase_add_test (core, test_ind_release);
+
+        tcase_add_test (core, test_add_state_event);
+        tcase_add_test (core, test_set_set_unset_unset);
+        tcase_add_test (core, test_set_unset_set_unset);
+	tcase_add_test (core, test_req_req_rel_rel);
+	tcase_add_test (core, test_req_wait_wait_set);
+        tcase_add_test (core, test_set_req_wait_rel_unset);
+
+        suite_add_tcase (s, core);
+        return s;
+}
+
+int tec_events_tests()
+{
+        int number_failed;
+	Suite   * s;
+	SRunner * sr;
+
+        number_failed = 0;
+        s  = tec_events_suite ();
+        sr = srunner_create (s);
+	srunner_set_fork_status (sr, CK_NOFORK); 
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+
+        return number_failed;
+}
+

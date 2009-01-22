@@ -1,0 +1,163 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Sampo Saaristo
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       min_test_event_if.tests
+ *  @version    0.1
+ *  @brief      This file contains unit tests for MIN test event interface.
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDE FILES */
+#include <check.h>
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL FUNCTION PROTOTYPES */
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL CONSTANTS AND MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MODULE DATA STRUCTURES */
+minEventIf *event;
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ==================== LOCAL FUNCTIONS ==================================== */
+void setup()
+{
+	event = min_event_create (NULL, 0);
+}
+
+void teardown()
+{
+	min_event_destroy (event);
+}
+
+START_TEST (test_event_req_type)
+{
+	TEventReq_t reqtype;
+	
+	reqtype = ERelEvent;
+	event->SetType (event, reqtype);
+
+	fail_unless (event->Type(event) == reqtype);
+}
+END_TEST
+
+
+START_TEST (test_event_type)
+{
+	TEventType_t type = EState;
+	
+	event->SetEventType (event, type);
+
+	fail_unless (event->EventType(event) == type); 
+}
+END_TEST
+
+START_TEST (test_event_name)
+{
+	TEventName_t name = "mintest";
+	
+	event->SetName (event, name);
+	fail_if (strcmp(name, event->Name(event)));
+
+}
+END_TEST
+
+START_TEST (test_event_validate)
+{
+	int ret;
+	TEventName_t name = "mintest1";
+		
+	ret = validate_event(event);
+	
+	fail_unless (ret == 1);
+
+	set_event_stuff (event, EReqEvent, "mintest1", EIndication);
+	
+	ret = validate_event(event);
+	
+	fail_unless (ret == 0);
+
+}
+END_TEST
+
+
+Suite *mintesteventif_suite (void)
+     {
+       Suite *s = suite_create ("mintesteventif");
+
+       /* Core test case */
+       TCase *tc_core = tcase_create ("Core");
+       tcase_add_checked_fixture (tc_core, setup, teardown);
+       
+       tcase_add_test (tc_core, test_event_req_type);
+       tcase_add_test (tc_core, test_event_type);
+       tcase_add_test (tc_core, test_event_name);
+       tcase_add_test (tc_core, test_event_validate);
+
+       suite_add_tcase (s, tc_core);
+
+       return s;
+     }
+
+
+/* ======================== FUNCTIONS ====================================== */
+/* ------------------------------------------------------------------------- */
+
+int mintesteventif_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = mintesteventif_suite ();
+        SRunner * sr = srunner_create (s);
+        srunner_set_fork_status (sr, CK_NOFORK);	
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+
+
+
+/* ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+
+
+/* ================= OTHER EXPORTED FUNCTIONS ============================== */
+/* None */
+/* End of file */

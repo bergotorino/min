@@ -1,0 +1,2267 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Konrad Marek Zapalowicz
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       parser.test
+ *  @version    0.1
+ *  @brief      This file contains tests for MIN Parser
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create)
+{
+        MinParser* sp = INITPTR;
+
+        sp = mp_create( INITPTR
+                      , "file.cfg"
+                      , ENoComments );
+
+        fail_unless( sp == INITPTR
+                   , "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create2)
+{
+        MinParser* sp = INITPTR;
+
+        sp = mp_create( "/home/maemo/"
+                      , INITPTR
+                      , ENoComments );
+
+        fail_unless( sp == INITPTR
+                   , "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create3)
+{
+        MinParser* sp = INITPTR;
+
+        sp = mp_create( INITPTR
+                      , INITPTR
+                      , ENoComments );
+
+        fail_unless( sp == INITPTR
+                   , "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create4)
+{
+        MinParser* sp = INITPTR;
+
+        sp = mp_create( ""
+                      , ""
+                      , ENoComments );
+
+        fail_unless( sp == INITPTR
+                   , "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create5)
+{
+        MinParser* sp = INITPTR;
+
+        sp = mp_create( INITPTR
+                      , INITPTR
+                      , ENoComments );
+
+        fail_unless( sp == INITPTR
+                   , "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create6)
+{
+        MinParser* sp = INITPTR;
+
+        sp = mp_create( "/home/maemo/"
+                      , ""
+                      , ENoComments );
+
+        fail_unless( sp == INITPTR
+                   , "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create7)
+{
+        MinParser* sp = INITPTR;
+
+        sp = mp_create( ""
+                      , "file.cfg"
+                      , ENoComments );
+
+        fail_unless( sp == INITPTR
+                   , "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create8)
+{
+        MinParser* sp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "filee.cfg"
+                      , ENoComments );
+
+        fail_unless( sp == INITPTR
+                   , "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create9)
+{
+        MinParser* sp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        fail_unless( sp != INITPTR
+                   , "sp == INITPTR" );
+
+        fclose(sp->file_);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create10)
+{
+        MinParser* sp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        fail_unless( sp != INITPTR
+                   , "sp == INITPTR" );
+
+        fclose(sp->file_);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create11)
+{
+        MinParser* sp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        fail_unless( sp->file_ != INITPTR
+                   , "sp->file_ == INITPTR" );
+
+        fclose(sp->file_);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create12)
+{
+        MinParser* sp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ECStyleComments );
+
+        fail_unless( sp->offset_ == 0
+                   , "sp->offset_ differs from expected [%d]"
+                   , sp->offset_ );
+
+        fclose(sp->file_);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create13)
+{
+        MinParser* sp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        fail_unless( sp->comment_type_ == ENoComments
+                   , "sp->comment_type_ differs from expected [%d]"
+                   , sp->comment_type_ );
+
+        fclose(sp->file_);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create14)
+{
+        MinParser* sp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ECStyleComments );
+
+        fail_unless( sp->comment_type_ == ECStyleComments
+                   , "sp->comment_type_ differs from expected [%d]"
+                   , sp->comment_type_ );
+
+        fclose(sp->file_);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create15)
+{
+        MinParser* sp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        fail_unless( sp->parsing_mode_ == EFileParsing
+                   , "sp->parsing_mode_ differs from expected [%d]"
+                   , sp->parsing_mode_ );
+
+        fclose(sp->file_);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create16)
+{
+        MinParser* sp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        fail_unless( sp->is_unicode_ == EFileNotUnicode
+                   , "sp->is_unicode_ differs from expected [%d]"
+                   , sp->parsing_mode_ );
+
+        fclose(sp->file_);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create17)
+{
+        MinParser* sp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        fail_unless( sp->file_parser_ != INITPTR
+                   , "sp->file_parser_ == INITPTR" );
+
+        fclose(sp->file_);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem)
+{
+        MinParser* sp = INITPTR;
+
+        sp = mp_create_mem( INITPTR
+                          , ENoComments );
+
+        fail_unless( sp == INITPTR
+                   , "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem2)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        fail_unless( sp != INITPTR
+                   , "sp == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem3)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        fail_unless( sp->file_ == INITPTR
+                   , "sp->file_ != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem4)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        fail_unless( sp->offset_ == 0
+                   , "sp->offset_ differs from expected [%d]"
+                   , sp->offset_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem5)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        fail_unless( sp->comment_type_ == ENoComments
+                   , "sp->comment_type_ differs from expected value [%d]"
+                   , sp->comment_type_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem6)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ECStyleComments );
+
+        fail_unless( sp->comment_type_ == ECStyleComments
+                   , "sp->comment_type_ differs from expected value [%d]"
+                   , sp->comment_type_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem7)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        fail_unless( sp->buffer_tmp_ != INITPTR
+                   , "sp->buffer_tmp_ == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem8)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        fail_unless( sp->buffer_ != INITPTR
+                   , "sp->buffer_ == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem9)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        fail_unless( sp->is_unicode_ == EFileNotUnicode
+                   , "sp->is_unicode_ differs from expected [%d]"
+                   , sp->is_unicode_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem10)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        fail_unless( sp->file_parser_ == INITPTR
+                   , "sp->file_parser_ != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_create_mem11)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        fail_unless( strcmp(sp->buffer_tmp_,buff) == 0
+                   , "sp->buffer_tmp_ differs from expected [%s]"
+                   , sp->buffer_tmp_ );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_destroy)
+{
+        MinParser* sp = INITPTR;
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_destroy2)
+{
+        MinParser*     sp      =       INITPTR;
+        char            buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        mp_destroy(&sp);
+
+        fail_unless( sp == INITPTR, "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_destroy3)
+{
+        MinParser*     sp      =       INITPTR;
+        sp = mp_create( "/home/maemo/work/min/debug/tests/"
+                      , "file.cfg"
+                      , ENoComments );
+        mp_destroy(&sp);
+        fail_unless( sp == INITPTR, "sp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        msp = mp_section( sp
+                        , "StartTag"
+                        , "EndTag"
+                        , 1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section2)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        msp = mp_section( sp
+                        , INITPTR
+                        , "End_Defaults"
+                        , 1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section3)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        msp = mp_section( sp
+                        , "Engine_Defaults"
+                        , INITPTR
+                        , 1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section4)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        msp = mp_section( sp
+                        , "Engine_Defaults"
+                        , "End_Defaults"
+                        , -1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section5)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        msp = mp_section( sp
+                        , "Engine_Defaults"
+                        , "End_Defaults"
+                        , 0 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section6)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , INITPTR
+                        , "End_Defaults"
+                        , 1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section7)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , "Engine_Defaults"
+                        , INITPTR
+                        , 1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section8)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , "Engine_Defaults"
+                        , "End_Defaults"
+                        , -1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section9)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  =       "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , "Engine_Defaults"
+                        , "End_Defaults"
+                        , 0 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section10)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  ="[Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , "[Engine_Defaults]"
+                        , "[End_Defaults]"
+                        , 1 );
+
+        fail_unless( msp != INITPTR
+                   , "msp == INITPTR" );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section11)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  ="[Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        [End_Defaults]";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , "[Engine_Defaults]"
+                        , "[End_Defaults]"
+                        , 1 );
+
+        fail_unless( strcmp(msp->section_,"TestReportMode= FullReport\n                                        ") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section12)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  ="\n\n\n[Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        [End_Defaults]";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , "[Engine_Defaults]"
+                        , "[End_Defaults]"
+                        , 1 );
+
+        fail_unless( strcmp(msp->section_,"TestReportMode= FullReport\n                                        ") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section13)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  ="  [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        [End_Defaults]   \n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , "[Engine_Defaults]"
+                        , "[End_Defaults]"
+                        , 1 );
+
+        fail_unless( strcmp(msp->section_,"TestReportMode= FullReport\n                                        ") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section14)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  ="[Engine_Defaults]\nTestReportMode= FullReport\n[End_Defaults]";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , "[Engine_Defaults]"
+                        , "[End_Defaults]"
+                        , 1 );
+
+        fail_unless( strcmp(msp->section_,"TestReportMode= FullReport\n") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section15)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  ="[Engine_Defaults]\nTestReportMode= FullReport\n[End_Defaults] \n\n\n\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , "[Engine_Defaults]"
+                        , "[End_Defaults]"
+                        , 1 );
+
+        fail_unless( strcmp(msp->section_,"TestReportMode= FullReport\n") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section16)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  ="\n\n\n[Engine_Defaults]\nTestReportMode= FullReport\n[End_Defaults]\n\n\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_section( sp
+                        , "[Engine_Defaults]"
+                        , "[End_Defaults]"
+                        , 1 );
+
+        fail_unless( strcmp(msp->section_,"TestReportMode= FullReport\n") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_section17)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "Example.cfg"
+                      , ENoComments );
+
+        msp = mp_section( sp
+                        , "[Test]"
+                        , "[Endtest]"
+                        , 1 );
+
+        fail_unless( strcmp(msp->section_,"title ExampleExample\ncreate KahdeksanTestModule.so foobar\nfoobar Example kaks pa ra me ters\ndelete foobar \n") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        msp = mp_next_section( sp
+                             , "StartTag"
+                             , "EndTag"
+                             , 1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section2)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        msp = mp_next_section( sp
+                             , INITPTR
+                             , "End_Defaults"
+                             , 1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section3)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        msp = mp_next_section( sp
+                        , "Engine_Defaults"
+                        , INITPTR
+                        , 1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section4)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        msp = mp_next_section( sp
+                             , "Engine_Defaults"
+                             , "End_Defaults"
+                             , -1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section5)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+
+        msp = mp_next_section( sp
+                             , "Engine_Defaults"
+                             , "End_Defaults"
+                             , 0 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section6)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  = "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_next_section( sp
+                             , INITPTR
+                             , "End_Defaults"
+                             , 1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section7)
+{
+         MinParser*            sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  = "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_next_section( sp
+                             , "Engine_Defaults"
+                             , INITPTR
+                             , 1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section8)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  = "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_next_section( sp
+                             , "Engine_Defaults"
+                             , "End_Defaults"
+                             , -1 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section9)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  = "END_TEST\n\
+                                        [Engine_Defaults]\n\
+                                        TestReportMode= FullReport\n\
+                                        CreateTestReport= YES\n\
+                                        [End_Defaults]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+
+        msp = mp_next_section( sp
+                             , "Engine_Defaults"
+                             , "End_Defaults"
+                             , 0 );
+
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section10)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  =       "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "module.cfg"
+                      , ENoComments );
+
+        msp = mp_next_section( sp
+                             , "[New_Module]"
+                             , "[End_Module]"
+                             , 1 );
+
+        fail_unless( msp != INITPTR
+                   , "msp == INITPTR" );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section11)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  =       "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "module.cfg"
+                      , ENoComments );
+
+        msp = mp_next_section( sp
+                             , "[New_Module]"
+                             , "[End_Module]"
+                             , 1 );
+
+        fail_unless( strcmp(msp->section_,"ModuleName= demomodule\n") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section12)
+{
+        MinParser*             sp      = INITPTR;
+        MinSectionParser*      msp     = INITPTR;
+        char                    buff[]  = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "module.cfg"
+                      , ENoComments );
+
+        msp = mp_next_section( sp
+                             , "[New_Module]"
+                             , "[End_Module]"
+                             , 2 );
+
+        fail_unless( strcmp(msp->section_,"ModuleName= demomodule2\n") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_file)
+{
+        MinParser*        sp  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+
+        msp = mp_next_section_file( sp
+                                  , "StartTag"
+                                  , "EndTag"
+                                  , 1 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_file2)
+{
+        MinParser*        sp  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+        msp = mp_next_section_file( sp
+                                  , INITPTR
+                                  , "EndTag"
+                                  , 1 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_file3)
+{
+        MinParser*        sp  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+        msp = mp_next_section_file( sp
+                                  , "StartTag"
+                                  , INITPTR
+                                  , 1 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_file4)
+{
+        MinParser*        sp  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+        msp = mp_next_section_file( sp
+                                  , "StartTag"
+                                  , "EndTag"
+                                  , -1 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_file5)
+{
+        MinParser*        sp  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+        msp = mp_next_section_file( sp
+                                  , "StartTag"
+                                  , "EndTag"
+                                  , 0 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_file6)
+{
+        MinParser*        sp  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "file.cfg"
+                      , ENoComments );
+        msp = mp_next_section_file( sp
+                                  , "[Engine_Defaults]"
+                                  , "[End_Defaults]"
+                                  , 1 );
+
+        fail_unless( msp != INITPTR
+                   , "msp == INITPTR" );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_file7)
+{
+        MinParser*        sp  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "min.cfg"
+                      , ENoComments );
+        msp = mp_next_section_file( sp
+                                  , "[New_Module]"
+                                  , "[End_Module]"
+                                  , 1 );
+
+        fail_unless( msp != INITPTR
+                   , "msp == INITPTR" );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_file8)
+{
+        MinParser*        sp  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+        char*              exp = "ModuleName= demomodule\n";
+
+        char        path[4096];
+        sprintf(path, "%s", getenv("PWD"));
+
+        sp = mp_create( path
+                      , "min.cfg"
+                      , ENoComments );
+
+        msp = mp_next_section_file( sp
+                                  , "[New_Module]"
+                                  , "[End_Module]"
+                                  , 1 );
+        fail_unless( strcmp(msp->buffer_section_,exp) == 0
+                   , "Returned value differs from expected [%s]"
+                   , msp->buffer_section_ );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory)
+{
+        MinParser*        sp  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+
+        msp = mp_next_section_memory( sp
+                                    , "StartTag"
+                                    , "EndTag"
+                                    , 1 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory2)
+{
+        MinParser*        sp     = INITPTR;
+        MinSectionParser* msp    = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , INITPTR
+                                    , "EndTag"
+                                    , 1 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory3)
+{
+        MinParser*        sp      = INITPTR;
+        MinSectionParser* msp     = INITPTR;
+        char               buff[]  = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "StartTag"
+                                    , INITPTR
+                                    , 1 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory4)
+{
+        MinParser*        sp      = INITPTR;
+        MinSectionParser* msp     = INITPTR;
+        char               buff[]  = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "StartTag"
+                                    , "EndTag"
+                                    , -1 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory5)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "StartTag"
+                                    , "EndTag"
+                                    , 0 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory6)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[New_Module]"
+                                    , "[End_Module]"
+                                    , 1 );
+        fail_unless( msp != INITPTR
+                   , "msp == INITPTR" );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory7)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , ""
+                                    , ""
+                                    , 1 );
+        fail_unless( msp != INITPTR
+                   , "msp == INITPTR" );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory8)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[New_Module]"
+                                    , "[End_Module]"
+                                    , 2 );
+        fail_unless( msp != INITPTR
+                   , "msp == INITPTR" );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory9)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[New_Module]"
+                                    , "[End_Module]"
+                                    , 3 );
+        fail_unless( msp != INITPTR
+                   , "msp == INITPTR" );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory10)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[New_Module]"
+                                    , "[End_Module]"
+                                    , 4 );
+        fail_unless( msp != INITPTR
+                   , "msp == INITPTR" );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory11)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[New_Module]"
+                                    , "[End_Module]"
+                                    , 5 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory12)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[Old_Module]"
+                                    , "[End_Module]"
+                                    , 1 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory13)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[Old_Module]"
+                                    , "[EndOld_Module]"
+                                    , 1 );
+        fail_unless( msp == INITPTR
+                   , "msp != INITPTR" );
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory14)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[New_Module]"
+                                    , "[End_Module]"
+                                    , 1 );
+
+        fail_unless( strcmp(msp->section_,"ModuleName= demomodule\n") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory15)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[New_Module]"
+                                    , "[End_Module]"
+                                    , 2 );
+
+        fail_unless( strcmp(msp->section_,"ModuleName= demomodule2\n") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory16)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[New_Module]"
+                                    , "[End_Module]"
+                                    , 3 );
+
+        fail_unless( strcmp(msp->section_,"ModuleName= demomodule3\n") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_next_section_memory17)
+{
+        MinParser*        sp   = INITPTR;
+        MinSectionParser* msp  = INITPTR;
+        char               buff[] = "[New_Module]\n\
+ModuleName= demomodule\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule2\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule3\n\
+[End_Module]\n\
+\n\
+[New_Module]\n\
+ModuleName= demomodule4\n\
+[End_Module]\n";
+
+        sp = mp_create_mem( buff
+                          , ENoComments );
+        msp = mp_next_section_memory( sp
+                                    , "[New_Module]"
+                                    , "[End_Module]"
+                                    , 4 );
+
+        fail_unless( strcmp(msp->section_,"ModuleName= demomodule4\n") == 0
+                   , "Result differs from expected [%s]"
+                   , msp->section_ );
+
+
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_parse_comments_off)
+{
+        char* buff = INITPTR;
+        mp_parse_comments_off( buff );
+        fail_unless( buff == INITPTR
+                   , "buff != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_parse_comments_off2)
+{
+        char buff[] = "Ala ma kota";
+        mp_parse_comments_off( buff );
+        fail_unless( strcmp(buff,"Ala ma kota") == 0
+                   , "Result differs from expected [%s]"
+                   , buff );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_parse_comments_off3)
+{
+        char bu[] = "Ala ma//kota\n";
+        mp_parse_comments_off( bu );
+        fail_unless( strcmp(bu,"Ala ma\n") == 0
+                   , "Result differs from expected [%s]"
+                   , bu );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_parse_comments_off4)
+{
+        char buff[] = "Ala/* ma*/ kota";
+        mp_parse_comments_off( buff );
+        fail_unless( strcmp(buff,"Ala kota") == 0
+                   , "Result differs from expected [%s]"
+                   , buff );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_parse_comments_off5)
+{
+        char buff[] = "Ala/* ma*/ ko//ta";
+        mp_parse_comments_off( buff );
+        fail_unless( strcmp(buff,"Ala ko") == 0
+                   , "Result differs from expected [%s]"
+                   , buff );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_parse_comments_off6)
+{
+        char buff[] = "Ala/* ma*/ kota ko/t *ma \\a//le";
+        mp_parse_comments_off( buff );
+        fail_unless( strcmp(buff,"Ala kota ko/t *ma \\a") == 0
+                   , "Result differs from expected [%s]"
+                   , buff );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_handle_special_marks)
+{
+        char * buff = INITPTR;
+        mp_handle_special_marks( buff );
+        fail_unless( buff == INITPTR
+                   , "buff != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_handle_special_marks2)
+{
+        char buff[] = "Ala ma kota";
+        mp_handle_special_marks( buff );
+        fail_unless( buff != INITPTR
+                   , "buff == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_handle_special_marks3)
+{
+        char buff[] = "Ala ma kota";
+        mp_handle_special_marks( buff );
+        fail_unless( strcmp(buff,"Ala ma kota") == 0
+                   , "Result differs from expected [%s]"
+                   , buff );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_handle_special_marks4)
+{
+        char buff[] = "Ala m\/\/a kota";
+        mp_handle_special_marks( buff );
+        fail_unless( strcmp(buff,"Ala m//a kota") == 0
+                   , "Result differs from expected [%s]"
+                   , buff );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_handle_special_marks5)
+{
+        char buff[] = "Ala m\/\*a kota";
+        mp_handle_special_marks( buff );
+        fail_unless( strcmp(buff,"Ala m/*a kota") == 0
+                   , "Result differs from expected [%s]"
+                   , buff );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mp_handle_special_marks6)
+{
+        char buff[] = "Ala m*\/\/a kota";
+        mp_handle_special_marks( buff );
+        fail_unless( strcmp(buff,"Ala m*//a kota") == 0
+                   , "Result differs from expected [%s]"
+                   , buff );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* parser_suite()
+{
+        Suite * s = suite_create ("Min Parser");
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+
+        /* mp_create */
+        tcase_add_test (tc_core, test_mp_create);
+        tcase_add_test (tc_core, test_mp_create2);
+        tcase_add_test (tc_core, test_mp_create3);
+        tcase_add_test (tc_core, test_mp_create4);
+        tcase_add_test (tc_core, test_mp_create5);
+        tcase_add_test (tc_core, test_mp_create6);
+        tcase_add_test (tc_core, test_mp_create7);
+        tcase_add_test (tc_core, test_mp_create8);
+        tcase_add_test (tc_core, test_mp_create9);
+        tcase_add_test (tc_core, test_mp_create10);
+        tcase_add_test (tc_core, test_mp_create11);
+        tcase_add_test (tc_core, test_mp_create12);
+        tcase_add_test (tc_core, test_mp_create13);
+        tcase_add_test (tc_core, test_mp_create14);
+        tcase_add_test (tc_core, test_mp_create15);
+        tcase_add_test (tc_core, test_mp_create16);
+        tcase_add_test (tc_core, test_mp_create17);
+
+        /* mp_create_mem */
+        tcase_add_test (tc_core, test_mp_create_mem);
+        tcase_add_test (tc_core, test_mp_create_mem2);
+        tcase_add_test (tc_core, test_mp_create_mem3);
+        tcase_add_test (tc_core, test_mp_create_mem4);
+        tcase_add_test (tc_core, test_mp_create_mem5);
+        tcase_add_test (tc_core, test_mp_create_mem6);
+        tcase_add_test (tc_core, test_mp_create_mem7);
+        tcase_add_test (tc_core, test_mp_create_mem8);
+        tcase_add_test (tc_core, test_mp_create_mem9);
+        tcase_add_test (tc_core, test_mp_create_mem10);
+        tcase_add_test (tc_core, test_mp_create_mem11);
+
+        /* mp_destroy */
+        tcase_add_test (tc_core, test_mp_destroy);
+        tcase_add_test (tc_core, test_mp_destroy2);
+        tcase_add_test (tc_core, test_mp_destroy3);
+
+        /* mp_section */
+        tcase_add_test (tc_core, test_mp_section);
+        tcase_add_test (tc_core, test_mp_section2);
+        tcase_add_test (tc_core, test_mp_section3);
+        tcase_add_test (tc_core, test_mp_section4);
+        tcase_add_test (tc_core, test_mp_section5);
+        tcase_add_test (tc_core, test_mp_section6);
+        tcase_add_test (tc_core, test_mp_section7);
+        tcase_add_test (tc_core, test_mp_section8);
+        tcase_add_test (tc_core, test_mp_section9);
+        tcase_add_test (tc_core, test_mp_section10);
+        tcase_add_test (tc_core, test_mp_section11);
+        tcase_add_test (tc_core, test_mp_section12);
+        tcase_add_test (tc_core, test_mp_section13);
+        tcase_add_test (tc_core, test_mp_section14);
+        tcase_add_test (tc_core, test_mp_section15);
+        tcase_add_test (tc_core, test_mp_section16);
+/*        tcase_add_test (tc_core, test_mp_section17);*/
+
+        /* mp_next_section */
+        tcase_add_test (tc_core, test_mp_next_section);
+        tcase_add_test (tc_core, test_mp_next_section2);
+        tcase_add_test (tc_core, test_mp_next_section3);
+        tcase_add_test (tc_core, test_mp_next_section4);
+        tcase_add_test (tc_core, test_mp_next_section5);
+        tcase_add_test (tc_core, test_mp_next_section6);
+        tcase_add_test (tc_core, test_mp_next_section7);
+        tcase_add_test (tc_core, test_mp_next_section8);
+        tcase_add_test (tc_core, test_mp_next_section9);
+        tcase_add_test (tc_core, test_mp_next_section10);
+        tcase_add_test (tc_core, test_mp_next_section11);
+        tcase_add_test (tc_core, test_mp_next_section12);
+
+        /* mp_next_section_file */
+        tcase_add_test (tc_core, test_mp_next_section_file);
+        tcase_add_test (tc_core, test_mp_next_section_file2);
+        tcase_add_test (tc_core, test_mp_next_section_file3);
+        tcase_add_test (tc_core, test_mp_next_section_file4);
+        tcase_add_test (tc_core, test_mp_next_section_file5);
+        tcase_add_test (tc_core, test_mp_next_section_file6);
+        tcase_add_test (tc_core, test_mp_next_section_file7);
+        tcase_add_test (tc_core, test_mp_next_section_file8);
+
+        /* mp_next_section_memory */
+        tcase_add_test (tc_core, test_mp_next_section_memory);
+        tcase_add_test (tc_core, test_mp_next_section_memory2);
+        tcase_add_test (tc_core, test_mp_next_section_memory3);
+        tcase_add_test (tc_core, test_mp_next_section_memory4);
+        tcase_add_test (tc_core, test_mp_next_section_memory5);
+        tcase_add_test (tc_core, test_mp_next_section_memory6);
+        tcase_add_test (tc_core, test_mp_next_section_memory7);
+        tcase_add_test (tc_core, test_mp_next_section_memory8);
+        tcase_add_test (tc_core, test_mp_next_section_memory9);
+        tcase_add_test (tc_core, test_mp_next_section_memory10);
+        tcase_add_test (tc_core, test_mp_next_section_memory11);
+        tcase_add_test (tc_core, test_mp_next_section_memory12);
+        tcase_add_test (tc_core, test_mp_next_section_memory13);
+        tcase_add_test (tc_core, test_mp_next_section_memory14);
+        tcase_add_test (tc_core, test_mp_next_section_memory15);
+        tcase_add_test (tc_core, test_mp_next_section_memory16);
+        tcase_add_test (tc_core, test_mp_next_section_memory17);
+
+        /* mp_parse_comments_off */
+        tcase_add_test (tc_core, test_mp_parse_comments_off);
+        tcase_add_test (tc_core, test_mp_parse_comments_off2);
+        tcase_add_test (tc_core, test_mp_parse_comments_off3);
+        tcase_add_test (tc_core, test_mp_parse_comments_off4);
+        tcase_add_test (tc_core, test_mp_parse_comments_off5);
+        tcase_add_test (tc_core, test_mp_parse_comments_off6);
+
+        /* mp_handle_special_marks */
+        tcase_add_test (tc_core, test_mp_handle_special_marks);
+        tcase_add_test (tc_core, test_mp_handle_special_marks2);
+        tcase_add_test (tc_core, test_mp_handle_special_marks3);
+        tcase_add_test (tc_core, test_mp_handle_special_marks4);
+        tcase_add_test (tc_core, test_mp_handle_special_marks5);
+        tcase_add_test (tc_core, test_mp_handle_special_marks6);
+
+        suite_add_tcase (s, tc_core);
+
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int min_parser_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = parser_suite ();
+        SRunner * sr = srunner_create (s);
+
+        /*srunner_set_fork_status (sr, CK_NOFORK);*/
+
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

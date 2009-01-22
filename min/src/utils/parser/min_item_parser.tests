@@ -1,0 +1,1168 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Marko Hyyppä
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       min_item_parser.tests
+ *  @version    0.1
+ *  @brief      This file contains test for MIN Item Parser
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+#include "min_common.h"
+#include "min_item_parser.h"
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+
+/** Define macros of implementation testing for print output enabling */
+/*
+#define CHECK_STRING_DEBUG_PRINTF_OUTPUT
+#define CHECK_INT_DEBUG_PRINTF_OUTPUT
+#define CHECK_UINT_DEBUG_PRINTF_OUTPUT
+#define CHECK_CHAR_DEBUG_PRINTF_OUTPUT
+#define CHECK_REMAINDER_DEBUG_PRINTF_OUTPUT
+*/
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_create_ok)
+{
+        MinItemParser* mip   = INITPTR;
+        TSChar section[]      = "TEST SECTION";
+        int    start_pos      = 0;
+        int    length         = strlen( section );
+        TSChar check_string[] = "TEST SECTION";
+        int    result         = 0;
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, "SIP creation failed." );
+
+        result = strncmp( check_string, mip->item_line_section_,
+                strlen( mip->item_line_section_ ) );
+        fail_unless( result == 0, 
+                "SIP parsing result string incorrect." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_create_initptr)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar* section     = INITPTR;
+        int     start_pos   = 0;
+        int     length      = 4;
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip == INITPTR,
+                "SIP creation with section INITPTR failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_create_null)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar* section     = NULL;
+        int     start_pos   = 4;
+        int     length      = 10;
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip == INITPTR,
+                "SIP creation with section NULL failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_create_start_pos_negative)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "TEST SECTION";
+        int    start_pos    = -1;
+        int    length       = strlen( section );
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip == INITPTR,
+                "SIP creation with negative start position failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_create_start_pos_over_length)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "TEST SECTION";
+        int    length       = strlen( section );
+        int    start_pos    = length + 1;
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip == INITPTR,
+                "SIP creation with start position over length failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_create_length_negative)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "TEST SECTION";
+        int    start_pos    = 0;
+        int    length       = -1;
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip == INITPTR,
+                "SIP creation with negative length failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_parse_start_and_end_pos_ok)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "COMMENTS1 TAG = KEYWORD2 KEYWORD3";
+        int    start_pos    = 0;
+        int    length       = strlen( section );
+        
+        TSChar  start_tag[]       = "TAG";
+        TSChar* ref_start_pos     = INITPTR;
+        TSChar* ref_end_pos       = INITPTR;
+        int     ref_length        = 0;
+        TSChar* ref_extra_end_pos = INITPTR;
+        TSChar  check_string[]    = "KEYWORD2";
+        int     retval            = 0;        
+        int     result            = 0;
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_parse_start_and_end_pos( mip, start_tag,
+                &ref_start_pos, &ref_end_pos, &ref_length,
+                &ref_extra_end_pos );
+        fail_unless( retval == 0,
+                "SIP parsing start and end position failed." );
+
+        result = strncmp( check_string, ref_start_pos, ref_length );
+        fail_unless( result == 0, 
+                "SIP parsing result string incorrect." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_parse_start_and_end_pos_initptr)
+{
+        MinItemParser* mip       = INITPTR;
+        TSChar  start_tag[]       = "TAG";
+        TSChar* ref_start_pos     = INITPTR;
+        TSChar* ref_end_pos       = INITPTR;
+        int     ref_length        = 0;
+        TSChar* ref_extra_end_pos = INITPTR;
+        int     retval            = 0;        
+
+        retval = mip_parse_start_and_end_pos( mip, start_tag,
+                &ref_start_pos, &ref_end_pos, &ref_length,
+                &ref_extra_end_pos );
+        fail_unless( retval == -1,
+                "SIP parsing with mip INITPTR failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_parse_start_and_end_pos_only_tag)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = "   ONLY_TAG = ";
+        int       start_pos = 0;
+        int       length    = strlen( section );
+
+        TSChar  start_tag[]       = "ONLY_TAG";
+        TSChar* ref_start_pos     = INITPTR;
+        TSChar* ref_end_pos       = INITPTR;
+        int     ref_length        = 0;
+        TSChar* ref_extra_end_pos = INITPTR;
+        int     retval            = 0;        
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_parse_start_and_end_pos( mip, start_tag,
+                &ref_start_pos, &ref_end_pos, &ref_length,
+                &ref_extra_end_pos );
+        fail_unless( retval == -1,
+                "SIP parsing with mip only tag failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_string)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = "TAG1=EXAMPLE_STRING1 TAG2=EXAMPLE_STRING2 TAG3=EXAMPLE_STRING3";
+        int       start_pos = 0;
+        int       length    = strlen( section );
+ 
+        TSChar   tag[]          = "TAG2";
+        TSChar*  string         = INITPTR;
+        TSChar   check_string[] = "EXAMPLE_STRING2";             
+        int      retval         = 0;        
+        int      result         = 0;
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_string( mip, tag, &string ); 
+        fail_unless( retval == 0, 
+                "SIP parsing operation failed." );
+       
+        result = strncmp( check_string, string, strlen( string ) );
+        fail_unless( result == 0, 
+                "SIP get string failed." );
+
+#ifdef CHECK_STRING_DEBUG_PRINTF_OUTPUT
+        printf("mip_get_string() string = %s\n", string);
+#endif
+
+        if ( string != INITPTR ) DELETE( string );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_string_initptr)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar  tag[]       = "TAG";
+        TSChar* string      = INITPTR;             
+        int     retval      = 0;        
+
+        retval = mip_get_string( mip, tag, &string ); 
+        fail_unless( retval == -1, 
+                "SIP get string INITPTR failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_string_length_zero)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "    TAG= EXAMPLE_STRING  ";
+        int    start_pos    = 0;
+        int    length       = strlen( section );
+ 
+        TSChar  tag[]       = "TAG";
+        TSChar* string      = INITPTR;             
+        int     retval      = 0;        
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        *(mip->item_line_section_) = '\0';
+
+        retval = mip_get_string( mip, tag, &string ); 
+        fail_unless( retval == -1, 
+                "SIP get string with length zero failed." );
+ 
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_string_with_backlashes)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "TAG1 = \"EXAMPLE_STRING1\"  TAG2 = \\\\EXAMPLE_STRING2";
+        int    start_pos    = 0;
+        int    length       = strlen( section );
+ 
+        TSChar  tag[]          = "TAG2";
+        TSChar* string         = INITPTR;
+        TSChar  check_string[] = "EXAMPLE_STRING2";
+        int     retval         = 0;
+        int     result         = 0;        
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_string( mip, tag, &string ); 
+        fail_unless( retval == 0, 
+                "SIP get string parsing failed." );
+
+#ifdef CHECK_STRING_DEBUG_PRINTF_OUTPUT
+        printf("mip_get_string() string = %s\n", string);
+#endif
+
+        result = strncmp( check_string, string, strlen( string ) );
+        fail_unless( result == 0, 
+                "SIP get string by backslashes parsing failed." );
+
+        if ( string != INITPTR ) DELETE( string );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_string_with_backlashes_without_comments)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "TAG1 = \"EXAMPLE_STRING1\"  TAG2 = \\\\  ";
+        int    start_pos    = 0;
+        int    length       = strlen( section );
+ 
+        TSChar  tag[]       = "TAG2";
+        TSChar* string      = INITPTR;
+        int     retval      = 0;
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_string( mip, tag, &string ); 
+        fail_unless( retval == -1, 
+                "SIP get string parsing without backslashes comments failed." );
+
+        if ( string != INITPTR ) DELETE( string );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_string_with_quotes)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "TAG1 = \"WORD1 WORD2 WORD3\"  TAG2 = \"WORD4 WORD5 WORD6\"  TAG3 = \"WORD7 WORD8 WORD9\"";
+        int    start_pos    = 0;
+        int    length       = strlen( section );
+ 
+        TSChar  tag[]          = "TAG2";
+        TSChar* string         = INITPTR;             
+        TSChar  check_string[] = "WORD4 WORD5 WORD6";
+        int     retval         = 0;
+        int     result         = 0;        
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_set_parsing_type( mip, EQuoteStyleParsing );
+        fail_unless( retval == 0, 
+                "SIP set parsing type failed." );
+
+        retval = mip_get_string( mip, tag, &string ); 
+        fail_unless( retval == 0, 
+                "SIP get string parsing failed." );
+
+        result = strncmp( check_string, string, strlen( check_string ) );
+        fail_unless( result == 0, 
+                "SIP get string by quates parsing failed." );
+
+#ifdef CHECK_STRING_DEBUG_PRINTF_OUTPUT
+        printf("mip_get_string() string = %s\n", string);
+#endif
+        if ( string != INITPTR ) DELETE( string );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_string_with_first_quote)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = "TAG1 = \"WORD1 WORD2 WORD3    QUICK_END";
+        int       start_pos = 0;
+        int       length    = strlen( section );
+ 
+        TSChar  tag[]          = "TAG1";
+        TSChar* string         = INITPTR;             
+        TSChar  check_string[] = "WORD1 WORD2 WORD3    QUICK_END";
+        int     retval         = 0;        
+        int     result         = 0;
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_set_parsing_type( mip, EQuoteStyleParsing );
+        fail_unless( retval == 0, 
+                "SIP set parsing type failed." );
+
+        retval = mip_get_string( mip, tag, &string ); 
+        fail_unless( retval == 0, 
+                "SIP get string parsing failed." );
+
+#ifdef CHECK_STRING_DEBUG_PRINTF_OUTPUT
+        printf("mip_get_string() string = %s\n", string);
+        printf("DEBUG: length = %d\n", strlen( string ) );
+#endif
+
+        result = strncmp( check_string, string, strlen( string ) );
+        fail_unless( result == 0, 
+                "SIP get string by first quote parsing failed." );
+
+        if ( string != INITPTR ) DELETE( string );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_next_string)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "TAG1 = EXAMPLE_STRING1  TAG2 = EXAMPLE_STRING2  \\\\ EXAMPLE_STRING3";
+        int    start_pos    = 0;
+        int    length       = strlen( section );
+ 
+        TSChar  tag[]       = "TAG2";
+        TSChar* string[2];             
+        int     retval      = 0;        
+
+        string[0] = INITPTR;
+        string[1] = INITPTR;
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_string( mip, tag, &string[0] ); 
+        fail_unless( retval == 0, 
+                "SIP get string failed." );
+
+#ifdef CHECK_STRING_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_string() string = %s\n", string[0] );
+#endif
+        retval = mip_get_next_string( mip, &string[1] ); 
+        fail_unless( retval == 0, 
+                "SIP get string failed." );
+
+#ifdef CHECK_STRING_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_next_string() string:\n%s\n", string[1] );
+#endif
+
+        if ( string[0] != INITPTR ) DELETE( string[0] );
+        if ( string[1] != INITPTR ) DELETE( string[1] );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+void bug_hunting( void )
+{
+        static MinItemParser* mip = INITPTR;
+        char section[] = "title Example1\ncreate bar a\na jee 1 2 3 joo jee\ncreate foo b\nb juu 666 jup\nb jaa 5 7 9 0 aaa\ndelete a\ndelete b";
+        int  start_pos = 0;
+        int  length    = strlen( section );
+        int  retval    = 0; 
+
+        char* item      = INITPTR;
+        char* libname   = INITPTR;
+        char* classname = INITPTR;
+        char* funcname  = INITPTR;
+
+        mip = mip_create( section, start_pos, length );
+ 
+        mip_get_string( mip, "", &item );
+
+        if ( strcmp(item,"title") == 0 ) {
+                printf("=> title\n");
+        }
+
+        if (strcmp(item,"delete") == 0 ) {
+                mip_get_next_string( mip, &classname );
+                printf("=> delete %s\n",classname);
+        }
+
+        if (strcmp(item,"create") == 0 ) {
+                mip_get_next_string( mip, &libname );
+                mip_get_next_string( mip, &classname );
+                printf("=> create %s %s\n",libname,classname);
+        }
+
+        mip_get_next_string( mip, &funcname );
+        printf("item: %s funcname: %s\n", item, funcname);
+                while(mip_get_next_string(mip,&funcname) == 0) printf("===> %s\n",funcname);
+      
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_next_string_bug_hunting)
+{
+        bug_hunting();
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_next_tagged_string)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = "TAG = EXAMPLE_STRING1 EXAMPLE_STRING2 TAG = EXAMPLE_STRING3";
+        int       start_pos = 0;
+        int       length    = strlen( section );
+ 
+        TSChar  tag[]      = "TAG";
+        TSChar* string[2];             
+        int     retval     = 0;        
+
+        string[0] = INITPTR;
+        string[1] = INITPTR;
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_string( mip, tag, &string[0] ); 
+        fail_unless( retval == 0, 
+                "SIP get string failed." );
+
+#ifdef CHECK_STRING_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_string() string = %s\n", string[0] );
+#endif
+
+        retval = mip_get_next_tagged_string( mip, tag, &string[1] ); 
+        fail_unless( retval == 0, 
+                "SIP get string failed." );
+
+#ifdef CHECK_STRING_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_next_tagged_string() string:\n%s\n", string[1] );
+#endif
+
+        if ( string[0] != INITPTR ) DELETE( string[0] );
+        if ( string[1] != INITPTR ) DELETE( string[1] );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_int)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = "EXAMPLE_STRING2 TAG = 123 EXAMPLE_STRING3";
+        int       start_pos = 0;
+        int       length    = strlen( section );
+ 
+        TSChar tag[] = "TAG";
+        int   value  = 0;     
+        int   retval = 0;        
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_int( mip, tag, &value ); 
+        fail_unless( retval == 0, 
+                "SIP get integer failed." );
+
+        /* For testing...
+        printf( "mip_get_int() value = %d\n", value );
+        */
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_next_int)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = "EXAMPLE_STRING2 TAG = 123  3456  ";
+        int       start_pos = 0;
+        int       length    = strlen( section );
+ 
+        TSChar tag[] = "TAG";
+        int    value[2];
+        int    retval;        
+
+        value[0] = 0;
+        value[1] = 0;
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_int( mip, tag, &value[0] ); 
+        fail_unless( retval == 0, 
+                "SIP get integer failed." );
+
+#ifdef CHECK_INT_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_int() value = %d\n", value[0] );
+#endif
+        
+        retval = mip_get_next_int( mip, &value[1] ); 
+        fail_unless( retval == 0, 
+                "SIP get next integer failed." );
+        
+#ifdef CHECK_INT_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_next_int() value = %d\n", value[1] );
+#endif
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_next_tagged_int)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = "EXAMPLE_STRING2 TAG = 123  3456  TEST TAG = 7890";
+        int       start_pos = 0;
+        int       length    = strlen( section );
+ 
+        TSChar tag[] = "TAG";
+        int   value[2];
+        int   retval;        
+
+        value[0] = 0;
+        value[1] = 0;
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_int( mip, tag, &value[0] ); 
+        fail_unless( retval == 0, 
+                "SIP get integer failed." );
+
+        retval = mip_get_next_tagged_int( mip, tag, &value[1] ); 
+        fail_unless( retval == 0, 
+                "SIP get next tagged integer failed." );
+
+#ifdef CHECK_INT_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_next_tagged_int() value = %d\n", value[1] );
+#endif
+ 
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_uint_functions)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = "EXAMPLE_STRING2  TAG = 123  3456  TEST TAG = 7890";
+        int       start_pos = 0;
+        int       length    = strlen( section );
+ 
+        TSChar tag[] = "TAG";
+        unsigned int value[3];
+        int retval;        
+
+        value[0] = 0;
+        value[1] = 0;
+        value[2] = 0;
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_uint( mip, tag, &value[0] ); 
+        fail_unless( retval == 0, 
+                "SIP get unsigned integer failed." );
+        
+#ifdef CHECK_UINT_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_uint() value = %d\n", value[0] );        
+#endif
+
+        retval = mip_get_next_uint( mip, &value[1] ); 
+        fail_unless( retval == 0, 
+                "SIP get next unsigned integer failed." );
+
+#ifdef CHECK_UINT_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_next_uint() value = %d\n", value[1] );
+#endif
+
+        retval = mip_get_next_tagged_uint( mip, tag, &value[2] ); 
+        fail_unless( retval == 0, 
+                "SIP get next tagged unsigned integer failed." );
+
+#ifdef CHECK_UINT_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_next_tagged_uint() value = %d\n", value[2] );
+#endif        
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_char_functions)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "   EXAMPLE_STRING1 TAG=ABC  EXAMPLE_STRING2 TEST TAG=CDEF";
+        int    start_pos    = 0;
+        int    length       = strlen( section );
+ 
+        TSChar tag[] = "TAG";
+        TSChar chr[3];
+        int   retval;        
+
+        chr[0] = 0;
+        chr[1] = 0;
+        chr[2] = 0;
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_char( mip, tag, chr[0] ); 
+        fail_unless( retval == 0, 
+                "SIP get char failed." );
+
+#ifdef CHECK_CHAR_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_char() chr = %c\n", chr[0] );        
+#endif
+
+        retval = mip_get_next_char( mip, chr[1] ); 
+        fail_unless( retval == 0, 
+                "SIP get next char failed." );
+
+#ifdef CHECK_CHAR_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_next_char() chr = %c\n", chr[1] );
+#endif
+
+        retval = mip_get_next_tagged_char( mip, tag, chr[2] ); 
+        fail_unless( retval == 0, 
+                "SIP get next tagged char failed." );
+
+#ifdef CHECK_CHAR_DEBUG_PRINTF_OUTPUT
+        printf( "mip_get_next_tagged_char() chr = %c\n", chr[2] );
+#endif
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_remainder)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = "       EXAMPLE_STRING1  EXAMPLE_STRING2   ";
+        int       start_pos = 0;
+        int       length    = strlen( section );
+        TSChar*   string    = INITPTR;
+        int       retval    = 0;
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        mip->item_skip_and_mark_pos_ = mip->item_line_section_;
+
+        retval = mip_get_remainder( mip, &string );
+        fail_unless( retval == 0, 
+                "SIP get remainder failed." );
+
+#ifdef CHECK_REMAINDER_DEBUG_PRINTF_OUTPUT
+        printf("mip_get_remainder = %s\n", string );
+#endif
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_set_parsing_type)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = " TAG = EXAMPLE_STRING1 ";
+        int       start_pos = 0;
+        int       length    = strlen( section );
+        int       retval    = 0;
+
+
+       retval = mip_set_parsing_type( INITPTR, EQuoteStyleParsing );
+       fail_unless( retval == -1, 
+                "SIP set parsing type with mip INITPTR failed." );
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+       retval = mip_set_parsing_type( mip, EQuoteStyleParsing );
+       fail_unless( retval == 0, 
+                "SIP set parsing type failed." );
+        
+       fail_unless( mip->parsing_type_ == EQuoteStyleParsing, 
+                "SIP set parsing type to Quete Style Parsing failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_parsing_type)
+{
+        MinItemParser* mip       = INITPTR;
+        TSChar          section[] = " TAG = EXAMPLE_STRING1 ";
+        int             start_pos = 0;
+        int             length    = strlen( section );
+        TParsingType    type      = ENormalParsing;
+        int             retval    = 0;
+
+        type = mip_get_parsing_type( INITPTR );
+        fail_unless( type == -1, 
+                "SIP get parsing type with mip INITPTR failed." );
+                
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+        
+        retval = mip_set_parsing_type( mip, EQuoteStyleParsing );
+        fail_unless( retval == 0, 
+                "SIP set parsing type failed." );
+
+        type = mip_get_parsing_type( mip );
+        fail_unless( type == EQuoteStyleParsing, 
+                "SIP get parsing test Quete Style Parsing value failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_next_string_end_bug)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "[Test]\ntitle testi1\ncreate jeesTestModule.so foo\nfoo Example with a lot of pa ra me ters 1 2 3 4 5 666\0delete foo\n[Endtest]";
+
+        /* TAG1 = EXAMPLE_STRING1  TAG2 = EXAMPLE_STRING2  TAG3 = EXAMPLE_STRING3" */
+        int   start_pos     = 0;
+        int   length        = strlen( section );
+ 
+        TSChar  tag[]       = "foo";
+        TSChar* string      = INITPTR;             
+        int     retval      = 0;        
+        int     i;        
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_string( mip, tag, &string ); 
+        fail_unless( retval == 0, 
+                "SIP get string failed." );
+
+        while ( mip_get_next_string( mip, &string ) == 0 ) {
+               printf("DEBUG%d: retval=%d string={%s}\n", i, retval, string);
+        }
+
+        if ( string != INITPTR ) DELETE( string );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+
+START_TEST(test_mip_get_string_with_quotes_end_bug)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar section[]    = "TAG1 = \"HELLO WORLD 1\" TAG2 = \"HELLO WORLD 2\" TAG3 = \"HELLO WORLD 3  ";
+        int    start_pos    = 0;
+        int    length       = strlen( section );
+ 
+        TSChar* string      = INITPTR;             
+        int     retval      = 0;        
+        int     i;        
+
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, 
+                "SIP creation failed." );
+
+        retval = mip_get_string( mip, "TAG1", &string ); 
+        fail_unless( retval == 0, "SIP get string failed." );
+
+        retval = mip_get_string( mip, "TAG2", &string ); 
+        fail_unless( retval == 0, "SIP get string failed." );
+
+        retval = mip_get_next_string( mip, &string ); 
+        fail_unless( retval == 0, "SIP get string failed." );
+
+        retval = mip_get_string( mip, "TAG3", &string ); 
+        fail_unless( retval == 0, "SIP get string failed." );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_get_next_tagged_string_bug_hunting)
+{
+        MinItemParser* mip = INITPTR;
+        TSChar    section[] = "TEST TAG1 = \"EXAMPLE1 WORD1\" TAG2 = \"EXAMPLE2 STRING\" EXAMPLE WORD2";
+        int       start_pos = 0;
+        int       length    = strlen( section ); 
+        
+        TSChar* string = INITPTR;             
+        int     retval = 0;        
+        
+        mip = mip_create( section, start_pos, length );
+        fail_unless( mip != INITPTR, "SIP creation failed." );
+
+        // mip_set_parsing_type( mip, ENormalParsing );
+        mip_set_parsing_type( mip, EQuoteStyleParsing );
+        
+        retval = mip_get_string( mip, "TAG1", &string ); 
+        // fail_unless( retval == 0, "SIP get string failed." );
+
+        retval = mip_get_next_tagged_string( mip, "TAG2", &string ); 
+        // fail_unless( retval == 0, "SIP get string failed." );
+
+        if ( string != INITPTR ) DELETE( string );
+
+        mip_destroy( &mip );
+        fail_unless( mip == INITPTR, "SIP destroying failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_replace1)
+{
+        int retval = mip_replace(INITPTR,"ala","makota");
+        fail_unless(retval==-1,"Result differs from expected: %d",retval);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_replace2)
+{
+        int foo = 5;
+        int retval = mip_replace(&foo,INITPTR,"makota");
+        fail_unless(retval==-1,"Result differs from expected: %d",retval);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_replace3)
+{
+        int foo = 5;
+        int retval = mip_replace(&foo,"ala",INITPTR);
+        fail_unless(retval==-1,"Result differs from expected: %d",retval);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_replace4)
+{
+        MinItemParser* mip             = INITPTR;
+        TSChar          section[]       = "create BAZ foo";
+        int             start_pos       = 0;
+        int             length          = strlen( section );
+        int             retval          = 0;
+        
+        mip = mip_create( section, start_pos, length );
+        retval = mip_replace( mip, "WWW", "FOO" );
+        fail_unless(retval==0,"Result differ from expected %d",retval);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_replace5)
+{
+        MinItemParser* mip             = INITPTR;
+        TSChar          section[]       = "create BAZ foo";
+        int             start_pos       = 0;
+        int             length          = strlen( section );
+        int             retval          = 0;
+        
+        mip = mip_create( section, start_pos, length );
+        retval = mip_replace( mip, "WWW", "FOO" );
+        fail_unless( strcmp(mip->item_line_section_,section)==0
+                   , "Result differs from expected [%s]!=[%s]"
+                   , mip->item_line_section_,section);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_replace6)
+{
+        MinItemParser* mip             = INITPTR;
+        TSChar          section[]       = "create BAZ foo";
+        int             start_pos       = 0;
+        int             length          = strlen( section );
+        int             retval          = 0;
+        
+        mip = mip_create( section, start_pos, length );
+        retval = mip_replace( mip, "BAZ", "FOO" );
+        fail_unless( strcmp(mip->item_line_section_,"create FOO foo")==0
+                   , "Result differs from expected [%s]!=[%s]"
+                   , mip->item_line_section_,"create FOO foo");
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_replace7)
+{
+        MinItemParser* mip             = INITPTR;
+        TSChar          section[]       = "create BAZ foo";
+        int             start_pos       = 0;
+        int             length          = strlen( section );
+        int             retval          = 0;
+        
+        mip = mip_create( section, start_pos, length );
+        retval = mip_replace( mip, "BAZ", "FO" );
+        fail_unless( strcmp(mip->item_line_section_,"create FO foo")==0
+                   , "Result differs from expected [%s]!=[%s]"
+                   , mip->item_line_section_,"create FO foo");
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mip_replace8)
+{
+        MinItemParser* mip             = INITPTR;
+        TSChar          section[]       = "create BAZ foo";
+        int             start_pos       = 0;
+        int             length          = strlen( section );
+        int             retval          = 0;
+        
+        mip = mip_create( section, start_pos, length );
+        retval = mip_replace( mip, "BAZ", "FOOO" );
+        fail_unless( strcmp(mip->item_line_section_,"create FOOO foo")==0
+                   , "Result differs from expected [%s]!=[%s]"
+                   , mip->item_line_section_,"create FOOO foo");
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* min_item_parser_suite()
+{
+        Suite * s = suite_create ( "min_item_parser" );
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ( "Core" );
+
+        /* SIP creation function tests */
+        tcase_add_test ( tc_core, test_mip_create_ok ); 
+        tcase_add_test ( tc_core, test_mip_create_initptr );
+        tcase_add_test ( tc_core, test_mip_create_null );
+        tcase_add_test ( tc_core, test_mip_create_start_pos_negative );
+        tcase_add_test ( tc_core, test_mip_create_start_pos_over_length );
+        tcase_add_test ( tc_core, test_mip_create_length_negative );
+
+        /* SIP parsing start and edn position function tests */
+        tcase_add_test ( tc_core, test_mip_parse_start_and_end_pos_ok );
+        tcase_add_test ( tc_core, test_mip_parse_start_and_end_pos_initptr );
+        tcase_add_test ( tc_core, test_mip_parse_start_and_end_pos_only_tag );
+        tcase_add_test ( tc_core, test_mip_get_string_with_backlashes );
+        tcase_add_test ( tc_core, test_mip_get_string_with_backlashes_without_comments );
+        tcase_add_test ( tc_core, test_mip_get_string_with_quotes );
+        tcase_add_test ( tc_core, test_mip_get_string_with_first_quote );
+
+        /* SIP get string function tests */
+        tcase_add_test ( tc_core, test_mip_get_string );
+        tcase_add_test ( tc_core, test_mip_get_string_initptr );
+        tcase_add_test ( tc_core, test_mip_get_string_length_zero );
+        tcase_add_test ( tc_core, test_mip_get_next_string );
+        tcase_add_test ( tc_core, test_mip_get_next_tagged_string );
+
+        /* SIP get integer value function tests */
+        tcase_add_test ( tc_core, test_mip_get_int );
+        tcase_add_test ( tc_core, test_mip_get_next_int );
+        tcase_add_test ( tc_core, test_mip_get_next_tagged_int );
+
+        /* SIP get unsigned integer value function tests */
+        tcase_add_test ( tc_core, test_mip_get_uint_functions );
+        tcase_add_test ( tc_core, test_mip_get_char_functions );
+        tcase_add_test ( tc_core, test_mip_get_remainder );
+        
+        /* SIP parsing type tests */
+        tcase_add_test ( tc_core, test_mip_set_parsing_type );
+        tcase_add_test ( tc_core, test_mip_get_parsing_type );
+
+        /* For possible bug testing... */
+        /*
+        tcase_add_test ( tc_core, test_mip_get_next_string_end_bug );
+        tcase_add_test ( tc_core, test_mip_get_string_with_quotes_end_bug );
+        */
+        tcase_add_test ( tc_core, test_mip_get_next_tagged_string_bug_hunting );
+
+        /* mip_replace */
+        tcase_add_test ( tc_core, test_mip_replace1 );
+        tcase_add_test ( tc_core, test_mip_replace2 );
+        tcase_add_test ( tc_core, test_mip_replace3 );
+        tcase_add_test ( tc_core, test_mip_replace4 );
+        tcase_add_test ( tc_core, test_mip_replace5 );
+        tcase_add_test ( tc_core, test_mip_replace6 );
+        tcase_add_test ( tc_core, test_mip_replace7 );
+        tcase_add_test ( tc_core, test_mip_replace8 );
+
+        suite_add_tcase ( s, tc_core );
+
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int min_item_parser_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = min_item_parser_suite ();
+        SRunner * sr = srunner_create (s);
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

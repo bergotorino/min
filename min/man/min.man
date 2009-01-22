@@ -1,0 +1,58 @@
+.\" Process this file with
+.\" groff -man -Tascii min.1
+.\" 
+.TH MIN 1 "December 2008" Linux "User Manuals"
+.SH NAME
+min \- test framework for POSIX environment
+.SH SYNOPSIS
+.B min [options]
+.SH DESCRIPTION
+.B min 
+is an advanced test framework for Linux based devices. 
+It is designed to allow test case execution as well as it simplifies 
+test case creation. Test cases are provided in dynamically loaded test modules 
+implementing the MIN test module API 
+.BR tm_get_test_cases (3)
+and
+.BR tm_run_test_case (3)
+.SH OPTIONS
+.TP
+\fB\-h\fR,  \fB\-\-help\fR
+Display short help and exit
+.TP
+\fB\-v\fR,  \fB\-\-version\fR
+Display version information and exit
+.TP
+\fB\-c\fR,  \fB\-\-console\fR
+Start MIN without consoleui
+.TP
+\fB\-i\fR,  \fB\-\-info\fR test_module
+Print details about test_module and exit
+.TP
+\fB\-x\fR,  \fB\-\-execute\fR test_module[:configuration_file:... ]
+Execute test cases from test_module (with configuration file(s))
+
+.SH FILES
+.I /etc/min.conf
+.RS
+The system wide configuration file. See
+.BR min.conf (5)
+for further details.
+
+.SH AUTHOR
+Written by Robert Galkowski, Marko Hyyppä, Juha Perälä, Sampo Saaristo and Konrad Marek Zapalowicz.
+
+.SH "REPORTING BUGS"
+Report bugs to DG.MIN\-Support@nokia.com
+
+.SH COPYRIGHT
+MIN Test Framework, © Nokia 2008,
+licensed under the Gnu General Public License version 2,
+Contact: Antti Heimola, DG.MIN-Support@nokia.com
+
+.SH "SEE ALSO"
+.BR createtestmodule (1),
+.BR tm_get_test_cases (3),
+.BR tm_run_test_case (3),
+.BR min.conf (5)
+

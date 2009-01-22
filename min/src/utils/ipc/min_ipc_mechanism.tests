@@ -1,0 +1,202 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Konrad Marek Zapalowicz
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       min_ipc_mechanism.test
+ *  @version    0.1
+ *  @brief      This file contains test for MIN IPC Mechanism
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+#include <stdio.h>
+#include "min_ipc_mechanism.h"
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_ipc_open)
+{
+        char buf[512];
+        char command[256];
+        int mqid = 0;
+        FILE *fp = NULL;
+        buf[0]   = '\0';
+
+        mqid = mq_open_queue('a');
+        sprintf(command,"ipcs -q | grep %d",mqid);
+        fp = popen(command, "r");
+        fail_unless(fp != NULL,"Error executing ipcs command");
+        while( fgets(buf, 512, fp) != NULL )
+        fail_unless(strlen(buf) > 0,"Queue not opened.");
+        pclose(fp);
+
+        mqid = mq_open_queue('a');
+        sprintf(command,"ipcs -q | grep %d",mqid);
+        fp = popen(command, "r");
+        fail_unless(fp != NULL,"Error executing ipcs command");
+        while( fgets(buf, 512, fp) != NULL )
+        fail_unless(strlen(buf) > 0,"Queue not opened.");
+        pclose(fp);
+
+        mqid = mq_open_queue('a');
+        sprintf(command,"ipcs -q | grep %d",mqid);
+        fp = popen(command, "r");
+        fail_unless(fp != NULL,"Error executing ipcs command");
+        while( fgets(buf, 512, fp) != NULL )
+        fail_unless(strlen(buf) > 0,"Queue not opened.");
+        pclose(fp);
+        mq_close_queue(mqid);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_ipc_close)
+{
+        char buf[512];
+        char command[256];
+        int mqid = 0;
+        FILE *fp = NULL;
+        buf[0]   = '\0';
+
+        mqid = mq_open_queue('a');
+        sprintf(command,"ipcs -q | grep %d",mqid);
+        fp = popen(command, "r");
+        fail_unless(fp != NULL,"Error executing ipcs command");
+        while( fgets(buf, 512, fp) != NULL )
+        fail_unless(strlen(buf) > 0,"Queue not opened.");
+        pclose(fp);
+        mq_close_queue(mqid);
+        fp = popen(command, "r");
+        fail_unless(fp != NULL,"Error executing ipcs command");
+        while( fgets(buf, 512, fp) != NULL )
+        fail_unless(strlen(buf) == 0,"Queue not closed.");
+        pclose(fp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_ipc_peek)
+{
+        int mqid = 0;
+        int peek = 0;
+        mqid = mq_open_queue('a');
+        fail_unless( mqid != -1, "Open queue error" );
+        peek = mq_peek_message(mqid,0);
+        fail_unless( peek == 0, "Peek queue error" );
+        mq_send_message2(mqid,1,1,1,"");
+        peek = mq_peek_message(mqid,0);
+        fail_unless( peek == 1, "Peek queue error" );
+        mq_close_queue(mqid);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_ipc_send)
+{
+        int mqid = mq_open_queue('a');
+        int peek   = 0;
+        int retval = 0;
+        fail_unless( mqid != -1, "Open queue error" );
+        retval = mq_send_message2(mqid,1,1,1,"");
+        fail_unless(retval != -1, "Problem with sending message");
+        peek = mq_peek_message(mqid,0);
+        fail_unless( peek == 1, "Peek queue error" );
+        mq_close_queue(mqid);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_ipc_recieve)
+{
+        int mqid = mq_open_queue('a');
+        int retval = 0;
+        MsgBuffer msg;
+        fail_unless( mqid != -1, "Open queue error" );
+        retval = mq_read_message(0,0,&msg);
+        fail_unless( retval == -1, "Read queue error" );
+        retval = mq_send_message2(mqid,1,1,1,"ala ma kota");
+        fail_unless(retval != -1, "Problem with sending message");
+        retval = mq_read_message(mqid,0,&msg);
+        fail_unless( retval != -1, "Read queue error" );
+        fail_unless( msg.receiver_ == 1, "Reciever field bad value" );
+        fail_unless( msg.sender_ == getpid(), "Sender field bad value" );
+        fail_unless( msg.type_ == 1, "Type field bad value" );
+        fail_unless( msg.param_ == 1, "Param field bad value" );
+        fail_unless( strcmp(msg.message_,"ala ma kota")==0
+                   , "Message field bad value" );
+        mq_close_queue(mqid);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* ipc_suite()
+{
+        Suite * s = suite_create ("ipc");
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+        tcase_add_test (tc_core, test_ipc_open);
+        tcase_add_test (tc_core, test_ipc_close);
+        tcase_add_test (tc_core, test_ipc_peek);
+        tcase_add_test (tc_core, test_ipc_send);
+//        tcase_add_test (tc_core, test_ipc_recieve);
+        suite_add_tcase (s, tc_core);
+
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int ipc_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = ipc_suite ();
+        SRunner * sr = srunner_create (s);
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

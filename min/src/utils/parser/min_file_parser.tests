@@ -1,0 +1,1237 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Konrad Marek Zapalowicz
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       min_file_parser.test
+ *  @version    0.1
+ *  @brief      This file contains test for MIN File Parser
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( sfp == INITPTR
+                   , "sfp != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create2)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( sfp != INITPTR
+                   , "sfp == INITPTR" );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create3)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( sfp->base_file_ == fp
+                   , "sfp->base_file_ != fp" );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create4)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( sfp->comment_type_ == ENoComments
+                   , "Comment type differs from expected" );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create5)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( sfp->is_unicode_ == EFileNotUnicode
+                   , "sfp->is_unicode_ differs from expected [%d]"
+                   , sfp->is_unicode_ );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create6)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( sfp->bytes_per_char_ == 1
+                   , "Bytes per char has inproper value" );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create7)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( sfp->current_file_ == sfp->base_file_
+                   , "sfp->current_file_ differs from expected" );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create8)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( sfp->file_stack_ != INITPTR
+                   , "Allocating of DLList has failed" );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create9)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( sfp->file_stack_ != INITPTR
+                   , "sfp->file_stack_ == INITPTR" );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create10)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( sfp->file_names_ != INITPTR
+                   , "sfp->file_names_ == INITPTR" );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create11)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( dl_list_size(sfp->file_names_) == 1
+                   , "dl_list_size(sfp->file_names_) != 1 [%d]"
+                   , dl_list_size(sfp->file_names_) );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_create12)
+{
+        FILE           * fp  = INITPTR;
+        MinFileParser * sfp = INITPTR;
+
+        fp  = fopen("min.cfg","rb");
+        sfp = sfp_create( fp
+                        , EFileNotUnicode
+                        , ENoComments );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == 0
+                   , "dl_list_size(sfp->file_stack_) != 0 [%d]"
+                   , dl_list_size(sfp->file_stack_) );
+
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_destroy)
+{
+        MinFileParser * sfp = INITPTR;
+        sfp_destroy(&sfp);
+        fail_unless( sfp == INITPTR
+                   , "Pointer not nulled after deletion" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_destroy2)
+{
+        FILE           * fp  = fopen("sfp_test.txt","rb");
+        MinFileParser * sfp = sfp_create( fp, 1, ENoComments );
+        sfp_destroy(&sfp);
+        fail_unless( sfp == INITPTR, "Pointer not nulled after deletion" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_read_line)
+{
+        MinFileParser * sfp    = INITPTR;
+        char           * buffer = INITPTR;
+        int              retval = 0;
+        char             eol[3];
+
+        retval = sfp_read_line( sfp
+                              , &buffer
+                              , eol );
+
+        fail_unless( retval == ESFalse
+                   , "Returned value differs from expected [%d]"
+                   , retval );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_read_line2)
+{
+        MinFileParser * sfp    = INITPTR;
+        char           * buffer = INITPTR;
+        int              retval = 0;
+        char             eol[3];
+
+        retval = sfp_read_line( sfp
+                              , &buffer
+                              , eol );
+
+        fail_unless( buffer == INITPTR
+                   , "buffer != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_read_line3)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * buffer = INITPTR;
+        int              retval = 0;
+        char             eol[3];
+
+        retval = sfp_read_line( sfp
+                              , &buffer
+                              , eol );
+
+        fail_unless( retval = ESTrue
+                   , "Returned value differs from expected [%d]"
+                   , retval );
+
+        free(buffer);
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_read_line4)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * buffer = INITPTR;
+        int              retval = 0;
+        char             eol[3];
+
+        retval = sfp_read_line( sfp
+                              , &buffer
+                              , eol );
+
+        fail_unless( buffer != INITPTR
+                   , "buffer == INITPTR" );
+
+        free(buffer);
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_read_line5)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * buffer = INITPTR;
+        int              retval = 0;
+        char             eol[3];
+
+        retval = sfp_read_line( sfp
+                              , &buffer
+                              , eol );
+
+        fail_unless( strcmp(buffer,"#") == 0
+                   , "Result differs from expected [%s]"
+                   , buffer );
+
+        free(buffer);
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_read_line6)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * buffer = INITPTR;
+        int              retval = 0;
+        char             eol[3];
+
+        retval = sfp_read_line( sfp
+                              , &buffer
+                              , eol );
+
+        fail_unless( eol[0] == '\n'
+                   , "EOL is wrong [%s]"
+                   , eol );
+
+        free(buffer);
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_read_line7)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * buffer = INITPTR;
+        int              retval = 0;
+        char             eol[3];
+
+        retval = sfp_read_line( sfp
+                              , &buffer
+                              , eol );
+        free(buffer);
+        retval = sfp_read_line( sfp
+                              , &buffer
+                              , eol );
+
+        fail_unless( strcmp(buffer,"# This is MIN parser test file") == 0
+                   , "Result differs from expected [%s]"
+                   , buffer );
+
+        free(buffer);
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_read_line8)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * buffer = INITPTR;
+        int              retval = 0;
+        char             eol[3];
+
+        retval = sfp_read_line( sfp
+                              , &buffer
+                              , eol );
+        free(buffer);
+        retval = sfp_read_line( sfp
+                              , &buffer
+                              , eol );
+
+        fail_unless( strcmp(eol,"\n") == 0
+                   , "Result differs from expected [%s]"
+                   , buffer );
+
+        free(buffer);
+        sfp_destroy(&sfp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_comments_line)
+{
+        char* output = INITPTR;
+
+        sfp_replace_comments_line( INITPTR
+                                 , &output
+                                 , EQuota );
+
+        fail_unless( output == INITPTR
+                   , "output != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_comments_line2)
+{
+        char  text[] = "A\"la \"ma kota";
+        char* output = INITPTR;
+
+        sfp_replace_comments_line( text
+                                 , &output
+                                 , EQuota );
+
+        fail_unless( output != INITPTR
+                   , "output == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_comments_line3)
+{
+        char text[] = "A\"la \"ma kota";
+        char* output;
+        sfp_replace_comments_line( text
+                                 , &output
+                                 , EQuota );
+        fail_unless( strcmp(output,"la") == 0
+                   , "Result differs from expected [%s]"
+                   , output );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_comments_line4)
+{
+        char  text[] = "Ala ma kota kot ma ale\n";
+        char* output;
+        sfp_replace_comments_line( text
+                                 , &output
+                                 , EQuota );
+        fail_unless( strcmp(output,"") == 0
+                   , "Result differs from expected [%s]"
+                   , output );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_comments_line5)
+{
+        char text[] = "A\"la \"ma kota/* kot */m*a // ale";
+        char* output;
+        sfp_replace_comments_line( text
+                                 , &output
+                                 , EStart );
+        fail_unless( strcmp(output,"A     ma kota         m*a") == 0
+                   , "Result differs from expected [%s]"
+                   , output );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_comments_line6)
+{
+        char text[] = "Ala ma kota kot ma ale";
+        char* output;
+        sfp_replace_comments_line( text
+                                 , &output
+                                 , EStart );
+        fail_unless( strcmp(output,text) == 0
+                   , "Result differs from expected [%s]"
+                   , output );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_comments_line7)
+{
+        char text[] = "A\"la \"ma kota/* kot */m*a // ale";
+        char* output;
+        sfp_replace_comments_line( text
+                                 , &output
+                                 , EQuota );
+        fail_unless( strcmp(output,"la") == 0
+                   , "Result differs from expected [%s]"
+                   , output );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_hash_comments_line)
+{
+        char* output = INITPTR;
+        sfp_replace_hash_comments_line( INITPTR
+                                      , &output );
+        fail_unless( output == INITPTR
+                   , "output != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_hash_comments_line2)
+{
+        char  text[] = "A#ma kota";
+        char* output = INITPTR;
+        sfp_replace_hash_comments_line( text
+                                      , &output );
+        fail_unless( output != INITPTR
+                   , "output == INITPTR" );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_hash_comments_line3)
+{
+        char  text[] = "A#ma kota";
+        char* output = INITPTR;
+        sfp_replace_hash_comments_line( text
+                                      , &output );
+        fail_unless( strcmp(output,"A") == 0
+                   , "Returned value differs from expected [%s]"
+                   , output );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_hash_comments_line4)
+{
+        char  text[] = "A ma kota";
+        char* output = INITPTR;
+        sfp_replace_hash_comments_line( text
+                                      , &output );
+        fail_unless( strcmp(output,text) == 0
+                   , "Returned value differs from expected [%s]"
+                   , output );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_hash_comments_line5)
+{
+        char  text[] = "";
+        char* output = INITPTR;
+        sfp_replace_hash_comments_line( text
+                                      , &output );
+        fail_unless( strcmp(output,text) == 0
+                   , "Returned value differs from expected [%s]"
+                   , output );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_hash_comments_line6)
+{
+        char  text[] = "#";
+        char* output = INITPTR;
+        sfp_replace_hash_comments_line( text
+                                      , &output );
+        fail_unless( strcmp(output,"") == 0
+                   , "Returned value differs from expected [%s]"
+                   , output );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_replace_hash_comments_line7)
+{
+        char  text[] = "Ala#ma kota#kot ma ale";
+        char* output = INITPTR;
+        sfp_replace_hash_comments_line( text
+                                      , &output );
+        fail_unless( strcmp(output,"Ala") == 0
+                   , "Returned value differs from expected [%s]"
+                   , output );
+        free(output);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_clear_file_stack)
+{
+        MinFileParser* sfp = INITPTR;
+        sfp_clear_file_stack( sfp );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_clear_file_stack2)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        sfp_clear_file_stack( sfp );
+
+        fail_unless( sfp->file_stack_ != INITPTR
+                   , "sfp->file_stack_ == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_clear_file_stack3)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        sfp_clear_file_stack( sfp );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == 0
+                   , "sfp->file_stack_ not empty after clear operation [%d]"
+                   , dl_list_size(sfp->file_stack_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_clear_file_stack4)
+{
+        char             path[] = "/home/maemo/work/min/debug/tests/module.cfg";
+        char             path2[]= "/home/maemo/work/min/debug/tests/file.cfg";
+        FILE           * fp     = fopen("min.cfg","r");
+        FILE           * fp2    = fopen("module.cfg","r");
+        FILE           * fp3    = fopen("file.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        FILE*            fi     = INITPTR;
+
+        dl_list_add(sfp->file_names_,path);
+        dl_list_add(sfp->file_names_,path2);
+        dl_list_add( sfp->file_stack_, fp2 );
+        dl_list_add( sfp->file_stack_, fp3 );
+
+        sfp_clear_file_stack( sfp );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == 0
+                   , "sfp->file_stack_ not empty after clear operation [%d]"
+                   , dl_list_size(sfp->file_stack_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_pop_from_file_stack)
+{
+        MinFileParser* sfp = INITPTR;
+        sfp_pop_from_file_stack( sfp );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_pop_from_file_stack2)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        sfp_pop_from_file_stack( sfp );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_pop_from_file_stack3)
+{
+        char             path[4096];
+        char             path2[4096];
+
+        FILE           * fp     = fopen("min.cfg","r");
+        FILE           * fp2    = fopen("module.cfg","r");
+        FILE           * fp3    = fopen("file.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+
+        sprintf(path, "%s/module.cfg", getenv("PWD"));
+        sprintf(path, "%s/file.cfg", getenv("PWD"));
+
+        dl_list_add(sfp->file_names_,path);
+        dl_list_add(sfp->file_stack_,fp2);
+
+        dl_list_add(sfp->file_names_,path2);
+        dl_list_add(sfp->file_stack_,fp3);
+
+        sfp_pop_from_file_stack( sfp );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == 1
+                   , "sfp->file_stack_ size not decreased after popping [%d]"
+                   , dl_list_size(sfp->file_stack_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_pop_from_file_stack4)
+{
+        char             path[4096];
+        char             path2[4096];
+
+        FILE           * fp     = fopen("min.cfg","r");
+        FILE           * fp2    = fopen("module.cfg","r");
+        FILE           * fp3    = fopen("file.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        int              val    = 0;
+
+        sprintf(path, "%s/module.cfg", getenv("PWD"));
+        sprintf(path2, "%s/file.cfg", getenv("PWD"));
+
+        dl_list_add(sfp->file_names_,path);
+        dl_list_add(sfp->file_stack_,fp2);
+
+        dl_list_add(sfp->file_names_,path2);
+        dl_list_add(sfp->file_stack_,fp3);
+
+        val = dl_list_size(sfp->file_names_);
+
+        sfp_pop_from_file_stack( sfp );
+
+        fail_unless( dl_list_size(sfp->file_names_) == (val-1)
+                   , "sfp->file_names_ size not decreased after popping [%d]"
+                   , dl_list_size(sfp->file_names_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_pop_from_file_stack5)
+{
+        char             path[4096];
+        FILE           * fp     = fopen("min.cfg","r");
+        FILE           * fp2    = fopen("module.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        int              val    = 0;
+
+        sprintf(path, "%s/module.cfg", getenv("PWD"));
+
+        dl_list_add(sfp->file_names_,path);
+        dl_list_add(sfp->file_stack_,fp2);
+
+        val = dl_list_size(sfp->file_names_);
+
+        sfp_pop_from_file_stack( sfp );
+
+        fail_unless( dl_list_size(sfp->file_names_) == (val-1)
+                   , "sfp->file_names_ size not decreased after popping [%d]"
+                   , dl_list_size(sfp->file_names_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_pop_from_file_stack6)
+{
+        char             path[4096];
+        FILE           * fp     = fopen("min.cfg","r");
+        FILE           * fp2    = fopen("module.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+
+        sprintf(path, "%s/module.cfg", getenv("PWD"));
+
+        dl_list_add(sfp->file_names_,path);
+        dl_list_add(sfp->file_stack_,fp2);
+
+        sfp->current_file_ = INITPTR;
+
+        sfp_pop_from_file_stack( sfp );
+
+        fail_unless( sfp->current_file_ == fp
+                   , "sfp->current_file_ != fp" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_pop_from_file_stack7)
+{
+        char             path[4096];
+        FILE           * fp     = fopen("min.cfg","r");
+        FILE           * fp2    = fopen("module.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+
+        sprintf(path, "%s/module.cfg", getenv("PWD"));
+
+        dl_list_add(sfp->file_names_,path);
+        dl_list_add(sfp->file_stack_,fp2);
+
+        sfp->current_file_ = INITPTR;
+
+        sfp_pop_from_file_stack( sfp );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == dl_list_size(sfp->file_names_)-1
+                   , "file and filename stacks differs in size [%d!=%d]"
+                   , dl_list_size(sfp->file_stack_), dl_list_size(sfp->file_names_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_push_file_to_stack)
+{
+        MinFileParser * sfp  = INITPTR;
+        char*            file = "module.cfg";
+        sfp_push_file_to_stack( sfp, file );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_push_file_to_stack2)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char*            file   = INITPTR;
+        sfp_push_file_to_stack( sfp, file );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == 0
+                   , "dl_list_size(sfp->file_stack_) != 0 [%d]"
+                   , dl_list_size(sfp->file_stack_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_push_file_to_stack3)
+{
+        char             path[4096];
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+
+        sprintf(path, "%s/module.cfg", getenv("PWD"));
+
+        sfp_push_file_to_stack( sfp, path );
+
+        fail_unless( sfp->current_file_ != fp
+                   , "Current file has wrong value" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_push_file_to_stack4)
+{
+        char             path[4096];
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        int              val    = dl_list_size(sfp->file_stack_);
+
+        sprintf(path, "%s/module.cfg", getenv("PWD"));
+
+        dl_list_add( sfp->file_names_, path );
+
+        sfp_push_file_to_stack( sfp, path );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == val
+                   , "Inproper size of file stack [%d]"
+                   , dl_list_size(sfp->file_stack_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_push_file_to_stack5)
+{
+        char             path[4096];
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        int              val    = dl_list_size(sfp->file_stack_);
+
+        sprintf(path, "%s/module.cfg", getenv("PWD"));
+
+        sfp_push_file_to_stack( sfp, path );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == val+1
+                   , "Inproper size of file stack [%d]"
+                   , dl_list_size(sfp->file_stack_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_push_file_to_stack6)
+{
+        char             path[4096];
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        int              val    = dl_list_size(sfp->file_stack_);
+
+        sprintf(path, "%s/module.cfg", getenv("PWD"));
+
+        sfp_push_file_to_stack( sfp, path );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == dl_list_size(sfp->file_names_)-1
+                   , "file and filename stacks differs in size [%d!=%d]"
+                   , dl_list_size(sfp->file_stack_), dl_list_size(sfp->file_names_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_push_file_to_stack7)
+{
+        char             path[4096];
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        int              val    = dl_list_size(sfp->file_stack_);
+
+        sprintf(path, "%s/module.cfg", getenv("PWD"));
+
+        sfp_push_file_to_stack( sfp, path );
+
+        fail_unless( sfp->current_file_ != fp
+                   , "Current file has wrong value" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_push_file_to_stack8)
+{
+        char             path[] = "/home/maemo/work/min/debug/tests/bla.cfg";
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        int              val    = dl_list_size(sfp->file_stack_);
+
+        sfp_push_file_to_stack( sfp, path );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == val
+                   , "Inproper size of file stack [%d]"
+                   , dl_list_size(sfp->file_stack_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_push_file_to_stack9)
+{
+        char             path[] = "/home/maemo/work/min/debug/tests/bla.cfg";
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        int              val    = dl_list_size(sfp->file_stack_);
+
+        sfp_push_file_to_stack( sfp, path );
+
+        fail_unless( sfp->current_file_ == fp
+                   , "Current file has wrong value" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_push_file_to_stack10)
+{
+        char             path[] = "/home/maemo/work/min/debug/tests/bla.cfg";
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        int              val    = dl_list_size(sfp->file_stack_);
+
+        sfp_push_file_to_stack( sfp, path );
+
+        fail_unless( dl_list_size(sfp->file_stack_) == dl_list_size(sfp->file_names_)-1
+                   , "file and filename stacks differs in size [%d!=%d]"
+                   , dl_list_size(sfp->file_stack_), dl_list_size(sfp->file_names_) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_next_section)
+{
+        MinFileParser * sfp    = INITPTR;
+        char           * sect   = INITPTR;
+        int              offset = 0;
+
+        sect = sfp_next_section( sfp
+                               , "[Engine_Defaults]"
+                               , "[End_Defaults]"
+                               , &offset , 1 );
+
+        fail_unless( sect == INITPTR
+                   , "Return value difers from expected (!= INITPTR)" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_next_section2)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * sect   = INITPTR;
+        int              offset = 0;
+
+        sect = sfp_next_section( sfp
+                               , INITPTR
+                               , "[End_Defaults]"
+                               , &offset , 1 );
+
+        fail_unless( sect == INITPTR
+                   , "Return value difers from expected (!= INITPTR)" );
+        sfp_destroy(&sfp);
+        fclose(fp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_next_section3)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * sect   = INITPTR;
+        int              offset = 0;
+
+        sect = sfp_next_section( sfp
+                               , "[Engine_Defaults]"
+                               , INITPTR
+                               , &offset , 1 );
+
+        fail_unless( sect == INITPTR
+                   , "Return value difers from expected (!= INITPTR)" );
+        sfp_destroy(&sfp);
+        fclose(fp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_next_section4)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * sect   = INITPTR;
+        int              offset = -1;
+
+        sect = sfp_next_section( sfp
+                               , "[Engine_Defaults]"
+                               , "[End_Defaults]"
+                               , &offset , 1 );
+
+        fail_unless( sect == INITPTR
+                   , "Return value difers from expected (!= INITPTR)" );
+        sfp_destroy(&sfp);
+        fclose(fp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_next_section5)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * sect   = INITPTR;
+        int              offset = 0;
+
+        sect = sfp_next_section( sfp
+                               , "[Engine_Defaults]"
+                               , "[End_Defaults]"
+                               , &offset , -1 );
+
+        fail_unless( sect == INITPTR
+                   , "Return value difers from expected (!= INITPTR)" );
+        sfp_destroy(&sfp);
+        fclose(fp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_next_section6)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * sect   = INITPTR;
+        int              offset = 0;
+
+        sect = sfp_next_section( sfp
+                               , "[Engine_Defaults]"
+                               , "[End_Defaults]"
+                               , &offset , 0 );
+
+        fail_unless( sect == INITPTR
+                   , "Return value difers from expected (!= INITPTR)" );
+        sfp_destroy(&sfp);
+        fclose(fp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_next_section7)
+{
+        FILE           * fp     = fopen("min.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * sect   = INITPTR;
+        int              offset = 0;
+
+        sect = sfp_next_section( sfp
+                               , "[Engine_Defaults]"
+                               , "[End_Defaults]"
+                               , &offset , 1 );
+
+        fail_unless( sect != INITPTR
+                   , "Return value difers from expected (== INITPTR)" );
+
+        free(sect);
+        sfp_destroy(&sfp);
+        fclose(fp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_sfp_next_section8)
+{
+        FILE           * fp     = fopen("module.cfg","r");
+        MinFileParser * sfp    = sfp_create(fp,EFileNotUnicode,ENoComments);
+        char           * sect   = INITPTR;
+        char           * exp    = "ModuleName= demomodule\n";
+        int              offset = 0;
+
+        sect = sfp_next_section( sfp
+                               , "[New_Module]"
+                               , "[End_Module]"
+                               , &offset , 5 );
+
+        fail_unless( sect == INITPTR
+                   , "sect != INITPTR" );
+
+        sfp_destroy(&sfp);
+        fclose(fp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* min_file_parser_suite()
+{
+        Suite * s = suite_create ("min_file_parser");
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+
+        /* sfp_create */
+        tcase_add_test (tc_core, test_sfp_create);
+        tcase_add_test (tc_core, test_sfp_create2);
+        tcase_add_test (tc_core, test_sfp_create3);
+        tcase_add_test (tc_core, test_sfp_create4);
+        tcase_add_test (tc_core, test_sfp_create5);
+        tcase_add_test (tc_core, test_sfp_create6);
+        tcase_add_test (tc_core, test_sfp_create7);
+        tcase_add_test (tc_core, test_sfp_create8);
+        tcase_add_test (tc_core, test_sfp_create9);
+        tcase_add_test (tc_core, test_sfp_create10);
+        tcase_add_test (tc_core, test_sfp_create11);
+        tcase_add_test (tc_core, test_sfp_create12);
+
+        /* sfp_destroy */
+        tcase_add_test (tc_core, test_sfp_destroy);
+        tcase_add_test (tc_core, test_sfp_destroy2);
+
+        /* sfp_read_line */
+        tcase_add_test (tc_core, test_sfp_read_line);
+        tcase_add_test (tc_core, test_sfp_read_line2);
+        tcase_add_test (tc_core, test_sfp_read_line3);
+        tcase_add_test (tc_core, test_sfp_read_line4);
+        tcase_add_test (tc_core, test_sfp_read_line5);
+        tcase_add_test (tc_core, test_sfp_read_line6);
+        tcase_add_test (tc_core, test_sfp_read_line7);
+        tcase_add_test (tc_core, test_sfp_read_line8);
+
+        /* sfp_replace_comments_line */
+        tcase_add_test (tc_core, test_sfp_replace_comments_line);
+        tcase_add_test (tc_core, test_sfp_replace_comments_line2);
+        tcase_add_test (tc_core, test_sfp_replace_comments_line3);
+        tcase_add_test (tc_core, test_sfp_replace_comments_line4);
+        tcase_add_test (tc_core, test_sfp_replace_comments_line5);
+        tcase_add_test (tc_core, test_sfp_replace_comments_line6);
+        tcase_add_test (tc_core, test_sfp_replace_comments_line7);
+
+        /* sfp_replace_hash_comments_line */
+        tcase_add_test (tc_core, test_sfp_replace_hash_comments_line);
+        tcase_add_test (tc_core, test_sfp_replace_hash_comments_line2);
+        tcase_add_test (tc_core, test_sfp_replace_hash_comments_line3);
+        tcase_add_test (tc_core, test_sfp_replace_hash_comments_line4);
+        tcase_add_test (tc_core, test_sfp_replace_hash_comments_line5);
+        tcase_add_test (tc_core, test_sfp_replace_hash_comments_line6);
+        tcase_add_test (tc_core, test_sfp_replace_hash_comments_line7);
+
+        /* sfp_clear_file_stack */
+        tcase_add_test (tc_core, test_sfp_clear_file_stack);
+        tcase_add_test (tc_core, test_sfp_clear_file_stack2);
+        tcase_add_test (tc_core, test_sfp_clear_file_stack3);
+        tcase_add_test (tc_core, test_sfp_clear_file_stack4);
+
+        /* sfp_pop_from_file_stack */
+        tcase_add_test (tc_core, test_sfp_pop_from_file_stack);
+        tcase_add_test (tc_core, test_sfp_pop_from_file_stack2);
+        tcase_add_test (tc_core, test_sfp_pop_from_file_stack3);
+        tcase_add_test (tc_core, test_sfp_pop_from_file_stack4);
+        tcase_add_test (tc_core, test_sfp_pop_from_file_stack5);
+        tcase_add_test (tc_core, test_sfp_pop_from_file_stack6);
+        tcase_add_test (tc_core, test_sfp_pop_from_file_stack7);
+
+        /* sfp_push_file_to_stack */
+        tcase_add_test (tc_core, test_sfp_push_file_to_stack);
+        tcase_add_test (tc_core, test_sfp_push_file_to_stack2);
+        tcase_add_test (tc_core, test_sfp_push_file_to_stack3);
+        tcase_add_test (tc_core, test_sfp_push_file_to_stack4);
+        tcase_add_test (tc_core, test_sfp_push_file_to_stack5);
+        tcase_add_test (tc_core, test_sfp_push_file_to_stack6);
+        tcase_add_test (tc_core, test_sfp_push_file_to_stack7);
+        tcase_add_test (tc_core, test_sfp_push_file_to_stack8);
+        tcase_add_test (tc_core, test_sfp_push_file_to_stack9);
+        tcase_add_test (tc_core, test_sfp_push_file_to_stack10);
+
+        /* sfp_next_section */
+        tcase_add_test (tc_core, test_sfp_next_section);
+        tcase_add_test (tc_core, test_sfp_next_section2);
+        tcase_add_test (tc_core, test_sfp_next_section3);
+        tcase_add_test (tc_core, test_sfp_next_section4);
+        tcase_add_test (tc_core, test_sfp_next_section5);
+        tcase_add_test (tc_core, test_sfp_next_section6);
+        tcase_add_test (tc_core, test_sfp_next_section7);
+        tcase_add_test (tc_core, test_sfp_next_section8);
+
+        suite_add_tcase (s, tc_core);
+
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int min_file_parser_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = min_file_parser_suite ();
+        SRunner * sr = srunner_create (s);
+
+        /* srunner_set_fork_status (sr, CK_NOFORK); */
+
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

@@ -1,0 +1,262 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Sampo Saaristo
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       check_minunit.c
+ *  @version    0.1
+ *  @brief      This file contains implementation of ...
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDE FILES */
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL FUNCTION PROTOTYPES */
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+#define NUM_MINUNIT_TESTS 16
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL CONSTANTS AND MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MODULE DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ==================== LOCAL FUNCTIONS ==================================== */
+START_TEST (test_get_cases)
+{
+	DLList *cases = dl_list_create();
+	fail_if (cases == INITPTR, "List creation failed");
+	
+	tm_get_test_cases ("no config", &cases );
+	
+	fail_unless (dl_list_size (cases) == NUM_MINUNIT_TESTS, "unexpected number of min unit cases");
+	dl_list_free (&cases);
+}
+END_TEST
+
+START_TEST (test_assertequals_fail)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 1, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_FAILED);
+}
+END_TEST
+
+START_TEST (test_assertequals_ok)
+{ 
+	TestCaseResult tcr;
+
+	tm_run_test_case( 2, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_PASSED);
+}
+END_TEST
+
+START_TEST (test_assertnotequals_fail)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 3, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_FAILED);
+}
+END_TEST
+
+START_TEST(test_assertnotequals_ok)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 4, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_PASSED);
+}
+END_TEST
+
+START_TEST(test_assertnull_fails)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 5, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_FAILED);
+}
+END_TEST
+
+START_TEST(test_assertnull_ok)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 6, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_PASSED);
+}
+END_TEST
+
+START_TEST(test_assertnotnull_fails)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 7, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_FAILED);
+
+}
+END_TEST
+
+START_TEST(test_assertnotnull_ok)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 8, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_PASSED);
+
+}
+END_TEST
+
+START_TEST(test_assertsame_fails)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 9, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_FAILED);
+}
+END_TEST
+
+START_TEST(test_assertsame_ok)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 10, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_PASSED);
+}
+END_TEST
+
+START_TEST(test_assertnotsame_fails)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 11, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_FAILED);
+}
+END_TEST
+
+START_TEST(test_assertnotsame_ok)
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 12, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_PASSED);
+}
+END_TEST
+
+START_TEST(test_asserttrue_fails) 
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 13, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_FAILED);
+
+}
+END_TEST
+
+START_TEST(test_asserttrue_ok) 
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 14, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_PASSED);
+}
+END_TEST
+
+START_TEST(test_assertfalse_fails) 
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 15, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_FAILED);
+}
+END_TEST
+
+START_TEST(test_assertfalse_ok) 
+{
+	TestCaseResult tcr;
+
+	tm_run_test_case( 16, "no config", &tcr);
+	fail_unless (tcr.result_ == TP_PASSED);
+}
+END_TEST
+
+
+Suite *minunit_suite (void)
+     {
+       Suite *s = suite_create ("minunit");
+
+       /* Core test case */
+       TCase *tc_core = tcase_create ("Core");
+       tcase_add_test (tc_core, test_get_cases);
+       tcase_add_test (tc_core, test_assertequals_fail);
+       tcase_add_test (tc_core, test_assertequals_ok);
+       tcase_add_test (tc_core, test_assertnotequals_fail);
+       tcase_add_test (tc_core, test_assertnotequals_ok);
+       tcase_add_test (tc_core, test_assertnull_fails);
+       tcase_add_test (tc_core, test_assertnull_ok);
+       tcase_add_test (tc_core, test_assertnotnull_fails);
+       tcase_add_test (tc_core, test_assertnotnull_ok);
+       tcase_add_test (tc_core, test_assertsame_fails);
+       tcase_add_test (tc_core, test_assertsame_ok);
+       tcase_add_test (tc_core, test_assertnotsame_fails);
+       tcase_add_test (tc_core, test_assertnotsame_ok);
+       tcase_add_test (tc_core, test_asserttrue_fails);
+       tcase_add_test (tc_core, test_asserttrue_ok);
+       tcase_add_test (tc_core, test_assertfalse_fails);
+       tcase_add_test (tc_core, test_assertfalse_ok);
+
+       suite_add_tcase (s, tc_core);
+
+       return s;
+     }
+
+
+/* ======================== FUNCTIONS ====================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+
+
+/* ================= OTHER EXPORTED FUNCTIONS ============================== */
+/* None */
+/* End of file */

@@ -1,0 +1,17 @@
+usr/share/min/minbaselib.lua
+usr/share/man/man1/min.1
+usr/share/man/man5/min.conf.5
+usr/lib/min/luascripter*
+usr/lib/min/scripter*
+usr/lib/min/minDemoModule*
+usr/lib/pkgconfig/min.pc
+usr/lib/libminutils*
+usr/lib/libminevent*
+usr/lib/libmintmapi*
+usr/lib/libmininterference*
+usr/bin/min
+usr/bin/min.bin
+usr/bin/tmc
+usr/bin/patchminconf.sh 
+usr/bin/mindelmod.pl 
+etc/min.conf

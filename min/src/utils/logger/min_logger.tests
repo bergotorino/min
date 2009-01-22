@@ -1,0 +1,796 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Konrad Marek Zapalowicz
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       min_logger.test
+ *  @version    0.1
+ *  @brief      This file contains test for MIN Logger.
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mnl_output_type)
+{
+        MinLogger sl;
+        struct logger_typeinfo_t lt;
+        struct output_typeinfo_t ot;
+        lt.type_ = ESTxt;
+        lt.output_ = dl_list_create();
+        ot.output_type_ = ESFile;
+        dl_list_add(lt.output_,(void*)&ot);
+        sl.endpoint_ = dl_list_create();
+        dl_list_add(sl.endpoint_, (void*)&lt );
+        fail_unless( mnl_output_type(&sl) == ESFile
+                   , "MinLoggerOutput type differs from expected [%d]"
+                   , mnl_output_type(&sl) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mnl_output_type2)
+{
+        MinLogger sl;
+        struct logger_typeinfo_t lt;
+        struct output_typeinfo_t ot;
+        lt.type_ = ESTxt;
+        lt.output_ = dl_list_create();
+        ot.output_type_ = ESSyslog;
+        dl_list_add(lt.output_,(void*)&ot);
+        sl.endpoint_ = dl_list_create();
+        dl_list_add(sl.endpoint_, (void*)&lt );
+        fail_unless( mnl_output_type(&sl) == ESSyslog
+                   , "MinLoggerOutput type differs from expected [%d]"
+                   , mnl_output_type(&sl) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mnl_output_type3)
+{
+        MinLogger sl;
+        struct logger_typeinfo_t lt;
+        struct output_typeinfo_t ot;
+        struct output_typeinfo_t ot2;
+        lt.type_ = ESTxt;
+        lt.output_ = dl_list_create();
+        ot.output_type_ = ESFile;
+        ot2.output_type_ = ESSyslog;
+        dl_list_add(lt.output_,(void*)&ot);
+        dl_list_add(lt.output_,(void*)&ot2);
+        sl.endpoint_ = dl_list_create();
+        dl_list_add(sl.endpoint_, (void*)&lt );
+        fail_unless( mnl_output_type(&sl) == (ESFile|ESSyslog)
+                   , "MinLoggerOutput type differs from expected [%d]"
+                   , mnl_output_type(&sl) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mnl_logger_type)
+{
+        MinLogger sl;
+        struct logger_typeinfo_t lt;
+        lt.type_ = ESTxt;
+        sl.endpoint_ = dl_list_create();
+        dl_list_add(sl.endpoint_, (void*)&lt );
+        fail_unless( mnl_logger_type(&sl) == ESTxt
+                   , "MinLogger type differs from expected [%d]"
+                   , mnl_logger_type(&sl) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mnl_logger_type2)
+{
+        MinLogger sl;
+        struct logger_typeinfo_t lt;
+        lt.type_ = ESHtml;
+        sl.endpoint_ = dl_list_create();
+        dl_list_add(sl.endpoint_, (void*)&lt );
+        fail_unless( mnl_logger_type(&sl) == ESHtml
+                   , "MinLogger type differs from expected [%d]"
+                   , mnl_logger_type(&sl) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mnl_logger_type3)
+{
+        MinLogger sl;
+        struct logger_typeinfo_t lt;
+        struct logger_typeinfo_t lt2;
+        lt.type_  = ESTxt;
+        lt2.type_ = ESHtml;
+        sl.endpoint_ = dl_list_create();
+        dl_list_add(sl.endpoint_, (void*)&lt );
+        dl_list_add(sl.endpoint_, (void*)&lt2 );
+        fail_unless( mnl_logger_type(&sl) == (ESTxt|ESHtml)
+                   , "MinLogger type differs from expected [%d]"
+                   , mnl_logger_type(&sl) );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_nostyle)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_nostyle"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESNoStyle
+                         , "This is raw text without style." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_bold)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_bold"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESBold
+                         , "This is bold text." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_cursive)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_cursive"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESCursive
+                         , "This is cursive text." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_underline)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_underline"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESUnderline
+                         , "This is underlined text." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_blue)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_blue"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESBlue
+                         , "This is blue text." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_green)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_green"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESGreen
+                         , "This is green text." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_red)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_red"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESRed
+                         , "This is red text." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_important)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_important"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESImportant
+                         , "This is important." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_warning)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_warning"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESWarning
+                         , "This is warning." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_error)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_error"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESError
+                         , "This is error." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_mixing_styles_1)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_mixing_styles"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESBlue | ESBold | ESUnderline | ESCursive
+                         , "This is underlined, cursive, bold blue text." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_mixing_styles_2)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_mixing_styles_2"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 1              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                , ESImportant | ESCursive | ESUnderline | ESGreen
+                , "Red important text, then underlined cursive green text." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_mixing_styles_3)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_mixing_styles_3"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 1              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                , ESImportant | ESWarning | ESError
+                , "Important.. Warning.. Error.." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_title_with_pid)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_title_with_pid"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 1              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESNoStyle
+                         , "This is title with pid." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_multiple_lines_with_linebreak)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_multiple_lines_with_linebreak"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 1              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        shl_send( (struct logger_typeinfo_t*)shl
+                , ESNoStyle
+                , "Here is a.." );
+
+        shl_send( (struct logger_typeinfo_t*)shl
+                , ESNoStyle
+                , "lot of.." );
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESNoStyle
+                         , "text with linebreaks." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_multiple_lines_without_linebreak)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_multiple_lines_without_linebreak"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        shl_send( (struct logger_typeinfo_t*)shl
+                , ESNoStyle
+                , "Here is a.." );
+
+        shl_send( (struct logger_typeinfo_t*)shl
+                , ESNoStyle
+                , "lot of.." );
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                         , ESNoStyle
+                         , "text without linebreaks." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_html_logger_with_timestamp)
+{
+        MinHtmlLogger* shl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_html_logger_with_timestamp"; 
+        int    result              = 0;
+ 
+        shl = shl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESHtml         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 1              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = shl_send( (struct logger_typeinfo_t*)shl
+                , ESNoStyle
+                , "This is text with timestamp." );
+
+        shl_destroy( &shl );
+
+        fail_unless( result == 0,
+                "shl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_data_logger)
+{
+        MinDataLogger* sdl;
+        TSChar  test_path[]        = "/tmp/";
+        TSChar  test_file[]        = "test_data_logger"; 
+        int    result              = 0;
+ 
+        sdl = sdl_create( test_path      /* path */
+                        , test_file      /* file */
+                        , ESData         /* logger type */
+                        , ESFile         /* output */
+                        , 1              /* overwrite */
+                        , 0              /* withtimestamp */
+                        , 0              /* withlinebreak */
+                        , 0              /* witheventranking */
+                        , 0              /* pididtologfile */
+                        , 0              /* createlogdir */
+                        , 0              /* staticbuffersize */
+                        , 0 );           /* unicode */
+
+        result = sdl_send( (struct logger_typeinfo_t*)sdl
+                         , 0
+                         , "logging via data logger..." );
+
+        sdl_destroy( &sdl );
+
+        fail_unless( result == 0,
+                "sdl_send() failed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* min_logger_suite()
+{
+        Suite * s = suite_create ("min_logger");
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+
+        /* mnl_output_type */
+        tcase_add_test (tc_core, test_mnl_output_type);
+        tcase_add_test (tc_core, test_mnl_output_type2);
+        tcase_add_test (tc_core, test_mnl_output_type3);
+
+        /* mnl_logger_type */
+        tcase_add_test (tc_core, test_mnl_logger_type);
+        tcase_add_test (tc_core, test_mnl_logger_type2);
+        tcase_add_test (tc_core, test_mnl_logger_type3);
+
+        /* html logger */
+        tcase_add_test (tc_core, test_html_logger_nostyle);
+        tcase_add_test (tc_core, test_html_logger_bold);
+        tcase_add_test (tc_core, test_html_logger_cursive);
+        tcase_add_test (tc_core, test_html_logger_underline);
+        tcase_add_test (tc_core, test_html_logger_blue);
+        tcase_add_test (tc_core, test_html_logger_green);
+        tcase_add_test (tc_core, test_html_logger_red);
+        tcase_add_test (tc_core, test_html_logger_important);
+        tcase_add_test (tc_core, test_html_logger_warning);
+        tcase_add_test (tc_core, test_html_logger_error);
+        tcase_add_test (tc_core, test_html_logger_mixing_styles_1);
+        tcase_add_test (tc_core, test_html_logger_mixing_styles_2);
+        tcase_add_test (tc_core, test_html_logger_mixing_styles_3);
+        tcase_add_test (tc_core, test_html_logger_title_with_pid);
+        tcase_add_test (tc_core, test_html_logger_multiple_lines_with_linebreak);
+        tcase_add_test (tc_core, test_html_logger_multiple_lines_without_linebreak);
+        tcase_add_test (tc_core, test_html_logger_with_timestamp);
+
+        /* data logger */
+        tcase_add_test (tc_core, test_data_logger);
+
+        suite_add_tcase (s, tc_core);
+
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int min_logger_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = min_logger_suite ();
+        SRunner * sr = srunner_create (s);
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

@@ -1,0 +1,59 @@
+.TH CREATETESTMODULE 1 "December 2008" Linux "User Manuals"
+.SH NAME
+createtestmodule \- test module template wizard for 
+.B min(1)
+.SH SYNOPSIS
+.B createtestmodule [help] [ModuleType [ModuleName [path]]]
+.SH DESCRIPTION
+.B createtestmodule 
+can be used to create a test module template for 
+.B min
+
+.SH OPTIONS
+
+.B createtestmodule
+can be launched with 0\-3 three arguments. If no arguments are given, user is prompted for 
+.I ModuleType ModuleName 
+and 
+.I path. 
+If the
+.I ModuleType 
+is specified on the commandline user is prompted for 
+.I ModuleName
+and
+.I path
+,and so forth.
+
+Following shortcuts can be used for 
+.I ModuleType
+:
+.TS
+tab (@);
+l l.
+n@ creates an empty test module (normal)
+h@ creates test module that uses hardcoded test cases (hardcoded)
+t@ creates test class which is used with TestScripter (testclass)
+l@ creates test class which is used with LuaScripter (luatestclass)
+s@ creates xUnit compatible test module (MINUnit)
+.TE
+
+\fBhelp\fR
+Display short help and exit
+
+.SH FILES
+.I /usr/share/min/TestModuleTemplates/*
+Templates for different types of MIN test modules and test classes.
+
+.SH AUTHOR
+Piotr Kotynia, Sampo Saaristo and Konrad Marek Zapalowicz.
+
+.SH "REPORTING BUGS"
+Report bugs to DG.MIN\-Support@nokia.com
+
+.SH COPYRIGHT
+MIN Test Framework, © Nokia 2008, All rights reserved,
+licensed under the Gnu General Public License version 2,
+Contact: Antti Heimola, DG.MIN-Support@nokia.com
+
+.SH "SEE ALSO"
+.BR min(1)

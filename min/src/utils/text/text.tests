@@ -1,0 +1,889 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Konrad Marek Zapalowicz
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       text.test
+ *  @version    0.1
+ *  @brief      This file contains test for Text interface
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create)
+{
+        Text* txt = tx_create(NULL);
+        fail_unless(txt!=INITPTR,"Text not created");
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create2)
+{
+        Text* txt = tx_create(NULL);
+        fail_unless(txt->buf_!=INITPTR,"Text::buf_ not created");
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create3)
+{
+        Text* txt = tx_create(NULL);
+        fail_unless(txt->size_==0,"Text::size_ differs from expected %d!=%d"
+                   ,txt->size_,0);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create4)
+{
+        Text* txt = tx_create(NULL);
+        fail_unless(txt->max_size_==MaxTextBufferSize,"Text::max_size_ differs"
+                    " from expected %d!=%d",txt->max_size_,MaxTextBufferSize);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create5)
+{
+        Text* txt = tx_create(NULL);
+        fail_unless(strlen(txt->buf_)==0,"Text::buf_ size greater than 0");
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create6)
+{
+        Text* txt = tx_create(INITPTR);
+        fail_unless(txt!=INITPTR,"Text not created");
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create7)
+{
+        Text* txt = tx_create(INITPTR);
+        fail_unless(txt->buf_!=INITPTR,"Text::buf_ not created");
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create8)
+{
+        Text* txt = tx_create(INITPTR);
+        fail_unless(txt->size_==0,"Text::size_ differs from expected %d!=%d"
+                   ,txt->size_,0);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create9)
+{
+        Text* txt = tx_create(INITPTR);
+        fail_unless(txt->max_size_==MaxTextBufferSize,"Text::max_size_ differs"
+                    " from expected %d!=%d",txt->max_size_,MaxTextBufferSize);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create10)
+{
+        Text* txt = tx_create(INITPTR);
+        fail_unless(strlen(txt->buf_)==0,"Text::buf_ size greater than 0");
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create11)
+{
+        Text* txt = tx_create("");
+        fail_unless(txt!=INITPTR,"Text not created");
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create12)
+{
+        Text* txt = tx_create("");
+        fail_unless(txt->buf_!=INITPTR,"Text::buf_ not created");
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create13)
+{
+        Text* txt = tx_create("");
+        fail_unless(txt->size_==0,"Text::size_ differs from expected %d!=%d"
+                   ,txt->size_,0);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create14)
+{
+        Text* txt = tx_create("");
+        fail_unless(txt->max_size_==MaxTextBufferSize,"Text::max_size_ differs"
+                    " from expected %d!=%d",txt->max_size_,MaxTextBufferSize);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create15)
+{
+        Text* txt = tx_create("");
+        fail_unless(strlen(txt->buf_)==0,"Text::buf_ size greater than 0");
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create16)
+{
+        Text* txt = tx_create("ala ma kota");
+        fail_unless(strlen(txt->buf_)==11,"Text::buf_ size differs from"
+                   "expected %d!=%d",strlen(txt->buf_),11);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create17)
+{
+        Text* txt = tx_create("ala ma kota");
+        fail_unless(txt->size_==11,"Text::size_ differs from expected %d!=%d"
+                   ,txt->size_,11);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create18)
+{
+        Text* txt = tx_create("ala ma kota");
+        fail_unless(txt->max_size_==MaxTextBufferSize,"Text::max_size_ differs"
+                   " from expected %d!=%d",txt->max_size_,MaxTextBufferSize);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create19)
+{
+        Text* txt = tx_create("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        fail_unless(strlen(txt->buf_)==128,"Text::buf_ size differs"
+                   " from expected %d!=%d",strlen(txt->buf_),128);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create20)
+{
+        Text* txt = tx_create("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        fail_unless(txt->size_==128,"Text::size_ differs"
+                   " from expected %d!=%d",txt->size_,128);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_create21)
+{
+        Text* txt = tx_create("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        fail_unless(txt->max_size_==2*MaxTextBufferSize,"Text::max_size_ differs"
+                   " from expected %d!=%d",txt->max_size_,MaxTextBufferSize*2);
+        DELETE(txt->buf_);
+        DELETE(txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_destroy)
+{
+        tx_destroy(INITPTR);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_destroy2)
+{
+        Text* txt = INITPTR;
+        tx_destroy(&txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_destroy3)
+{
+        Text* txt = tx_create("ala ma kota");
+        tx_destroy(&txt);
+        fail_unless(txt==INITPTR,"Pointer not reset after deletion");
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_append)
+{
+        tx_append(INITPTR,INITPTR);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_append2)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        tx_append(txt1,INITPTR);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_append3)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        tx_append(INITPTR,txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_append4)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        Text* txt2 = tx_create(" kot ma ale");
+
+        tx_append(txt1,txt2);
+
+        fail_unless(strcmp(txt1->buf_,"ala ma kota kot ma ale")==0
+                   ,"result differs from expected: [%s]!=[%s]"
+                   ,txt1->buf_,"ala ma kota kot ma ale");
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_append5)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        Text* txt2 = tx_create(" kot ma ale");
+
+        tx_append(txt1,txt2);
+
+        fail_unless(txt1->size_==22
+                   ,"result differs from expected: %d!=%d"
+                   ,txt1->size_,22);
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_append6)
+{
+        char* data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaa";
+        Text* txt1 = tx_create(data);
+        Text* txt2 = tx_create(" bbbb");
+
+        tx_append(txt1,txt2);
+
+        fail_unless(txt1->size_==132
+                   ,"result differs from expected: %d!=%d"
+                   ,txt1->size_,132);
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_append7)
+{
+        char* data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaa";
+        Text* txt1 = tx_create(data);
+        Text* txt2 = tx_create(" bbbb");
+
+        tx_append(txt1,txt2);
+
+        fail_unless(strcmp(txt1->buf_,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                      "aaaaaaaaaaa bbbb")==0
+                   ,"result differs from expected [%s]",txt1->buf_ );
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_append8)
+{
+        char* data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaa";
+        Text* txt1 = tx_create(data);
+        Text* txt2 = tx_create(" bbbb");
+
+        tx_append(txt1,txt2);
+
+        fail_unless(txt1->max_size_==256
+                   ,"result differs from expected: %d!=%d"
+                   ,txt1->max_size_,256);
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_copy)
+{
+        tx_copy(INITPTR,INITPTR);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_copy2)
+{
+        Text* txt = tx_create("ala ma kota");
+        tx_copy(txt,INITPTR);
+        tx_destroy(&txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_copy3)
+{
+        Text* txt = tx_create("ala ma kota");
+        tx_copy(INITPTR,txt);
+        tx_destroy(&txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_copy4)
+{
+        Text* txt = tx_create("ala ma kota");
+        tx_copy(txt,txt);
+        tx_destroy(&txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_copy5)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        Text* txt2 = tx_create("kot ma ale");
+        tx_copy(txt1,txt2);
+
+        fail_unless( strcmp(txt1->buf_,txt2->buf_) == 0
+                   , "Result differs from expected [%s] != [%s]"
+                   , txt1->buf_,txt2->buf_ );
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_copy6)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        Text* txt2 = tx_create("kot ma ale");
+        tx_copy(txt1,txt2);
+
+        fail_unless( txt1->size_ == txt2->size_
+                   , "Result differs from expected %d != %d"
+                   , txt1->size_,txt2->size_ );
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_copy7)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        Text* txt2 = tx_create("kot ma ale");
+        tx_copy(txt1,txt2);
+
+        fail_unless( txt1->max_size_ == txt2->max_size_
+                   , "Result differs from expected %d != %d"
+                   , txt1->max_size_,txt2->max_size_ );
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_copy8)
+{
+        Text* txt1 = tx_create("");
+        Text* txt2 = tx_create("kot ma ale");
+        tx_copy(txt1,txt2);
+
+        fail_unless( strcmp(txt1->buf_,txt2->buf_) == 0
+                   , "Result differs from expected [%s] != [%s]"
+                   , txt1->buf_,txt2->buf_ );
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_copy9)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        Text* txt2 = tx_create("");
+        tx_copy(txt1,txt2);
+
+        fail_unless( strcmp(txt1->buf_,txt2->buf_) == 0
+                   , "Result differs from expected [%s] != [%s]"
+                   , txt1->buf_,txt2->buf_ );
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_copy10)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        Text* txt2 = tx_create("");
+        tx_copy(txt1,txt2);
+
+        fail_unless( txt1->size_==txt2->size_
+                   , "Result differs from expected %d != %d"
+                   , txt1->size_,txt2->size_ );
+
+        tx_destroy(&txt1);
+        tx_destroy(&txt2);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_append)
+{
+        tx_c_append(INITPTR,INITPTR);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_append2)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        tx_c_append(txt1,INITPTR);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_append3)
+{
+        char* data = "ala ma kota";
+        tx_c_append(INITPTR,data);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_append4)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        char* data = " kot ma ale";
+
+        tx_c_append(txt1,data);
+
+        fail_unless(strcmp(txt1->buf_,"ala ma kota kot ma ale")==0
+                   ,"result differs from expected: [%s]!=[%s]"
+                   ,txt1->buf_,"ala ma kota kot ma ale");
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_append5)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        char* data = " kot ma ale";
+
+        tx_c_append(txt1,data);
+
+        fail_unless(txt1->size_==22
+                   ,"result differs from expected: %d!=%d"
+                   ,txt1->size_,22);
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_append6)
+{
+        char* data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaa";
+        char* data2= " bbbb";
+        Text* txt1 = tx_create(data);
+
+        tx_c_append(txt1,data2);
+
+        fail_unless(txt1->size_==132
+                   ,"result differs from expected: %d!=%d"
+                   ,txt1->size_,132);
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_append7)
+{
+        char* data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaa";
+        char* data2= " bbbb";
+        Text* txt1 = tx_create(data);
+
+        tx_c_append(txt1,data2);
+
+        fail_unless(strcmp(txt1->buf_,"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                      "aaaaaaaaaaa bbbb")==0
+                   ,"result differs from expected [%s]",txt1->buf_ );
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_append8)
+{
+        char* data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                     "aaaaaaaaaaaaaaaaa";
+        char* data2= " bbbb";
+        Text* txt1 = tx_create(data);
+
+        tx_c_append(txt1,data2);
+
+        fail_unless(txt1->max_size_==256
+                   ,"result differs from expected: %d!=%d"
+                   ,txt1->max_size_,256);
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_copy)
+{
+        tx_c_copy(INITPTR,INITPTR);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_copy2)
+{
+        Text* txt = tx_create("ala ma kota");
+        tx_c_copy(txt,INITPTR);
+        tx_destroy(&txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_copy3)
+{
+        char* data = "ala ma kota";
+        tx_c_copy(INITPTR,data);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_copy4)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        char* data = "kot ma ale";
+        tx_c_copy(txt1,data);
+
+        fail_unless( strcmp(txt1->buf_,data) == 0
+                   , "Result differs from expected [%s] != [%s]"
+                   , txt1->buf_,data );
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_copy5)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        char* data = "kot ma ale";
+        tx_c_copy(txt1,data);
+
+        fail_unless( txt1->size_ == strlen(data)
+                   , "Result differs from expected %d != %d"
+                   , txt1->size_,strlen(data) );
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_copy6)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        char* data = "kot ma ale";
+        tx_c_copy(txt1,data);
+
+        fail_unless( txt1->max_size_ == 128
+                   , "Result differs from expected %d != %d"
+                   , txt1->max_size_,128 );
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_copy7)
+{
+        Text* txt1 = tx_create("");
+        char* data = "kot ma ale";
+        tx_c_copy(txt1,data);
+
+        fail_unless( strcmp(txt1->buf_,data) == 0
+                   , "Result differs from expected [%s] != [%s]"
+                   , txt1->buf_,data );
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_copy8)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        char* data = "";
+        tx_c_copy(txt1,data);
+
+        fail_unless( strcmp(txt1->buf_,data) == 0
+                   , "Result differs from expected [%s] != [%s]"
+                   , txt1->buf_,data );
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_copy9)
+{
+        Text* txt1 = tx_create("ala ma kota");
+        char* data = tx_create("");
+        tx_c_copy(txt1,data);
+
+        fail_unless( txt1->size_==strlen(data)
+                   , "Result differs from expected %d != %d"
+                   , txt1->size_,strlen(data) );
+
+        tx_destroy(&txt1);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_back_trim)
+{
+        Text *txt = tx_create("ala  ");
+        tx_back_trim(txt," ");
+        fail_unless(strcmp(txt->buf_,"ala")==0
+                   ,"Result differs from expected [%s]",txt->buf_);
+        tx_destroy(&txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_back_trim2)
+{
+        Text *txt = tx_create("ala  ");
+        tx_back_trim(txt,"\n");
+        fail_unless(strcmp(txt->buf_,"ala  ")==0
+                   ,"Result differs from expected [%s]",txt->buf_);
+        tx_destroy(&txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_back_trim3)
+{
+        Text *txt = tx_create("ala  \n");
+        tx_back_trim(txt,"\n ");
+        fail_unless(strcmp(txt->buf_,"ala")==0
+                   ,"Result differs from expected [%s]",txt->buf_);
+        tx_destroy(&txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_c_prepend)
+{
+        Text *txt = tx_create(" ma kota");
+        tx_c_prepend(txt,"ala");
+        fail_unless(strcmp(txt->buf_,"ala ma kota") == 0);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_tx_int_append)
+{
+        Text *txt = tx_create("");
+        tx_int_append(txt,"",100);
+        fail_unless(strcmp(txt->buf_,"100")==0
+                   ,"Result differs from expected [%s]",txt->buf_);
+        tx_destroy(&txt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* text_suite()
+{
+        Suite * s = suite_create ("text");
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+
+        /* tx_create */
+        tcase_add_test (tc_core, test_tx_create);
+        tcase_add_test (tc_core, test_tx_create2);
+        tcase_add_test (tc_core, test_tx_create3);
+        tcase_add_test (tc_core, test_tx_create4);
+        tcase_add_test (tc_core, test_tx_create5);
+        tcase_add_test (tc_core, test_tx_create6);
+        tcase_add_test (tc_core, test_tx_create7);
+        tcase_add_test (tc_core, test_tx_create8);
+        tcase_add_test (tc_core, test_tx_create9);
+        tcase_add_test (tc_core, test_tx_create10);
+        tcase_add_test (tc_core, test_tx_create11);
+        tcase_add_test (tc_core, test_tx_create12);
+        tcase_add_test (tc_core, test_tx_create13);
+        tcase_add_test (tc_core, test_tx_create14);
+        tcase_add_test (tc_core, test_tx_create15);
+        tcase_add_test (tc_core, test_tx_create16);
+        tcase_add_test (tc_core, test_tx_create17);
+        tcase_add_test (tc_core, test_tx_create18);
+        tcase_add_test (tc_core, test_tx_create19);
+        tcase_add_test (tc_core, test_tx_create20);
+        tcase_add_test (tc_core, test_tx_create21);
+
+        /* tx_destroy */
+        tcase_add_test (tc_core, test_tx_destroy);
+        tcase_add_test (tc_core, test_tx_destroy2);
+        tcase_add_test (tc_core, test_tx_destroy3);
+
+        /* tx_append */
+        tcase_add_test (tc_core, test_tx_append);
+        tcase_add_test (tc_core, test_tx_append2);
+        tcase_add_test (tc_core, test_tx_append3);
+        tcase_add_test (tc_core, test_tx_append4);
+        tcase_add_test (tc_core, test_tx_append5);
+        tcase_add_test (tc_core, test_tx_append6);
+        tcase_add_test (tc_core, test_tx_append7);
+        tcase_add_test (tc_core, test_tx_append8);
+
+        /* tx_copy */
+        tcase_add_test (tc_core, test_tx_copy);
+        tcase_add_test (tc_core, test_tx_copy2);
+        tcase_add_test (tc_core, test_tx_copy3);
+        tcase_add_test (tc_core, test_tx_copy4);
+        tcase_add_test (tc_core, test_tx_copy5);
+        tcase_add_test (tc_core, test_tx_copy6);
+        tcase_add_test (tc_core, test_tx_copy7);
+        tcase_add_test (tc_core, test_tx_copy8);
+        tcase_add_test (tc_core, test_tx_copy9);
+        tcase_add_test (tc_core, test_tx_copy10);
+
+        /* tx_c_append */
+        tcase_add_test (tc_core, test_tx_c_append);
+        tcase_add_test (tc_core, test_tx_c_append2);
+        tcase_add_test (tc_core, test_tx_c_append3);
+        tcase_add_test (tc_core, test_tx_c_append4);
+        tcase_add_test (tc_core, test_tx_c_append5);
+        tcase_add_test (tc_core, test_tx_c_append6);
+        tcase_add_test (tc_core, test_tx_c_append7);
+        tcase_add_test (tc_core, test_tx_c_append8);
+
+        /* tx_c_copy */
+        tcase_add_test (tc_core, test_tx_c_copy);
+        tcase_add_test (tc_core, test_tx_c_copy2);
+        tcase_add_test (tc_core, test_tx_c_copy3);
+        tcase_add_test (tc_core, test_tx_c_copy4);
+        tcase_add_test (tc_core, test_tx_c_copy5);
+        tcase_add_test (tc_core, test_tx_c_copy6);
+        tcase_add_test (tc_core, test_tx_c_copy7);
+        tcase_add_test (tc_core, test_tx_c_copy8);
+        tcase_add_test (tc_core, test_tx_c_copy9);
+
+        /* tx_back_trim */
+        tcase_add_test (tc_core, test_tx_back_trim);
+        tcase_add_test (tc_core, test_tx_back_trim2);
+        tcase_add_test (tc_core, test_tx_back_trim3);
+
+        /* tx_c_prepend */
+        tcase_add_test (tc_core, test_tx_c_prepend);
+
+        /* tx_int_append */
+        tcase_add_test (tc_core, test_tx_int_append);
+
+        suite_add_tcase (s, tc_core);
+
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int text_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = text_suite ();
+        SRunner * sr = srunner_create (s);
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

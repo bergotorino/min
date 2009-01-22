@@ -1,0 +1,686 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Konrad Marek Zapalowicz
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       dllist.test
+ *  @version    0.1
+ *  @brief      This file contains test for Doubly Linked List
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+int equal( const void* a, const void* b );
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+int equal( const void* a, const void* b )
+{
+    if( *((int*)a) == *((int*)b) )  return 0;
+    else                            return -1;
+}
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_create)
+{
+        DLList* l = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        fail_unless( dl_list_size(l) == 0, "Size not set correctly on creation.");
+        dl_list_free( &l );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_free)
+{
+        DLList* l = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        dl_list_free( &l );
+        fail_unless( l == INITPTR, "List freeing error." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_add_item)
+{
+        int a      = 5;
+        int retval = 0;
+        DLList* l = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        a = 5;
+        retval = dl_list_add(l,&a);
+        fail_unless( retval != -1, "Adding failed." );
+        fail_unless( dl_list_size(l) == 1, "Wrong size after addition.");
+        dl_list_free( &l );
+
+        retval = dl_list_add(INITPTR,&a);\
+        fail_unless( retval == -1, "Data added when list is INITPTR." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_add_item_at_1)
+{
+        int a = 1;
+        int retval = 0;
+        DLList* l  = dl_list_create();
+        dl_list_free( &l );
+        retval = dl_list_add_at(INITPTR,&a,0);
+        fail_unless( retval == -1, "Data added when list is INITPTR." );
+        retval = dl_list_add_at(INITPTR,&a,99);
+        fail_unless( retval == -1, "Data added when list is INITPTR. (2)" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_add_item_at_2)
+{
+        int a[3];
+        int new    = 55;
+        int retval = 0;
+        int k      = 0;
+        int* pom   = INITPTR;
+        DLList* l  = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0] = 88;
+        a[1] = 89;
+        a[2] = 90;
+        retval = dl_list_add_at(l,&a[0],0);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 1, "Wrong size after addition.");
+        retval = dl_list_add_at(l,&a[1],1);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 2, "Wrong size after addition. (2)");
+        retval = dl_list_add_at(l,&a[2],2);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 3, "Wrong size after addition. (3)");
+        for( k = 0 ; k < dl_list_size(l) ; k++ ) {
+                pom = (int*)dl_list_data( dl_list_at(l,k) );
+                fail_unless(pom != INITPTR, "NULL value.");
+                fail_unless(*pom == a[k], "Bad value.");
+        }
+        dl_list_free( &l );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_add_item_at_3)
+{
+        int a[3];
+        int new    = 55;
+        int retval = 0;
+        int k      = 0;
+        int* pom   = INITPTR;
+        DLList* l  = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0] = 88;
+        a[1] = 89;
+        a[2] = 90;
+
+        retval = dl_list_add_at(l,&a[0],0);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 1, "Wrong size after addition.");
+
+        retval = dl_list_add_at(l,&a[1],0);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 2, "Wrong size after addition. (2)");
+
+        retval = dl_list_add_at(l,&a[2],0);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 3, "Wrong size after addition. (3)");
+
+        for( k = 0 ; k < dl_list_size(l) ; k++ ) {
+                pom = (int*)dl_list_data( dl_list_at(l,k) );
+                fail_unless(pom != INITPTR, "NULL value.");
+                fail_unless(*pom == a[2-k], "Bad value.");
+        }
+        dl_list_free( &l );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_add_item_at_4)
+{
+        int a[3];
+        int new    = 55;
+        int retval = 0;
+        int k      = 0;
+        int* pom   = INITPTR;
+        DLList* l  = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0] = 88;
+        a[1] = 89;
+        a[2] = 90;
+
+        retval = dl_list_add_at(l,&a[0],1);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 1, "Wrong size after addition.");
+
+        retval = dl_list_add_at(l,&a[1],1);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 2, "Wrong size after addition. (2)");
+
+        retval = dl_list_add_at(l,&a[2],1);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 3, "Wrong size after addition. (3)");
+
+        pom = (int*)dl_list_data( dl_list_at(l,0) );
+        fail_unless(pom != INITPTR, "NULL value.");
+        fail_unless(*pom == a[0], "Bad value. (1)");
+
+        pom = (int*)dl_list_data( dl_list_at(l,1) );
+        fail_unless(pom != INITPTR, "NULL value.");
+        fail_unless(*pom == a[2], "Bad value. (2)");
+
+        pom = (int*)dl_list_data( dl_list_at(l,2) );
+        fail_unless(pom != INITPTR, "NULL value.");
+        fail_unless(*pom == a[1], "Bad value. (3)");
+
+        dl_list_free( &l );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_remove_item)
+{
+        int a      = 8;
+        int b      = 9;
+        int retval = -1;
+        DLList* l  = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        dl_list_add(l,&a);
+        dl_list_add(l,&b);
+        retval = dl_list_remove_it( dl_list_find(dl_list_head(l)
+                                      , dl_list_tail(l)
+                                      , equal,&a) );
+        fail_unless( retval != -1, "Removing failed." );
+        fail_unless( dl_list_size(l) == 1, "Wrong size after removal.");
+        dl_list_free( &l );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_add_multiple_item)
+{
+        int a[3];
+        int i         = 0;
+        int k         = 0;
+        int retval    = -1;
+        int* pom      = INITPTR;
+        DLList* lista = dl_list_create();
+        fail_unless( lista != INITPTR, "List creation error." );
+        a[0]  = 5;
+        a[1]  = 6;
+        a[2]  = 7;
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(lista,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+        for( k = 0 ; k < dl_list_size(lista) ; k++ ) {
+                pom = (int*)dl_list_data( dl_list_at(lista,k) );
+                fail_unless(pom != INITPTR, "NULL value.");
+                fail_unless(*pom == a[k], "Bad value.");
+        }
+        dl_list_free( &lista );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_two_lists)
+{
+        int a  = 5;
+        int retval = -1;
+        DLList* l  = dl_list_create();
+        DLList* ll = dl_list_create();
+        fail_unless( l != INITPTR, "List 1 creation error." );
+        fail_unless( ll != INITPTR, "List 2 creation error." );
+        retval = dl_list_add(l,&a);
+        fail_unless( retval != -1, "Adding failed.");
+        fail_unless( dl_list_size(l) != dl_list_size(ll), "Changes to one visible to other");
+        dl_list_free( &l );
+        dl_list_free( &ll );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_alter_item_by_iterator)
+{
+        int a[3];
+        int retval = -1;
+        int i = 0;
+        int* value = INITPTR;
+        DLList* l  = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0] = 5;
+        a[1] = 7;
+        a[2] = 98;
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+        retval = dl_list_alter_it( dl_list_head(l), &a[2] );
+        fail_unless( retval != -1, "dl_list_alter_it failed." );
+        value = (int*)dl_list_data(dl_list_head(l));
+        fail_unless( *value == a[2], "Alter error." );
+        retval = dl_list_alter_it( dl_list_head(l), INITPTR );
+        fail_unless( retval != -1, "dl_list_alter_it failed when value NULL." );
+        dl_list_free( &l );
+        retval = dl_list_alter_it( INITPTR, &a[2] );
+        fail_unless( retval == -1, "dl_list_alter_it executed when list is NULL." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_alter_item_by_data)
+{
+        int a[3];
+        int i = 0;
+        int retval = -1;
+        void* pom = INITPTR;
+        int* value = INITPTR;
+        DLList* l  = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0] = 5;
+        a[1] = 7;
+        a[2] = 98;
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+        pom = dl_list_data( dl_list_head(l) );
+        *(int*)pom = a[2];
+        value = (int*)dl_list_data(dl_list_head(l));
+        fail_unless( *value == a[2], "Alter error." );
+        dl_list_free( &l );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_next_functionality)
+{
+        DLList* l  = dl_list_create();
+        int a[3];
+        int i = 0;
+        int* value = INITPTR;
+        int retval = -1;
+        DLListIterator pom = DLListNULLIterator;
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0] = 5;
+        a[1] = 7;
+        a[2] = 98;
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+        pom = dl_list_next( dl_list_head(l) );
+        value = (int*)dl_list_data(pom);
+        fail_unless(*value == a[1],"next failed.");
+        dl_list_free( &l );
+        pom = dl_list_next( INITPTR );
+        fail_unless( pom == DLListNULLIterator
+                   , "Iterator not null when list is null." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_prev_functionality)
+{
+        DLList* l  = dl_list_create();
+        int a[3];
+        int i = 0;
+        int* value = INITPTR;
+        int retval = -1;
+        DLListIterator pom = DLListNULLIterator;
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0] = 5;
+        a[1] = 7;
+        a[2] = 98;
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+        pom = dl_list_prev( dl_list_tail(l) );
+        value = (int*)dl_list_data(pom);
+        fail_unless(*value == a[1],"prev failed.");
+        dl_list_free( &l );
+        pom = dl_list_prev( INITPTR );
+        fail_unless( pom == DLListNULLIterator
+                   , "Iterator not null when list is null." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_head)
+{
+        DLListIterator it = DLListNULLIterator;
+        DLList* l  = dl_list_create();
+        int a[3];
+        int i = 0;
+        int* value = INITPTR;
+        int retval = -1;
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0] = 5;
+        a[1] = 7;
+        a[2] = 98;
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+        it = dl_list_head(l);
+        fail_unless(it != DLListNULLIterator,"Head is NULL.");
+        value = (int*)dl_list_data(it);
+        fail_unless( *value == a[0], "Bad head" );
+        dl_list_free( &l );
+        it = dl_list_head(INITPTR);
+        fail_unless( it == DLListNULLIterator
+                   , "Head is obtained when list is NULL." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_tail)
+{
+        DLListIterator it = DLListNULLIterator;
+        DLList* l  = dl_list_create();
+        int a[3];
+        int i = 0;
+        int* value = INITPTR;
+        int retval = -1;
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0] = 5;
+        a[1] = 7;
+        a[2] = 98;
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+        it = dl_list_tail(l);
+        fail_unless( it != DLListNULLIterator, "Tail is NULL." );
+        value = (int*)dl_list_data(it);
+        fail_unless( *value == a[2], "Bad tail." );
+        dl_list_free( &l );
+        it = dl_list_tail(INITPTR);
+        fail_unless( it == DLListNULLIterator
+                   , "Tail is obtained when list is NULL." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_size)
+{
+        DLList* l  = dl_list_create();
+        int a[3];
+        int retval = 0;
+        DLListIterator it = DLListNULLIterator;
+        fail_unless( l != INITPTR, "List creation error." );
+        fail_unless( dl_list_size(l) == 0,"Wrong size after creation." );
+        a[0]       = 5;
+        a[1]       = 7;
+        a[2]       = 98;
+        retval = dl_list_add(l,&a[0]);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 1,"Wrong size after addition." );
+        retval = dl_list_add(l,&a[1]);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 2,"Wrong size after addition." );
+        retval = dl_list_add(l,&a[2]);
+        fail_unless(retval != -1,"Adding failed.");
+        fail_unless( dl_list_size(l) == 3,"Wrong size after addition." );
+        it = dl_list_tail(l);
+        retval = dl_list_remove_it(it);
+        fail_unless(retval != -1,"Removing failed.");
+        fail_unless( dl_list_size(l) == 2,"Wrong size after removal." );
+        dl_list_free( &l );
+        retval = dl_list_size(INITPTR);
+        fail_unless( retval == -1,"Size counted when list is NULL.");
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_remove)
+{
+        DLList* l  = dl_list_create();
+        int a[3];
+        int retval = 0;
+        int i = 0;
+        DLListIterator it = DLListNULLIterator;
+        fail_unless( l != INITPTR, "List creation error." );
+        fail_unless( dl_list_size(l) == 0,"Wrong size after creation." );
+        a[0]       = 5;
+        a[1]       = 7;
+        a[2]       = 98;
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+        it = dl_list_tail(l);
+        fail_unless(it != DLListNULLIterator,"Tail is NULL.");
+        retval = dl_list_remove_it(it);
+        fail_unless(retval != -1,"Removing failed.");
+        it = dl_list_head(l);
+        fail_unless(it != DLListNULLIterator,"Head is NULL.");
+        retval = dl_list_remove_it(it);
+        fail_unless(retval != -1,"Removing failed.");
+        retval = dl_list_add(l,&a[0]);
+        fail_unless(retval != -1,"Adding failed.");
+        it = dl_list_head(l);
+        fail_unless(it != DLListNULLIterator,"Head is NULL.");
+        retval = dl_list_remove_it(it);
+        fail_unless(retval != -1,"Removing failed.");
+        it = dl_list_head(l);
+        fail_unless(it != DLListNULLIterator,"Head is NULL.");
+        retval = dl_list_remove_it(it);
+        fail_unless(retval != -1,"Removing failed.");
+        it = dl_list_head(l);
+        fail_unless(it == DLListNULLIterator,"Head is not NULL.");
+        retval = dl_list_remove_it(it);
+        fail_unless(retval == -1,"Removing failed.");
+        dl_list_free( &l );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_data_at)
+{
+        int * value = INITPTR;
+        int a[3];
+        int retval = 0;
+        int i = 0;
+        DLListIterator it = DLListNULLIterator;
+        DLList* l  = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        fail_unless( dl_list_size(l) == 0,"Wrong size after creation." );
+        a[0]       = 5;
+        a[1]       = 7;
+        a[2]       = 98;
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+        it = dl_list_at(l,0);
+        fail_unless( it != DLListNULLIterator,"First is NULL." );
+        value = (int*)dl_list_data(it);
+        fail_unless(*value == a[0], "Data of first element is wrong" );
+        it = dl_list_at(l,1);
+        fail_unless( it != DLListNULLIterator,"Second is NULL." );
+        value = (int*)dl_list_data(it);
+        fail_unless(*value == a[1], "Data of second element is wrong" );
+        it = dl_list_at(l,2);
+        fail_unless( it != DLListNULLIterator,"Third is NULL." );
+        value = (int*)dl_list_data(it);
+        fail_unless(*value == a[2], "Data of third element is wrong" );
+        it = dl_list_at(l,3);
+        fail_unless( it == DLListNULLIterator,"Out of range is not NULL." );
+        dl_list_free( &l );
+        value = (int*)dl_list_data(INITPTR);
+        fail_unless( value == DLListNULLIterator
+                   , "Data obtained but iterator is NULLed" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_find)
+{
+        int* value = INITPTR;
+        int a[3];
+        int retval = -1;
+        int i = 0;
+        DLListIterator it = DLListNULLIterator;
+        DLList* l = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0]       = 5;
+        a[1]       = 7;
+        a[2]       = 98;
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+        it = dl_list_find( dl_list_head(l)
+                         , dl_list_tail(l)
+                         , equal
+                         , &a[2] );
+        fail_unless( it != DLListNULLIterator, "Not valid result of search." );
+        value = (int*)dl_list_data(it);
+        fail_unless( *value == a[2], "Not valid data after search." );
+
+        it = dl_list_find( dl_list_head(l)
+                         , dl_list_tail(l)
+                         , equal
+                         , &a[1] );
+        fail_unless( it != DLListNULLIterator, "Not valid result of search." );
+        value = (int*)dl_list_data(it);
+        fail_unless( *value == a[1], "Not valid data after search." );
+
+        it = dl_list_find( dl_list_head(l)
+                         , dl_list_tail(l)
+                         , equal
+                         , &a[0] );
+        fail_unless( it != DLListNULLIterator, "Not valid result of search." );
+        value = (int*)dl_list_data(it);
+        fail_unless( *value == a[0], "Not valid data after search." );
+
+        i = 17;
+        it = dl_list_find( dl_list_head(l)
+                         , dl_list_tail(l)
+                         , equal
+                         , &i );
+        fail_unless( it == DLListNULLIterator
+                   , "Iterator expected to be NULL, element not on the list" );
+
+        it = dl_list_find( DLListNULLIterator
+                         , dl_list_tail(l)
+                         , equal
+                         , &a[2] );
+        fail_unless( it == DLListNULLIterator
+                   , "Iterator expected to be NULL, invalid parameter." );
+
+        it = dl_list_find( dl_list_head(l)
+                         , DLListNULLIterator
+                         , equal
+                         , &a[2] );
+        fail_unless( it == DLListNULLIterator
+                   , "Iterator expected to be NULL, invalid parameter." );
+
+        it = dl_list_find( DLListNULLIterator
+                         , DLListNULLIterator
+                         , equal
+                         , &a[2] );
+        fail_unless( it == DLListNULLIterator
+                   , "Iterator expected to be NULL, invalid parameter." );
+
+        it = dl_list_find( dl_list_head(l)
+                         , dl_list_tail(l)
+                         , (ptr2compare)INITPTR
+                         , &a[2] );
+        fail_unless( it == DLListNULLIterator
+                   , "Iterator expected to be NULL, invalid parameter." );
+
+        it = dl_list_find( dl_list_tail(l)
+                         , dl_list_head(l)
+                         , (ptr2compare)INITPTR
+                         , &a[2] );
+        fail_unless( it == DLListNULLIterator
+                   , "Iterator expected to be NULL, invalid parameter." );
+
+        it = dl_list_find( dl_list_head(l)
+                         , dl_list_head(l)
+                         , (ptr2compare)INITPTR
+                         , &a[2] );
+        fail_unless( it == DLListNULLIterator
+                   , "Iterator expected to be NULL, invalid parameter." );
+
+        it = dl_list_find( dl_list_tail(l)
+                         , dl_list_tail(l)
+                         , (ptr2compare)INITPTR
+                         , &a[2] );
+        fail_unless( it == DLListNULLIterator
+                   , "Iterator expected to be NULL, invalid parameter." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* dllist_suite()
+{
+        Suite * s = suite_create ("dllist");
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+        tcase_add_test (tc_core, test_dllist_create);
+        tcase_add_test (tc_core, test_dllist_free);
+        tcase_add_test (tc_core, test_dllist_add_item);
+        tcase_add_test (tc_core, test_dllist_add_item_at_1);
+        tcase_add_test (tc_core, test_dllist_add_item_at_2);
+        tcase_add_test (tc_core, test_dllist_add_item_at_3);
+        tcase_add_test (tc_core, test_dllist_add_item_at_4);
+        tcase_add_test (tc_core, test_dllist_remove_item);
+        tcase_add_test (tc_core, test_dllist_add_multiple_item);
+        tcase_add_test (tc_core, test_dllist_two_lists);
+        tcase_add_test (tc_core, test_dllist_alter_item_by_iterator);
+        tcase_add_test (tc_core, test_dllist_alter_item_by_data);
+        tcase_add_test (tc_core, test_dllist_next_functionality);
+        tcase_add_test (tc_core, test_dllist_prev_functionality);
+        tcase_add_test (tc_core, test_dllist_head);
+        tcase_add_test (tc_core, test_dllist_tail);
+        tcase_add_test (tc_core, test_dllist_size);
+        tcase_add_test (tc_core, test_dllist_remove);
+        tcase_add_test (tc_core, test_dllist_data_at);
+        tcase_add_test (tc_core, test_dllist_find);
+        suite_add_tcase (s, tc_core);
+
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int dllist_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = dllist_suite ();
+        SRunner * sr = srunner_create (s);
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

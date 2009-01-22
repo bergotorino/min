@@ -1,0 +1,91 @@
+About MIN Test Framework
+=========================
+
+MIN is Test Framework for POSIX environment. See 
+./GettingStarted.txt or doc/MIN_Test_Framework_Users_Guide.pdf for more info. 
+
+Installation
+============
+
+MIN
+----
+
+MIN has the following dependencies:
+
+  libncurses5
+  libncurses5-dev
+  ncurses-base
+
+In order to build you need also the following tools:
+  
+  autogen
+  automake
+  libtool
+
+To compile 
+
+$ cd min
+$ ./build.sh; sudo make install
+
+OR
+
+$ cd min; dpkg-buildpackage -rfakeroot
+$ sudo dpkg -i ../min_<version>_<arch>.deb ../min-dev_<version>_<arch>.deb
+
+MIN python module
+-----------------
+
+MIN python module has the following dependencies
+
+  min
+  min-dev
+  python
+  python2.5-dev
+
+$ cd minpythonmodule
+$ ./build.sh; sudo make install
+
+OR
+
+$ cd minpythonmodule; dpkg-buildpackage -rfakeroot
+$ sudo dpkg -i ../minpythonmodule_<version>_<arch>.deb
+
+
+Operation
+=========
+
+A set of test libraries are compiled with the package, they can be found from 
+min/src/test_libraries/. You can edit those 
+
+... or create from scratch with testModuleWizard:
+0.) Install perl
+
+1.) Start the test module wizard 
+$ createTestModule
+1.1) You are prompted for ModuleType, enter "minunit","hardcoded", "normal",
+     "luatestclass" or "testclass".  
+1.2) Enter a name for your module (e.g. foo) 
+1.3) You are prompted for the path to generate the testModule (e.g. /tmp)
+
+2.) Go to the src sub directory in the newly created dir and add your cases 
+    to the <modulename>Cases.c file.
+$ cd /tmp/foo/src
+$ vi fooCases.c
+
+3.) Build and install the newly created module
+
+$ cd /tmp/foo/
+$ sh ./build.sh
+
+3.1) In case you want to create a debian package of the test module
+
+$ make package
+
+4.) Start the min consoleui with command 
+$ min
+
+or start the min without cui and execute all test cases from command line
+
+$ min --console --execute <test module>[:<configuration filename>]
+
+Report any problems to DG.MIN-Support@nokia.com.

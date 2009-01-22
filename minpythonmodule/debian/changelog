@@ -1,0 +1,11 @@
+minpythonmodule (2009w04) unstable; urgency=low
+  * Removed unnecessary pthread_exit() from min_ext
+  * Removed list destroy, that caused random crashes on events
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Tue,    20 January 2009 13:38:34 +0100
+
+minpythonmodule (2008w50) unstable; urgency=low
+  * First release.
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,    15 December 2008 15:15:46 +0100
+

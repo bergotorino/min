@@ -1,0 +1,920 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Konrad Marek Zapalowicz
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       min_lego_interface.test
+ *  @version    0.1
+ *  @brief      This file contains test for MIN Lego Interface.
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_start)
+{
+        LegoStartType* lst = INITPTR;
+        lst = mli_create_start();
+        fail_unless( lst != INITPTR, "Start Piece not created!" );
+        DELETE(lst);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_start_2)
+{
+        LegoStartType* lst = INITPTR;
+        lst = mli_create_start();
+        fail_unless( lst->type_ == ELegoStart
+                   , "Type of Start Piece differs from expected [%d]"
+                   , lst->type_ );
+        DELETE(lst);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_start_3)
+{
+        LegoStartType* lst = INITPTR;
+        lst = mli_create_start();
+        fail_unless( lst->next_ == INITPTR
+                   , "Next element of Start Piece != INITPTR" );
+        DELETE(lst);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_end)
+{
+        LegoStartType* lst = INITPTR;
+        lst = mli_create_end();
+        fail_unless( lst != INITPTR, "End Piece not created!" );
+        DELETE(lst);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_end_2)
+{
+        LegoStartType* lst = INITPTR;
+        lst = mli_create_end();
+        fail_unless( lst->type_ == ELegoEnd
+                   , "Type of End Piece differs from expected [%d]"
+                   , lst->type_ );
+        DELETE(lst);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_end_3)
+{
+        LegoStartType* lst = INITPTR;
+        lst = mli_create_start();
+        fail_unless( lst->next_ == INITPTR
+                   , "Next element of End Piece != INITPTR" );
+        DELETE(lst);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_passive)
+{
+        LegoPassiveType* lpt = INITPTR;
+        TScripterKeyword key = EKeywordTitle;
+
+        MinItemParser   mip;
+        mip.item_line_section_         = NEW2(char,strlen("ExampleTest")+1);
+        mip.item_skip_and_mark_pos_    = &mip.item_line_section_[0];
+        mip.get_methods_indicator_     = ESTrue;
+        mip.parsing_type_              = ENormalParsing;
+
+        lpt = mli_create_passive( key, &mip );
+        fail_unless( lpt != INITPTR, "Passive Piece not created" );
+        DELETE(lpt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_passive_2)
+{
+        LegoPassiveType* lpt = INITPTR;
+        TScripterKeyword key = EKeywordTitle;
+
+        MinItemParser   mip;
+        mip.item_line_section_         = NEW2(char,strlen("ExampleTest")+1);
+        mip.item_skip_and_mark_pos_    = &mip.item_line_section_[0];
+        mip.get_methods_indicator_     = ESTrue;
+        mip.parsing_type_              = ENormalParsing;
+
+        lpt = mli_create_passive( key, &mip );
+        fail_unless( lpt->type_ == ELegoPassive
+                   , "Type of Passive Piece differs from expected [%d]"
+                   , lpt->type_ );
+        DELETE(lpt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_passive_3)
+{
+        LegoPassiveType* lpt = INITPTR;
+        TScripterKeyword key = EKeywordTitle;
+
+        MinItemParser   mip;
+        mip.item_line_section_         = NEW2(char,strlen("ExampleTest")+1);
+        mip.item_skip_and_mark_pos_    = &mip.item_line_section_[0];
+        mip.get_methods_indicator_     = ESTrue;
+        mip.parsing_type_              = ENormalParsing;
+
+        lpt = mli_create_passive( key, &mip );
+        fail_unless( lpt->keyword_ == key
+                   , "Keyword of Passive Piece differs from expected [%d]"
+                   , lpt->keyword_ );
+        DELETE(lpt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_passive_4)
+{
+        LegoPassiveType* lpt = INITPTR;
+        TScripterKeyword key = EKeywordTitle;
+
+        MinItemParser   mip;
+        mip.item_line_section_         = NEW2(char,strlen("ExampleTest")+1);
+        mip.item_skip_and_mark_pos_    = &mip.item_line_section_[0];
+        mip.get_methods_indicator_     = ESTrue;
+        mip.parsing_type_              = ENormalParsing;
+
+        lpt = mli_create_passive( key, &mip );
+        fail_unless( lpt->line_ == &mip
+                   , "MinItemParer of Passive Piece differs from expected [%p]"
+                   , lpt->line_ );
+        DELETE(lpt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_active)
+{
+        LegoPassiveType* lpt = INITPTR;
+        TScripterKeyword key = EKeywordCreate;
+
+        MinItemParser   mip;
+        mip.item_line_section_ = NEW2(char,strlen("TestModule.so foobar")+1);
+        mip.item_skip_and_mark_pos_    = &mip.item_line_section_[0];
+        mip.get_methods_indicator_     = ESTrue;
+        mip.parsing_type_              = ENormalParsing;
+
+        lpt = mli_create_active( key, (MinItemParser*) &mip );
+        fail_unless( lpt != INITPTR, "Active Piece not created" );
+        DELETE(lpt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_active_2)
+{
+        LegoPassiveType* lpt = INITPTR;
+        TScripterKeyword key = EKeywordCreate;
+
+        MinItemParser   mip;
+        mip.item_line_section_ = NEW2(char,strlen("TestModule.so foobar")+1);
+        mip.item_skip_and_mark_pos_    = &mip.item_line_section_[0];
+        mip.get_methods_indicator_     = ESTrue;
+        mip.parsing_type_              = ENormalParsing;
+
+        lpt = mli_create_active( key, (MinItemParser*) &mip );
+        fail_unless( lpt->type_ == ELegoActive
+                   , "Type of Active Piece differs from expected [%d]"
+                   , lpt->type_ );
+        DELETE(lpt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_active_3)
+{
+        LegoPassiveType* lpt = INITPTR;
+        TScripterKeyword key = EKeywordCreate;
+
+        MinItemParser   mip;
+        mip.item_line_section_ = NEW2(char,strlen("TestModule.so foobar")+1);
+        mip.item_skip_and_mark_pos_    = &mip.item_line_section_[0];
+        mip.get_methods_indicator_     = ESTrue;
+        mip.parsing_type_              = ENormalParsing;
+
+        lpt = mli_create_active( key, (MinItemParser*) &mip );
+        fail_unless( lpt->keyword_ == key
+                   , "Keyword of Active Piece differs from expected [%d]"
+                   , lpt->keyword_ );
+        DELETE(lpt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_active_4)
+{
+        LegoPassiveType* lpt = INITPTR;
+        TScripterKeyword key = EKeywordCreate;
+
+        MinItemParser   mip;
+        mip.item_line_section_ = NEW2(char,strlen("TestModule.so foobar")+1);
+        mip.item_skip_and_mark_pos_    = &mip.item_line_section_[0];
+        mip.get_methods_indicator_     = ESTrue;
+        mip.parsing_type_              = ENormalParsing;
+
+        lpt = mli_create_active( key, (MinItemParser*) &mip );
+        fail_unless( lpt->line_ == &mip
+                   , "MinItemParer of Active Piece differs from expected [%p]"
+                   , lpt->line_ );
+        DELETE(lpt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_loop)
+{
+        LegoLoopType*    llt    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+
+        llt = mli_create_loop(key,iter,tmout);
+        fail_unless( llt != INITPTR, "Loop Piece not created" );
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_loop_2)
+{
+        LegoLoopType*    llt    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+
+        llt = mli_create_loop(key,iter,tmout);
+        fail_unless( llt->type_ == ELegoLoop
+                   , "Type of Loop Piece differs from expected [%d]"
+                   , llt->type_ );
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_loop_3)
+{
+        LegoLoopType*    llt    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+
+        llt = mli_create_loop(key,iter,tmout);
+        fail_unless( llt->next_ == INITPTR
+                   , "Next element of Loop Piece != INITPTR" );
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_loop_4)
+{
+        LegoLoopType*    llt    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+
+        llt = mli_create_loop(key,iter,tmout);
+        fail_unless( llt->keyword_ == key
+                   , "Keyword of Loop Piece differs from expected [%d]"
+                   , llt->keyword_ );
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_loop_5)
+{
+        LegoLoopType*    llt    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+
+        llt = mli_create_loop(key,iter,tmout);
+        fail_unless( llt->oryginal_ == iter
+                   , "No. of loops of Loop Piece differs from expected [%d]"
+                   , llt->oryginal_ );
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_loop_6)
+{
+        LegoLoopType*    llt    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+
+        llt = mli_create_loop(key,iter,tmout);
+        fail_unless( llt->timeout_ == tmout
+                   , "Mode of Loop Piece differs from expected [bool(%d)]"
+                   , llt->timeout_ );
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_loop_7)
+{
+        LegoLoopType*    llt    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+
+        llt = mli_create_loop(key,iter,tmout);
+        fail_unless( (LegoLoopType*)dl_list_data(dl_list_tail(loopstack))==llt
+                   , "Loop Piece not pushed to the stack" );
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_endloop)
+{
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordEndloop;
+        LegoLoopType*    llt    = INITPTR;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        let = mli_create_endloop(key);
+        fail_unless( let != INITPTR, "Endloop Piece not created" );
+        DELETE(let);
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_endloop_2)
+{
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordEndloop;
+        LegoLoopType*    llt    = INITPTR;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        let = mli_create_endloop(key);
+        fail_unless( let->type_ == ELegoEndloop
+                   , "Type of Endloop Piece differs from expected [%d]"
+                   , let->type_ );
+        DELETE(let);
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_endloop_3)
+{
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordEndloop;
+        LegoLoopType*    llt    = INITPTR;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        let = mli_create_endloop(key);
+        fail_unless( let->next_ == llt
+                   , "Next element of Endloop Piece differs from Loop Piece" );
+        DELETE(let);
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_endloop_4)
+{
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordEndloop;
+        LegoLoopType*    llt    = INITPTR;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        let = mli_create_endloop(key);
+        fail_unless( let->loopback_ == llt
+                   , "Loopback of Endloop Piece differs from expected [%p]"
+                   , let->loopback_ );
+        DELETE(let);
+        DELETE(llt);
+
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_endloop_5)
+{
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordEndloop;
+        LegoLoopType*    llt    = INITPTR;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        let = mli_create_endloop(key);
+        fail_unless( let->beyondloop_ == INITPTR
+                   , "Beyondloop of Endloop Piece differs from expected [%p]"
+                   , let->beyondloop_ );
+        DELETE(let);
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_endloop_6)
+{
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordEndloop;
+        LegoLoopType*    llt    = INITPTR;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        let = mli_create_endloop(key);
+        fail_unless( let->oryginal_ == &llt->oryginal_
+                   , "No. of loops of Endloop Piece differs from expected [%d]"
+                   , *let->oryginal_ );
+        DELETE(let);
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_endloop_7)
+{
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordEndloop;
+        LegoLoopType*    llt    = INITPTR;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        let = mli_create_endloop(key);
+        fail_unless( let->counter_ == 0
+                   , "Counter of Endloop Piece differs from expected [%d]"
+                   , let->counter_ );
+        DELETE(let);
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_endloop_8)
+{
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordEndloop;
+        LegoLoopType*    llt    = INITPTR;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        let = mli_create_endloop(key);
+        fail_unless( let->timeout_ == llt->timeout_
+                   , "Mode of Endloop Piece differs from expected [bool(%d)]"
+                   , let->timeout_ );
+        DELETE(let);
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_endloop_9)
+{
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordEndloop;
+        LegoLoopType*    llt    = INITPTR;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        let = mli_create_endloop(key);
+        fail_unless( dl_list_tail(loopstack) == DLListNULLIterator
+                   , "Loop Piece not fetched from loopstack" );
+        DELETE(let);
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack)
+{
+        fail_unless( loopstack == INITPTR, "loopstack != INITPTR by default" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack_2)
+{
+        LegoLoopType*    llt    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        fail_unless( loopstack != INITPTR
+                   , "loopstack == INITPTR after Loop Piece creation" );
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack_3)
+{
+        LegoLoopType*    llt    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        fail_unless( dl_list_size(loopstack) == 1
+                   , "loopstack size differs from expected [%d]"
+                   , dl_list_size(loopstack) );
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack_4)
+{
+        LegoLoopType*    llt    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+
+        fail_unless( (LegoLoopType*)dl_list_data(dl_list_tail(loopstack))==llt
+                   , "loopstack content differs from expected" );
+        DELETE(llt);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack_5)
+{
+        LegoLoopType*    llt    = INITPTR;
+        LegoLoopType*    llu    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+        llu = mli_create_loop(key,iter,tmout);
+
+        fail_unless( dl_list_size(loopstack) == 2
+                   , "loopstack size differs from expected [%d]"
+                   , dl_list_size(loopstack) );
+        DELETE(llt);
+        DELETE(llu);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack_6)
+{
+        LegoLoopType*    llt    = INITPTR;
+        LegoLoopType*    llu    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+        llu = mli_create_loop(key,iter,tmout);
+
+        fail_unless( (LegoLoopType*)dl_list_data(dl_list_tail(loopstack))==llu
+                   , "loopstack content differs from expected" );
+        DELETE(llt);
+        DELETE(llu);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack_7)
+{
+        LegoLoopType*    llt    = INITPTR;
+        LegoLoopType*    llu    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+        llu = mli_create_loop(key,iter,tmout);
+
+        fail_unless( (LegoLoopType*)dl_list_data(dl_list_head(loopstack))==llt
+                   , "loopstack content differs from expected" );
+        DELETE(llt);
+        DELETE(llu);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack_8)
+{
+        LegoLoopType*    llt    = INITPTR;
+        LegoLoopType*    llu    = INITPTR;
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        TScripterKeyword key2   = EKeywordEndloop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+        llu = mli_create_loop(key,iter,tmout);
+        let = mli_create_endloop(key2);
+
+        fail_unless( dl_list_size(loopstack) == 1
+                   , "loopstack size differs from expected [%d]"
+                   , dl_list_size(loopstack) );
+
+        DELETE(llt);
+        DELETE(llu);
+        DELETE(let);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack_9)
+{
+        LegoLoopType*    llt    = INITPTR;
+        LegoLoopType*    llu    = INITPTR;
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        TScripterKeyword key2   = EKeywordEndloop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+        llu = mli_create_loop(key,iter,tmout);
+        let = mli_create_endloop(key2);
+
+        fail_unless( (LegoLoopType*)dl_list_data(dl_list_tail(loopstack))==llt
+                   , "loopstack content differs from expected" );
+
+        DELETE(llt);
+        DELETE(llu);
+        DELETE(let);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack_10)
+{
+        LegoLoopType*    llt    = INITPTR;
+        LegoLoopType*    llu    = INITPTR;
+        LegoEndloopType* let    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        TScripterKeyword key2   = EKeywordEndloop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+        llu = mli_create_loop(key,iter,tmout);
+        let = mli_create_endloop(key2);
+
+        fail_unless( dl_list_size(loopstack) == 1
+                   , "loopstack size differs from expected [%d]"
+                   , dl_list_size(loopstack) );
+
+        DELETE(llt);
+        DELETE(llu);
+        DELETE(let);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_loopstack_11)
+{
+        LegoLoopType*    llt    = INITPTR;
+        LegoLoopType*    llu    = INITPTR;
+        LegoEndloopType* let    = INITPTR;
+        LegoEndloopType* leu    = INITPTR;
+        TScripterKeyword key    = EKeywordLoop;
+        TScripterKeyword key2   = EKeywordEndloop;
+        unsigned int     iter   = 5;
+        TSBool            tmout  = ESFalse;
+        llt = mli_create_loop(key,iter,tmout);
+        llu = mli_create_loop(key,iter,tmout);
+        let = mli_create_endloop(key2);
+        leu = mli_create_endloop(key2);
+
+        fail_unless( loopstack == INITPTR
+                   , "loopstack not destroyed when empty" );
+
+        DELETE(llt);
+        DELETE(llu);
+        DELETE(let);
+        DELETE(leu);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create)
+{
+        MinSectionParser*      msp     = INITPTR;
+        mli_create(msp);
+        fail_unless( legosnake == INITPTR, "Lego Snake != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_2)
+{
+        char*                   buff    = "[Test]\ntitle foo\n[Endtest]\n";
+        MinParser*             sp      = mp_create_mem(buff,ENoComments);
+        MinSectionParser*      msp     = mp_section( sp
+                                                    , "[Test]"
+                                                    , "[Endtest]"
+                                                    , 1 );
+        mli_create(msp);
+        fail_unless( legosnake != INITPTR, "Lego Snake not created" );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_3)
+{
+        char*                   buff    = "[Test]\ntitle foo\n[Endtest]\n";
+        MinParser*             sp      = mp_create_mem(buff,ENoComments);
+        MinSectionParser*      msp     = mp_section( sp
+                                                    , "[Test]"
+                                                    , "[Endtest]"
+                                                    , 1 );
+        unsigned int            size    = 0;
+        LegoBasicType*          tmp     = INITPTR;
+
+        mli_create(msp);
+                
+        /* Counting number of elements on Lego Snake */
+        tmp = legosnake;
+        while( tmp != INITPTR ) {
+                size++;
+                tmp = tmp->next_;
+        }
+
+
+        fail_unless( size == 3
+                   , "Lego Snake size differs from expected [%d]"
+                   , size );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_4)
+{
+        char*                   buff    = "[Test]\ntitle foo\n[Endtest]\n";
+        MinParser*             sp      = mp_create_mem(buff,ENoComments);
+        MinSectionParser*      msp     = mp_section( sp
+                                                    , "[Test]"
+                                                    , "[Endtest]"
+                                                    , 1 );
+        mli_create(msp);
+        fail_unless( legosnake->type_ == ELegoStart
+                   , "First Lego Piece type differs from expected [%d]"
+                   , legosnake->type_ );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_5)
+{
+        char*                   buff    = "[Test]\ntitle foo\n[Endtest]\n";
+        MinParser*             sp      = mp_create_mem(buff,ENoComments);
+        MinSectionParser*      msp     = mp_section( sp
+                                                    , "[Test]"
+                                                    , "[Endtest]"
+                                                    , 1 );
+        mli_create(msp);
+        fail_unless( legosnake->next_->type_ == ELegoPassive
+                   , "Second Lego Piece type differs from expected [%d]"
+                   , legosnake->next_->type_ );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mli_create_6)
+{
+        char*                   buff    = "[Test]\ntitle foo\n[Endtest]\n";
+        MinParser*             sp      = mp_create_mem(buff,ENoComments);
+        MinSectionParser*      msp     = mp_section( sp
+                                                    , "[Test]"
+                                                    , "[Endtest]"
+                                                    , 1 );
+        mli_create(msp);
+        fail_unless( legosnake->next_->next_->type_ == ELegoEnd
+                   , "Last Lego Piece type differs from expected [%d]"
+                   , legosnake->next_->next_->type_ );
+        mmp_destroy(&msp);
+        mp_destroy(&sp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* min_lego_interface_suite()
+{
+        Suite * s = suite_create ("min lego interface");
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+
+        /* mli_create_start */
+        tcase_add_test (tc_core, test_mli_create_start);
+        tcase_add_test (tc_core, test_mli_create_start_2);
+        tcase_add_test (tc_core, test_mli_create_start_3);
+
+        /* mli_create_end */
+        tcase_add_test (tc_core, test_mli_create_end);
+        tcase_add_test (tc_core, test_mli_create_end_2);
+        tcase_add_test (tc_core, test_mli_create_end_3);
+
+        /* mli_create_passive */
+        tcase_add_test (tc_core, test_mli_create_passive);
+        tcase_add_test (tc_core, test_mli_create_passive_2);
+        tcase_add_test (tc_core, test_mli_create_passive_3);
+        tcase_add_test (tc_core, test_mli_create_passive_4);
+
+        /* mli_create_active */
+        tcase_add_test (tc_core, test_mli_create_active);
+        tcase_add_test (tc_core, test_mli_create_active_2);
+        tcase_add_test (tc_core, test_mli_create_active_3);
+        tcase_add_test (tc_core, test_mli_create_active_4);
+
+        /* mli_create_loop */
+        tcase_add_test (tc_core, test_mli_create_loop);
+        tcase_add_test (tc_core, test_mli_create_loop_2);
+        tcase_add_test (tc_core, test_mli_create_loop_3);
+        tcase_add_test (tc_core, test_mli_create_loop_4);
+        tcase_add_test (tc_core, test_mli_create_loop_5);
+        tcase_add_test (tc_core, test_mli_create_loop_6);
+        tcase_add_test (tc_core, test_mli_create_loop_7);
+
+        /* mli_create_endloop */
+        tcase_add_test (tc_core, test_mli_create_endloop);
+        tcase_add_test (tc_core, test_mli_create_endloop_2);
+        tcase_add_test (tc_core, test_mli_create_endloop_3);
+        tcase_add_test (tc_core, test_mli_create_endloop_4);
+        tcase_add_test (tc_core, test_mli_create_endloop_5);
+        tcase_add_test (tc_core, test_mli_create_endloop_6);
+        tcase_add_test (tc_core, test_mli_create_endloop_7);
+        tcase_add_test (tc_core, test_mli_create_endloop_8);
+        tcase_add_test (tc_core, test_mli_create_endloop_9);
+
+        /* mli_mli_loopstack */
+        tcase_add_test (tc_core, test_mli_loopstack);
+        tcase_add_test (tc_core, test_mli_loopstack_2);
+        tcase_add_test (tc_core, test_mli_loopstack_3);
+        tcase_add_test (tc_core, test_mli_loopstack_4);
+        tcase_add_test (tc_core, test_mli_loopstack_5);
+        tcase_add_test (tc_core, test_mli_loopstack_6);
+        tcase_add_test (tc_core, test_mli_loopstack_7);
+        tcase_add_test (tc_core, test_mli_loopstack_8);
+        tcase_add_test (tc_core, test_mli_loopstack_9);
+        tcase_add_test (tc_core, test_mli_loopstack_10);
+        tcase_add_test (tc_core, test_mli_loopstack_11);
+
+        /* mli_create */
+        tcase_add_test (tc_core, test_mli_create);
+        tcase_add_test (tc_core, test_mli_create_2);
+        tcase_add_test (tc_core, test_mli_create_3);
+        tcase_add_test (tc_core, test_mli_create_4);
+        tcase_add_test (tc_core, test_mli_create_5);
+        tcase_add_test (tc_core, test_mli_create_6);
+
+        /* mli_destroy */
+
+
+        suite_add_tcase (s, tc_core);
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int min_lego_interface_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = min_lego_interface_suite ();
+        SRunner * sr = srunner_create (s);
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

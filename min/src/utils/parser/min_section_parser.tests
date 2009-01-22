@@ -1,0 +1,3761 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Konrad Marek Zapalowicz
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       min_section_parser.test
+ *  @version    0.1
+ *  @brief      This file contains test for Min Section Parser.
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDES */
+#include <check.h>
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* DATA TYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* ============================= TESTS ===================================== */
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_create)
+{
+        MinSectionParser* msp = mmp_create( 10 );
+        fail_unless( msp != INITPTR, "Section parser not allocated." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_create2)
+{
+        MinSectionParser* msp = mmp_create( 0 );
+        fail_unless( msp != INITPTR, "Section parser not allocated." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_create3)
+{
+        MinSectionParser* msp = mmp_create( 10 );
+        fail_unless( msp != INITPTR
+                   , "Section parser not allocated." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_create4)
+{
+        MinSectionParser* msp = mmp_create( 10 );
+        fail_unless( msp->length_ == 10
+                   , "msp->length_ has inproper value." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_create5)
+{
+        MinSectionParser* msp = mmp_create( 10 );
+        fail_unless( msp->skip_and_mark_pos_ == 0
+                   , "msp->skip_and_mark_pos_ has inproper value." );
+
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_create6)
+{
+        MinSectionParser* msp = mmp_create( 10 );
+        fail_unless( msp->line_indicator_ == ESFalse
+                   , "msp->line_indicator_ has inproper value." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_create7)
+{
+        MinSectionParser* msp = mmp_create( 10 );
+        fail_unless( msp->buffer_section_ != INITPTR
+                   , "msp->buffer_section_ not initialized." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_create8)
+{
+        MinSectionParser* msp = mmp_create( 10 );
+        fail_unless( msp->section_ == msp->buffer_section_
+                   , "msp->section_ wrongly initialized." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_create9)
+{
+        MinSectionParser* msp = mmp_create( 10 );
+        fail_unless( msp->sub_offset_ == msp->buffer_section_
+                   , "msp->sub_offset_ wrongly initialized." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_destroy)
+{
+        MinSectionParser* msp = mmp_create( 10 );
+        mmp_destroy(&msp);
+        fail_unless( msp == INITPTR
+                   , "SectionParser not set to INITPTR after deletion." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_destroy2)
+{
+        MinSectionParser* msp = INITPTR;
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_item_line)
+{
+        MinSectionParser*      msp = INITPTR;
+        MinItemParser*         mip = INITPTR;
+
+        mip = mmp_get_item_line( msp
+                               , "Tag"
+                               , ESNoTag );
+
+        fail_unless( mip == INITPTR
+                   , "mip != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_item_line2)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+
+        mip = mmp_get_item_line( msp
+                               , INITPTR
+                               , ESNoTag );
+
+        fail_unless( mip == INITPTR
+                   , "mip != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_item_line3)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+
+        fail_unless( mip != INITPTR
+                   , "mip == INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_item_line4)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+
+        fail_unless( mip->item_line_section_ != INITPTR
+                   , "mip->item_line_section_ == INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_item_line5)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+
+        fail_unless( strcmp(mip->item_line_section_,"= YES") == 0
+                   , "Result differs from expected [%s]"
+                   , mip->item_line_section_ );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_item_line6)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESTag );
+
+        fail_unless( strcmp(mip->item_line_section_,"CreateTestReport= YES") == 0
+                   , "Result differs from expected [%s]"
+                   , mip->item_line_section_ );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_item_line7)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESTag );
+
+        fail_unless( msp->line_indicator_ == ESTrue
+                   , "mip->line_indicator_ != ESTrue" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_item_line8)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES\n\
+                                       TestReportFilePath= /home/maemo\n\
+                                       TestReportFileName= TestReport\n\
+                                       TestReportFormat= TXT\n\
+                                       TestReportOutput= FILE\n\
+                                       TestReportFileCreationMode= OVERWRITE\n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , ""
+                               , ESTag );
+
+        fail_unless( strcmp(mip->item_line_section_,"CreateTestReport= YES") == 0
+                   , "Result differs from expected [%s]"
+                   , mip->item_line_section_ );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_item_line)
+{
+        MinSectionParser*      msp = INITPTR;
+        MinItemParser*         mip = INITPTR;
+
+        mip = mmp_get_next_item_line( msp );
+
+        fail_unless( mip == INITPTR
+                   , "mip != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_item_line2)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_next_item_line( msp );
+
+        fail_unless( mip == INITPTR
+                   , "mip == INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_item_line3)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+
+        mip = mmp_get_next_item_line( msp );
+
+        fail_unless( mip != INITPTR
+                   , "mip == INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_item_line4)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+
+        mip = mmp_get_next_item_line( msp );
+
+        fail_unless( mip->item_line_section_ != INITPTR
+                   , "mip->item_line_section_ == INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_item_line5)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+
+        mip = mmp_get_next_item_line( msp );
+
+        fail_unless( strcmp(mip->item_line_section_,"TestReportFilePath= /home/maemo") == 0
+                   , "Result differs from expected [%s]"
+                   , mip->item_line_section_ );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_item_line6)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+
+        mip = mmp_get_next_item_line( msp );
+        mip = mmp_get_next_item_line( msp );
+
+        fail_unless( strcmp( mip->item_line_section_,"TestReportFileName= TestReport") == 0
+                   , "Result differs from expected [%s]"
+                   , mip->item_line_section_ );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_item_line7)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES\n\
+                                       TestReportFilePath= /home/maemo\n\
+                                       TestReportFileName= TestReport\n\
+                                       TestReportFormat= TXT\n\
+                                       TestReportOutput= FILE\n\
+                                       TestReportFileCreationMode= OVERWRITE\n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+
+        mip = mmp_get_next_item_line( msp );
+        mip = mmp_get_next_item_line( msp );
+
+        fail_unless( strcmp( mip->item_line_section_,"TestReportFileName= TestReport") == 0
+                   , "Result differs from expected [%s]"
+                   , mip->item_line_section_ );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_item_line8)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES\n\
+                                       TestReportFilePath= /home/maemo\n\
+                                       TestReportFileName= TestReport\n\
+                                       TestReportFormat= TXT\n\
+                                       TestReportOutput= FILE\n\
+                                       TestReportFileCreationMode= OVERWRITE\n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , ""
+                               , ESNoTag );
+
+        mip = mmp_get_next_item_line( msp );
+        mip = mmp_get_next_item_line( msp );
+
+        fail_unless( strcmp( mip->item_line_section_,"TestReportFileName= TestReport") == 0
+                   , "Result differs from expected [%s]"
+                   , mip->item_line_section_ );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_item_line)
+{
+        MinSectionParser*      msp = INITPTR;
+        MinItemParser*         mip = INITPTR;
+
+        mip = mmp_get_next_tagged_item_line( msp
+                                           , "Tag"
+                                           , ESNoTag );
+
+        fail_unless( mip == INITPTR
+                   , "mip != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_item_line2)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+
+        mip = mmp_get_next_tagged_item_line( msp
+                                           , INITPTR
+                                           , ESNoTag );
+
+        fail_unless( mip == INITPTR
+                   , "mip != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_item_line3)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_next_tagged_item_line( msp
+                                           , "CreateTestReport"
+                                           , ESNoTag );
+
+        fail_unless( mip == INITPTR
+                   , "mip != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_item_line4)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+        mip = mmp_get_next_tagged_item_line( msp
+                                           , "TestReportFormat"
+                                           , ESNoTag );
+
+        fail_unless( mip != INITPTR
+                   , "mip == INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_item_line5)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+        mip = mmp_get_next_tagged_item_line( msp
+                                           , "TestReportFormat"
+                                           , ESNoTag );
+
+        fail_unless( strcmp( mip->item_line_section_,"= TXT") == 0
+                   , "Result differs from expected [%s]"
+                   , mip->item_line_section_ );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_item_line6)
+{
+        MinSectionParser*      msp = mmp_create(512);
+        MinItemParser*         mip = INITPTR;
+        const char*             tmp = "CreateTestReport= YES                 \n\
+                                       TestReportFilePath= /home/maemo       \n\
+                                       TestReportFileName= TestReport        \n\
+                                       TestReportFormat= TXT                 \n\
+                                       TestReportOutput= FILE                \n\
+                                       TestReportFileCreationMode= OVERWRITE \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        mip = mmp_get_item_line( msp
+                               , "CreateTestReport"
+                               , ESNoTag );
+        mip = mmp_get_next_tagged_item_line( msp
+                                           , "TestReportFormat"
+                                           , ESTag );
+
+        fail_unless( strcmp( mip->item_line_section_,"TestReportFormat= TXT") == 0
+                   , "Result differs from expected [%s]"
+                   , mip->item_line_section_ );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_sub_section)
+{
+        MinSectionParser* msp       = INITPTR;
+        MinSectionParser* retval    = INITPTR;
+        retval = mmp_sub_section( msp, "stag", "etag", 0 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_sub_section2)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        MinSectionParser* retval    = INITPTR;
+        retval = mmp_sub_section( msp, INITPTR, "etag", 0 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_sub_section3)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        MinSectionParser* retval    = INITPTR;
+        retval = mmp_sub_section( msp, "stag", INITPTR, 0 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_sub_section4)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        MinSectionParser* retval    = INITPTR;
+        retval = mmp_sub_section( msp, "stag", "etag", -1 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_sub_section5)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_sub_section( msp, "[TagOne]", "[EndTagOne]", 1 );
+        fail_unless( retval != INITPTR
+                   , "Retval == INITPTR" );
+        mmp_destroy(&retval);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_sub_section6)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_sub_section( msp, "[TagOne]", "[EndTagOne]", 1 );
+        fail_unless( strcmp(retval->section_,"CreateTestReport= YES") == 0
+                   , "Result differs from expected [%s]"
+                   , retval->section_ );
+        mmp_destroy(&retval);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section)
+{
+        MinSectionParser* msp       = INITPTR;
+        MinSectionParser* retval    = INITPTR;
+        retval = mmp_next_sub_section( msp, "stag", "etag", 0 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section2)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        MinSectionParser* retval    = INITPTR;
+        retval = mmp_next_sub_section( msp, INITPTR, "etag", 0 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section3)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        MinSectionParser* retval    = INITPTR;
+        retval = mmp_next_sub_section( msp, "stag", INITPTR, 0 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section4)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        MinSectionParser* retval    = INITPTR;
+        retval = mmp_next_sub_section( msp, "stag", "etag", -1 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section5)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_next_sub_section( msp, "", "", 1 );
+        fail_unless( retval != INITPTR
+                   , "Retval == INITPTR" );
+        mmp_destroy(&retval);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section6)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+        const char*        exp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_next_sub_section( msp, "", "", 1 );
+        fail_unless( strcmp(retval->section_,exp) == 0
+                   , "Recieved result differs from expected [%s]"
+                   , retval->section_ );
+        mmp_destroy(&retval);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section7)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_next_sub_section( msp, "", "", 2 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section8)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_next_sub_section( msp, "[TagOne]", "[EndTagOne]", 1 );
+        fail_unless( retval != INITPTR
+                   , "Retval == INITPTR" );
+        mmp_destroy(&retval);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section9)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_next_sub_section( msp, "[TagOne]", "[EndTagOne]", 1 );
+        fail_unless( strcmp(retval->section_,"CreateTestReport= YES") == 0
+                   , "Returned value does not match expected [%s]"
+                   , retval->section_ );
+        mmp_destroy(&retval);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section10)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_next_sub_section( msp, "[TagOne]", "[EndTagOne]", 2 );
+        fail_unless( strcmp(retval->section_,"TestReportFilePath= /home/maemo") == 0
+                   , "Returned value does not match expected [%s]"
+                   , retval->section_ );
+        mmp_destroy(&retval);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section11)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_next_sub_section( msp, "[TagOne]", "[EndTagOne]", 6 );
+        fail_unless( strcmp(retval->section_,"TestReportFileCreationMode= OVERWRITE") == 0
+                   , "Returned value does not match expected [%s]"
+                   , retval->section_ );
+        mmp_destroy(&retval);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section12)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_next_sub_section( msp, "[TagOne]", "[EndTagOne]", 7 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section13)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_next_sub_section( msp, "[TagOne]", "[EndBBB]", 1 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_next_sub_section14)
+{
+        MinSectionParser* msp       = mmp_create(2048);
+        MinSectionParser* retval    = INITPTR;
+        const char*        tmp       = "[TagOne]                              \n\
+                                        CreateTestReport= YES                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileName= TestReport        \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFormat= TXT                 \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportOutput= FILE                \n\
+                                        [EndTagOne]                           \n\
+                                        [TagOne]                              \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [EndTagOne]                           \n";
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_next_sub_section( msp, "[TagKaksi]", "[EndTagKaksi]", 1 );
+        fail_unless( retval == INITPTR
+                   , "Retval != INITPTR" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_line)
+{
+        MinSectionParser* msp       = INITPTR;
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+
+        retval = mmp_get_line( msp
+                             , "TestReportMode"
+                             , &line
+                             , ESNoTag );
+
+        fail_unless( retval == -1
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_line2)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_get_line( msp
+                             , INITPTR
+                             , &line
+                             , ESNoTag );
+
+        fail_unless( retval == -1
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_line3)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_get_line( msp
+                             , "TestReportMode"
+                             , &line
+                             , ESNoTag );
+
+        fail_unless( retval == 0
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_line4)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_get_line( msp
+                             , "TestReportMode"
+                             , &line
+                             , ESNoTag );
+
+        fail_unless( strcmp(line,"= FullReport") == 0
+                   , "Returned line is wrong [%s]"
+                   , line );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_line5)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_get_line( msp
+                             , "TestReportMode"
+                             , &line
+                             , ESTag );
+
+        fail_unless( strcmp(line,"TestReportMode= FullReport") == 0
+                   , "Returned line is wrong [%s]"
+                   , line );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_line6)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_get_line( msp
+                             , "TestReportMode"
+                             , &line
+                             , ESTag );
+
+        fail_unless( msp->line_indicator_ == ESTrue
+                   , "Line indicator is not set to ESTrue" );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_line)
+{
+        MinSectionParser* msp       = INITPTR;
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+
+        fail_unless( retval == -1
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_line2)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+
+        fail_unless( retval == -1
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_line3)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        msp->line_indicator_ = ESTrue;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+
+        fail_unless( retval == 0
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_line4)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        msp->line_indicator_ = ESTrue;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+
+        fail_unless( strcmp(line,"TestReportMode= FullReport") == 0
+                   , "Returned line is wrong [%s]"
+                   , line );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_line5)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        msp->line_indicator_ = ESTrue;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+        DELETE(line);
+        line = INITPTR;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+
+        fail_unless( strcmp(line,"CreateTestReport= YES") == 0
+                   , "Returned line is wrong [%s]"
+                   , line );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_line6)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        msp->line_indicator_ = ESTrue;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+        DELETE(line);
+        line = INITPTR;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+        DELETE(line);
+        line = INITPTR;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+
+        fail_unless( strcmp(line,"TestReportFilePath= /home/maemo") == 0
+                   , "Returned line is wrong [%s]"
+                   , line );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_line7)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        msp->line_indicator_ = ESTrue;
+
+        retval = mmp_get_line( msp
+                             , "TestReportMode"
+                             , &line
+                             , ESTag );
+        DELETE(line);
+        line = INITPTR;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+
+        fail_unless( strcmp(line,"CreateTestReport= YES") == 0
+                   , "Returned line is wrong [%s]"
+                   , line );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_line8)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        msp->line_indicator_ = ESTrue;
+
+        retval = mmp_get_line( msp
+                             , "TestReportFileCreationMode="
+                             , &line
+                             , ESTag );
+        DELETE(line);
+        line = INITPTR;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+
+        fail_unless( retval == 0
+                   , "result differs from expected [%d]"
+                   , retval );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_line9)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        msp->line_indicator_ = ESTrue;
+
+        retval = mmp_get_line( msp
+                             , "TestReportFileCreationMode="
+                             , &line
+                             , ESTag );
+        DELETE(line);
+        line = INITPTR;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+
+        fail_unless( line != INITPTR
+                   , "line == INITPTR" );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_line10)
+{
+        MinSectionParser* msp       = mmp_create( 512 );
+        const char*        tmp       = "TestReportMode= FullReport            \n";
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        msp->line_indicator_ = ESTrue;
+
+        retval = mmp_get_line( msp
+                             , "TestReportMode="
+                             , &line
+                             , ESTag );
+        DELETE(line);
+        line = INITPTR;
+
+        retval = mmp_get_next_line( msp
+                                  , &line );
+
+        fail_unless( strlen(line) == 0
+                   , "strlen(line) != 0 [%d]"
+                   , strlen(line) );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line)
+{
+        MinSectionParser* msp       = INITPTR;
+        int                retval    = 0;
+        char*              line      = INITPTR;
+
+        retval = mmp_get_next_tagged_line( msp
+                                         , "Tag"
+                                         , &line
+                                         , ESNoTag);
+        fail_unless( retval == -1
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line2)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        int                retval    = 0;
+        char*              line      = INITPTR;
+        msp->line_indicator_         = ESTrue;
+
+        retval = mmp_get_next_tagged_line( msp
+                                         , INITPTR
+                                         , &line
+                                         , ESNoTag);
+        fail_unless( retval == -1
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line3)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        int                retval    = 0;
+        char*              line      = INITPTR;
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        msp->line_indicator_         = ESFalse;
+
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFilePath"
+                                         , &line
+                                         , ESNoTag);
+        fail_unless( retval == -1
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line4)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        int                retval    = 0;
+        char*              line      = INITPTR;
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        msp->line_indicator_         = ESTrue;
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFilePath"
+                                         , &line
+                                         , ESNoTag);
+        fail_unless( retval == 0
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line5)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        int                retval    = 0;
+        char*              line      = INITPTR;
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        msp->line_indicator_         = ESTrue;
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFilePath"
+                                         , &line
+                                         , ESNoTag);
+        fail_unless( strcmp(line,"= /home/maemo") == 0
+                   , "Returned value is inproper [%s]"
+                   , line );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line6)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        int                retval    = 0;
+        char*              line      = INITPTR;
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        msp->line_indicator_         = ESTrue;
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFilePath"
+                                         , &line
+                                         , ESTag);
+        fail_unless( strcmp(line,"TestReportFilePath= /home/maemo") == 0
+                   , "Returned value is inproper [%s]"
+                   , line );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line7)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        int                retval    = 0;
+        char*              line      = INITPTR;
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        msp->line_indicator_         = ESTrue;
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFilePath"
+                                         , &line
+                                         , ESTag);
+        DELETE(line);
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFileName"
+                                         , &line
+                                         , ESTag);
+        fail_unless( strcmp(line,"TestReportFileName= TestReport") == 0
+                   , "Returned value is inproper [%s]"
+                   , line );
+
+        DELETE(line);
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line8)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        int                retval    = 0;
+        char*              line      = INITPTR;
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        msp->line_indicator_         = ESTrue;
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFilePath"
+                                         , &line
+                                         , ESTag);
+        DELETE(line);
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFilePath"
+                                         , &line
+                                         , ESTag);
+
+        fail_unless( retval == 0
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line9)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        int                retval    = 0;
+        char*              line      = INITPTR;
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n";
+        msp->line_indicator_         = ESTrue;
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFilePath"
+                                         , &line
+                                         , ESTag);
+        DELETE(line);
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFilePath"
+                                         , &line
+                                         , ESTag);
+        fail_unless( line == INITPTR
+                   , "line != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line10)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        int                retval    = 0;
+        char*              line      = INITPTR;
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE";
+        msp->line_indicator_         = ESTrue;
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFileCreationMode="
+                                         , &line
+                                         , ESTag);
+        DELETE(line);
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFileCreationMode="
+                                         , &line
+                                         , ESTag);
+        fail_unless( retval == 0
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_next_tagged_line11)
+{
+        MinSectionParser* msp       = mmp_create(512);
+        int                retval    = 0;
+        char*              line      = INITPTR;
+        const char*        tmp       = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE";
+        msp->line_indicator_         = ESTrue;
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFileCreationMode="
+                                         , &line
+                                         , ESTag);
+        DELETE(line);
+        retval = mmp_get_next_tagged_line( msp
+                                         , "TestReportFileCreationMode="
+                                         , &line
+                                         , ESTag);
+        fail_unless( line == INITPTR
+                   , "line != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_position)
+{
+        int                ret = 0;
+        MinSectionParser* msp = mmp_create( 10 );
+        ret = mmp_get_position(msp);
+        fail_unless( ret == 0
+                   , "Wrong result [%d]"
+                   , ret );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_position2)
+{
+        int                ret = 0;
+        MinSectionParser* msp = INITPTR;
+        ret = mmp_get_position(msp);
+        fail_unless( ret == -1
+                   , "Wrong result [%d]"
+                   , ret );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_get_position3)
+{
+        int                ret = 0;
+        MinSectionParser* msp = mmp_create( 10 );
+        mmp_set_position(msp,5);
+        ret = mmp_get_position(msp);
+        fail_unless( ret == 5
+                   , "Wrong result [%d]"
+                   , ret );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_set_position)
+{
+        int                ret = 0;
+        MinSectionParser* msp = mmp_create( 10 );
+        ret = mmp_set_position(msp,5);
+        fail_unless( ret == ENOERR
+                   , "Wrong result [%d]"
+                   , ret );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_set_position2)
+{
+        int                ret = 0;
+        MinSectionParser* msp = mmp_create( 10 );
+        ret = mmp_set_position(msp,5);
+        fail_unless( msp->skip_and_mark_pos_ == 5
+                   , "inproper value of msp->skip_and_mark_pos_ [%d]"
+                   , msp->skip_and_mark_pos_ );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_set_position3)
+{
+        int                ret = 0;
+        MinSectionParser* msp = INITPTR;
+        ret = mmp_set_position(msp,5);
+        fail_unless( ret == -1
+                   , "Wrong result [%d]"
+                   , ret );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_set_data)
+{
+        const char*        tmp = "ala ma kot";
+        MinSectionParser* msp = mmp_create( 10 );
+        mmp_set_data(msp,tmp,&tmp[0],10);
+        fail_unless( strlen(msp->buffer_section_) == 10
+                   , "Wrong length of the msp->buff_section_" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_set_data2)
+{
+        const char*        tmp = "ala ma kot";
+        MinSectionParser* msp = mmp_create( 10 );
+        mmp_set_data(msp,tmp,&tmp[0],10);
+        fail_unless( strcmp(msp->buffer_section_,"ala ma kot") == 0
+                   , "Wrong content of the msp->buff_section_ [%s]" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_set_data3)
+{
+        const char*        tmp = "ala ma kot";
+        MinSectionParser* msp = mmp_create( 10 );
+        mmp_set_data(msp,tmp,&tmp[0],10);
+        fail_unless( strcmp(msp->section_,"ala ma kot") == 0
+                   , "Wrong content of the msp->section_ [%s]" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_set_data4)
+{
+        const char*        tmp = "ala ma kot";
+        MinSectionParser* msp = mmp_create( 10 );
+        mmp_set_data(msp,tmp,&tmp[0],10);
+        fail_unless( strcmp(msp->section_,"ala ma kot") == 0
+                   , "Wrong content of the msp->section_ [%s]" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_set_data5)
+{
+        const char*        tmp = "ala ma kota kot ma ale lalala";
+        MinSectionParser* msp = mmp_create( 100 );
+        mmp_set_data(msp,tmp,&tmp[0],10);
+        fail_unless( strcmp(msp->buffer_section_,"ala ma kot") == 0
+                   , "Wrong content of the msp->section_ [%s]" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_des)
+{
+        const char*        tmp = "ala ma kot";
+        char*              pom = INITPTR;
+        MinSectionParser* msp = mmp_create( 10 );
+        pom = mmp_des(msp);
+        fail_unless( pom != INITPTR
+                   , "Wrong data returned" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_des2)
+{
+        const char*        tmp = "ala ma kot";
+        char*              pom = INITPTR;
+        MinSectionParser* msp = INITPTR;
+        pom = mmp_des(msp);
+        fail_unless( pom == INITPTR
+                   , "Wrong data returned" );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_des3)
+{
+        const char*        tmp = "ala ma kot";
+        char*              pom = INITPTR;
+        MinSectionParser* msp = mmp_create( 10 );
+        pom = mmp_des(msp);
+
+        fail_unless( strlen(pom) == 0
+                   , "Wrong length of returned data [%d]"
+                   , strlen(pom) );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_des4)
+{
+        const char*        tmp = "ala ma kot";
+        char*              pom = INITPTR;
+        MinSectionParser* msp = mmp_create( 10 );
+        pom = mmp_des(msp);
+        fail_unless( strcmp(pom,"") == 0
+                   , "Wrong content of returned data [%s]"
+                   , pom );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_des5)
+{
+        const char*        tmp = "ala ma kot";
+        char*              pom = INITPTR;
+        MinSectionParser* msp = mmp_create( 10 );
+        mmp_set_data(msp,tmp,&tmp[0],10);
+        pom = mmp_des(msp);
+        fail_unless( strlen(pom) == 10
+                   , "Wrong length of returned data [%d]"
+                   , strlen(pom) );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_des6)
+{
+        const char*        tmp = "ala ma kot";
+        char*              pom = INITPTR;
+        MinSectionParser* msp = mmp_create( 10 );
+        mmp_set_data(msp,tmp,&tmp[0],10);
+        pom = mmp_des(msp);
+        fail_unless( strcmp(pom,"ala ma kot") == 0
+                   , "Wrong content of returned data [%s]"
+                   , pom );
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        [Engine_Defaults]                     \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [End_Defaults]                        \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( retval == -1
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos2)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        [Engine_Defaults]                     \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [End_Defaults]                        \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( start_pos == INITPTR
+                   , "start_pos != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos3)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        [Engine_Defaults]                     \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [End_Defaults]                        \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( end_pos == INITPTR
+                   , "end_pos != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos4)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        [Engine_Defaults]                     \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [End_Defaults]                        \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( length == 0
+                   , "length != 0 [%d]"
+                   , length );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos5)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = INITPTR;
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( retval == -1
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos6)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = INITPTR;
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( start_pos == INITPTR
+                   , "start_pos != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos7)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = INITPTR;
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( end_pos == INITPTR
+                   , "end_pos != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos8)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = INITPTR;
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( length == 0
+                   , "length != 0 [%d]"
+                   , length );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos9)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = INITPTR;
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( NULL
+                                            , NULL
+                                            , INITPTR
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( retval == -1
+                   , "Returned value is inproper [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos10)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = INITPTR;
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( NULL
+                                            , NULL
+                                            , INITPTR
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( start_pos == INITPTR
+                   , "start_pos != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos11)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = INITPTR;
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( NULL
+                                            , NULL
+                                            , INITPTR
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( end_pos == INITPTR
+                   , "end_pos != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos12)
+{
+        MinSectionParser* msp       = INITPTR;
+        const char*        tmp       = INITPTR;
+        int                retval    = 0;
+        char*              start_pos = NULL;
+        char*              end_pos   = NULL;
+        int                length    = 5;
+
+        retval = mmp_parse_start_and_end_pos( NULL
+                                            , NULL
+                                            , INITPTR
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( length == 0
+                   , "length != 0 [%d]"
+                   , length );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos13)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        [Engine_Defaults]                     \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [End_Defaults]                        \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( retval == 0
+                   , "retval != 0 [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos14)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        [Engine_Defaults]                     \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [End_Defaults]                        \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( start_pos != INITPTR
+                   , "start_tag == INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos15)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        [Engine_Defaults]                     \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [End_Defaults]                        \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( end_pos != INITPTR
+                   , "end_tag == INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos16)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        [Engine_Defaults]                     \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        [End_Defaults]                        \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "[Engine_Defaults]"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( length != 0
+                   , "length == 0" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos17)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        const char*        expected  = "= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportMode"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( strcmp(start_pos,expected) == 0
+                   , "start_tag differs from expected [%s]"
+                   , start_pos );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos18)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        const char*        expected  = "t            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportMode"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( strcmp(end_pos,expected) == 0
+                   , "end_pos differs from expected [%s]"
+                   , end_pos );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos19)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        const char*        expected  = "TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportMode"
+                                            , ESTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( strcmp(start_pos,expected) == 0
+                   , "start_tag differs from expected [%s]"
+                   , start_pos );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos20)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "# -- -- -- -- -- -- -- -- -- -- -- -- \n\
+                                        TestReportMode= FullReport            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        const char*        expected  = "t            \n\
+                                        CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportMode"
+                                            , ESTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( strcmp(end_pos,expected) == 0
+                   , "end_pos differs from expected [%s]"
+                   , end_pos );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos21)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        const char*        expected  = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , ""
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( strcmp(start_pos,expected) == 0
+                   , "start_tag differs from expected [%s]"
+                   , start_pos );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos22)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        const char*        expected  = "S                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , ""
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( strcmp(end_pos,expected) == 0
+                   , "end_pos differs from expected [%s]"
+                   , end_pos );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos23)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        const char*        expected  = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , ""
+                                            , ESTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( strcmp(start_pos,expected) == 0
+                   , "start_tag differs from expected [%s]"
+                   , start_pos );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos24)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        const char*        expected  = "S                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , ""
+                                            , ESTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( strcmp(end_pos,expected) == 0
+                   , "end_pos differs from expected [%s]"
+                   , end_pos );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos25)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "CreateTestReport"
+                                            , ESTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( length == 21
+                   , "length differs from expected [%d]"
+                   , length );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos26)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "CreateTestReport"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( length == 5
+                   , "length differs from expected [%d]"
+                   , length );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos27)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "CreatmTestReport"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( length == 0
+                   , "length differs from expected [%d]"
+                   , length );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos28)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "CreatmTestReport"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( start_pos == INITPTR
+                   , "start_pos != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos29)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "CreatmTestReport"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( end_pos == INITPTR
+                   , "end_pos != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos30)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "CreatmTestReport"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( length == 0
+                   , "length != 0 [%d]"
+                   , length );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos31)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "CreatmTestReport"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( start_pos == INITPTR
+                   , "start_pos != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos32)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "CreatmTestReport"
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( end_pos == INITPTR
+                   , "end_pos != INITPTR" );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos33)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+        int                backup    = msp->skip_and_mark_pos_;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , ""
+                                            , ESTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( backup != msp->skip_and_mark_pos_
+                   , "backup == msp->skip_and_mark_pos_ [%d]"
+                   , msp->skip_and_mark_pos_ );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos34)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+        int                backup    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , ""
+                                            , ESTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+        backup    = msp->skip_and_mark_pos_;
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , ""
+                                            , ESTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( backup != msp->skip_and_mark_pos_
+                   , "backup == msp->skip_and_mark_pos_ [%d]"
+                   , msp->skip_and_mark_pos_ );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos35)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportFileCreationMode2="
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( retval == 0
+                   , "Result differs from expected [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos36)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE \n\
+                                        # -- -- -- -- -- -- -- -- -- -- -- -- --";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportFileCreationMode="
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportFileCreationMode="
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( retval == 0
+                   , "Result differs from expected [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos37)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportFileCreationMode="
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportFileCreationMode2="
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( retval == 0
+                   , "Result differs from expected [%d]"
+                   , retval );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos38)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportFileCreationMode="
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportFileCreationMode2="
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( length == 0
+                   , "Result differs from expected [%d]"
+                   , length );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos39)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportFileCreationMode="
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportFileCreationMode="
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+
+        fail_unless( length == 0
+                   , "Result differs from expected [%d]"
+                   , length );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_parse_start_and_end_pos40)
+{
+        MinSectionParser* msp       = mmp_create(256);
+        const char*        tmp       = "CreateTestReport= YES                 \n\
+                                        TestReportFilePath= /home/maemo       \n\
+                                        TestReportFileName= TestReport        \n\
+                                        TestReportFormat= TXT                 \n\
+                                        TestReportOutput= FILE                \n\
+                                        TestReportFileCreationMode= OVERWRITE";
+        int                retval    = 0;
+        char*              start_pos = INITPTR;
+        char*              end_pos   = INITPTR;
+        int                length    = 0;
+
+        retval = mmp_parse_start_and_end_pos( msp
+                                            , tmp
+                                            , "TestReportFileCreationMode2="
+                                            , ESNoTag
+                                            , &start_pos
+                                            , &end_pos
+                                            , &length );
+        fail_unless( length == 0
+                   , "Result differs from expected [%d]"
+                   , length );
+
+        mmp_destroy(&msp);
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_goto_end_of_line)
+{
+        char*              c1  = INITPTR;
+        char*              c2  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+
+        c1 = mmp_goto_end_of_line(msp,&c2);
+
+        fail_unless( c1 == INITPTR
+                   , "returned value is not INITPTR" );
+
+        mmp_destroy(&msp);
+}END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_goto_end_of_line2)
+{
+        char*              c1  = INITPTR;
+        char*              c2  = INITPTR;
+        MinSectionParser* msp = INITPTR;
+
+        c1 = mmp_goto_end_of_line(msp,&c2);
+
+        fail_unless( c2 == INITPTR
+                   , "returned value is not INITPTR" );
+
+        mmp_destroy(&msp);
+}END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_goto_end_of_line3)
+{
+        const char*        tmp = "ala ma kota\nkot ma ale\nczego sie gapisz\n";
+        char*              c1  = INITPTR;
+        char*              c2  = &tmp[0];
+        MinSectionParser* msp = mmp_create( 100 );
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        c1 = mmp_goto_end_of_line(msp,&c2);
+
+        fail_unless( c1 != INITPTR
+                   , "returned value is an INITPTR" );
+
+        mmp_destroy(&msp);
+}END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_goto_end_of_line4)
+{
+        const char*        tmp = "ala ma kota\nkot ma ale\nczego sie gapisz\n";
+        char*              c1  = INITPTR;
+        char*              c2  = &tmp[0];
+        MinSectionParser* msp = mmp_create( 100 );
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        c1 = mmp_goto_end_of_line(msp,&c2);
+
+        fail_unless( c2 != INITPTR
+                   , "returned value is an INITPTR" );
+
+        mmp_destroy(&msp);
+}END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_goto_end_of_line5)
+{
+        const char*        tmp = "ala ma kota\nkot ma ale\nczego sie gapisz\n";
+        char*              c1  = INITPTR;
+        char*              c2  = &tmp[0];
+        MinSectionParser* msp = mmp_create( 100 );
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        c1 = mmp_goto_end_of_line(msp,&c2);
+
+        fail_unless( strcmp(c2,"kot ma ale\nczego sie gapisz\n") == 0
+                   , "Wrong value returned by param [%s]"
+                   , c2 );
+
+        mmp_destroy(&msp);
+}END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_goto_end_of_line6)
+{
+        const char*        tmp = "ala ma kota\nkot ma ale\nczego sie gapisz\n";
+        char*              c1  = INITPTR;
+        char*              c2  = &tmp[0];
+        MinSectionParser* msp = mmp_create( 100 );
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        c1 = mmp_goto_end_of_line(msp,&c2);
+
+        fail_unless( strcmp(c1,"a\nkot ma ale\nczego sie gapisz\n") == 0
+                   , "Wrong value returned by name [%s]"
+                   , c1 );
+
+        mmp_destroy(&msp);
+}END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_goto_end_of_line7)
+{
+        const char*        tmp = "ala ma kota\n";
+        char*              c1  = INITPTR;
+        char*              c2  = &tmp[0];
+        MinSectionParser* msp = mmp_create( 100 );
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        c1 = mmp_goto_end_of_line(msp,&c2);
+
+        fail_unless( strcmp(c1,"a\n") == 0
+                   , "Wrong value returned by name [%s]"
+                   , c1 );
+
+        mmp_destroy(&msp);
+}END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_mmp_goto_end_of_line8)
+{
+        const char*        tmp = "ala ma kota\n";
+        char*              c1  = INITPTR;
+        char*              c2  = &tmp[0];
+        MinSectionParser* msp = mmp_create( 100 );
+        mmp_set_data(msp,tmp,&tmp[0],strlen(tmp));
+
+        c1 = mmp_goto_end_of_line(msp,&c2);
+
+        fail_unless( strcmp(c2,"") == 0
+                   , "Wrong value returned by param [%s]"
+                   , c2 );
+
+        mmp_destroy(&msp);
+}END_TEST
+/* ------------------------------------------------------------------------- */
+/* ========================== FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+Suite* min_section_parser_suite()
+{
+        Suite * s = suite_create ("min_section_parser");
+
+        /* Core test case */
+        TCase *tc_core = tcase_create ("Core");
+
+        /* create */
+        tcase_add_test (tc_core, test_mmp_create);
+        tcase_add_test (tc_core, test_mmp_create2);
+        tcase_add_test (tc_core, test_mmp_create3);
+        tcase_add_test (tc_core, test_mmp_create4);
+        tcase_add_test (tc_core, test_mmp_create5);
+        tcase_add_test (tc_core, test_mmp_create6);
+        tcase_add_test (tc_core, test_mmp_create7);
+        tcase_add_test (tc_core, test_mmp_create8);
+        tcase_add_test (tc_core, test_mmp_create9);
+
+        /* destroy */
+        tcase_add_test (tc_core, test_mmp_destroy);
+        tcase_add_test (tc_core, test_mmp_destroy2);
+
+        /* get_item_line */
+        tcase_add_test (tc_core, test_mmp_get_item_line);
+        tcase_add_test (tc_core, test_mmp_get_item_line2);
+        tcase_add_test (tc_core, test_mmp_get_item_line3);
+        tcase_add_test (tc_core, test_mmp_get_item_line4);
+        tcase_add_test (tc_core, test_mmp_get_item_line5);
+        tcase_add_test (tc_core, test_mmp_get_item_line6);
+        tcase_add_test (tc_core, test_mmp_get_item_line7);
+        tcase_add_test (tc_core, test_mmp_get_item_line8);
+
+        /* get_next_item_line */
+        tcase_add_test (tc_core, test_mmp_get_next_item_line);
+        tcase_add_test (tc_core, test_mmp_get_next_item_line2);
+        tcase_add_test (tc_core, test_mmp_get_next_item_line3);
+        tcase_add_test (tc_core, test_mmp_get_next_item_line4);
+        tcase_add_test (tc_core, test_mmp_get_next_item_line5);
+        tcase_add_test (tc_core, test_mmp_get_next_item_line6);
+        tcase_add_test (tc_core, test_mmp_get_next_item_line7);
+        tcase_add_test (tc_core, test_mmp_get_next_item_line8);
+
+        /* get_next_tagged_item_line */
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_item_line);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_item_line2);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_item_line3);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_item_line4);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_item_line5);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_item_line6);
+
+        /* get_sub_section */
+        tcase_add_test (tc_core, test_mmp_sub_section);
+        tcase_add_test (tc_core, test_mmp_sub_section2);
+        tcase_add_test (tc_core, test_mmp_sub_section3);
+        tcase_add_test (tc_core, test_mmp_sub_section4);
+        tcase_add_test (tc_core, test_mmp_sub_section5);
+        tcase_add_test (tc_core, test_mmp_sub_section6);
+
+        /* get_next_sub_section */
+        tcase_add_test (tc_core, test_mmp_next_sub_section);
+        tcase_add_test (tc_core, test_mmp_next_sub_section2);
+        tcase_add_test (tc_core, test_mmp_next_sub_section3);
+        tcase_add_test (tc_core, test_mmp_next_sub_section4);
+        tcase_add_test (tc_core, test_mmp_next_sub_section5);
+        tcase_add_test (tc_core, test_mmp_next_sub_section6);
+        tcase_add_test (tc_core, test_mmp_next_sub_section7);
+        tcase_add_test (tc_core, test_mmp_next_sub_section8);
+        tcase_add_test (tc_core, test_mmp_next_sub_section9);
+        tcase_add_test (tc_core, test_mmp_next_sub_section10);
+        tcase_add_test (tc_core, test_mmp_next_sub_section11);
+        tcase_add_test (tc_core, test_mmp_next_sub_section12);
+        tcase_add_test (tc_core, test_mmp_next_sub_section13);
+        tcase_add_test (tc_core, test_mmp_next_sub_section14);
+
+        /* get_line */
+        tcase_add_test (tc_core, test_mmp_get_line);
+        tcase_add_test (tc_core, test_mmp_get_line2);
+        tcase_add_test (tc_core, test_mmp_get_line3);
+        tcase_add_test (tc_core, test_mmp_get_line4);
+        tcase_add_test (tc_core, test_mmp_get_line5);
+        tcase_add_test (tc_core, test_mmp_get_line6);
+
+        /* get_next_line */
+        tcase_add_test (tc_core, test_mmp_get_next_line);
+        tcase_add_test (tc_core, test_mmp_get_next_line2);
+        tcase_add_test (tc_core, test_mmp_get_next_line3);
+        tcase_add_test (tc_core, test_mmp_get_next_line4);
+        tcase_add_test (tc_core, test_mmp_get_next_line5);
+        tcase_add_test (tc_core, test_mmp_get_next_line6);
+        tcase_add_test (tc_core, test_mmp_get_next_line7);
+        tcase_add_test (tc_core, test_mmp_get_next_line8);
+        tcase_add_test (tc_core, test_mmp_get_next_line9);
+        tcase_add_test (tc_core, test_mmp_get_next_line10);
+
+        /* get_next_tagged_line */
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line2);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line3);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line4);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line5);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line6);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line7);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line8);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line9);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line10);
+        tcase_add_test (tc_core, test_mmp_get_next_tagged_line11);
+
+        /* get_position */
+        tcase_add_test (tc_core, test_mmp_get_position);
+        tcase_add_test (tc_core, test_mmp_get_position2);
+        tcase_add_test (tc_core, test_mmp_get_position3);
+
+        /* set_position */
+        tcase_add_test (tc_core, test_mmp_set_position);
+        tcase_add_test (tc_core, test_mmp_set_position2);
+        tcase_add_test (tc_core, test_mmp_set_position3);
+
+        /* set_data */
+        tcase_add_test (tc_core, test_mmp_set_data);
+        tcase_add_test (tc_core, test_mmp_set_data2);
+        tcase_add_test (tc_core, test_mmp_set_data3);
+        tcase_add_test (tc_core, test_mmp_set_data4);
+        tcase_add_test (tc_core, test_mmp_set_data5);
+
+        /* des */
+        tcase_add_test (tc_core, test_mmp_des);
+        tcase_add_test (tc_core, test_mmp_des2);
+        tcase_add_test (tc_core, test_mmp_des3);
+        tcase_add_test (tc_core, test_mmp_des4);
+        tcase_add_test (tc_core, test_mmp_des5);
+        tcase_add_test (tc_core, test_mmp_des6);
+
+        /* goto_end_of_line */
+        tcase_add_test (tc_core, test_mmp_goto_end_of_line);
+        tcase_add_test (tc_core, test_mmp_goto_end_of_line2);
+        tcase_add_test (tc_core, test_mmp_goto_end_of_line3);
+        tcase_add_test (tc_core, test_mmp_goto_end_of_line4);
+        tcase_add_test (tc_core, test_mmp_goto_end_of_line5);
+        tcase_add_test (tc_core, test_mmp_goto_end_of_line6);
+        tcase_add_test (tc_core, test_mmp_goto_end_of_line7);
+        tcase_add_test (tc_core, test_mmp_goto_end_of_line8);
+
+        /* parse_start_and_end_pos */
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos2);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos3);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos4);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos5);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos6);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos7);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos8);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos9);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos10);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos11);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos12);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos13);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos14);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos15);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos16);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos17);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos18);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos19);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos20);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos21);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos22);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos23);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos24);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos25);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos26);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos27);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos28);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos29);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos30);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos31);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos32);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos33);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos34);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos35);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos36);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos37);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos38);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos39);
+        tcase_add_test (tc_core, test_mmp_parse_start_and_end_pos40);
+
+        suite_add_tcase (s, tc_core);
+
+        return s;
+}
+/* ------------------------------------------------------------------------- */
+int min_section_parser_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = min_section_parser_suite ();
+        SRunner * sr = srunner_create (s);
+
+        /*srunner_set_fork_status (sr, CK_NOFORK);*/
+
+        srunner_run_all(sr, CK_NORMAL);
+        number_failed = srunner_ntests_failed(sr);
+        srunner_free(sr);
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+/* End of file */

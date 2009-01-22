@@ -1,0 +1,12 @@
+prefix=@prefix@  
+exec_prefix=${prefix}  # defining another variable in terms of the first
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: min-dev
+Description: min test framework devel files
+Version: 2008w18
+Conflicts: 
+Libs: -L${libdir}  -lmintfwif
+Libs.private: 
+Cflags: 

@@ -1,0 +1,265 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Marko Hyyppä
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       scripter_dsa.tests
+ *  @version    0.1
+ *  @brief      This file contains unit tests for MIN Scripter DSA interface.
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDE FILES */
+#include <check.h>
+#include <min_common.h>        
+#include <dllist.h>
+#include <scripter_dsa.h>
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL CONSTANTS AND MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MODULE DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ==================== LOCAL FUNCTIONS ==================================== */
+START_TEST(test_scripter_dsa_create_and_remove)
+{
+        ScripterDataItem* scr_data     = INITPTR;
+        TSChar            DLL_name[]   = "Test DLL";
+        TSChar            Class_name[] = "foo";
+        TDLLType          DLL_type     = EDLLTypeNormal;
+        int               result       = 0;
+
+        scr_data = scripter_dsa_create( DLL_name,Class_name, DLL_type );
+        fail_unless( scr_data != INITPTR,
+                "Scripter Data Item creation failed." );
+
+        result = strncmp( DLL_name, scr_data->DLL_name_, strlen( DLL_name ) );
+        fail_unless( result == 0,
+                "DLL name of Scripter Data Item is invalid." );
+        fail_unless( scr_data->DLL_type_ == EDLLTypeNormal,
+                "DLL type of Scripter Data Item is invalid." );
+        fail_unless( scr_data->symbol_list_ != INITPTR,
+                "Symbol list of Scripter Data Item is not created." );
+
+        scripter_dsa_free( &scr_data );
+        fail_unless( scr_data == INITPTR,
+                "Scripter Data Item removing failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_scripter_dsa_add_data)
+{
+        ScripterDataItem* scr_data   = INITPTR;
+        TSChar             DLL_name[] = "Test DLL";
+        TSChar             Class_name[] = "foo";
+        TDLLType          DLL_type   = EDLLTypeNormal;
+        DLList*           scr_list   = INITPTR;
+        DLListIterator    data_item  = INITPTR;        
+        int               result     = 0;
+
+        scr_data = scripter_dsa_create( DLL_name, Class_name, DLL_type );
+        fail_unless( scr_data != INITPTR,
+                "Scripter Data Item creation failed." );
+
+        scr_list = dl_list_create();
+        fail_unless( scr_list != INITPTR,
+                "Scripter Data linked list creation failed." );
+
+        data_item = scripter_dsa_add( scr_list, scr_data );
+        fail_unless( data_item != INITPTR,
+                "Scripter Data Item adding failed." );
+
+        result = strncmp( DLL_name, ( ( ScripterDataItem* ) dl_list_data( data_item ) )->DLL_name_,
+                strlen( DLL_name ) );
+        fail_unless( result == 0,
+                "DLL name of Scripter Data Item is invalid." );
+        fail_unless( ( ( ScripterDataItem* ) dl_list_data( data_item ) )->DLL_type_ == EDLLTypeNormal,
+                "DLL type of Scripter Data Item is invalid." );
+        fail_unless( ( ( ScripterDataItem* ) dl_list_data( data_item ) )->symbol_list_ != INITPTR,
+                "Symbol list of Scripter Data Item is not created." );
+
+        scripter_dsa_free( &scr_data );
+        fail_unless( scr_data == INITPTR,
+                "Scripter Data Item removing failed." );
+}        
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_scripter_dsa_remove)
+{
+        ScripterDataItem* scr_data     = INITPTR;
+        TSChar            DLL_name[]   = "Test DLL";
+        TSChar            Class_name[] = "foo";
+        TDLLType          DLL_type     = EDLLTypeNormal;
+        DLList*           scr_list     = INITPTR;
+        DLListIterator    data_item    = INITPTR;
+        int               result       = 0;
+        int               retval       = 0;
+
+        scr_data = scripter_dsa_create( DLL_name, Class_name, DLL_type );
+        fail_unless( scr_data != INITPTR,
+                "Scripter Data Item creation failed." );
+
+        scr_list = dl_list_create();
+        fail_unless( scr_list != INITPTR,
+                "Scripter Data linked list creation failed." );
+
+        data_item = scripter_dsa_add( scr_list, scr_data );
+        fail_unless( data_item != INITPTR,
+                "Scripter Data Item adding failed." );
+
+        result = strncmp( DLL_name, ( ( ScripterDataItem* ) dl_list_data( data_item ) )->DLL_name_,
+                strlen( DLL_name ) );
+        fail_unless( result == 0,
+                "DLL name of Scripter Data Item is invalid." );
+        fail_unless( ( ( ScripterDataItem* ) dl_list_data( data_item ) )->DLL_type_ == EDLLTypeNormal,
+                "DLL type of Scripter Data Item is invalid." );
+        fail_unless( ( ( ScripterDataItem* ) dl_list_data( data_item ) )->symbol_list_ != INITPTR,
+                "Symbol list of Scripter Data Item is not created." );
+
+        retval = scripter_dsa_remove( data_item );
+        fail_unless( retval == 0,
+                "Scripter Data Item removing failed." );
+
+        /* This is only code coverage test, no functionality */
+        retval = scripter_dsa_remove( INITPTR );
+        fail_unless( retval == -1,
+                "Scripter Data Item removing by INITPTR pointer expection failed." );
+ 
+        scripter_dsa_free( &scr_data );
+        fail_unless( scr_data == INITPTR,
+                "Scripter Data Item removing with INITPTR failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_scripter_dsa_add_symbol)
+{
+        ScripterDataItem* scr_data      = INITPTR;
+        TSChar            DLL_name[]    = "Test DLL";
+        TSChar            Class_name[]  = "foo";
+        TDLLType          DLL_type      = EDLLTypeNormal;
+        DLList*           scr_list      = INITPTR;
+        DLListIterator    data_item     = INITPTR;
+        char             *symbol_name;
+        int               retval        = 0;
+        DLListIterator    first_symbol  = INITPTR;
+
+        scr_data = scripter_dsa_create( DLL_name, Class_name, DLL_type );
+        fail_unless( scr_data != INITPTR,
+                "Scripter Data Item creation failed." );
+
+        scr_list = dl_list_create();
+        fail_unless( scr_list != INITPTR,
+                "Scripter Data linked list creation failed." );
+
+        data_item = scripter_dsa_add( scr_list, scr_data );
+        fail_unless( data_item != INITPTR,
+                "Scripter Data Item adding failed." );
+
+        symbol_name = NEW2 (char, strlen ("TestSymbol") + 1 );
+        strcpy (symbol_name, "TestSymbol");
+        retval = scripter_dsa_add_symbol( data_item, symbol_name );
+        fail_unless( retval == 0,
+                "Scripter symbol name adding failed." );
+
+        first_symbol = dl_list_head( ( ( ScripterDataItem* ) dl_list_data( data_item ) )->symbol_list_ );
+        fail_unless( first_symbol != INITPTR,
+                "Scripter first symbol data item not exists." );
+
+        retval = strncmp( symbol_name, dl_list_data( first_symbol ), strlen( symbol_name ) );
+        fail_unless( retval == 0,
+                "Scripter symbol name is invalid." );
+
+        /* This is only code coverage test, no functionality */
+        symbol_name = NEW2 (char, strlen ("TestSymbol2") + 1 );
+        strcpy (symbol_name, "TestSymbol2");
+
+        retval = scripter_dsa_add_symbol( INITPTR, symbol_name );
+        fail_unless( retval == -1,
+                "Scripter symbol name adding by INITPTR data item pointer expection failed." );
+
+        scripter_dsa_free( &scr_data );
+        fail_unless( scr_data == INITPTR,
+                "Scripter Data Item removing with INITPTR failed." );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+Suite *scripter_dsa_suite (void)
+{
+        Suite *s = suite_create( "scripter_dsa" );
+
+        /* Core test case */
+        TCase *tc_core = tcase_create( "Core" );
+       
+        /* Scripter data handling tests */
+        tcase_add_test( tc_core, test_scripter_dsa_create_and_remove );
+        tcase_add_test( tc_core, test_scripter_dsa_add_data );
+        tcase_add_test( tc_core, test_scripter_dsa_remove );
+
+        /* Scripter symbol name data handling */
+        tcase_add_test( tc_core, test_scripter_dsa_add_symbol );
+
+        suite_add_tcase( s, tc_core );
+
+        return s;
+}
+/* ======================== FUNCTIONS ====================================== */
+int scripter_dsa_tests()
+{
+        int number_failed = 0;
+        Suite   * s  = scripter_dsa_suite();
+        SRunner * sr = srunner_create( s );
+       // srunner_set_fork_status( sr, CK_NOFORK );	
+        srunner_run_all( sr, CK_NORMAL );
+        number_failed = srunner_ntests_failed( sr );
+        srunner_free( sr );
+        return number_failed;
+}
+/* ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+
+/* ================= OTHER EXPORTED FUNCTIONS ============================== */
+/* None */
+/* End of file */

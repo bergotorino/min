@@ -1,0 +1,42 @@
+.TH TM_GET_TEST_CASES 3  "Linux" "MIN Programmer's Manual"
+.SH NAME
+tm_get_test_cases \- get list of test cases from MIN test module
+.SH SYNOPSIS
+.ad l
+.B #include <test_module_api.h>
+.sp
+.BI "int tm_get_test_cases (const char *" cfg_file ", DLList **" cases);
+.ad b
+.SH DESCRIPTION
+Every MIN test module must implement  
+.BR tm_get_test_cases.
+MIN test module controller calls this function, when the test
+module is loaded. Each test case is described in TestCaseInfo struct.
+
+.nf
+struct {
+    char name_[MaxTestCaseName];
+    ptr2test test_;
+    unsigned int id_;
+} TestCaseInfo;
+.fi
+
+The 
+.I name_
+field contains the test case title, the 
+.I test_
+holds a pointer to the function implementing the test case. The 
+.I id_ 
+is used to internally identify the test case. 
+
+The TestCaseInfos are added to the 
+.I cases
+list.
+The 
+.I cfg_file
+can be 
+.I NULL 
+. 
+It is used to, for example, pass the script file to scripter module. 
+.SH "SEE ALSO"
+.BR tm_run_test_case (3)

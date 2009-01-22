@@ -1,0 +1,9 @@
+Package: min-testlib-HardCodedTestModuleXXX
+Version: 1.0
+Section: devel
+Priority: extra
+Essential: no
+Maintainer: john.doe@nokia.com
+Architecture: i386
+Depends: min
+Description: A MIN (HardCoded) test module HardCodedTestModuleXXX

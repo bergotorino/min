@@ -1,0 +1,13 @@
+min (2009w04) unstable; urgency=low
+  * Second MIN Release
+  * Fixed: bug in scripter result reporting
+  * Enablers for C++ in Test Modules added
+  * Changed the default output to syslog
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Tue,   20 January 2009 12:44:15 +0100
+
+min (2008w50) unstable; urgency=low
+  * First MIN release
+ 
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   15 December 2008 15:02:44 +0100
+

@@ -1,0 +1,264 @@
+Table of contents
+=================
+
+About MIN
+MIN Features
+Installation
+  MIN
+  MIN python module
+Operation
+  Creating Test Module
+  Adding Test Cases
+  Creating Test Case file
+  Adding script to MIN
+  Running MIN
+
+
+About MIN
+==========
+
+MIN is test framework for Linux based devices. See
+doc/MIN_Test_Framework_Users_Guide.pdf for more info.
+
+
+MIN Features
+=============
+
+MIN is advanced test framework for Linux based devices. It is designed to
+allow test case execution as well as it simplifies test case creation.
+
+Its features are:
+
+1. It is proved to run on ARM devices as well as on x86 computers.
+2. Test cases are executed in sandbox environment so that test that crashes
+   does not affect the MIN and other tests.
+3. Test cases can be synchronized.
+4. MIN has extended scripting support. It is possible to write test cases
+   in Lua or Python as well as in MIN Script.
+
+
+Installation
+============
+
+MIN
+----
+
+MIN has the following dependencies:
+
+  libncurses5
+  libncurses5-dev
+  ncurses-base
+
+In order to build you need also the following tools:
+  
+  autogen
+  automake
+  libtool
+
+To compile and install:
+
+  $ cd min
+  $ ./build.sh && sudo make install
+
+It is also possible to have it installed via .deb package:
+
+  $ cd min
+  $ dpkg-buildpackage -rfakeroot
+  $ sudo dpkg -i ../min_<version>_<arch>.deb ../min-dev_<version>_<arch>.deb
+
+MIN python module
+------------------
+
+MIN python module has the following dependencies:
+
+  min
+  min-dev
+  python
+  python2.5-dev
+
+To compile:
+
+  $ cd minpythonmodule
+  $ ./build.sh
+  $ sudo make install
+
+or:
+
+  $ cd minpythonmodule
+  $ dpkg-buildpackage -rfakeroot
+  $ sudo dpkg -i ../minpythonmodule_<version>_<arch>.deb
+
+
+Operation
+=========
+
+A set of test libraries are compiled with the package, they can be found
+from min/src/test_libraries/. You can edit those, or create test module
+from scratch, using testModuleWizard. The testModuleWizard uses perl so 
+make sure you have perl installed.
+
+Creating Test Module
+--------------------
+
+1) Start test module wizard
+  $ createtestmodule
+
+2) You are prompted for possible module types. Possible options are:
+
+  "minunit"
+  "hardcoded"
+  "normal"
+  "luatestclass"
+  "testclass"
+
+  First three module types are designed to be used either directly with MIN,
+  or through scripts.
+  The remaining ones are designed to be used only through scripts.
+
+  Enter one from possible options.
+
+3) Enter name for your module (e.g. foo)
+
+4) You are prompted for the path to generate testModule (e.g. /tmp)
+
+
+Adding Test Cases
+-----------------
+
+1) Go to the module you have generated:
+
+  $ cd /tmp/foo
+
+2) Edit test case file:
+
+  $ vim src/fooCases.c
+
+  Each generated module contains example test case method implemented that
+  can be used as a reference. Additionally you can refer to the user guide
+  which is shipped with the MIN package (the doc directory).
+
+3) Compile module:
+
+  $ sh ./build.sh
+
+  Module should be compiled and installed (by default module is copied to
+  the ~/.min directory, additionally if it is "minunit", "hardcoded" or
+  "normal" test module the MIN configuration file is patched (the newly
+  installed module is added).
+
+If you have generated "minunit", "hardcoded" or "normal" test module
+it is enough to go to the "Running MIN" chapter. In case you have chosen
+"luatestclass", "testclass" test module or you wan to use your module
+in scripts follow to the next chapter.
+
+Creating Test Case file
+-----------------------
+
+You need test case file for "luatestclass" and "testclass" test modules.
+The others can be used with MIN Scripters.
+
+1) MIN Scripter
+
+1.1) Create script file
+
+  $ touch ~/.min/foo.cfg
+
+1.2) Edit script file
+
+  $ vim ~/.min/foo.cfg
+
+1.2.1) "luatestclass" and "testclass"
+
+Basically simple test looks as follows:
+
+[Test]
+title SomeTitle
+createx fooTestModule bar
+bar Example pa ra meters can be passed
+delete bar
+[Endtest]
+
+Where "bar Example" refers to the example method which is available in
+test module by default. This example is valid only if you haven't removed it.
+
+1.2.2) "minunit", "hardcoded" or "normal"
+
+[Test]
+title SomeTitle
+run fooTestModule dummy.cfg 1
+[Endtest]
+
+The third line tells us to execute first test from fooTestModule with dummy.cfg
+config used for this module.
+For usage of this config file please refer to the MIN User Guide.
+
+2) Lua Scripter
+
+2.1) Create script file
+
+  $ touch ~/.min/script.lua
+
+2.2) Edit script file
+
+  $ vim ~/.min/script.lua
+
+  Note that in this case test cases in script file are implemented in Lua (www.lua.org).
+
+2.2.1) "luatestclass" and "testclass"
+
+Basically simple test looks as follows:
+
+function case_test1() -- This is some title
+  local a = min.load("fooTestModule");
+  local test_result = a.Example();
+  return test_result,"Some result description"
+end
+
+Where "bar Example" refers to the example method which is available in
+test module by default. This example is valid only if you haven't removed it.
+
+2.2.2) "minunit", "hardcoded" or "normal"
+
+function case_test1() -- This is some title
+  local test_return = min.run("fooTestModule",1);
+end
+
+Adding script to MIN
+---------------------
+
+Edit MIN configuration file:
+
+  $ vim ~/.min/min.conf
+
+Add following text:
+
+1) MIN Scripter
+
+[New_Module]
+ModuleName=scripter
+TestCaseFile=foo.cfg
+[End_Module]
+
+2) Lua Scripter
+
+[New_Module]
+ModuleName=luascripter
+TestCaseFile=script.lua
+[End_Module]
+
+Running MIN
+------------
+
+Start MIN consoleui with command
+
+  $ min
+
+or start MIN without cui and execute all test cases from command line
+
+  $ min --console --execute <test module>[:configuration filename>]
+
+
+
+Report any problems to DG.MIN-Support@nokia.com
+
+
