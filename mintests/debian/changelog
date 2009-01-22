@@ -1,3 +1,9 @@
+min-tests (2009w04) unstable; urgency=low
+  *  Tests are now installed to /usr/share/min-tests and test results are
+     placed in /tmp/min-tests
+
+ --  Konrad Marek Zapalowicz <ext-konrad.zapalowicz@nokia.com>  Thu,   22 January 2008 12:33:11 +0100
+
 min-tests (2008w50) unstable; urgency=low
   *  First release
 
