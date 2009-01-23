@@ -18,8 +18,6 @@ TESTS_ENVIRONMENT = min --console --execute
 SCRIPTER = /usr/lib/min/scripter.so
 SCRIPTERTESTS = scripter_tests.cfg
 XFAIL_TESTS = $(DESTDIR)/usr/lib/min/min_unit_selftest.so
-all-local: install
-clean-local: uninstall
 
 min_unit_selftest_la_CFLAGS = -DCASES_FILE='"min_unit_selftest_cases.c"'
 min_unit_selftest_la_LDFLAGS = -shared -module
