@@ -194,12 +194,8 @@ LOCAL LegoLoopType *mli_create_loop (TScripterKeyword keyword,
         retval->timeout_ = timeout;
         retval->started_ = ESFalse;
 
-        retval->oryginal2_.tv_sec = 0;
-        retval->oryginal2_.tv_usec = loops * 1000;
-        while (retval->oryginal2_.tv_usec >= 1000000) {
-                retval->oryginal2_.tv_sec++;
-                retval->oryginal2_.tv_usec -= 1000000;
-        }
+	retval->oryginal2_.tv_sec = loops/1000;
+	retval->oryginal2_.tv_usec = (loops%1000) *1000;
 
         retval->endtime_.tv_sec = 0;
         retval->endtime_.tv_usec = 0;
