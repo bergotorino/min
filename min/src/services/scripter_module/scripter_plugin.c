@@ -1168,7 +1168,6 @@ char           *validate_test_case (MinSectionParser * testcase)
 
         /* allocate place for allocated slaves. */
         slaves = dl_list_create ();
-
         line = mmp_get_item_line (testcase, "", ESNoTag);
         //mmp_get_line(testcase,"",&line,ESNoTag);
         while (line != INITPTR) {
@@ -1551,8 +1550,10 @@ char           *validate_test_case (MinSectionParser * testcase)
                         if (check_result != ENOERR) {
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
+
                         }
 
+                        line = mmp_get_next_item_line (testcase);
                         continue;
                         break;
                 case EKeywordCancelIfError:
@@ -1560,7 +1561,7 @@ char           *validate_test_case (MinSectionParser * testcase)
 
                         /* No need to check because canceliferror keyword
                          * does not have any parameters. */
-
+                        line = mmp_get_next_item_line (testcase);
                         continue;
                         break;
                 case EKeywordTimeout:
@@ -1572,6 +1573,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 goto EXIT_VALIDATE;
                         }
 
+                        line = mmp_get_next_item_line (testcase);
                         continue;
                         break;
                 case EKeywordSleep:
@@ -1865,6 +1867,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                 var_item = dl_list_head (var_list);
         }
         dl_list_free (&var_list);
+
 
         return tc_title;
 }
