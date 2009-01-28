@@ -193,7 +193,7 @@ LOCAL LegoLoopType *mli_create_loop (TScripterKeyword keyword,
         retval->oryginal_ = loops;
         retval->timeout_ = timeout;
         retval->started_ = ESFalse;
-
+        
 	retval->oryginal2_.tv_sec = loops/1000;
 	retval->oryginal2_.tv_usec = (loops%1000) *1000;
 
@@ -292,7 +292,7 @@ void mli_create (MinSectionParser * msp)
 
                         if (ret == -1) {
                                 MIN_WARN ("Error when replacing,"
-                                            " invalid parameter to mip_replace");
+                                          " invalid parameter to mip_replace");
                         }
 
                         it = dl_list_next (it);

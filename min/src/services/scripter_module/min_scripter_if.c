@@ -268,7 +268,22 @@ LOCAL TTestCategory get_result_category (const char *str);
  *  @param varname [in] variable name
  *  @param varval [in] variable value
  */
-LOCAL void      var_assign (const char *varname, const char *varval);
+LOCAL void var_assign (const char *varname, const char *varval);
+/* ------------------------------------------------------------------------- */
+/** Updates the scriter internal variables 
+ *  @param res [in] Test Process result
+ */
+LOCAL void update_variables (TPResult res);
+/* ------------------------------------------------------------------------- */
+/** Used for declaring scripter interal variables
+ *  @param varname [in] variable name
+ */
+LOCAL int declare_internal_var (const char *varname);
+/* ------------------------------------------------------------------------- */
+/** Interpretes the variable value as integer and increments by one
+ *  @param varname [in] variable name
+ */
+LOCAL void var_increment (const char *varname);
 /* ------------------------------------------------------------------------- */
 /** Sends scripter variables to test class
  */
@@ -726,6 +741,8 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
                 } else {
                         tcr->result_ = TP_FAILED;
                 }
+                update_variables (tcr->result_);
+
                 STRCPY (tcr->desc_, message, MaxTestResultDescription);
                 dl_list_add (stpd->tcr_list_, tcr);
 
@@ -734,6 +751,7 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
                     && scripter_mod.canceliferror == ESTrue) {
                         MIN_DEBUG ("Test Failed, canceliferror ON");
                         stpd->status_ = TP_CANCELED;
+                        update_variables (TP_NC);
                         scripter_mod.script_finished = ESTrue;
                         /* Now we have to 'end' rest of the tests */
                         it2 = dl_list_head (scripter_mod.tp_details);
@@ -752,7 +770,7 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
                                 stpd = (ScriptedTestProcessDetails *)
                                     dl_list_data (it);
                                 stpd->status_ = TP_CANCELED;
-
+                                update_variables (TP_NC);
                                 /* kill test process */
                                 kill (stpd->pid_, SIGUSR2);
                                 waitpid (stpd->pid_, &status, 0);
@@ -781,7 +799,7 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
                 } else {
                         param = TP_PASSED;
                 }
-
+                update_variables (param);
                 /* Now we can destroy the list. No need to keep allowed
                  * result any more. */
                 it = dl_list_head (stpd->allowed_results_);
@@ -924,12 +942,14 @@ LOCAL void uengine_handle_extif_remote_response (int testresult, int caseid)
                 MIN_WARN ("There is no test of specified caseid [%d]", caseid);
                 goto EXIT;
         }
+        
+        update_variables (testresult);
 
         stpd = (ScriptedTestProcessDetails *) dl_list_data (it);
 
         /* set status */
         stpd->status_ = TP_ENDED;
-
+        
         /* set test result */
         tcr = NEW (TestCaseResult);
         tcr->result_ = testresult;
@@ -970,6 +990,35 @@ LOCAL void uengine_handle_sndrcv (int mqid, const MsgBuffer * msg)
         return;
 }
 
+/* ------------------------------------------------------------------------- */
+LOCAL void update_variables (TPResult res)
+{
+        switch (res) {
+        case TP_CRASHED:
+                var_increment ("CRASH_COUNT");
+                var_increment ("ERROR_COUNT");
+                break;
+        case TP_TIMEOUTED:
+                var_increment ("TOUT_COUNT");
+                var_increment ("ERROR_COUNT");
+                break;
+        case TP_PASSED:
+                break;
+        case TP_FAILED:
+                var_increment ("FAIL_COUNT");
+                var_increment ("ERROR_COUNT");
+                break;
+        case TP_NC:
+        case TP_LEAVE:
+                var_increment ("ABORT_COUNT");
+                var_increment ("ERROR_COUNT");
+                break;
+        default:
+                SCRIPTER_RTERR ("Unexpected result");
+                break;
+        }
+        var_increment ("TOTAL_COUNT");
+}
 
 /* ------------------------------------------------------------------------- */
 /*LOCAL void scripter_sigchld_handler( int sig )
@@ -1114,6 +1163,29 @@ LOCAL void var_assign (const char *varname, const char *varval)
 
         return;
 }
+
+/* ------------------------------------------------------------------------- */
+LOCAL void var_increment (const char *varname)
+{
+        ScriptVar      *var;
+        long           intval;
+
+        var = var_find (varname);
+        if (var == INITPTR || var->initialized_ == ESFalse) {
+                SCRIPTER_RTERR_ARG ("Trying to increment undeclared variable",
+                                    varname);
+                
+        }
+        intval = strtol (var->value_, NULL, 10);
+        DELETE (var->value_);
+        intval ++;
+        var->value_ = NEW2 (char, 32);
+        sprintf (var->value_, "%ld", intval);
+
+        return;
+}
+
+
 /* ------------------------------------------------------------------------- */
 LOCAL void send_variables ()
 {
@@ -1136,6 +1208,13 @@ LOCAL void send_variables ()
         }
 
         sh_mem_handle = sm_attach (scripter_mod.shm_id);
+        
+        if ((vars->size_ + sizeof (unsigned int)) >  
+            sm_get_segsz (scripter_mod.shm_id)) {
+                SCRIPTER_RTERR ("Variables do not fit into SHM");
+                tx_destroy (&vars);
+                return;
+        }
         
         sm_write (sh_mem_handle,
                   (void *)&vars->size_,
@@ -1854,7 +1933,7 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
                       TestCaseResult * result)
 {
         int             retval = ENOERR;
-        MinParser     *sp = INITPTR;
+        MinParser      *sp = INITPTR;
         DLListIterator  prev_it, it = DLListNULLIterator;
         MinSectionParser *msp = INITPTR;
         TSBool          msg_pending = ESFalse;
@@ -1864,6 +1943,7 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         MsgBuffer       input_buffer;
         ScriptVar      *var;
         ScriptedTestProcessDetails *stpd;
+
         if (cfg_file == INITPTR) {
                 errno = EINVAL;
                 retval = -1;
@@ -1938,7 +2018,7 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
 	scripter_mod.error_occured = ESFalse;
         scripter_mod.sleep = 0;
         scripter_mod.expected_var = INITPTR;
-        scripter_mod.shm_id = shmget (getpid(), 1000, 
+        scripter_mod.shm_id = shmget (getpid(), 4096, 
                                       IPC_CREAT | 0660);
 
         if (scripter_mod.shm_id < 0) {
@@ -2074,6 +2154,12 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 
         if (variables == INITPTR) {
                 variables = dl_list_create ();
+                declare_internal_var ("FAIL_COUNT");
+                declare_internal_var ("CRASH_COUNT");
+                declare_internal_var ("TOUT_COUNT");
+                declare_internal_var ("ABORT_COUNT");
+                declare_internal_var ("ERROR_COUNT");
+                declare_internal_var ("TOTAL_COUNT");
         }
 
 
@@ -2429,6 +2515,7 @@ int test_cancel (char *testid)
         }
         else {
                 stpd->status_ = TP_ABORTED;
+                update_variables (TP_NC);
                 MIN_INFO ("cancelled %d", stpd->pid_);
         }
 
@@ -2667,6 +2754,19 @@ int declare_var (char *name, TSBool initialize, char *val)
                 var->value_ = INITPTR;
         dl_list_add (variables, var);
         MIN_DEBUG ("name=%s init. val=%s", name, initialize ? val : "none");
+        return ENOERR;
+}
+
+/* ------------------------------------------------------------------------- */
+LOCAL int declare_internal_var (const char *name)
+{
+        char *var_name, *var_value;
+        var_value = NEW2(char, 32);
+        var_name = NEW2(char, strlen (name) + 1);
+
+        sprintf (var_name, "%s", name);
+        sprintf (var_value, "%d", 0);
+        declare_var (var_name, 1, var_value);
         return ENOERR;
 }
 
