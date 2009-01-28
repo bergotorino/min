@@ -810,6 +810,24 @@ int sm_get_handler()
         return __shm_handler__;
 }
 /* ------------------------------------------------------------------------- */
+/** Returns the size of SHM segment
+ *  @param shmid [in] id of the shared memory segment we want to be attached to
+ *  @return size of the segment or 0
+ */
+size_t sm_get_segsz (int shmid)
+{
+        int retval;
+        struct shmid_ds shmid_ds;
+        
+        if (shmctl (shmid, IPC_STAT, &shmid_ds) == -1) {
+                MIN_WARN ("shmget() failed: %s", strerror(errno));
+                return 0;
+        }
+ 
+        return shmid_ds.shm_segsz;
+}
+/* ------------------------------------------------------------------------- */
+
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
 
