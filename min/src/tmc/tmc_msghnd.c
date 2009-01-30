@@ -224,9 +224,9 @@ LOCAL void gu_handle_end (TMC_t * tmc)
 {
         if (tp_status (&tmc->tpc_) == TP_ENDED) {
                 tp_set_status (&tmc->tpc_, TP_NONE);
-        }
-        if (tp_status (&tmc->tpc_) != TP_NONE) {
+        } else if (tp_status (&tmc->tpc_) != TP_NONE) {
                 tp_abort (&tmc->tpc_);
+                tp_set_status (&tmc->tpc_, TP_NONE);
         }
         while (!(tp_status (&tmc->tpc_) == TP_NONE)) {
                 usleep (50000);
@@ -325,15 +325,13 @@ void gu_handle_sigchld (int sig)
                 reason = tp_status (&ptmc->tpc_);
                 tp_set_status (&ptmc->tpc_, TP_NONE);
         }
-
         if (reason == TP_TIMEOUT) {
                 ip_send_ret (&ptmc->tmcipi_, TP_TIMEOUTED, "Timeout");
         } else if (reason == TP_ABORTED) {
                 ip_send_ret (&ptmc->tmcipi_, TP_NC, "Aborted");
+        } else {
+                gu_handle_ret (ptmc, globaltcr.result_, globaltcr.desc_);
         }
-
-        gu_handle_ret (ptmc, globaltcr.result_, globaltcr.desc_);
-
         return;
 }
 

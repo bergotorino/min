@@ -149,6 +149,7 @@ void tp_abort (TestProcessController * tpc)
 {
         int             retval = 1;
         if (tpc->tp_pid_ != 0) {
+                tpc->tp_status_ = TP_ABORTED;
                 retval = kill (tpc->tp_pid_, SIGKILL);
                 if (retval == -1)
                         MIN_ERROR ("Aborting Test Proces failed");
