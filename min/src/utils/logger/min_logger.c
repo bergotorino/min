@@ -83,7 +83,7 @@ LOCAL void      stl_destroy (MinTxtLogger ** stl);
 LOCAL int       stl_send (struct logger_typeinfo_t *lt, int style,
                           const TSChar * msg);
 /* ------------------------------------------------------------------------- */
-LOCAL MinHtmlLogger *shl_create (const TSChar * path, const TSChar * file,
+LOCAL MinHtmlLogger *mhl_create (const TSChar * path, const TSChar * file,
                                   TSLoggerType loggertype,
                                   unsigned int output, TSBool overwrite,
                                   TSBool withtimestamp, TSBool withlinebreak,
@@ -92,25 +92,25 @@ LOCAL MinHtmlLogger *shl_create (const TSChar * path, const TSChar * file,
                                   unsigned int staticbuffersize,
                                   TSBool unicode);
 /* ------------------------------------------------------------------------- */
-LOCAL void      shl_destroy (MinHtmlLogger ** shl);
+LOCAL void      mhl_destroy (MinHtmlLogger ** shl);
 /* ------------------------------------------------------------------------- */
-LOCAL int       shl_send (struct logger_typeinfo_t *lt, int style,
+LOCAL int       mhl_send (struct logger_typeinfo_t *lt, int style,
                           const TSChar * msg);
 /* ------------------------------------------------------------------------- */
-LOCAL void      shl_start_html_page (struct output_typeinfo_t *outtype,
+LOCAL void      mhl_start_html_page (struct output_typeinfo_t *outtype,
                                      const TSChar * file,
                                      TSBool pididtologfile);
 /* ------------------------------------------------------------------------- */
-LOCAL void      shl_end_html_page (struct output_typeinfo_t *outtype);
+LOCAL void      mhl_end_html_page (struct output_typeinfo_t *outtype);
 /* ------------------------------------------------------------------------- */
-LOCAL void      shl_style_starting (struct output_typeinfo_t *outtype,
+LOCAL void      mhl_style_starting (struct output_typeinfo_t *outtype,
                                     int style, TSBool * timestamp,
                                     TSBool * eventranking);
 /* ------------------------------------------------------------------------- */
-LOCAL void      shl_style_ending (struct output_typeinfo_t *outtype,
+LOCAL void      mhl_style_ending (struct output_typeinfo_t *outtype,
                                   int style);
 /* ------------------------------------------------------------------------- */
-LOCAL MinDataLogger *sdl_create (const TSChar * path, const TSChar * file,
+LOCAL MinDataLogger *mdl_create (const TSChar * path, const TSChar * file,
                                   TSLoggerType loggertype,
                                   unsigned int output, TSBool overwrite,
                                   TSBool withtimestamp, TSBool withlinebreak,
@@ -119,9 +119,9 @@ LOCAL MinDataLogger *sdl_create (const TSChar * path, const TSChar * file,
                                   unsigned int staticbuffersize,
                                   TSBool unicode);
 /* ------------------------------------------------------------------------- */
-LOCAL void      sdl_destroy (MinDataLogger ** sdl);
+LOCAL void      mdl_destroy (MinDataLogger ** sdl);
 /* ------------------------------------------------------------------------- */
-LOCAL int       sdl_send (struct logger_typeinfo_t *lt, int style,
+LOCAL int       mdl_send (struct logger_typeinfo_t *lt, int style,
                           const TSChar * msg);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -326,7 +326,7 @@ LOCAL int stl_send (struct logger_typeinfo_t *lt, int style,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL MinHtmlLogger *shl_create (const TSChar * path, const TSChar * file,
+LOCAL MinHtmlLogger *mhl_create (const TSChar * path, const TSChar * file,
                                   TSLoggerType loggertype,
                                   unsigned int output, TSBool overwrite,
                                   TSBool withtimestamp, TSBool withlinebreak,
@@ -339,7 +339,7 @@ LOCAL MinHtmlLogger *shl_create (const TSChar * path, const TSChar * file,
         struct output_typeinfo_t *out = INITPTR;
 
         retval->type_ = ESHtml;
-        retval->send_ = shl_send;
+        retval->send_ = mhl_send;
         retval->output_ = dl_list_create ();
 
         if (output & ESFile) {
@@ -347,14 +347,14 @@ LOCAL MinHtmlLogger *shl_create (const TSChar * path, const TSChar * file,
                 out = (struct output_typeinfo_t *)
                     fo_create (MinOutputPluginParams);
                 dl_list_add (retval->output_, (void *)out);
-                shl_start_html_page (out, file, pididtologfile);
+                mhl_start_html_page (out, file, pididtologfile);
         }
         if (output & ESSyslog) {
                 /* create syslog output plugin */
                 out = (struct output_typeinfo_t *)
                     so_create (MinOutputPluginParams);
                 dl_list_add (retval->output_, (void *)out);
-                shl_start_html_page (out, file, pididtologfile);
+                mhl_start_html_page (out, file, pididtologfile);
         }
         if (output & ESNull || (dl_list_size (retval->output_) == 0)) {
                 /* create null output plugin */
@@ -368,7 +368,7 @@ LOCAL MinHtmlLogger *shl_create (const TSChar * path, const TSChar * file,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void shl_destroy (MinHtmlLogger ** shl)
+LOCAL void mhl_destroy (MinHtmlLogger ** shl)
 {
         DLListIterator  it = DLListNULLIterator;
         struct output_typeinfo_t *o = INITPTR;
@@ -381,7 +381,7 @@ LOCAL void shl_destroy (MinHtmlLogger ** shl)
         it = dl_list_head ((*shl)->output_);
         while (it != DLListNULLIterator) {
                 o = (struct output_typeinfo_t *)dl_list_data (it);
-                shl_end_html_page (o);
+                mhl_end_html_page (o);
                 o->destroy_ (&o);
                 dl_list_remove_it (it);
                 it = dl_list_head ((*shl)->output_);
@@ -393,7 +393,7 @@ LOCAL void shl_destroy (MinHtmlLogger ** shl)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL int shl_send (struct logger_typeinfo_t *lt, int style,
+LOCAL int mhl_send (struct logger_typeinfo_t *lt, int style,
                     const TSChar * msg)
 {
         int             retval = ENOERR;
@@ -419,11 +419,11 @@ LOCAL int shl_send (struct logger_typeinfo_t *lt, int style,
         while (it != DLListNULLIterator) {
                 outtype = (struct output_typeinfo_t *)dl_list_data (it);
 
-                shl_style_starting (outtype, style, &timestamp,
+                mhl_style_starting (outtype, style, &timestamp,
                                     &eventranking);
                 outtype->write_ (outtype, timestamp, ESTrue, eventranking,
                                  msg);
-                shl_style_ending (outtype, style);
+                mhl_style_ending (outtype, style);
                 it = dl_list_next (it);
         }
       EXIT:
@@ -431,7 +431,7 @@ LOCAL int shl_send (struct logger_typeinfo_t *lt, int style,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void shl_start_html_page (struct output_typeinfo_t *outtype,
+LOCAL void mhl_start_html_page (struct output_typeinfo_t *outtype,
                                 const TSChar * file, TSBool pididtologfile)
 {
         TSChar         *title = NEW2 (TSChar, MaxFileName + 1);
@@ -487,7 +487,7 @@ LOCAL void shl_start_html_page (struct output_typeinfo_t *outtype,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void shl_end_html_page (struct output_typeinfo_t *outtype)
+LOCAL void mhl_end_html_page (struct output_typeinfo_t *outtype)
 {
         /* Html page and body section end tags */
         outtype->write_ (outtype, ESFalse, ESFalse, ESFalse,
@@ -495,7 +495,7 @@ LOCAL void shl_end_html_page (struct output_typeinfo_t *outtype)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void shl_style_starting (struct output_typeinfo_t *outtype, int style,
+LOCAL void mhl_style_starting (struct output_typeinfo_t *outtype, int style,
                                TSBool * timestamp, TSBool * eventranking)
 {
         if (0x00020 <= style || /* ESRed, 0x00020 => 32 */
@@ -562,7 +562,7 @@ LOCAL void shl_style_starting (struct output_typeinfo_t *outtype, int style,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void shl_style_ending (struct output_typeinfo_t *outtype, int style)
+LOCAL void mhl_style_ending (struct output_typeinfo_t *outtype, int style)
 {
         if (0x00020 <= style || /* ESRed, 0x00020 => 32 */
             0x00040 <= style || /* ESImportant, 0x00040 => 64 */
@@ -616,7 +616,7 @@ LOCAL void shl_style_ending (struct output_typeinfo_t *outtype, int style)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL MinDataLogger *sdl_create (const TSChar * path, const TSChar * file,
+LOCAL MinDataLogger *mdl_create (const TSChar * path, const TSChar * file,
                                   TSLoggerType loggertype,
                                   unsigned int output, TSBool overwrite,
                                   TSBool withtimestamp, TSBool withlinebreak,
@@ -629,7 +629,7 @@ LOCAL MinDataLogger *sdl_create (const TSChar * path, const TSChar * file,
         struct output_typeinfo_t *out = INITPTR;
 
         retval->type_ = ESData;
-        retval->send_ = sdl_send;
+        retval->send_ = mdl_send;
         retval->output_ = dl_list_create ();
 
         /* Time stamp not allowed in data logging */
@@ -665,7 +665,7 @@ LOCAL MinDataLogger *sdl_create (const TSChar * path, const TSChar * file,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void sdl_destroy (MinDataLogger ** sdl)
+LOCAL void mdl_destroy (MinDataLogger ** sdl)
 {
         DLListIterator  it = DLListNULLIterator;
         struct output_typeinfo_t *o = INITPTR;
@@ -689,7 +689,7 @@ LOCAL void sdl_destroy (MinDataLogger ** sdl)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL int sdl_send (struct logger_typeinfo_t *lt, int style,
+LOCAL int mdl_send (struct logger_typeinfo_t *lt, int style,
                     const TSChar * msg)
 {
         int             retval = ENOERR;
@@ -810,7 +810,7 @@ MinLogger     *mnl_create (const TSChar * path, const TSChar * file,
                 logtypebackup = loggertype;
                 loggertype = ESData;
                 endpoint = (struct logger_typeinfo_t *)
-                    sdl_create (MinCreateLoggerParams);
+                    mdl_create (MinCreateLoggerParams);
                 dl_list_add (retval->endpoint_, (void *)endpoint);
                 loggertype = logtypebackup;
         }
@@ -819,7 +819,7 @@ MinLogger     *mnl_create (const TSChar * path, const TSChar * file,
                 logtypebackup = loggertype;
                 loggertype = ESHtml;
                 endpoint = (struct logger_typeinfo_t *)
-                    shl_create (MinCreateLoggerParams);
+                    mhl_create (MinCreateLoggerParams);
                 dl_list_add (retval->endpoint_, (void *)endpoint);
                 loggertype = logtypebackup;
         }
@@ -854,11 +854,11 @@ void mnl_destroy (MinLogger ** mnl)
                         break;
                 case ESData:
                         datalog = (struct min_data_logger_t *)logtype;
-                        sdl_destroy (&datalog);
+                        mdl_destroy (&datalog);
                         break;
                 case ESHtml:
                         htmllog = (struct min_html_logger_t *)logtype;
-                        shl_destroy (&htmllog);
+                        mhl_destroy (&htmllog);
                         break;
                 default:
                         MIN_WARN ("%s:%s:%d - Unknown log type [%d]",
@@ -1053,14 +1053,6 @@ unsigned int mnl_logger_type (MinLogger * mnl)
 }
 
 /* ------------------------------------------------------------------------- */
-void min_debug2(TLogLevel loglevel, const char *func, unsigned int lineno,
-                const char *file, const char *format, ... )
-{
-
-        
-
-}
-/* ------------------------------------------------------------------------- */
 MinLogger *mnl_get_logger_instance()
 {
 	return __logger__;
@@ -1069,7 +1061,7 @@ MinLogger *mnl_get_logger_instance()
 char* mnl_get_component_name()
 {
 	if (__component_name__==INITPTR) { return INITPTR; }
-	else { return tx_get_buf(__component_name__); }
+	else { return tx_share_buf(__component_name__); }
 }
 /* ------------------------------------------------------------------------- */
 /* ================= TESTS FOR LOCAL FUNCTIONS ============================= */

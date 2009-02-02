@@ -71,7 +71,7 @@
  * @param eol_buffer [out] table for eol sequence.
  * @return > 0 on success, 0 on failure.
  */
-LOCAL TSBool    sfp_read_line (MinFileParser * sfp,
+LOCAL TSBool    mfp_read_line (MinFileParser * sfp,
                                TSChar ** line_buffer, TSChar * eol_buffer);
 /* ------------------------------------------------------------------------- */
 /**
@@ -81,7 +81,7 @@ LOCAL TSBool    sfp_read_line (MinFileParser * sfp,
  * @param dst_buff [out] the result of processing.
  * @param find [in] what kind of comments we are looking for.
  */
-LOCAL void      sfp_replace_comments_line (const TSChar * src_buff,
+LOCAL void      mfp_replace_comments_line (const TSChar * src_buff,
                                            TSChar ** dst_buff,
                                            TWhatToFind find);
 /* ------------------------------------------------------------------------- */
@@ -91,24 +91,24 @@ LOCAL void      sfp_replace_comments_line (const TSChar * src_buff,
  * @param src_buff [in] buffer to be processed.
  * @param dst_buff [out] the result of processing.
  */
-LOCAL void      sfp_replace_hash_comments_line (const TSChar * src_buff,
+LOCAL void      mfp_replace_hash_comments_line (const TSChar * src_buff,
                                                 TSChar ** dst_buff);
 /* ------------------------------------------------------------------------- */
 /** Closes all files on file stack and clears the stack.
  *  @param sfp [in] pointer to the MinFileParser to operate on.
  */
-LOCAL void      sfp_clear_file_stack (MinFileParser * sfp);
+LOCAL void      mfp_clear_file_stack (MinFileParser * sfp);
 /* ------------------------------------------------------------------------- */
 /** Pops FILE handle from file stack and sets correct current file handle.
  *  @param sfp [in] pointer to the MinFileParser to operate on.
  */
-LOCAL void      sfp_pop_from_file_stack (MinFileParser * sfp);
+LOCAL void      mfp_pop_from_file_stack (MinFileParser * sfp);
 /* ------------------------------------------------------------------------- */
 /** Opens file and pushes it to stack.
  *  @param sfp [in] pointer to the MinFileParser to operate on.
  *  @param file_name [in] value to be pushed to the stack.
  */
-LOCAL void      sfp_push_file_to_stack (MinFileParser * sfp,
+LOCAL void      mfp_push_file_to_stack (MinFileParser * sfp,
                                         const TSChar * file_name);
 /* ------------------------------------------------------------------------- */
 /** Deletes all descriptors assigned to array and empties array.
@@ -141,7 +141,7 @@ LOCAL int compare_filename (const void *a, const void *b)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL TSBool sfp_read_line (MinFileParser * sfp, TSChar ** line_buffer,
+LOCAL TSBool mfp_read_line (MinFileParser * sfp, TSChar ** line_buffer,
                             TSChar * eol_buffer)
 {
         TSBool          retval = ESFalse;
@@ -182,7 +182,7 @@ LOCAL TSBool sfp_read_line (MinFileParser * sfp, TSChar ** line_buffer,
                                         c++;
                                 }
                                 if (strlen (c) > 0) {
-                                        sfp_push_file_to_stack (sfp, c);
+                                        mfp_push_file_to_stack (sfp, c);
                                         sfp->eol_buff_[0] = eol_buffer[0];
                                         sfp->eol_buff_[1] = eol_buffer[1];
                                         sfp->eol_buff_[2] = eol_buffer[2];
@@ -196,7 +196,7 @@ LOCAL TSBool sfp_read_line (MinFileParser * sfp, TSChar ** line_buffer,
 
                         if (dl_list_size (sfp->file_stack_) > 0) {
                                 /* Try to pop file from stack */
-                                sfp_pop_from_file_stack (sfp);
+                                mfp_pop_from_file_stack (sfp);
                                 retval = ESTrue;
                         } else {
                                 if (strlen (buf->buf_) > 0)
@@ -216,7 +216,7 @@ LOCAL TSBool sfp_read_line (MinFileParser * sfp, TSChar ** line_buffer,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void sfp_replace_comments_line (const TSChar * src_buff,
+LOCAL void mfp_replace_comments_line (const TSChar * src_buff,
                                       TSChar ** dst_buff, TWhatToFind find)
 {
 
@@ -350,7 +350,7 @@ LOCAL void sfp_replace_comments_line (const TSChar * src_buff,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void sfp_replace_hash_comments_line (const TSChar * src_buff,
+LOCAL void mfp_replace_hash_comments_line (const TSChar * src_buff,
                                            TSChar ** dst_buff)
 {
 
@@ -391,7 +391,7 @@ LOCAL void sfp_replace_hash_comments_line (const TSChar * src_buff,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void sfp_clear_file_stack (MinFileParser * sfp)
+LOCAL void mfp_clear_file_stack (MinFileParser * sfp)
 {
         if (sfp == INITPTR) {
                 errno = EINVAL;
@@ -399,14 +399,14 @@ LOCAL void sfp_clear_file_stack (MinFileParser * sfp)
         }
 
         while (dl_list_size (sfp->file_stack_) != 0) {
-                sfp_pop_from_file_stack (sfp);
+                mfp_pop_from_file_stack (sfp);
         }
       EXIT:
         return;
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void sfp_pop_from_file_stack (MinFileParser * sfp)
+LOCAL void mfp_pop_from_file_stack (MinFileParser * sfp)
 {
         DLListIterator  it = DLListNULLIterator;
         DLListIterator  it2 = DLListNULLIterator;
@@ -462,7 +462,7 @@ LOCAL void sfp_pop_from_file_stack (MinFileParser * sfp)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void sfp_push_file_to_stack (MinFileParser * sfp,
+LOCAL void mfp_push_file_to_stack (MinFileParser * sfp,
                                    const TSChar * file_name)
 {
         DLListIterator  it = DLListNULLIterator;
@@ -509,7 +509,7 @@ LOCAL void sfp_push_file_to_stack (MinFileParser * sfp,
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
-MinFileParser *sfp_create (FILE * file, TUnicode is_unicode,
+MinFileParser *mfp_create (FILE * file, TUnicode is_unicode,
                             TCommentType comment_type)
 {
         MinFileParser *tmp = INITPTR;
@@ -533,7 +533,7 @@ MinFileParser *sfp_create (FILE * file, TUnicode is_unicode,
         tmp->bytes_per_char_ = tmp->is_unicode_ ? 2 : 1;
         tmp->current_file_ = tmp->base_file_;
         tmp->section_lines_ = INITPTR;  /* dl_list_create(); 
-                                           sfp_read_line() creates */
+                                           mfp_read_line() creates */
         tmp->file_stack_ = dl_list_create ();
         tmp->file_names_ = dl_list_create ();
         tmp->eol_buff_[0] = '\0';
@@ -554,12 +554,12 @@ MinFileParser *sfp_create (FILE * file, TUnicode is_unicode,
 }
 
 /* ------------------------------------------------------------------------- */
-void sfp_destroy (MinFileParser ** sfp)
+void mfp_destroy (MinFileParser ** sfp)
 {
         if (*sfp == INITPTR)
                 return;
 
-        sfp_clear_file_stack (*sfp);
+        mfp_clear_file_stack (*sfp);
 
         if ((*sfp)->section_lines_ != INITPTR) {
                 dl_list_free_data (&((*sfp)->section_lines_));
@@ -575,7 +575,7 @@ void sfp_destroy (MinFileParser ** sfp)
 }
 
 /* ------------------------------------------------------------------------- */
-TSChar         *sfp_next_section (MinFileParser * sfp,
+TSChar         *mfp_next_section (MinFileParser * sfp,
                                   const TSChar * start_tag,
                                   const TSChar * end_tag, int *offset,
                                   int seeked)
@@ -640,14 +640,14 @@ TSChar         *sfp_next_section (MinFileParser * sfp,
                 validSectionEndFound = 1;
 
         /* Perform reading file */
-        while (sfp_read_line (sfp, &buff, end_of_line_buff) != ESFalse) {
+        while (mfp_read_line (sfp, &buff, end_of_line_buff) != ESFalse) {
 
                 if (sfp->comment_type_ == ECStyleComments) {
-                        sfp_replace_comments_line (buff,
+                        mfp_replace_comments_line (buff,
                                                    &without_comments_buff,
                                                    whatToFind);
                 } else {
-                        sfp_replace_hash_comments_line (buff,
+                        mfp_replace_hash_comments_line (buff,
                                                         &without_comments_buff);
                 }
 

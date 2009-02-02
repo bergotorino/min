@@ -152,7 +152,7 @@ MinSectionParser *mp_next_section_file (MinParser * sp,
         }
 
         buf_section =
-            sfp_next_section (sp->file_parser_, start_tag, end_tag,
+            mfp_next_section (sp->file_parser_, start_tag, end_tag,
                               &(sp->offset_)
                               , seeked);
 
@@ -609,7 +609,7 @@ MinParser     *mp_create (const TSChar * path, const TSChar * file,
 
         /* Create Min File Parser */
         tmp->file_parser_ =
-            sfp_create (tmp->file_, EFileNotUnicode, tmp->comment_type_);
+            mfp_create (tmp->file_, EFileNotUnicode, tmp->comment_type_);
       EXIT:
         if (filename != INITPTR)
                 DELETE (filename);
@@ -652,7 +652,7 @@ void mp_destroy (MinParser ** sp)
         if (*sp == INITPTR)
                 return;
 
-        sfp_destroy (&((*sp)->file_parser_));
+        mfp_destroy (&((*sp)->file_parser_));
 
         if ((*sp)->parsing_mode_ == EFileParsing)
                 fclose ((*sp)->file_);

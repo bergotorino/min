@@ -113,13 +113,13 @@ struct _MinFileParser {
  *  @param comment_type [in] is an indication how to treat comments in file.
  *  @return adress of the allocaded MinFileParser entity.
  */
-MinFileParser *sfp_create (FILE * file,
+MinFileParser *mfp_create (FILE * file,
                             TUnicode is_unicode, TCommentType comment_type);
 /* ------------------------------------------------------------------------- */
 /** Destroys allocated file parser.
  *  @param fp [in] allocated file parser entity.
  */
-void            sfp_destroy (MinFileParser ** sfp);
+void            mfp_destroy (MinFileParser ** sfp);
 /* ------------------------------------------------------------------------- */
 /**
  * Open and read configuration source and parses a required section.
@@ -140,7 +140,7 @@ void            sfp_destroy (MinFileParser ** sfp);
  * Possible Errors:
  * - EINVAL: invalid value was passed to the function.
  */
-TSChar         *sfp_next_section (MinFileParser * sfp,
+TSChar         *mfp_next_section (MinFileParser * sfp,
                                   const TSChar * start_tag,
                                   const TSChar * end_tag,
                                   int *offset, int seeked);
