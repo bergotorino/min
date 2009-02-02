@@ -144,7 +144,7 @@ void scripter_dsa_free (ScripterDataItem ** scripter_data)
 
         if (*scripter_data != INITPTR) {
                 DELETE ((*scripter_data)->DLL_name_);
-
+                DELETE ((*scripter_data)->Class_name_);
                 if ((*scripter_data)->symbol_list_ != INITPTR) {
                         for (it = dl_list_head ((*scripter_data)->symbol_list_);
                              it != DLListNULLIterator;
