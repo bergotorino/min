@@ -282,7 +282,7 @@ LOCAL void stl_destroy (MinTxtLogger ** stl)
                 dl_list_remove_it (it);
                 it = dl_list_head ((*stl)->output_);
         }
-
+        dl_list_free (&(*stl)->output_);
         DELETE (*stl);
       EXIT:
         return;
