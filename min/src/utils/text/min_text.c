@@ -248,6 +248,7 @@ void tx_c_prepend (Text * src, const char * dest)
         tmp = tx_create(dest);
         tx_append(tmp,src);
         tx_copy(src,tmp);
+        tx_destroy (&tmp);
 }
 
 /* ------------------------------------------------------------------------- */
