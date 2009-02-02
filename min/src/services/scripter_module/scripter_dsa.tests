@@ -167,9 +167,6 @@ START_TEST(test_scripter_dsa_remove)
         fail_unless( retval == -1,
                 "Scripter Data Item removing by INITPTR pointer expection failed." );
  
-        scripter_dsa_free( &scr_data );
-        fail_unless( scr_data == INITPTR,
-                "Scripter Data Item removing with INITPTR failed." );
 }
 END_TEST
 /* ------------------------------------------------------------------------- */
@@ -250,7 +247,7 @@ int scripter_dsa_tests()
         int number_failed = 0;
         Suite   * s  = scripter_dsa_suite();
         SRunner * sr = srunner_create( s );
-       // srunner_set_fork_status( sr, CK_NOFORK );	
+//        srunner_set_fork_status( sr, CK_NOFORK );	
         srunner_run_all( sr, CK_NORMAL );
         number_failed = srunner_ntests_failed( sr );
         srunner_free( sr );
