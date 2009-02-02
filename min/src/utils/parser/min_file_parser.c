@@ -209,9 +209,15 @@ LOCAL TSBool mfp_read_line (MinFileParser * sfp, TSChar ** line_buffer,
 
                 tx_c_append (buf, tmp);
         }
-        tx_back_trim (buf, " \n\r\t");
-        *line_buffer = tx_get_buf (buf);
-        tx_destroy (&buf);
+        if (retval ==  ESTrue) {
+                tx_back_trim (buf, " \n\r\t");
+                *line_buffer = tx_get_buf (buf);
+                tx_destroy (&buf);
+        }
+        else {
+                *line_buffer = INITPTR;
+                tx_destroy (&buf);
+        }
         return retval;
 }
 
