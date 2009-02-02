@@ -417,6 +417,7 @@ LOCAL void fo_create_new_file (struct min_logger_file_output_t *fo,
                 } else {
                         sprintf (fname, "%s/%s", path, file_new);
                 }
+                DELETE (file_new);
 
                 fo->file_ = fopen (fname, "a");
 
