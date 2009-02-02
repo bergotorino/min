@@ -141,6 +141,7 @@ LOCAL void* tl_load_lib( const char *libname )
                 }
         } while(c!=INITPTR);
         tx_destroy(&fullpath);
+        DELETE(path);
         if(retval==INITPTR) {
                 MIN_WARN ("There is no valid library [%s] under paths: [%s]"
                            ,libname,path);
