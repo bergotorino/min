@@ -43,7 +43,7 @@ extern char *module_time;
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 TTestModuleType module_type     = ETestClass;
-unsigned int    module_version  = 200844;
+unsigned int    module_version  = 200907;
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -71,7 +71,7 @@ int             _look4callname (const void *a, const void *b);
 /** Initialize scripter local variables  */
 int             _init_vars ();
 /** Send the variables back to scripter */
-void            _send_vars ();
+int             _send_vars ();
 /** Find the variable from list */
 ScriptVariable *_find_var (const char *varname);
 
@@ -96,6 +96,7 @@ int _init_vars ()
         int shmid;        
         MinItemParser *mip;
         ScriptVariable *variable;
+
         variables = dl_list_create();
         shmid = shmget (getppid(), sizeof (unsigned int),  0660);
         if (shmid == -1) {
@@ -188,6 +189,10 @@ int _init_vars ()
                 if (mip_get_next_string (mip, &variable_str) != ENOERR)
                         break;
         }
+
+        DELETE (var_buff);
+        DELETE (variable_str);
+        mip_destroy (&mip);
 exit:
         
         sm_detach (shmaddr);
@@ -195,7 +200,7 @@ exit:
         return retval;
 }
 /* ------------------------------------------------------------------------- */
-void _send_vars ()
+int _send_vars ()
 {
         DLListIterator   it;
         ScriptVariable *var;
@@ -227,6 +232,11 @@ void _send_vars ()
         }
 
         sh_mem_handle = sm_attach (shmid);
+        if ((vars->size_ + sizeof (unsigned int)) >  sm_get_segsz (shmid)) {
+                tx_destroy (&vars);
+                return 1;
+        }
+
         
         sm_write (sh_mem_handle,
                   (void *)&vars->size_,
@@ -249,6 +259,7 @@ exit:
                 DELETE (var);
         }
         dl_list_free (&variables);
+        return 0;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -328,7 +339,10 @@ int ts_run_method (MinItemParser * item)
         /*
          * Send variables back to scripter
          */
-        _send_vars ();
+        if (_send_vars ()) {
+                MIN_WARN ("Variable sending failed");
+                retval = -1;
+        }
 
         /*
          * Cleanup 
