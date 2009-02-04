@@ -49,6 +49,8 @@ extern int      scripter_init (minScripterIf * scripter_if);
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 /* ------------------------------------------------------------------------- */
+TSBool          stprun = ESFalse; /**< exit flag for scripted test process */
+TSBool          ctprun = ESFalse; /**< exit flag for combined test process */
 struct scripter_mod_ scripter_mod;
 DLList         *tp_handlers = INITPTR;  /**< handles to tmapi fctions from TC*/
 DLList         *allowedresults = INITPTR; /**< Allowed  result codes. */
@@ -1498,24 +1500,24 @@ int testclass_create (filename_t dllName, char *className)
         pid = fork ();
         if (pid == 0) {
                 /* Child process, lets enter event loop */
+                stprun = ESTrue;
                 sched_yield ();
                 min_log_open ("ScriptedTP", 3);
                 mq_init_buffer ();
                 signal (SIGUSR2, stp_handle_sigusr2);
-
+                
                 fetch_ptr2run (dllpath, className);
 
-                while (1) {
-                        while (1) {
-                                retval =
-                                    mq_read_message (scripter_mod.mqid,
-                                                     getpid ()
-                                                     , &input_buffer);
-                                if (retval > 8)
-                                        break;
+                while (stprun) {
+                        if (mq_peek_message (scripter_mod.mqid, getpid())) {
+                                retval = mq_read_message (scripter_mod.mqid,
+                                                          getpid ()
+                                                          , &input_buffer);
+                                stp_handle_message (&input_buffer);
                         }
-                        stp_handle_message (&input_buffer);
+                        usleep (10000);
                 }
+                stp_exit();
         } else if (pid > 0) {
                 /* TestProcess details are stored on the list */
                 MIN_INFO ("Scripted Test Process created, pid: %d",getpid());
@@ -1700,6 +1702,7 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
                 dl_list_add (scripter_mod.tp_details, (void *)stpd);
         } else if (stpd->pid_ == 0) {
                 /* Child */
+                ctprun = ESTrue;
                 min_log_open ("Combined Test Process", 3);
                 MIN_INFO ("Combined Test Process created, pid: %d",getpid());
                 mq_init_buffer ();
@@ -1713,9 +1716,14 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
                 testlib.run_case_fun_ (id, configfile, &tcr);
                 mq_send_message2 (scripter_mod.mqid, getppid ()
                                   , MSG_RET, tcr.result_, tcr.desc_);
-                while (1) {
+                while (ctprun) {
                         usleep (10000);
                 }               /* Wait for death */
+                /* resend buffered, flush message buffer */
+                mq_resend_buffered ();
+                mq_flush_msg_buffer ();
+                /* At the end exit gracefully. */
+                exit (TP_EXIT_SUCCESS);
         } else {
                 SCRIPTER_RTERR ("Test Process NOT created");
                 MIN_ERROR ("Combined Test Process NOT created");

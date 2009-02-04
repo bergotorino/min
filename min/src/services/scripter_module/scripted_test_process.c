@@ -36,6 +36,7 @@
 /* ------------------------------------------------------------------------- */
 extern TMC_t   *ptmc;
 extern DLList  *tp_handlers;
+extern TSBool   stprun;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 /* None */
@@ -168,9 +169,15 @@ void stp_handle_message (const MsgBuffer * msg)
 /* ------------------------------------------------------------------------- */
 void stp_handle_sigusr2 (int signum)
 {
+        stprun = ESFalse;
+}
+
+/* ------------------------------------------------------------------------- */
+void stp_exit ()
+{
         DLListIterator  it = DLListNULLIterator;
         TestClassDetails *tcd = INITPTR;
-
+        
         /* 1) We need to clean the list with pointers to run function. */
         it = dl_list_tail (tp_handlers);
 
@@ -197,7 +204,6 @@ void stp_handle_sigusr2 (int signum)
         exit (TP_EXIT_SUCCESS);
         return;
 }
-
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

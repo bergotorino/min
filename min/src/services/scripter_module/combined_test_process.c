@@ -36,6 +36,7 @@
 /* ------------------------------------------------------------------------- */
 extern TMC_t   *ptmc;
 extern DLList  *tp_handlers;
+extern TSBool   ctprun;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 /* None */
@@ -79,12 +80,7 @@ extern DLList  *tp_handlers;
 /* ------------------------------------------------------------------------- */
 void ctp_handle_sigusr2 (int signum)
 {
-        /* resend bufgfered, flush message buffer */
-        mq_resend_buffered ();
-        mq_flush_msg_buffer ();
-
-        /* At the end exit gracefully. */
-        exit (TP_EXIT_SUCCESS);
+        ctprun = ESFalse;
         return;
 }
 
@@ -95,13 +91,15 @@ void ctp_hande_sigtstp (int signo, siginfo_t * info, void *context)
         int             secs;
         long            usecs;
 
-        MIN_DEBUG ("SIGTSTP caught: sleep time %d",
-                    sleeptime);
+        /* MIN_DEBUG ("SIGTSTP caught: sleep time %d",
+         *  sleeptime); -- do *not* call non reentrant functions from signal
+         * handlers
+         */
         if (sleeptime) {
                 secs = sleeptime / 1000;
                 usecs = (sleeptime * 1000) / 1000000;
-                MIN_DEBUG ("Pausing for %d secs and %d usecs",
-                            secs, usecs);
+                /*MIN_DEBUG ("Pausing for %d secs and %d usecs",
+                  secs, usecs); */
 
                 if (secs)
                         sleep (secs);

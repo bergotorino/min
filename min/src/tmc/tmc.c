@@ -34,7 +34,7 @@
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
-/* None */
+TestCaseResult  globaltcr;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
@@ -156,10 +156,20 @@ void gu_init_tmc (TMC_t * tmc, int argc, char *argv[])
 void gu_run_tmc (TMC_t * tmc)
 {
         MsgBuffer       input_buffer;
-
+        TSBool msg_pending = ESFalse;
         while (tmc->run_ == 1) {
-                gu_read_message (tmc, &input_buffer);
-                gu_handle_message (tmc, &input_buffer);
+                if (tmc->send_ret_ == ESTrue) {
+                        ip_send_ret (&tmc->tmcipi_,  
+                                     globaltcr.result_, 
+                                     globaltcr.desc_);
+                        tmc->send_ret_ = ESFalse;
+                }
+                msg_pending = mq_peek_message (tmc->tmcipi_.mqid_, getpid ());
+                if (msg_pending == ESTrue) {
+                        gu_read_message (tmc, &input_buffer);
+                        gu_handle_message (tmc, &input_buffer);
+                }
+                usleep (100000);
         }
 }
 

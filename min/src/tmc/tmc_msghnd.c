@@ -37,14 +37,14 @@
 /* EXTERNAL GLOBAL VARIABLES */
 /** pointer to global TMC structure. Needed in signal handlers */
 extern TMC_t   *ptmc;
+extern TestCaseResult  globaltcr;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 /* None */
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-TestCaseResult  globaltcr;
-
+TSBool tp_exit_flag = ESFalse;
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -326,12 +326,14 @@ void gu_handle_sigchld (int sig)
                 tp_set_status (&ptmc->tpc_, TP_NONE);
         }
         if (reason == TP_TIMEOUT) {
-                ip_send_ret (&ptmc->tmcipi_, TP_TIMEOUTED, "Timeout");
+                globaltcr.result_ = TP_TIMEOUTED;
+                strcpy (globaltcr.desc_, "Timeouted");
         } else if (reason == TP_ABORTED) {
-                ip_send_ret (&ptmc->tmcipi_, TP_NC, "Aborted");
-        } else {
-                gu_handle_ret (ptmc, globaltcr.result_, globaltcr.desc_);
-        }
+                globaltcr.result_ = TP_NC;
+                strcpy (globaltcr.desc_, "Aborted");
+        } 
+        ptmc->send_ret_ = ESTrue;
+
         return;
 }
 
@@ -346,7 +348,6 @@ void gu_handle_sigsegv (int sig)
 {
         ip_send_ret (&ptmc->tmcipi_, TP_CRASHED, "Crashed");
         sleep (1);
-        mq_flush_msg_buffer ();
         exit (TP_EXIT_FAILURE);
         return;
 }
@@ -354,8 +355,7 @@ void gu_handle_sigsegv (int sig)
 /* ------------------------------------------------------------------------- */
 void gu_handle_sigusr2 (int sig)
 {
-        mq_flush_msg_buffer ();
-        exit (TP_EXIT_SUCCESS);
+        tp_exit_flag = ESTrue;
         return;
 }
 
@@ -371,14 +371,17 @@ LOCAL void gu_create_tp (TMC_t * tmc, int id, const char *cfg_file)
 
         ip_send_ret (&tmc->tmcipi_, tcr.result_, tcr.desc_);
         mq_resend_buffered ();
-        while (1) {
+        while (tp_exit_flag == ESFalse) {
                 usleep (50000);
         }
+        mq_flush_msg_buffer ();
+        exit (TP_EXIT_SUCCESS);
 }
 
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+
 /** Message queue listener.
  *  @param tmc adress of the TMC entity.
  *  @param input_buffer output parameter for the recieved message.
@@ -428,6 +431,7 @@ void gu_read_message (TMC_t * tmc, MsgBuffer * input_buffer)
                         break;
                 }
         }
+        return 1;
 }
 
 /* ------------------------------------------------------------------------- */

@@ -72,6 +72,9 @@ typedef struct {
 
         /** List of config files associated with test library */
         DLList         *config_list_;
+
+        /** Flag stating that we should send the MSG_RET */
+        TSBool  send_ret_;
 } TMC_t;
 
 /* ------------------------------------------------------------------------- */
