@@ -58,7 +58,11 @@ typedef enum {
         ELegoLoop,      /**< indicates the beginning of loop */
         ELegoEndloop,   /**< indicates the end of loop */
         ELegoTimeLoop,  /**< indicates the beginning of time loop */
-        ELegoEndTimeloop/**< indicates the end of time loop */
+        ELegoEndTimeloop,/**< indicates the end of time loop */
+        ELegoBreakloop, /**< indicates a loop breaking point */
+        ELegoIfBlock,   /**< indicates start of if/else block */
+        ELegoElseBlock, /**< indicates start of else block */
+        ELegoEndifBlock /**< indicates end of if/else block */
 } TLegoType;
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -157,6 +161,39 @@ typedef struct {
         struct timeval *endtime_;       /**< The time the loop should end  */
         TSBool         *started_;       /**< Indocates if the loop is running*/
 } LegoEndTimeloopType;
+/* ------------------------------------------------------------------------- */
+/** Loop piece which breaks out from current loop.  */
+typedef struct {
+        TLegoType       type_;          /**< The type of the piece. */
+        LegoBasicType  *next_;          /**< Next piece in the queue */
+        TScripterKeyword keyword_;      /**< Script keyword. */
+} LegoBreakloopType;
+/* ------------------------------------------------------------------------- */
+/** Piece which indicates the beginning of conditional block */
+typedef struct {
+        TLegoType       type_;          /**< The type of the piece. */
+        LegoBasicType  *next_;          /**< Next piece in the queue */
+        TScripterKeyword keyword_;      /**< Script keyword. */
+        char           *condition_;     /**< Condition for if  */
+        LegoBasicType  *else_;          /**< Else branch */
+        LegoBasicType  *block_end_;     /**< End of if block */
+} LegoIfBlockType;
+/* ------------------------------------------------------------------------- */
+/** Piece which indicates the beginning of else block */
+typedef struct {
+        TLegoType       type_;          /**< The type of the piece. */
+        LegoBasicType  *next_;          /**< Next piece in the queue */
+        TScripterKeyword keyword_;      /**< Script keyword. */
+        LegoBasicType  *prev_;          /**< Cond */
+} LegoElseBlockType;
+/* ------------------------------------------------------------------------- */
+/** Piece which indicates the end of else/if block */
+typedef struct {
+        TLegoType       type_;          /**< The type of the piece. */
+        LegoBasicType  *next_;          /**< Next piece in the queue */
+        TScripterKeyword keyword_;      /**< Script keyword. */
+        LegoBasicType  *else_;          /**< back pointer to else branch */
+} LegoEndifBlockType;
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */

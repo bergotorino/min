@@ -56,6 +56,8 @@ extern DLList  *defines;
 /* ------------------------------------------------------------------------- */
 /** Stack for loop begin pieces, so that we can hande nested loops. */
 LOCAL DLList   *loopstack = INITPTR;
+/** Stack for if block start pieces, so that we can hande nested ifs. */
+LOCAL DLList   *ifstack = INITPTR;
 /** the prepcompilled script that is represented by linked pieces. */
 LOCAL LegoBasicType *legosnake = INITPTR;
 /* ------------------------------------------------------------------------- */
@@ -119,6 +121,14 @@ LOCAL LegoLoopType *mli_create_loop (TScripterKeyword keyword,
  *        handled destroying of the stack if empty.
  */
 LOCAL LegoEndloopType *mli_create_endloop (TScripterKeyword keyword);
+
+/* ------------------------------------------------------------------------- */
+/** Creates Break Loop piece.
+ *  @param keyword [in] the keyword that comes from the script.
+ *  @return pointer to the allocated Break Loop piece.
+ */
+LOCAL LegoBreakloopType *mli_create_breakloop (TScripterKeyword keyword);
+
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
@@ -251,6 +261,117 @@ LOCAL LegoEndloopType *mli_create_endloop (TScripterKeyword keyword)
 
         return retval;
 }
+/* ------------------------------------------------------------------------- */
+LOCAL LegoBreakloopType *mli_create_breakloop (TScripterKeyword keyword)
+{
+        DLListIterator  it = DLListNULLIterator;
+        LegoBreakloopType *retval = INITPTR;
+        retval = NEW (LegoBreakloopType);
+        retval->type_ = ELegoBreakloop;
+        retval->next_ = INITPTR;
+        retval->keyword_ = keyword;
+
+        return retval;
+}
+/* ------------------------------------------------------------------------- */
+LOCAL LegoIfBlockType *mli_create_ifblock (TScripterKeyword keyword,
+                                           char *if_condition)
+{
+        LegoIfBlockType   *retval = INITPTR;
+
+        retval = NEW (LegoIfBlockType);
+        retval->type_ = ELegoIfBlock;
+        retval->next_ = INITPTR;
+        retval->keyword_ = keyword;
+        
+        retval->condition_ = NEW2(char, strlen (if_condition) + 1);
+        STRCPY(retval->condition_, if_condition, strlen (if_condition) + 1);
+        retval->else_ = INITPTR;
+        retval->block_end_ = INITPTR;
+
+        /* push to the ifblocks stack */
+        if (ifstack == INITPTR) {
+                ifstack = dl_list_create ();
+        }
+        
+        
+        dl_list_add (ifstack, (void *)retval);
+
+        return retval;
+}
+
+/* ------------------------------------------------------------------------- */
+
+LOCAL LegoElseBlockType *mli_create_else (TScripterKeyword keyword,
+                                          LegoBasicType *prev)
+{
+        DLListIterator it = DLListNULLIterator;
+        LegoIfBlockType *ifblock = INITPTR;
+        LegoElseBlockType *retval = INITPTR;
+
+        retval = NEW (LegoElseBlockType);
+        retval->type_ = ELegoElseBlock;
+        retval->next_ = INITPTR;
+        retval->keyword_ = keyword;
+
+        it = dl_list_tail (ifstack);
+        if (it == DLListNULLIterator) {
+                MIN_ERROR ("No matching if found for else");
+                return retval;
+        }
+        ifblock = (LegoIfBlockType *)dl_list_data (it);
+        ifblock->else_ = (LegoBasicType *)retval;
+
+        retval->prev_ = prev;
+
+        return retval;
+}
+
+/* ------------------------------------------------------------------------- */
+
+LOCAL LegoEndifBlockType *mli_create_endifblock (TScripterKeyword keyword)
+{
+        LegoBasicType *previous;
+        DLListIterator  it = DLListNULLIterator;
+        LegoIfBlockType *ifblock = INITPTR;
+        LegoElseBlockType *elseblock = INITPTR;
+        LegoEndifBlockType *retval = INITPTR;
+
+        retval = NEW (LegoEndifBlockType);
+        retval->type_ = ELegoEndifBlock;
+        retval->next_ = INITPTR;
+        retval->else_ = INITPTR;
+        retval->keyword_ = keyword;
+
+        it = dl_list_tail (ifstack);
+        if (it == DLListNULLIterator) {
+                MIN_ERROR ("No matching if found for endif");
+                return retval;
+        }
+        ifblock = (LegoIfBlockType *)dl_list_data (it);
+        /*
+        ** Now we can set the end pointer for if-block
+        */
+        ifblock->block_end_ = (LegoBasicType *)retval;
+        elseblock = (LegoElseBlockType *)ifblock->else_;
+        if (elseblock != INITPTR) {
+                /*
+                ** Relink the block before else  
+                */
+                previous = elseblock->prev_;
+                previous->next_ = (LegoBasicType *)retval; 
+                /*
+                ** Backpointer needed in clean up
+                */
+                retval->else_ = ifblock->else_;
+        }
+        dl_list_remove_it (it);
+        if (dl_list_tail (ifstack) == DLListNULLIterator) {
+                dl_list_free (&ifstack);
+        } 
+
+        return retval;
+}
 
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
@@ -264,6 +385,7 @@ void mli_create (MinSectionParser * msp)
         LegoBasicType  *tmp = INITPTR;
         int             loop_iter = 0;
         char           *loop_param = INITPTR;
+        char           *if_condition = INITPTR;
         TSBool          loop_tmout = ESFalse;
         DLListIterator  it = DLListNULLIterator;
         struct define  *def = INITPTR;
@@ -375,6 +497,42 @@ void mli_create (MinSectionParser * msp)
                         mip_destroy (&mip);
                         mip = mmp_get_next_item_line (msp);
                         break;
+                case EKeywordBreakloop:
+                        tmp = (LegoBasicType *) mli_create_breakloop (keyword);
+                        last->next_ = tmp;
+                        last = tmp;
+                        mip_destroy (&mip);
+                        mip = mmp_get_next_item_line (msp);
+                        break;
+                case EKeywordIf:
+                        mip_get_next_string (mip, &if_condition);
+                        tmp = (LegoBasicType *) 
+                                mli_create_ifblock (keyword,
+                                                    if_condition);
+                        DELETE (if_condition);
+                        last->next_ = tmp;
+                        last = tmp;
+                        mip_destroy (&mip);
+                        mip = mmp_get_next_item_line (msp);
+                        break;
+                case EKeywordElse:
+                        tmp = (LegoBasicType *) 
+                                mli_create_else (keyword, last);
+                        last->next_ = tmp;
+                        last = tmp;
+                        mip_destroy (&mip);
+                        mip = mmp_get_next_item_line (msp);
+                        break;
+
+                case EKeywordEndif:
+                        tmp = (LegoBasicType *) 
+                                mli_create_endifblock (keyword);
+                        last->next_ = tmp;
+                        last = tmp;
+                        mip_destroy (&mip);
+                        mip = mmp_get_next_item_line (msp);
+                        break;
+
                 case EKeywordUnknown:
                         MIN_ERROR ("Unknown keyword [%s]", token);
                         mip_destroy (&mip);
@@ -405,7 +563,10 @@ void mli_destroy ()
         LegoActiveType *lat = INITPTR;
         LegoLoopType   *llt = INITPTR;
         LegoEndloopType *let = INITPTR;
-
+        LegoBreakloopType *lbbt = INITPTR;
+        LegoIfBlockType *libt = INITPTR;
+        LegoEndifBlockType *ldbt = INITPTR;
+        LegoElseBlockType *lebt = INITPTR;
         if (legosnake == INITPTR) {
                 MIN_WARN ("Lego snake does not exist");
                 goto EXIT;
@@ -440,6 +601,30 @@ void mli_destroy ()
                         DELETE (let);
                         let = INITPTR;
                         tmp = INITPTR;
+                        break;
+                case ELegoBreakloop:
+                        lbbt = (LegoBreakloopType *) tmp;
+                        DELETE (lbbt);
+                        lbbt = INITPTR;
+                        tmp = INITPTR;
+                        break;
+                case ELegoIfBlock:
+                        libt = (LegoIfBlockType *) tmp;
+                        DELETE (libt->condition_);
+                        DELETE (libt);
+                        break;
+                case ELegoEndifBlock:
+                        ldbt = (LegoEndifBlockType *) tmp;
+                        if (ldbt->else_ != INITPTR) {
+                                tmp = ldbt->else_;
+                                ldbt->else_ = INITPTR;
+                                continue;
+                        } else 
+                                DELETE (ldbt);
+                        break;
+                case ELegoElseBlock:
+                        lebt = (LegoElseBlockType *) tmp;
+                        DELETE (lebt);
                         break;
                 default:
                         MIN_WARN ("Unknown Lego piece [%d]", tmp->type_);

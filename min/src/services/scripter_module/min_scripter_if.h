@@ -380,6 +380,12 @@ int             sendreceive_slave_expect (char *variable);
  */
 int             test_interference(MinItemParser* args);
 /* ------------------------------------------------------------------------- */
+/** Evaluates an if condition
+ * @param condition [in] variable name or value to be evaluated
+ * @return ESTrue or ESFalse
+ */
+TSBool          eval_if (char *condition);
+/* ------------------------------------------------------------------------- */
 #endif                          /* MIN_SCRIPTER_IF_H */
 
 /* End of file */

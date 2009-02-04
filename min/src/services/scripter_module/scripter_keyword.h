@@ -80,6 +80,10 @@ typedef enum {
         EKeywordExpect,         /**< keyword "expect"                   */
         EKeywordSendreceive,    /**< keyword "sendreceive"              */
         EKeywordInterference,   /**< keyword "testinterference"         */
+        EKeywordIf,             /**< keyword "if"                       */
+        EKeywordElse,           /**< keyword "else"                     */
+        EKeywordEndif,          /**< keyword "endif"                    */
+        EKeywordBreakloop,      /**< keyword "breakloop"                */
         EKeywordUnknown         /**< unknown keyword                    */
 } TScripterKeyword;
 /* ------------------------------------------------------------------------- */

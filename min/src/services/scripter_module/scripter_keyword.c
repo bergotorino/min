@@ -154,6 +154,14 @@ TScripterKeyword get_keyword (const char *label)
                 retval = EKeywordVar;
         } else if (strcmp (label, "testinterference") == 0){
                 retval = EKeywordInterference;
+        } else if (strcmp (label, "if") == 0){
+                retval = EKeywordIf;
+        } else if (strcmp (label, "else") == 0){
+                retval = EKeywordElse;
+        } else if (strcmp (label, "endif") == 0){
+                retval = EKeywordEndif;
+        } else if (strcmp (label, "breakloop") == 0){
+                retval = EKeywordBreakloop;
         } else {
                 retval = EKeywordClassName;
         }

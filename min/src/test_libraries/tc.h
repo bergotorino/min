@@ -33,7 +33,7 @@
 #include <min_parser.h>
 #include <min_logger.h>
 #include <min_test_event_if.h>
-
+#include <min_ipc_mechanism.h>
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -64,6 +64,8 @@
 /* ------------------------------------------------------------------------- */
 /** Usefull type definitions */
 typedef struct _TestCaseInfoTC TestCaseInfoTC;
+typedef struct _ScriptVariable ScriptVariable;
+
 /* ------------------------------------------------------------------------- */
 /** Pointer to the test case function. */
 typedef int (*ptr2testtc)( MinItemParser * tcr );
@@ -86,6 +88,20 @@ struct _TestCaseInfoTC
         /** id of the test case */
         unsigned int id_;
 };
+/** Script variable. Received from scripter when test method is called.
+ *  Used only in Test Class!
+ */
+struct _ScriptVariable
+{
+        /** Name of variable */
+        char *var_name_;
+        /** True if variable is initialized (has value). 
+         *  this flag should never unset by test class */
+        TSBool is_initialized_;
+        /** Variable value stored as char buffer */
+        char *var_value_;
+};
+
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
@@ -93,6 +109,35 @@ int ts_run_method( MinItemParser* mip );
 /* ------------------------------------------------------------------------- */
 int ts_get_test_cases( DLList** list );
 /* ------------------------------------------------------------------------- */
+/** Assign string value to script variable
+ * @param varname name of variable
+ * @param varval value to assign
+ * @return 0 on success, -1 on error (e.g. variable not declared)
+ */
+int SetLocalValue (const char *varname, const char *varval);
+/* ------------------------------------------------------------------------- */
+/** Assign integer value to script variable
+ * @param varname name of variable
+ * @param varval value to assign
+ * @return 0 on success, -1 on error
+ */
+int SetLocalValueInt (const char *varname, const long value);
+/* ------------------------------------------------------------------------- */
+/** Get value of script variable as an integer
+ * @param varname name of variable
+ * @param value [out] variable value
+ * @return 0 on success, -1 on error
+ */
+int GetLocalValueInt (const char *varname, long *value);
+/* ------------------------------------------------------------------------- */
+/** Get value of script variable as a string
+ * @param varname name of variable
+ * @param value [out] variable value
+ * @return 0 on success, -1 on error
+ */
+int GetLocalValue (const char *varname, char **value);
+/* ------------------------------------------------------------------------- */
+
 #endif /* TC_H */
 /* End of file */
 

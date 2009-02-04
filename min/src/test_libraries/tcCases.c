@@ -116,6 +116,38 @@ LOCAL int Three (MinItemParser * item)
         return ENOERR;
 }
 
+LOCAL int FailingOne (MinItemParser * item)
+{
+
+
+        return -1;
+}
+
+LOCAL int CheckThreshold (MinItemParser * item)
+{
+        int threshold;
+        int failcount;
+
+        if (mip_get_next_int (item, &threshold) != ENOERR) {
+                tm_printf (0, "", "Threshold parameter missing");
+                return -1;
+        }
+        if (GetLocalValueInt ("FAIL_COUNT", &failcount) != 0) {
+                tm_printf (0, "", "Failed to get FAIL_COUNT");
+                return -1;
+        } 
+        if (failcount >= threshold) {
+                tm_printf (0, "", "Fail count %d exceed threshold %d, setting "
+                           "variable bailout", failcount, threshold);
+                if (SetLocalValue ("bailout", "true") != 0) {
+                        tm_printf (0, "", "Failed to set var bailout");
+                        return -1;
+                }
+        } 
+        
+        return ENOERR;
+}
+
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
@@ -130,6 +162,8 @@ int ts_get_test_cases (DLList ** list)
         ENTRYTC (*list, "One", One);
         ENTRYTC (*list, "Two", Two);
         ENTRYTC (*list, "Three", Three);
+        ENTRYTC (*list, "FailingOne", FailingOne);
+        ENTRYTC (*list, "CheckThreshold", CheckThreshold);
 
         /*
          * ADD NEW ENTRY HERE 

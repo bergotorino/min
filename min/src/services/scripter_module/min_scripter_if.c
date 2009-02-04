@@ -26,6 +26,8 @@
 /* ------------------------------------------------------------------------- */
 /* INCLUDE FILES */
 #include <sched.h>
+#include <ctype.h>
+
 #include <dllist.h>
 #include <min_lego_interface.h>
 #include <min_scripter_if.h>
@@ -1288,6 +1290,7 @@ LOCAL void receive_variables ()
                                 ** try to assign the new value
                                 */
                                 var_assign (variable_str, p);
+                                DELETE (variable_str);
                         } else if (var_find (variable_str) == INITPTR) {
                                 /*
                                 ** Check that the variable is declared
@@ -2057,8 +2060,8 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
                         interpreter_next ();
                 } else {
                         /*sleep to avoid eating up too much cpu time
-                        smaller usleep times are known to cause
-                        problems in some hardwares*/
+                          smaller usleep times are known to cause
+                          problems in some hardwares*/
                         usleep(10000);
                 }
 
@@ -2141,7 +2144,6 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
          *    to api functions from them. Deallocating of this list is
          *    unfortunatelly quite problematical.
          */
-
         if (tp_handlers == INITPTR) {
                 tp_handlers = dl_list_create ();
         }
@@ -2841,10 +2843,14 @@ int test_interference(MinItemParser* args)
 
                 handle = NEW(InterfHandle);
                 sprintf(handle->name_,"%s",name);
-                handle->instance_ = ti_start_interference_timed(type,idle_time,busy_time,value);
+                handle->instance_ = ti_start_interference_timed (type, 
+                                                                 idle_time,
+                                                                 busy_time,
+                                                                 value);
                 dl_list_add(interference_handles,(void*)handle);
         }
-        /*if validation was successful (and we asume so) then command is "stop"*/
+        /*if validation was successful (and we asume so) 
+          then command is "stop"*/
         else {
                 work_inter = dl_list_head(interference_handles);
                 while (work_inter != DLListNULLIterator){
@@ -2858,6 +2864,34 @@ int test_interference(MinItemParser* args)
         }
         return 0;
 }
+
+/* ------------------------------------------------------------------------- */
+
+TSBool eval_if (char *condition) {
+        int i,isnumber = ESTrue;
+        const char *value;
+
+        MIN_DEBUG ("condition = %s", condition);
+
+        value = var_value (condition);
+        for (i = 0; i < strlen (value); i++) {
+                if (!isxdigit(value[i])) {
+                        isnumber = ESFalse;
+                        break;
+                }
+        }
+        if (isnumber == ESTrue && strtol (value, NULL, 16) == 0) {
+                return ESFalse;
+        }
+        if (isnumber == ESFalse && strcasecmp (value, "false") == 0) {
+                return ESFalse;
+        }
+
+        return ESTrue;
+}
+                
+
+
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

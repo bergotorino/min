@@ -132,7 +132,7 @@ LOCAL int       check_free_line (MinItemParser * line, int line_number);
 LOCAL int       check_remote_line (MinItemParser * line, DLList * variables,
                                    int line_number);
 /* ------------------------------------------------------------------------- */
-/** Checks validyty of line with "allownextresult" keyword 
+/** Checks validity of line with "allownextresult" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @return ENOERR if line is valid, -1 otherwise. 
@@ -142,7 +142,7 @@ LOCAL int       check_remote_line (MinItemParser * line, DLList * variables,
 LOCAL int       check_allownextresult_line (MinItemParser * line,
                                             int line_number);
 /* ------------------------------------------------------------------------- */
-/** Checks validyty of line with "complete" keyword 
+/** Checks validity of line with "complete" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @return ENOERR if line is valid, -1 otherwise. 
@@ -151,7 +151,7 @@ LOCAL int       check_allownextresult_line (MinItemParser * line,
  */
 LOCAL int       check_complete_line (MinItemParser * line, int line_number);
 /* ------------------------------------------------------------------------- */
-/** Checks validyty of line with "timeout" keyword 
+/** Checks validity of line with "timeout" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @return ENOERR if line is valid, -1 otherwise. 
@@ -160,7 +160,7 @@ LOCAL int       check_complete_line (MinItemParser * line, int line_number);
  */
 LOCAL int       check_timeout_line (MinItemParser * line, int line_number);
 /* ------------------------------------------------------------------------- */
-/** Checks validyty of line with "sleep" keyword 
+/** Checks validity of line with "sleep" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @return ENOERR if line is valid, -1 otherwise. 
@@ -169,7 +169,7 @@ LOCAL int       check_timeout_line (MinItemParser * line, int line_number);
  */
 LOCAL int       check_sleep_line (MinItemParser * line, int line_number);
 /* ------------------------------------------------------------------------- */
-/** Checks validyty of line with "testinterference" keyword 
+/** Checks validity of line with "testinterference" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @return ENOERR if line is valid, -1 otherwise. 
@@ -179,8 +179,7 @@ LOCAL int       check_sleep_line (MinItemParser * line, int line_number);
 LOCAL int       check_interference_line (MinItemParser * line,
                                          int line_number);
 /* ------------------------------------------------------------------------- */
-
-/** Checks validyty of line with "expect" keyword 
+/** Checks validity of line with "expect" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @return ENOERR if line is valid, -1 otherwise. 
@@ -189,6 +188,14 @@ LOCAL int       check_interference_line (MinItemParser * line,
  */
 LOCAL int       check_expect_line (MinItemParser * line, DLList * varnames,
                                    int line_number);
+/* ------------------------------------------------------------------------- */
+/** Checks validity of line with "if" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ */
+LOCAL int       check_if_line (MinItemParser * line, int line_number);
+
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
@@ -535,7 +542,8 @@ LOCAL int check_run_line (MinItemParser * line, int line_number)
                         opresult = 0;
                 } else {
                         MIN_ERROR ("run keyword syntax error, line: %d "
-                                    ". Test case id out of range.", line_number);
+                                    ". Test case id out of range.", 
+                                   line_number);
                         opresult = -1;
                 }
                 goto EXIT;
@@ -562,6 +570,9 @@ LOCAL int check_run_line (MinItemParser * line, int line_number)
         }
       EXIT:
         DELETE (f_path);
+        DELETE (lib_name);
+        DELETE (case_title);
+        DELETE (cfg_name);
         if (dl_list_size (module_cases) != 0) {
                 /*free memory allocated for test cases */
                 work_case_item = dl_list_head (module_cases);
@@ -589,6 +600,7 @@ LOCAL int check_pause_line (MinItemParser * line, int line_number)
                             ". Test id is not defined.",line_number);
                 return -1;
         }
+        DELETE (string);
         return 0;
 }
 
@@ -777,8 +789,9 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
                                    , dl_list_tail (variables)
                                    , look4slave, (const void *)arg);
                 if (it == DLListNULLIterator) {
-                        MIN_ERROR ("remote keyword syntax error in line %d"
-                                    ". Remote expect for unknown var.",line_number);
+                        MIN_ERROR ("remote keyword syntax error in line %d. "
+                                   "Remote expect for unknown var.",
+                                   line_number);
                         retval = -1;
                 } else
                         retval = 0;
@@ -808,7 +821,7 @@ LOCAL int check_allownextresult_line (MinItemParser * line, int line_number)
 
         if (retval != ENOERR) {
                 MIN_ERROR ("allownextresult keyword syntax error in line %d"
-                            ". Result code is not defined.",line_number);
+                           ". Result code is not defined.", line_number);
                 retval = -1;
                 goto EXIT;
         }
@@ -860,13 +873,13 @@ LOCAL int check_timeout_line (MinItemParser * line, int line_number)
         /* Check syntax */
         if (retval != ENOERR) {
                 MIN_ERROR ("timeout keyword syntax error in line %d"
-                            ". Timeout interval is not defined.",line_number);
+                            ". Timeout interval is not defined.", line_number);
                 retval = -1;
                 goto EXIT;
         }
         if (tmp < 1) {
                 MIN_ERROR ("timeout keyword syntax error in line %d"
-                            ". Invalid interval value.",line_number);
+                            ". Invalid interval value.", line_number);
                 retval = -1;
                 goto EXIT;
         }
@@ -927,40 +940,43 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number)
 
                 retval = mip_get_next_string (line, &type);
                 if (retval != ENOERR) {
-                        MIN_WARN ("Testinterference keyword syntax error in line %d",
-                                   ". Type not specified",line_number);
+                        MIN_WARN ("Testinterference keyword syntax error in "
+                                  "line %d. Type not specified", line_number);
                         retval = -1;
                         goto EXIT;
                 }
                 if ((strcmp (type, "cpuload") != 0) &&
                     (strcmp (type, "memload") != 0) &&
                     (strcmp (type, "ioload") != 0)) {
-                        MIN_WARN ("Testinterference keyword syntax error in line %d",
-                                   ". Type not specified correctly",line_number);
+                        MIN_WARN ("Testinterference keyword syntax error in "
+                                  "line %d. Type not specified correctly",
+                                  line_number);
                         retval = -1;
                         goto EXIT;
                 }
                 retval = mip_get_next_int (line, &value);
 
                 if (retval != ENOERR) {
-                        MIN_WARN ("Testinterference keyword syntax error in line %d",
-                                   ". Value not specified",line_number);
+                        MIN_WARN ("Testinterference keyword syntax error in "
+                                  "line %d. Value not specified", line_number);
                         retval = -1;
                         goto EXIT;
                 }
                 retval = mip_get_next_int (line, &idle_time);
 
                 if (retval != ENOERR) {
-                        MIN_WARN ("Testinterference keyword syntax error in line ",
-                                   ". Idle time not specified",line_number);
+                        MIN_WARN ("Testinterference keyword syntax error in "
+                                  "line %d. Idle time not specified",
+                                  line_number);
                         retval = -1;
                         goto EXIT;
                 }
                 retval = mip_get_next_int (line, &busy_time);
 
                 if (retval != ENOERR) {
-                        MIN_WARN ("Testinterference keyword syntax error in line ",
-                                   ". Busy time not specified",line_number);
+                        MIN_WARN ("Testinterference keyword syntax error in "
+                                  "line %d. Busy time not specified",
+                                  line_number);
                         retval = -1;
                         goto EXIT;
                 }
@@ -975,9 +991,10 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number)
         } else if (strcasecmp (command, "stop") == 0) {
                 if (interf_objs == INITPTR) {
                         retval = -1;
-                        MIN_WARN ("Testinterference keyword syntax error in line ",
-                                    ". No interferences started at this point",
-                                    line_number);
+                        MIN_WARN ("Testinterference keyword syntax error "
+                                  "in line %d. No interferences started at "
+                                  "this point",
+                                  line_number);
                         goto EXIT;
                 }
 
@@ -990,9 +1007,10 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number)
                 }
                 if (work_inter == DLListNULLIterator) {
                         retval = -1;
-                        MIN_WARN ("Testinterference keyword syntax error in line ",
-                                    ". No such interference started at this point",
-                                    line_number);
+                        MIN_WARN ("Testinterference keyword syntax error in "
+                                  "line %d. No such interference started at "
+                                  "this point",
+                                  line_number);
                         goto EXIT;
                 } else {
                         tmp = (char *)dl_list_data (work_inter);
@@ -1004,8 +1022,8 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number)
                 goto EXIT;
         } else {
                 retval = -1;
-                MIN_WARN ("Testinterference keyword syntax error in line ",
-                            ". Wrong command name",line_number);
+                MIN_WARN ("Testinterference keyword syntax error in line %d. ",
+                          "Wrong command name", line_number);
                 goto EXIT;
         }
 
@@ -1037,17 +1055,40 @@ LOCAL int check_sleep_line (MinItemParser * line, int line_number)
         /* check syntax */
         if (retval != ENOERR) {
                 MIN_ERROR ("sleep keyword syntax error in line %d"
-                            ". Slepp interval is not defined",line_number);
+                            ". Sleep interval is not defined", line_number);
                 retval = -1;
                 goto EXIT;
         }
         if (tmp < 1) {
                 MIN_ERROR ("sleep keyword syntax error in line %d"
-                            ". Invalid interval value",line_number);
+                           ". Invalid interval value", line_number);
                 retval = -1;
                 goto EXIT;
         }
       EXIT:
+        return retval;
+}
+
+/* ------------------------------------------------------------------------- */
+LOCAL int check_if_line (MinItemParser * line, int line_number)
+{
+        int retval;
+        char *token = INITPTR;
+
+        if (line == INITPTR) {
+                retval = -1;
+                errno = EINVAL;
+                goto EXIT;
+        }
+
+        retval = mip_get_next_string (line, &token);
+        if (retval != ENOERR) {
+                MIN_ERROR ("if keyword syntax error in line %d. "
+                           "No if condition specified", line_number);
+        }
+        DELETE (token);
+
+EXIT:
         return retval;
 }
 
@@ -1128,12 +1169,11 @@ char           *validate_test_case (MinSectionParser * testcase)
 
         TestClassDetails *test_class = INITPTR;
         /*association lists, assoc_cnames holds class names defined
-           in script, assoc_lnames holds library namse in corresponding
-           positions */
+          in script, assoc_lnames holds library namse in corresponding
+          positions */
         DLList         *assoc_cnames = dl_list_create ();
         DLList         *assoc_lnames = dl_list_create ();
         int             loopcounter = 0;
-        int             scriptloopcount = 0;
         int             check_result = -1;
         int             lib_already_found;
         char           *ass_lname = NULL;
@@ -1151,8 +1191,9 @@ char           *validate_test_case (MinSectionParser * testcase)
         DLListIterator  var_item = DLListNULLIterator;
         DLList         *symblist = dl_list_create ();
         DLList         *var_list = dl_list_create ();   /*holds "variable"
-                                                           names, for validating
-                                                           var and expect keywords */
+                                                          names, for validating
+                                                          var and expect 
+                                                          keywords */
         DLList         *class_methods = INITPTR;
         DLListIterator  call_item = INITPTR;
         DLListIterator  tc_item = INITPTR;
@@ -1161,10 +1202,16 @@ char           *validate_test_case (MinSectionParser * testcase)
         DLList         *testclasses = dl_list_create ();
         void           *dll_handle = NULL;
         unsigned int    len = 0;
-
         /* this will hold names of requested events, 
          * to validate "wait" statements */
         DLList         *requested_events = dl_list_create ();
+        enum            nesting_type {
+                IF = 1,
+                LOOP
+        };
+        int             nest_level = 0;
+        char            nesting [255];
+        TSBool          in_loop;
 
         /* allocate place for allocated slaves. */
         slaves = dl_list_create ();
@@ -1190,10 +1237,12 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordTitle:
                         len = strlen (line->item_skip_and_mark_pos_);
                         if (len == 0) {
-                                MIN_ERROR ("title keyword syntax error in line %d"
-                                            ". Test case title is not defined",
+                                MIN_ERROR ("title keyword syntax error in line"
+                                           " %d. Test case title is not "
+                                           "defined",
                                             line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
                         tc_title = NEW2 (char, len + 1);
@@ -1206,10 +1255,12 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordCreate:
                         /*class and dll names are writen to assoc_ lists */
                         if (mip_get_next_string (line, &libname) != 0) {
-                                MIN_ERROR ("createx keyword syntax error in line %d"
-                                            ". Library name is not defined.",
-                                            line_number);
+                                MIN_ERROR ("createx keyword syntax error in "
+                                           "line %d. Library name is not "
+                                           "defined.",
+                                           line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1218,15 +1269,17 @@ char           *validate_test_case (MinSectionParser * testcase)
                         DELETE (libname);
                         dl_list_add (assoc_lnames, (void *)ass_lname);
                         if (mip_get_next_string (line, &classname) != 0) {
-                                MIN_ERROR ("createx keyword syntax error in line %d"
-                                            ". Class name is not defined.",line_number);
+                                MIN_ERROR ("createx keyword syntax error in "
+                                           "line %d. Class name is not "
+                                           "defined.", line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
                         ass_cname = NEW2 (char, strlen (classname) + 1);
                         sprintf (ass_cname, "%s", classname);
                         dl_list_add (assoc_cnames, (void *)ass_cname);
-
+                        DELETE (classname);
                         lib_already_found = 0;
                         library_item = dl_list_head (symblist);
                         while (library_item != DLListNULLIterator) {
@@ -1251,13 +1304,16 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordDelete:
                         if ( mip_get_next_string(line,&classname) != 0 ){
-                                MIN_ERROR ("delete keyword syntax error in line %d"
-                                            ". No classname to delete specified.",
-                                            line_number);
+                                MIN_ERROR ("delete keyword syntax error in "
+                                           "line %d. No classname to delete "
+                                           "specified.",
+                                           line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
-                        check_result = -1;      /*indicate if class was created before */
+                        check_result = -1;      /*indicate if class was 
+                                                  created before */
                         for (loopcounter = 0;
                              loopcounter < dl_list_size (assoc_cnames);
                              loopcounter++) {
@@ -1272,15 +1328,18 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 }
                         }
                         if (check_result !=0 ){
-                                MIN_ERROR ("delete keyword syntax error in line %d"
-                                            ". Classname not created.",line_number);
+                                MIN_ERROR ("delete keyword syntax error in "
+                                           "line %d. Classname not created.", 
+                                           line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 DELETE (classname);
                                 goto EXIT_VALIDATE;
                         }
                         /*ok, test class was created previously, remove 
                            information from assoc. lists */
                         DELETE (ass_cname);
+                        DELETE (classname);
                         dl_list_remove_it (dl_list_at
                                            (assoc_cnames, loopcounter));
                         ass_lname =
@@ -1290,8 +1349,9 @@ char           *validate_test_case (MinSectionParser * testcase)
                         DELETE (ass_lname);
                         dl_list_remove_it (dl_list_at
                                            (assoc_lnames, loopcounter));
-                        /*this way, by the end of validation, assoc_cnames & assoc_lnames
-                           lists should be empty. If they are not, validation fails */
+                        /*this way, by the end of validation, assoc_cnames & 
+                          assoc_lnames lists should be empty. 
+                          If they are not, validation fails */
                         mip_destroy (&line);
                         line = mmp_get_next_item_line (testcase);
                         continue;
@@ -1300,6 +1360,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         check_result = check_pause_line (line, line_number);
                         if (check_result != 0) {
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
                         mip_destroy (&line);
@@ -1308,11 +1369,12 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordLoop:
                         check_result = check_loop_line (line, line_number);
-                        /*if loop specified correctly,increase "loop counter" */
                         if (check_result == 0) {
-                                scriptloopcount++;
+                                nest_level++;
+                                nesting [nest_level] = LOOP;
                         } else {
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
                         mip_destroy (&line);
@@ -1320,14 +1382,33 @@ char           *validate_test_case (MinSectionParser * testcase)
                         continue;
                         break;
                 case EKeywordEndloop:
-                        /* decrease script's "loop counter" */
-                        scriptloopcount--;
-                        /*this can never be less than 0 */
-                        if (scriptloopcount < 0) {
+                        if (nest_level <= 0 || nesting [nest_level] != LOOP) {
+                                MIN_ERROR ("Syntax error in line %d. "
+                                           "Unexpected endloop.", line_number);
                                 DELETE (tc_title);
-                                MIN_ERROR ("endloop keyword syntax error in line %d"
-                                            ". Mismatch of loop/endloop keywords.",
-                                            line_number);
+                                tc_title = NULL;
+                                goto EXIT_VALIDATE;
+                        }
+                        nest_level--;
+                        mip_destroy (&line);
+                        line = mmp_get_next_item_line (testcase);
+                        continue;
+                        break;
+                case EKeywordBreakloop:
+                        loopcounter = nest_level;
+                        in_loop = ESFalse;
+                        while (loopcounter > 0) {
+                                if (nesting [loopcounter] == LOOP) {
+                                        in_loop = ESTrue;
+                                        break;
+                                }
+                                loopcounter --;
+                        }
+                        if (in_loop == ESFalse) {
+                                MIN_ERROR ("Syntax error in line %d. "
+                                           "No loop to break!.", line_number);
+                                DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
                         mip_destroy (&line);
@@ -1337,9 +1418,11 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordRequest:
                         check_result = mip_get_next_string (line, &callname);
                         if (check_result != 0) {
-                                MIN_ERROR ("request keyword syntax error in line %d"
-                                            ". Event name is not defined.",line_number);
+                                MIN_ERROR ("request keyword syntax error in "
+                                           "line %d. Event name is not "
+                                           "defined.",line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1353,12 +1436,15 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordRelease:
                         check_result = mip_get_next_string (line, &callname);
                         if (check_result != 0) {
-                                MIN_ERROR ("release keyword syntax error in line %d"
-                                            ". Event name is not defined.",line_number);
+                                MIN_ERROR ("release keyword syntax error in "
+                                           "line %d. Event name is not "
+                                           "defined.", line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
+                                DELETE (callname);
                                 goto EXIT_VALIDATE;
                         }
-
+                        DELETE (callname);
                         mip_destroy (&line);
                         line = mmp_get_next_item_line (testcase);
                         continue;
@@ -1366,18 +1452,21 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordWait:
                         check_result = mip_get_next_string (line, &callname);
                         if (check_result != 0) {
-                                MIN_ERROR ("wait keyword syntax error in line %d"
-                                            ". Event name is not defined.",line_number);
+                                MIN_ERROR ("wait keyword syntax error in "
+                                           "line %d. Event name is "
+                                           "not defined.", line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
 
                         call_item = dl_list_head (requested_events);
                         if (call_item == DLListNULLIterator) {
-                                MIN_ERROR ("wait keyword syntax error in line %d"
-                                            ". Wait for not requested event.",
-                                            line_number);
+                                MIN_ERROR ("wait keyword syntax error in line"
+                                           " %d. Wait for not requested event.",
+                                           line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
                         while (call_item != DLListNULLIterator) {
@@ -1387,10 +1476,12 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 }
                                 call_item = dl_list_next (call_item);
                                 if (call_item == DLListNULLIterator) {
-                                        MIN_ERROR ("wait keyword syntax error in line %d"
-                                                    ". Wait for not requested event.",
-                                                    line_number);
+                                        MIN_ERROR ("wait keyword syntax error "
+                                                   "in line %d. Wait for not "
+                                                   "requested event.",
+                                                   line_number);
                                         DELETE (tc_title);
+                                        tc_title = NULL;
                                         goto EXIT_VALIDATE;
 
                                 }
@@ -1419,23 +1510,27 @@ char           *validate_test_case (MinSectionParser * testcase)
                         }
 
                         if (ass_lname == NULL) {
-                                MIN_ERROR ("syntax error in line %d"
-                                            ". Call for method of non existing class.",
-                                            line_number);
+                                MIN_ERROR ("syntax error in line %d. Call for "
+                                           "method of non existing class.",
+                                           line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         };
 
                         mip_get_next_string (line, &callname);
                         if (callname == NULL) {
                                 MIN_ERROR ("syntax error in line %d"
-                                          ". Method name is not defined.",line_number);
+                                           ". Method name is not defined.", 
+                                           line_number);
                                 DELETE (tc_title);
+                                tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
                         symb_callname = NEW2 (char, strlen (callname) + 1);
                         STRCPY (symb_callname, callname,
                                 strlen (callname) + 1);
+                        DELETE (callname);
                         library_item = dl_list_head (symblist);
 
                         lib_already_found = 0;
@@ -1455,6 +1550,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 MIN_ERROR ("Syntax error in line %d"
                                             ". Selected library was not found.",
                                             line_number);
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1466,6 +1562,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         mip_destroy (&line);
 
                         if (check_result != 0) {
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1497,6 +1594,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1509,6 +1607,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1523,6 +1622,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1535,6 +1635,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                             check_allownextresult_line (line, line_number);
                         mip_destroy (&line);
                         if (check_result != ENOERR) {
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1548,6 +1649,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
 
@@ -1569,6 +1671,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1581,6 +1684,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1597,23 +1701,29 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 sprintf (ass_varname, "%s", varname);
                                 dl_list_add (var_list, (void *)ass_varname);
                                 mip_destroy (&line);
+                                DELETE (varname);
                         } else {
                                 MIN_ERROR ("var keyword syntax error in line %d"
                                             ". Variable name not specified.",
                                             line_number);
                                 mip_destroy (&line);
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
                         line = mmp_get_next_item_line (testcase);
                         continue;
                         break;
+                        
                 case EKeywordSendreceive:
                         mip_get_next_string (line, &varname);
                         if ((varname != NULL) && (varname != INITPTR)) {
                                 if (strchr (varname, '=') == NULL) {
-                                        MIN_ERROR ("sendrecive keyword syntax error in line %d"
-                                                  ". Argument has faulty syntax (no '=' character).",line_number);
+                                        MIN_ERROR ("sendrecive keyword syntax "
+                                                   "error in line %d. "
+                                                   "Argument has faulty syntax "
+                                                   "(no '=' character).", 
+                                                   line_number);
                                         mip_destroy (&line);
                                         tc_title = NULL;
                                         goto EXIT_VALIDATE;
@@ -1630,6 +1740,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1641,21 +1752,65 @@ char           *validate_test_case (MinSectionParser * testcase)
                             check_interference_line (line, line_number);
                         if (check_result != ENOERR) {
                                 MIN_ERROR ("Test Interference Fault");
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
                         line = mmp_get_next_item_line (testcase);
                         continue;
                         break;
+                case EKeywordIf:
+                        check_result = check_if_line (line, line_number);
+                        if (check_result != ENOERR) {
+                                MIN_ERROR ("Syntax error in line %d. "
+                                           "Invalid if statetment", 
+                                           line_number);
+                                DELETE (tc_title);
+                                tc_title = NULL;
+                                goto EXIT_VALIDATE;
+                        }
+                        nest_level++;
+                        nesting [nest_level] = IF;
+                        mip_destroy (&line);
+                        line = mmp_get_next_item_line (testcase);
+                        continue;
+                        break;
+                case EKeywordElse:
+                        if (nesting [nest_level] != IF) {
+                                MIN_ERROR ("Syntax error in line %d. "
+                                           "Unexpected else.", line_number);
+                                DELETE (tc_title);
+                                tc_title = NULL;
+                                goto EXIT_VALIDATE;
+                        }
+                        mip_destroy (&line);
+                        line = mmp_get_next_item_line (testcase);
+                        continue;
+                        break;
+                case EKeywordEndif:
+                        if (nest_level <= 0 || nesting [nest_level] != IF) {
+                                MIN_ERROR ("Syntax error in line %d. "
+                                           "Unexpected endif.", line_number);
+                                DELETE (tc_title);
+                                tc_title = NULL;
+                                goto EXIT_VALIDATE;
+                        }
+                        nest_level--;
+                        mip_destroy (&line);
+                        line = mmp_get_next_item_line (testcase);
+                        continue;
+                        break;
                 case EKeywordUnknown:
                         MIN_ERROR ("Syntax error in line %d"
-                                    ". Unknown keyword [%s]",line_number,token);
+                                    ". Unknown keyword [%s]", line_number, 
+                                   token);
                         mip_destroy (&line);
                         line = mmp_get_next_item_line (testcase);
                         break;
                 default:
                         MIN_ERROR ("Syntax error in line %d"
-                                    ". Unknown keyword [%s]",line_number,token);
+                                    ". Unknown keyword [%s]", line_number,
+                                   token);
                         mip_destroy (&line);
                         line = mmp_get_next_item_line (testcase);
                         continue;
@@ -1666,16 +1821,17 @@ char           *validate_test_case (MinSectionParser * testcase)
                 DELETE (token);
 
         /* check if script's loop counter is 0, otherwise fail syntax check */
-        if (scriptloopcount != 0) {
+        if (nest_level != 0) {
                 DELETE (tc_title);
-                MIN_ERROR ("Mismatch of loop/endloop keywords");
+                tc_title = NULL;
+                MIN_ERROR ("Syntax error: missing %s", 
+                           nesting [nest_level] == IF ? "endif" : "endloop");
                 goto EXIT_VALIDATE;
         }
 
         /*now check if all interference objects have been stopped (this is
            very important!) */
         if ((interf_objs != INITPTR)&&(dl_list_size (interf_objs) != 0)) {
-                DELETE (tc_title);
                 MIN_WARN ("Not all test interference instances stopped!");
                 var_item = dl_list_head (interf_objs);
                 while (var_item != DLListNULLIterator) {
@@ -1684,6 +1840,8 @@ char           *validate_test_case (MinSectionParser * testcase)
                         dl_list_remove_it (var_item);
                         var_item = dl_list_head (interf_objs);
                 }
+                DELETE (tc_title);
+                tc_title = NULL;
                 goto EXIT_VALIDATE;
         }
         /*ok, finished fetching symbols from script, now let's validate them */
@@ -1712,6 +1870,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 MIN_ERROR ("Unable to load "
                                             "test library %s: %s\n",
                                             library->DLL_name_, dlerror ());
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1729,6 +1888,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 MIN_ERROR ("get cases unresolved "
                                             "in Test Library %s: %s",
                                             test_class->classname_, dlerror ());
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1738,6 +1898,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 MIN_ERROR ("run case unresolved "
                                             "in Test Library %s: %s",
                                             test_class->classname_, dlerror ());
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1750,6 +1911,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 MIN_WARN ("Could not get list of "
                                            "functions from %s",
                                            test_class->classname_);
+                                DELETE (tc_title);
                                 tc_title = NULL;
                                 goto EXIT_VALIDATE;
                         }
@@ -1765,10 +1927,12 @@ char           *validate_test_case (MinSectionParser * testcase)
                                         tc_item = dl_list_next (tc_item);
                                         if (tc_item == DLListNULLIterator) {
                                                 MIN_ERROR
-                                                    ("Symbol %s not found in %s",
+                                                    ("Symbol %s not found "
+                                                     "in %s",
                                                      callname,
                                                      library->DLL_name_);
                                                 dlclose (dll_handle);
+                                                DELETE (tc_title);
                                                 tc_title = NULL;
                                                 goto EXIT_VALIDATE;
                                         }
@@ -1820,8 +1984,9 @@ char           *validate_test_case (MinSectionParser * testcase)
         while (call_item != DLListNULLIterator) {
                 callname = (char *)dl_list_data (call_item);
                 if (tc_title != INITPTR)
-                        MIN_ERROR ("Validation error: testclass %s not deleted in testcase %s",
-                                 callname,tc_title);
+                        MIN_ERROR ("Validation error: testclass %s not "
+                                   "deleted in testcase %s",
+                                   callname, tc_title);
                 free (callname);
                 dl_list_remove_it (call_item);
                 call_item = dl_list_head (assoc_cnames);
@@ -1830,8 +1995,10 @@ char           *validate_test_case (MinSectionParser * testcase)
         if (dl_list_size (assoc_lnames) != 0) {
                 /*list not empty, so not all classes
                    were "deleted" */
-                if (tc_title != INITPTR)
+                if (tc_title != INITPTR) {
                         DELETE (tc_title);
+                        tc_title = NULL;
+                }
         }
 
         call_item = dl_list_head (requested_events);
@@ -1879,6 +2046,9 @@ int interpreter_next ()
         LegoPassiveType *passive = INITPTR;
         LegoLoopType   *loop = INITPTR;
         LegoEndloopType *eloop = INITPTR;
+        LegoIfBlockType *ifblock = INITPTR;
+        LegoElseBlockType *elseblock = INITPTR;
+
         int             retval = ENOERR;
         struct timeval  t;
         struct timeval  now;
@@ -1985,6 +2155,32 @@ int interpreter_next ()
                         }
                 }
 
+                break;
+        case ELegoBreakloop:
+                /*
+                ** Fast forward to endloop
+                */
+                while (current->type_ != ELegoEndloop)
+                        current = current->next_;
+                eloop = (LegoEndloopType *) current;
+                if (eloop->beyondloop_ != INITPTR) {
+                        current->next_ = eloop->beyondloop_;
+                }
+                break;
+        case ELegoIfBlock:
+                ifblock = (LegoIfBlockType *)current;
+                if (eval_if (ifblock->condition_) == ESFalse) {
+                        elseblock = (LegoElseBlockType *) ifblock->else_;
+                        if (elseblock != INITPTR) {
+                                current = (LegoBasicType *) elseblock;
+                        } else {
+                                current = (LegoBasicType *) ifblock->block_end_;
+                        }
+                }
+                break;
+        case ELegoElseBlock:
+                break;
+        case ELegoEndifBlock:
                 break;
         default:
                 MIN_ERROR ("Unknown Type of Lego Piece [%d]",
