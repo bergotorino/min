@@ -2668,7 +2668,7 @@ void ec_cleanup ()
         usleep (50000);
         sm_destroy (ec_settings.sh_mem_id_);
         mq_close_queue (mq_id);
-
+        min_log_close();
         usleep (30000);
 }
 
