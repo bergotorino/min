@@ -19,7 +19,7 @@ install-data-local:
 	cp  TestModuleTemplates/createtestmodule $(DESTDIR)/usr/bin
 
 tags:	
-	 find . -name '*'.c | xargs etags -o TAGS  --declarations --globals --defines --members
+	 find . -name '*'.c | xargs etags -o TAGS  --declarations --members
 
 distclean-local:
 	find . -name Makefile.in | xargs rm
