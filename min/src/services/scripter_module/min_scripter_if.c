@@ -1686,6 +1686,8 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
                         it = dl_list_next (it);
                         id++;
                 }
+                dl_list_free_data (&cases);
+                dl_list_free (&cases);
         }
 
         /* 3) Run a test */

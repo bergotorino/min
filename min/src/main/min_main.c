@@ -214,13 +214,14 @@ LOCAL int add_command_line_modules (DLList * modulelist)
                 if (!(f = fopen (path, "r"))) {
                         fprintf (stderr, "\n*** Could not open %s: %s ***\n",  
                                  path, strerror (errno));
+                        DELETE (path);
                         return 1;
                 }
                 fclose (f);
-
                 ec_add_module (path, configs_list);
+                DELETE (path);
         }
-        
+
         return 0;
 }
 
