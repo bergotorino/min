@@ -1022,7 +1022,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number)
                 goto EXIT;
         } else {
                 retval = -1;
-                MIN_WARN ("Testinterference keyword syntax error in line %d. ",
+                MIN_WARN ("Testinterference keyword syntax error in line %d. "
                           "Wrong command name", line_number);
                 goto EXIT;
         }
