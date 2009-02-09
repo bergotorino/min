@@ -2,12 +2,12 @@ Source: min-tests
 Section: devel
 Priority: optional
 Maintainer: Konrad Marek Zapalowicz <ext-konrad.zapalowicz@nokia.com>
-Build-Depends: min-dev (>= 2008w50)
+Build-Depends: min-dev (>= 2009w07)
 Standards-Version: 3.8.0
 
 Package: min-tests
 Section: tests
 Priority: optional
 Architecture: any
-Depends: min (>= 2008w48)
+Depends: min (>= 2009w07)
 Description: MIN Basic Acceptance Tests.
