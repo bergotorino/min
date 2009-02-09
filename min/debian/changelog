@@ -1,3 +1,16 @@
+min (2009w07) unstable; urgency=low
+  * Third MIN Release
+  * Fixed: bug in timed scripter loops
+  * Fixed: bug in compelete command syntax validation
+  * Fixed: MIN stucks when cases are still running on exit
+  * Fixed: Memory leaks in logger and syntax validation
+  * Fixed: Removed non-reentrant function calls from signal handlers
+  * Added breakloop keyword to scripter
+  * Added if-else statement support to scripter
+  * Added scritpter internal variables (FAIL_COUNT etc.)
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>>  Mon,   09 February 2009 10:48:52 +0100
+
 min (2009w04) unstable; urgency=low
   * Second MIN Release
   * Fixed: bug in scripter result reporting
