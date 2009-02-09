@@ -903,7 +903,7 @@ int mnl_log (MinLogger * mnl, TSStyle style, const TSChar * format, ...)
         /* Process the extra arguments */
         va_list         vl;
         va_start (vl, format);
-        vsprintf (msg, format, vl);
+        vsnprintf (msg, MaxLogMessage-1, format, vl);
         va_end (vl);
 
         /* Log message through all of endpoints */
@@ -942,7 +942,7 @@ int vmnl_log (MinLogger * mnl, TSStyle style, const TSChar * format,
         }
 
         /* Process the extra arguments */
-        vsprintf (msg, format, vl);
+        vsnprintf (msg, MaxLogMessage-1, format, vl);
 
         /* Log message through all of endpoints */
         it = dl_list_head (mnl->endpoint_);
