@@ -5,6 +5,7 @@ min (2009w07) unstable; urgency=low
   * Fixed: MIN stucks when cases are still running on exit
   * Fixed: Memory leaks in logger and syntax validation
   * Fixed: Removed non-reentrant function calls from signal handlers
+  * Fixed: Logger does not segfaults when log message is too long
   * Added breakloop keyword to scripter
   * Added if-else statement support to scripter
   * Added scritpter internal variables (FAIL_COUNT etc.)
