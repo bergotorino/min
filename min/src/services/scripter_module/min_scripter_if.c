@@ -1583,15 +1583,23 @@ int testclass_call_function (char *className, MinItemParser * mip)
         msg.desc_[0] = '\0';
         if (dl_list_size (variables) == 0) {
                 STRCPY (msg.desc_, mip->item_skip_and_mark_pos_, MaxDescSize);
-		if(msg.desc_[MaxDescSize - 1]!='\0' &&
-				msg.desc_[MaxDescSize - 1]!=0x0){
+		if (msg.desc_ [MaxDescSize - 1] != '\0' &&
+                    msg.desc_ [MaxDescSize - 1] != 0x0){
 			SCRIPTER_RTERR_ARG ("Method call too long", className);
-			msg.desc_[MaxDescSize-1]='\0';
+			msg.desc_[MaxDescSize-1] = '\0';
 		}
         } else {
-                while (mip_get_next_string (mip, &token) == ENOERR)
-                        sprintf (msg.desc_, "%s %s", msg.desc_,
-                                 var_value (token));
+                while (mip_get_next_string (mip, &token) == ENOERR) {
+                        if (strlen (msg.desc_) + strlen (var_value (token)) 
+                            >= MaxDescSize) {
+                                SCRIPTER_RTERR_ARG ("Method call too long", 
+                                                    className);
+                                msg.desc_[MaxDescSize-1] = '\0';
+                        
+                        } else
+                                sprintf (msg.desc_, "%s %s", msg.desc_,
+                                         var_value (token));
+                }
                 DELETE (token);
                 send_variables ();
                 msg.special_ = scripter_mod.shm_id;
