@@ -497,7 +497,7 @@ LOCAL void add_module (void *p)
                 }
         }
 
-        if (ec_add_module (module_name, conf_list) == 0) {
+        if (ec_add_module (module_name, conf_list, 0) == 0) {
                 popup_window ("Module added", 1);
         }
 }

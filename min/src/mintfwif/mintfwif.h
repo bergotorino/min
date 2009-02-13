@@ -82,9 +82,9 @@ typedef struct {
  * @return result of operation : 0 if success, -1 in case of error
 */
 int             min_if_open (min_case_complete_func complete_cb,
-                              min_case_print_func print_cb,
-                              min_extif_message_cb_ extifsend_cb,
-                              char *engine_ini, char *envp[]);
+                             min_case_print_func print_cb,
+                             min_extif_message_cb_ extifsend_cb,
+                             char *engine_ini, char *envp[]);
 
 /**Function used to close min test framework
  * @return result of operation : 0 if success, -1 in case of error
@@ -138,7 +138,7 @@ int             min_if_pause_case (unsigned int runtime_id);
 int             min_if_resume_case (unsigned int runtime_id);
 
 /** Function called when message received from external controller
- * @param message sting containing actual message
+ * @param message string containing actual message
  * @param length length of message (this param will probobly be dropped
  * @return result of operation
 */

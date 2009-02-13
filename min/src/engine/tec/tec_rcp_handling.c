@@ -452,7 +452,7 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
         } else {
                 MIN_WARN ("test case file %s not found", temp_string);
         }
-        ec_add_module (module, conf_list);
+        ec_add_module (module, conf_list, 0);
         /*wait for module to return testcases */
 MODULE_PRESENT:
         while (cont_flag == 0) {

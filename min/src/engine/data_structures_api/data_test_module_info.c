@@ -61,7 +61,7 @@ pthread_mutex_t TM_MUTEX = PTHREAD_MUTEX_INITIALIZER;
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
-/* None */
+static test_module_id_t current_id = 1000;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
@@ -105,6 +105,36 @@ DLListIterator tm_add (DLList * list_handle, test_module_info_s * tm_data)
         return dllist_item;
 }
 
+/** Searches for test module by id from the given list
+ *  @param list_handle pointer to linked list of Test Modules Info data
+ *  @param id search key
+ *  @return pointer to Test Module Info data item,
+ *          or returns INITPTR if operation failed.  
+ *
+ */
+
+DLListIterator  tm_find_by_module_id (DLList * list_handle, 
+                                      test_module_id_t id)
+{
+        pthread_mutex_lock (&TM_MUTEX);
+        DLListIterator  it;
+        
+        for (it = dl_list_head (list_handle); it != INITPTR;
+             it = dl_list_next(it)) {
+                if (((test_module_info_s *)dl_list_data(it))->module_id_ ==
+                    id) {
+                        pthread_mutex_unlock (&TM_MUTEX);
+                        return it;
+                }
+        }
+
+        pthread_mutex_unlock (&TM_MUTEX);
+        
+        return INITPTR;
+
+}
+
+
 /* ------------------------------------------------------------------------- */
 
 /** Creates new Test Module Info data structure
@@ -117,7 +147,8 @@ DLListIterator tm_add (DLList * list_handle, test_module_info_s * tm_data)
  *  INITPTR if Test Module Info adding to list failed.
  */
 test_module_info_s *tm_create (filename_t tm_filename,
-                               DLList * cfg_filename_list)
+                               DLList * cfg_filename_list,
+                               test_module_id_t id)
 {
         pthread_mutex_lock (&TM_MUTEX);
 
@@ -130,6 +161,12 @@ test_module_info_s *tm_create (filename_t tm_filename,
                 test_module->cfg_filename_list_ = cfg_filename_list;
                 test_module->test_case_list_ = INITPTR;
                 test_module->test_summary_ = NULL;
+                if (id == 0) {
+                        test_module->module_id_ = current_id;
+                        current_id ++;
+                } else 
+                        test_module->module_id_ = id;
+
         } else {
                 /* Test Module Info data structure creation failed */
                 test_module = INITPTR;
@@ -201,6 +238,27 @@ long tm_get_pid (DLListIterator item_ptr)
         pthread_mutex_unlock (&TM_MUTEX);
 
         return tm_data->process_id_;
+}
+
+/* ------------------------------------------------------------------------- */
+
+/** Gets test module id
+ *  @param item_ptr pointer to Test Module Info data item.
+ *  @return id
+ *
+ *  Possible errors:
+ *  None.
+ */
+test_module_id_t tm_get_module_id (DLListIterator item_tm_data)
+{
+        pthread_mutex_lock (&TM_MUTEX);
+
+        test_module_info_s *tm_data = dl_list_data (item_tm_data);
+
+        pthread_mutex_unlock (&TM_MUTEX);
+
+        return tm_data->module_id_;
+
 }
 
 /* ------------------------------------------------------------------------- */

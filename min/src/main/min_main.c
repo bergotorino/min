@@ -218,7 +218,7 @@ LOCAL int add_command_line_modules (DLList * modulelist)
                         return 1;
                 }
                 fclose (f);
-                ec_add_module (path, configs_list);
+                ec_add_module (path, configs_list, 0);
                 DELETE (path);
         }
 

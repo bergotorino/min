@@ -42,6 +42,8 @@
 #include <data_api.h>
 #include <tec_events.h>
 #include <min_logger.h>
+#include <min_engine_api.h>
+
 /* ----------------------------------------------------------------------------
  * GLOBAL VARIABLES
  */
@@ -53,6 +55,8 @@ int             unit_test_result;
 extern DLList  *ms_assoc;
 extern DLList  *EXTIF_received_data;
 struct logger_settings_t logger_settings;
+eapiIn_t in;
+
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
  * None
@@ -568,7 +572,8 @@ LOCAL int ec_start_module_temp (DLListIterator work_case_item)
 
         temporary_module =
             tm_create (library_name,
-                       tm_get_cfg_filenames (source_module_item));
+                       tm_get_cfg_filenames (source_module_item),
+                       tm_get_module_id (source_module_item));
         temporary_module_item =
             tm_add (instantiated_modules, temporary_module);
         tm_set_cfg_filenames (temporary_module_item, cfgs_work_list);
@@ -1384,6 +1389,11 @@ LOCAL int ec_msg_tcd_handler (MsgBuffer * message)
                                message->message_);
                 work_case_item = tc_add (work_tclist, work_case);
                 tc_set_id (work_case_item, message->param_);
+                if (in.new_case) {
+                        in.new_case (tm_get_module_id (work_module_item),
+                                     work_case->tc_id_,
+                                     work_case->title_);
+                }
         }
         result = 0;
 EXIT:
@@ -1972,8 +1982,11 @@ LOCAL int ec_read_module_section (MinParser * inifile)
                 /* make dummy list of cfgs for now */
 
                 work_list = dl_list_create ();
-                module = tm_create (bin_path, work_list);
+                module = tm_create (bin_path, work_list, 0);
                 module_item = tm_add (available_modules, module);
+                if (in.new_module) {
+                        in.new_module (bin_path, module->module_id_);
+                }
 
                 if (module_item == DLListNULLIterator) {
                         MIN_WARN ("Could not insert %s into list",
@@ -2326,6 +2339,7 @@ void ec_min_init (min_case_complete_func completecallbk,
         ec_settings.operation_mode_ = operation_mode;
 
         envp = envp_;
+        
 
         if (operation_mode == 0)
                 create_local_confdir();
@@ -2333,6 +2347,7 @@ void ec_min_init (min_case_complete_func completecallbk,
         /*
          ** Global data initialization
          */
+        memset (&in, 0x0, sizeof(eapiIn_t));
         available_modules = dl_list_create ();
         instantiated_modules = dl_list_create ();
         selected_cases = dl_list_create ();
@@ -2751,6 +2766,7 @@ int ec_run_cases_par (DLList * work_cases_list)
  * @param mod_name name of module to be added
  * @param testcase_files list containing names of testcasefiles associated
  * with module.
+ * @param id test module identifier
  * @return result of operation: WARNING: function fails if there is problem 
  * with initializing data for module entity, possibly some memory problem, or
  * if any of specified files does not exist. Information, if module was 
@@ -2758,14 +2774,15 @@ int ec_run_cases_par (DLList * work_cases_list)
  * problems of
  * that kind would  be failure to start case from that module later.
  */
-int ec_add_module (TSChar * mod_name, DLList * testcase_files)
+int ec_add_module (TSChar * mod_name, DLList * testcase_files, 
+                   test_module_id_t  id)
 {
         DLListIterator  work_module_item = DLListNULLIterator;
         test_module_info_s *work_module = INITPTR;
         pid_t           result = 0;
         int             retval = -1;
 
-        work_module = tm_create (mod_name, testcase_files);
+        work_module = tm_create (mod_name, testcase_files, id);
         if (work_module == INITPTR)
                 goto FAULT;
         work_module_item = tm_add (available_modules, work_module);

@@ -49,7 +49,8 @@
  */
 typedef struct  {
         void (*report_result) (unsigned moduleid, unsigned caseid, char *desc);
-        void (*report_case_status) (unsinged moduleid, unsigned caseid, stat);
+        void (*report_case_status) (unsigned moduleid, unsigned caseid, 
+                                    unsigned stat);
         void (*module_prints) (unsigned moduleid, unsigned caseid, 
                                char *message);
         void (*new_module) (char *modulename, unsigned moduleid);

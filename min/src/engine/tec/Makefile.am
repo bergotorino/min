@@ -3,7 +3,7 @@ METASOURCES = AUTO
 noinst_LIBRARIES = libmintec.a  
 noinst_LTLIBRARIES = libmintecext.la 
 check_LIBRARIES = libmintectest.a
-libmintec_a_SOURCES = tec.c tec_events.c tec_set_handling.c
+libmintec_a_SOURCES = tec.c tec_events.c tec_set_handling.c min_engine_api.c
 libmintec_a_CFLAGS =  -DMIN_BIN_DIR='"$(bindir)"' \
 		       -DMIN_CONF_DIR='"$(sysconfdir)"'
 noinst_HEADERS =  tec_events.h 

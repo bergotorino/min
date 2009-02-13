@@ -42,6 +42,8 @@
 
 /* ------------------------------------------------------------------------- */
 /* DATA TYPES */
+/** unique identifier for the test module */
+typedef unsigned int test_module_id_t;
 
 /** Test Module Info status value enumerations
  */
@@ -75,6 +77,8 @@ typedef struct {
 /** Test Module Info data structure
  */
 typedef struct {
+    /** Module identifier */
+        test_module_id_t  module_id_;
     /** Status value of Test Module Info running state */
         test_module_status_t status_;
     /** Filename of Test Module Info */
@@ -94,8 +98,12 @@ typedef struct {
 
 DLListIterator  tm_add (DLList * list_handle, test_module_info_s * tm_data);
 
+DLListIterator  tm_find_by_module_id (DLList * list_handle, 
+                                      test_module_id_t id);
+
 test_module_info_s *tm_create (filename_t tm_filename,
-                               DLList * cfg_filename_list);
+                               DLList * cfg_filename_list,
+                               test_module_id_t id);
 
 void            tm_remove (DLListIterator tm_data_item);
 
@@ -120,6 +128,8 @@ test_summary_s *tm_get_test_summary_data (DLListIterator tm_data_item);
 
 int             tm_get_test_summary_detail (DLListIterator tm_data_item,
                                             int ts_type);
+
+test_module_id_t tm_get_module_id (DLListIterator item_tm_data);
 
 /* ------------------------------------------------------------------------- */
 

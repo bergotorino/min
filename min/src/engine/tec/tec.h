@@ -141,7 +141,8 @@ int             ec_set_write (DLList * cases_list);
 /*write set with given name */
 int             ec_set_write_file (DLList * cases_list, char *filename);
 /*add module at any time */
-int             ec_add_module (TSChar * mod_name, DLList * testcase_files);
+int             ec_add_module (TSChar * mod_name, DLList * testcase_files,
+                               unsigned id);
 /*create path to test set from current date/hour */
 char           *create_path ();
 /*search for file in defined search paths */

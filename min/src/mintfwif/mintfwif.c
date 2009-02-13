@@ -344,7 +344,7 @@ int min_if_module_add (char *module_name, char *conf_name)
         }
         mod_name = NEW2 (TSChar, strlen (module_name) + 1);
         sprintf (mod_name, "%s", module_name);
-        result = ec_add_module (mod_name, conf_list);
+        result = ec_add_module (mod_name, conf_list, 0);
         if (result == 0) {
                 while (cont_flag == 0) {
                         usleep (500000);
