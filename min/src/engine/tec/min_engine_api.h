@@ -62,6 +62,7 @@ typedef struct {
         void (*add_test_module) (char *modulepath);
         void (*add_test_case_file) (unsigned moduleid, char *testcasefile);
         void (*run_test) (unsigned moduleid, unsigned caseid);
+        void (*fatal_error) (char *what, char *error_string);
 } eapiOut_t;
 
 /* ----------------------------------------------------------------------------
