@@ -28,6 +28,7 @@
  * INCLUDE FILES
  */
 #include <dllist.h>
+#include <tec.h>
 #include <min_logger.h>
 #include <data_api.h>
 #include <min_engine_api.h>
@@ -36,11 +37,11 @@
  * GLOBAL VARIABLES
  */
 DLList *modules;
+eapiIn_t *in;
 
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
  */
-extern eapiIn_t in;
 
 
 /* ---------------------------------------------------------------------------
@@ -82,10 +83,6 @@ extern eapiIn_t in;
 /* ------------------------------------------------------------------------- */
 
 /* ======================== FUNCTIONS ====================================== */
-void eapi_init (eapiIn_t *in, eapiOut_t *out)
-{
-        modules = dl_list_create();        
-}
 
 void eapi_add_test_module (char *modulepath)
 {
@@ -93,13 +90,13 @@ void eapi_add_test_module (char *modulepath)
 
         modinfo = tm_create (modulepath, INITPTR, 0);
         if (tm_add (modules, modinfo) != INITPTR) {
-                if (in.new_module) {
-                        in.new_module (modulepath, modinfo->module_id_);
+                if (in->new_module) {
+                        in->new_module (modulepath, modinfo->module_id_);
                 }
         } else {
                 MIN_WARN ("failed to add module");
-                if (in.no_module) {
-                        in.no_module (modulepath);
+                if (in->no_module) {
+                        in->no_module (modulepath);
                 }
                 
         }
@@ -135,6 +132,18 @@ void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
 }
 
 
+void eapi_init (eapiIn_t *inp, eapiOut_t *out)
+{
+        
+        in = inp;
+
+        modules = dl_list_create();        
+        out->add_test_module = eapi_add_test_module;
+        out->add_test_case_file = eapi_add_test_case_file;
+        out->run_test = NULL;
+        out->fatal_error = NULL;
+
+}
 
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

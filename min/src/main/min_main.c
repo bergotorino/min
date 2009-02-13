@@ -31,6 +31,7 @@
 #include <tec.h>
 #include <data_api.h>
 #include <ext_interface.h>
+#include <min_engine_api.h>
 #include <dllist.h>
 #include <tllib.h>
 
@@ -46,7 +47,8 @@ extern char* optarg;
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-/* None */
+eapiIn_t *in;
+eapiOut_t *out;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -58,7 +60,9 @@ extern char* optarg;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
-/* None */
+eapiIn_t in_str;
+eapiOut_t out_str;
+
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
@@ -233,6 +237,15 @@ int main (int argc, char *argv[], char *envp[])
         int             no_cui_flag, help_flag, version_flag, retval;
         DLList         *modulelist;
         DLListIterator  work_module_item;
+        pthread_t       plugin_thread;
+        long tmp;
+        void (*plugin_attach) (eapiIn_t **out_callback, 
+                                eapiOut_t *in_callback);
+
+        void (*plugin_open) (void);
+        void *pluginhandle;
+
+
 	struct option min_options[] =
 		{
 			{"no-cui", no_argument, &no_cui_flag, 1},
@@ -324,7 +337,22 @@ int main (int argc, char *argv[], char *envp[])
                 exit (0);
         }
 
+        pluginhandle = dlopen ("/usr/lib/min/min_dbus.so", RTLD_NOW);
+        if (!pluginhandle) {
+                printf ("Error opening plugin %s\n", dlerror());
+                exit (-1);
+        }
+        plugin_attach = dlsym (pluginhandle, "pl_attach_plugin");
+        plugin_open = dlsym (pluginhandle, "pl_open_plugin");
+        in = &in_str;
+        out = &out_str;
+        eapi_init (in, out);
+        plugin_attach (&in, out);
+        retval = pthread_create (&plugin_thread, NULL, plugin_open,
+                                 (void *)tmp);
+
         ec_min_init (NULL, NULL, NULL, envp, oper_mode);
+
 
         if (add_command_line_modules (modulelist))
                 exit (1);

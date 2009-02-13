@@ -55,7 +55,8 @@ int             unit_test_result;
 extern DLList  *ms_assoc;
 extern DLList  *EXTIF_received_data;
 struct logger_settings_t logger_settings;
-eapiIn_t in;
+
+extern eapiIn_t *in;
 
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
@@ -1389,10 +1390,10 @@ LOCAL int ec_msg_tcd_handler (MsgBuffer * message)
                                message->message_);
                 work_case_item = tc_add (work_tclist, work_case);
                 tc_set_id (work_case_item, message->param_);
-                if (in.new_case) {
-                        in.new_case (tm_get_module_id (work_module_item),
-                                     work_case->tc_id_,
-                                     work_case->title_);
+                if (in->new_case) {
+                        in->new_case (tm_get_module_id (work_module_item),
+                                      work_case->tc_id_,
+                                      work_case->title_);
                 }
         }
         result = 0;
@@ -1984,8 +1985,8 @@ LOCAL int ec_read_module_section (MinParser * inifile)
                 work_list = dl_list_create ();
                 module = tm_create (bin_path, work_list, 0);
                 module_item = tm_add (available_modules, module);
-                if (in.new_module) {
-                        in.new_module (bin_path, module->module_id_);
+                if (in->new_module) {
+                        in->new_module (bin_path, module->module_id_);
                 }
 
                 if (module_item == DLListNULLIterator) {
@@ -2339,15 +2340,12 @@ void ec_min_init (min_case_complete_func completecallbk,
         ec_settings.operation_mode_ = operation_mode;
 
         envp = envp_;
-        
-
         if (operation_mode == 0)
                 create_local_confdir();
 
         /*
          ** Global data initialization
          */
-        memset (&in, 0x0, sizeof(eapiIn_t));
         available_modules = dl_list_create ();
         instantiated_modules = dl_list_create ();
         selected_cases = dl_list_create ();
