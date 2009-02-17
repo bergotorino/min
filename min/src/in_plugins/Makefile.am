@@ -21,6 +21,8 @@ min_dbus_la_CFLAGS = $(AM_CFLAGS) -lglib-2.0 -ldbus-glib-1
 CLEANFILES = min_dbus_plugin.h \
 	     min_dbus_client_interface.h
 
+min_dbus.la: min_dbus_plugin.h min_dbus_client_interface.h
+
 min_dbus_plugin.h: min_dbus_interface.xml
 	dbus-binding-tool --prefix=min_object --mode=glib-server \
 	  $< > $@
