@@ -90,12 +90,19 @@ eapiOut_t min_clbk;
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
 /* ------------------------------------------------------------------------- */
+typedef enum {
+        E_SIGNAL_MODULE_ADDED,
+        E_SIGNAL_NEW_TEST_CASE,
+        E_SIGNAL_COUNT        
+} MinSignalId;
+
 typedef struct {
        GObject parent;
 } MinObject;
 
 typedef struct {
         GObjectClass parent;
+        guint signals[E_SIGNAL_COUNT];
 } MinObjectClass;
 
 gboolean min_object_min_add_test_module(MinObject *obj, gchar *modulepatch);
@@ -108,6 +115,7 @@ gboolean min_object_min_run_test(MinObject *obj,
 G_DEFINE_TYPE(MinObject, min_object, G_TYPE_OBJECT);
 
 #include "min_dbus_plugin.h"
+MinObject *global_obj=NULL;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
@@ -115,7 +123,26 @@ static void min_object_init (MinObject *obj);
 /* ------------------------------------------------------------------------- */
 static void min_object_class_init (MinObjectClass *klass);
 /* ------------------------------------------------------------------------- */
-static void handleError(const char* msg,const char* reason,gboolean fatal);
+static void handle_error (const char* msg,const char* reason,gboolean fatal);
+/* ------------------------------------------------------------------------- */
+static void requestStatusHandler (DBusGProxy *proxy,
+                                guint result,
+                                const char *message, 
+                                gpointer userData);
+/* ------------------------------------------------------------------------- */
+static void pl_report_result (unsigned moduleid, unsigned caseid, char *desc);
+/* ------------------------------------------------------------------------- */
+static void pl_report_case_status (unsigned moduleid,
+                                unsigned caseid,
+                                unsigned stat);
+/* ------------------------------------------------------------------------- */
+static void pl_msg_print (unsigned moduleid, unsigned caseid, char *message);
+/* ------------------------------------------------------------------------- */
+static void pl_new_module (char *modulename, unsigned moduleid);
+/* ------------------------------------------------------------------------- */
+static void pl_no_module (char *modulename);
+/* ------------------------------------------------------------------------- */
+static void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
@@ -131,18 +158,80 @@ static void min_object_init (MinObject *obj)
 static void min_object_class_init (MinObjectClass *klass)
 {
         /* Init our class object.*/
+/*        klass->signals[0] = g_signal_new (SIGNAL_MODULE_ADDED,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,2,G_TYPE_STRING,G_TYPE_UINT);
 
+        klass->signals[1] = g_signal_new (SIGNAL_NEW_TEST_CASE,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,3,
+                                        G_TYPE_UINT,G_TYPE_UINT,G_TYPE_STRING);
+*/
         dbus_g_object_type_install_info (MIN_TYPE_OBJECT,
                                         &dbus_glib_min_object_object_info);
 }
 /* ------------------------------------------------------------------------- */
-static void handleError(const char* msg,const char* reason,gboolean fatal)
+static void handle_error(const char* msg,const char* reason,gboolean fatal)
 {
         g_print(": ERROR: %s (%s)\n", msg, reason);
         if (fatal) {
-                /*exit(EXIT_FAILURE);*/
-/*                min_clbk.fatal_error (reason);*/
+                min_clbk.fatal_error (msg,reason);
         }
+}
+/* -------------------------------------------------------------------------- */
+static void pl_report_result (unsigned moduleid, unsigned caseid, char *desc)
+{
+        /* emit signal */
+}
+/* ------------------------------------------------------------------------- */
+static void pl_report_case_status (unsigned moduleid,
+                                unsigned caseid,
+                                unsigned stat)
+{
+        /* emit signal */
+
+}
+/* ------------------------------------------------------------------------- */
+static void pl_msg_print (unsigned moduleid, unsigned caseid, char *message)
+{
+        /* emit signal */
+
+}
+/* ------------------------------------------------------------------------- */
+static void pl_new_module (char *modulename, unsigned moduleid)
+{
+        /* emit signal */
+        if (!global_obj) return;
+/*        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_MODULE_ADDED],
+                        modulename,
+                        moduleid);
+*/
+}
+/* ------------------------------------------------------------------------- */
+static void pl_no_module (char *modulename)
+{
+        /* emit signal */
+        if (!global_obj) return;
+/*        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_MODULE_ADDED],
+                        modulename,
+                        0);
+*/
+}
+/* -------------------------------------------------------------------------- */
+static void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
+{
+        /* emit signal */
+
 }
 /* -------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
@@ -151,6 +240,12 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
 {
         /* Binds the callbacks */
         memcpy (&min_clbk,in_callback,sizeof(eapiOut_t));
+
+        (*out_callback)->report_result            = pl_report_result;
+        (*out_callback)->report_case_status       = pl_report_case_status;
+        (*out_callback)->module_prints            = pl_msg_print;
+        (*out_callback)->new_module               = pl_new_module;
+        (*out_callback)->no_module                = pl_no_module;
 }
 /* ------------------------------------------------------------------------- */
 void pl_open_plugin ()
@@ -167,14 +262,15 @@ void pl_open_plugin ()
 
         mainloop = g_main_loop_new (NULL,FALSE);
         if (!mainloop) {
-                handleError ("Could not create GMainLoop","OOM?",TRUE);
+                handle_error ("Could not create GMainLoop","OOM?",TRUE);
         }
 
         bus = dbus_g_bus_get(DBUS_BUS_SESSION, &error);
         if (error) {
-                handleError("Couldn't connect to session bus",
+                handle_error("Couldn't connect to session bus",
                         error->message,
                         TRUE);
+
         }
 
         busProxy = dbus_g_proxy_new_for_name(bus,
@@ -182,8 +278,9 @@ void pl_open_plugin ()
                                         DBUS_PATH_DBUS,
                                         DBUS_INTERFACE_DBUS);
         if (!busProxy) {
-                handleError("Failed to get a proxy for D-Bus",
+                handle_error("Failed to get a proxy for D-Bus",
                         "Unknown(dbus_g_proxy_new_for_name)",TRUE);
+
         }
 
         tmp = dbus_g_proxy_call(busProxy,
@@ -198,20 +295,21 @@ void pl_open_plugin ()
                                 &result,
                                 G_TYPE_INVALID);
         if (!tmp) {
-                handleError("D-Bus.RequestName RPC failed",
+                handle_error("D-Bus.RequestName RPC failed",
                                 error->message,
                                 TRUE);
         }
         if (result != 1) {
-                handleError("Failed to get the primary well-known name.",
+                handle_error("Failed to get the primary well-known name.",
                         "RequestName result != 1", TRUE);
         }
 
         minObj = g_object_new(MIN_TYPE_OBJECT, NULL);
         if (!minObj) {
-                handleError("Failed to create one Min instance.",
+                handle_error("Failed to create one Min instance.",
                         "Unknown(OOM?)", TRUE);
         }
+        global_obj = minObj;
 
         dbus_g_connection_register_g_object(bus,
                                         MIN_SERVICE_OBJECT_PATH,

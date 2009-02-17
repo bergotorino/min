@@ -5,19 +5,29 @@
 
 <node>
         <interface name="org.maemo.MIN">
+                <!-- Methods -->
                 <method name="min_add_test_module">
                         <arg type="s" name="modulepath" direction="in"/>
                 </method>
-
                 <method name="min_add_test_case_file">
                         <arg type="u" name="moduleid" direction="in"/>
                         <arg type="s" name="testcasefile" direction="in"/>
                 </method>
-
                 <method name="min_run_test">
                         <arg type="u" name="moduleid" direction="in"/>
                         <arg type="u" name="caseid" direction="in"/>
                 </method>
+
+                <!-- Signals -->
+                <signal name="min_add_test_module_result">
+                        <arg type="s" name="modulename"/>
+                        <arg type="u" name="moduleid"/>
+                </signal>
+                <signal name="min_new_test_case">
+                        <arg type="u" name="moduleid"/>
+                        <arg type="u" name="caseid"/>
+                        <arg type="s" name="casetitle"/>
+                </signal>
         </interface>
 </node>
 

@@ -55,4 +55,3 @@ AC_OUTPUT(\
 	src/in_plugins/Makefile \
 	shared/Makefile \
 	man/Makefile)
-

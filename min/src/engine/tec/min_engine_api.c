@@ -131,6 +131,10 @@ void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
         } 
 }
 
+void eapi_error (char *what, char *msg)
+{
+        MIN_FATAL ("%s - %s",what,msg);
+}
 
 void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 {
@@ -141,9 +145,10 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
         out->add_test_module = eapi_add_test_module;
         out->add_test_case_file = eapi_add_test_case_file;
         out->run_test = NULL;
-        out->fatal_error = NULL;
+        out->fatal_error = eapi_error;
 
 }
+
 
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
