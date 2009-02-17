@@ -147,6 +147,36 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
 
 /* ------------------------------------------------------------------------- */
 
+/** Searches for test module by id from the given list
+ *  @param list_handle pointer to linked list of Test Modules Info data
+ *  @param id search key
+ *  @return pointer to Test Module Info data item,
+ *          or returns INITPTR if operation failed.  
+ *
+ */
+DLListIterator  tc_find_by_case_id (DLList * list_handle, 
+				    int test_case_id)
+{
+        pthread_mutex_lock (&TC_MUTEX);
+        DLListIterator  it;
+        
+        for (it = dl_list_head (list_handle); it != INITPTR;
+             it = dl_list_next(it)) {
+                if (((test_case_s    *)dl_list_data(it))->tc_id_ ==
+                    test_case_id) {
+                        pthread_mutex_unlock (&TC_MUTEX);
+                        return it;
+                }
+        }
+
+        pthread_mutex_unlock (&TC_MUTEX);
+        
+        return INITPTR;
+
+}
+
+/* ------------------------------------------------------------------------- */
+
 /** Removes Test Case data item from linked list where this exists
  *  @param tc_data_item pointer to Test Case data item.
  */

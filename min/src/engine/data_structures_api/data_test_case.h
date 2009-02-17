@@ -91,6 +91,9 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
                            filename_t tc_cfg_filename,
                            title_string_t tc_title);
 
+DLListIterator  tc_find_by_case_id (DLList * list_handle,
+				    int test_case_id);
+
 void            tc_remove (DLListIterator tc_data_item);
 
 void            tc_delete (test_case_s * test_case);

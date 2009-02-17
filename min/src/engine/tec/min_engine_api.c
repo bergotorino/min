@@ -144,7 +144,7 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
         modules = dl_list_create();        
         out->add_test_module = eapi_add_test_module;
         out->add_test_case_file = eapi_add_test_case_file;
-        out->run_test = NULL;
+        out->run_test = ec_run_test_case;
         out->fatal_error = eapi_error;
 
 }

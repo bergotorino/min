@@ -148,6 +148,9 @@ char           *create_path ();
 /*search for file in defined search paths */
 int             ec_search_lib (char *mod_name);
 
+/* New functions to be called from engine API */
+int ec_run_test_case (unsigned module_id, int case_id);
+
 /* -------------------------------------------------------------------------*/
 
 #endif                          /* TEC_H */

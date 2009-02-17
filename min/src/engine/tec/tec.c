@@ -2885,6 +2885,38 @@ int ec_read_settings (char *engine_ini)
         return result;
 }
 
+/* New functions to be called from engine API */
+int ec_run_test_case (unsigned module_id, int case_id)
+{
+        int             result = 0;
+	DLListIterator mod_it, case_it;
+        test_module_info_s *module;
+	
+        pthread_mutex_lock (&tec_mutex_);
+
+	mod_it = tm_find_by_module_id (instantiated_modules, module_id);
+	if (mod_it == INITPTR) {
+		MIN_WARN ("No module by id %d found", module_id);
+		return -1;
+	}
+	module = (test_module_info_s *)dl_list_data (mod_it);
+	case_it = tc_find_by_case_id (module->test_case_list_, case_id);
+	if (case_it == INITPTR) {
+		MIN_WARN ("No case by id %d found", case_id);
+		return -1;
+	}
+
+	/*add to selected cases list */
+        case_it = ec_select_case (case_it, 0);
+
+        pthread_mutex_unlock (&tec_mutex_);
+        result = ec_exec_case (case_it);
+
+        return result;
+}
+
+
+
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
 
