@@ -52,16 +52,15 @@ char          **envp;
 #ifdef MIN_UNIT_TEST
 int             unit_test_result;
 #endif                          /*MINMIN_UNIT_TEST */
-extern DLList  *ms_assoc;
-extern DLList  *EXTIF_received_data;
 struct logger_settings_t logger_settings;
 
-extern eapiIn_t *in;
 
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
- * None
  */
+extern DLList  *ms_assoc;
+extern DLList  *EXTIF_received_data;
+extern eapiIn_t *in;
 
 
 /* ---------------------------------------------------------------------------
@@ -732,10 +731,6 @@ LOCAL void ec_check_next_in_group (int group_id)
         return;
 }
 
-
-
-
-
 /**Function for removal of temporary instantiated module.
  * @param work_module_item pointer to dllistitem containing module in question.
  */
@@ -999,8 +994,6 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         return result;
 }
 
-
-
 /**Function handling MSG_OK. As it is first message sent by module, 
  * function set's module status to TC_SENDING, initilaizes test cases list
  * for module and sends message MSG_GTC
@@ -1071,7 +1064,6 @@ LOCAL int ec_msg_ok_handler (MsgBuffer * message)
         return result;
 }
 
-
 /**Function handling MSG_KO message, which means that some trouble occured on
  * tmc's side. Hadling depends on state of module: if it's 
  * TEST_MODULE_INITIALIZED, it means that test case extraction is impossible.
@@ -1116,7 +1108,6 @@ LOCAL int ec_msg_ko_handler (MsgBuffer * message)
 
         return result;
 }
-
 
 /**Function handling MSG_RET with test case results
  * @param message - pointer to MsgBuffer containing message
@@ -1312,7 +1303,6 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 EXIT:
         return fun_result;
 }
-
 
 /** Function handling MSG_TCD message. It creates new test_case_s structure and
  * inserts it into
@@ -2884,37 +2874,6 @@ int ec_read_settings (char *engine_ini)
 
         return result;
 }
-
-/* New functions to be called from engine API */
-int ec_run_test_case (unsigned module_id, int case_id)
-{
-        int             result = 0;
-	DLListIterator mod_it, case_it;
-        test_module_info_s *module;
-	
-        pthread_mutex_lock (&tec_mutex_);
-
-	mod_it = tm_find_by_module_id (instantiated_modules, module_id);
-	if (mod_it == INITPTR) {
-		MIN_WARN ("No module by id %d found", module_id);
-		return -1;
-	}
-	module = (test_module_info_s *)dl_list_data (mod_it);
-	case_it = tc_find_by_case_id (module->test_case_list_, case_id);
-	if (case_it == INITPTR) {
-		MIN_WARN ("No case by id %d found", case_id);
-		return -1;
-	}
-
-	/*add to selected cases list */
-        case_it = ec_select_case (case_it, 0);
-
-        pthread_mutex_unlock (&tec_mutex_);
-        result = ec_exec_case (case_it);
-
-        return result;
-}
-
 
 
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */

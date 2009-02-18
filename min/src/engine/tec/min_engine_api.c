@@ -42,6 +42,7 @@ eapiIn_t *in;
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
  */
+extern pthread_mutex_t tec_mutex_;
 
 
 /* ---------------------------------------------------------------------------
@@ -73,6 +74,14 @@ eapiIn_t *in;
 /* ----------------------------------------------------------------------------
  * LOCAL FUNCTION PROTOTYPES
  */
+/** Searches for test case by pid from the given list
+ *  @param list_handle pointer to linked list of test case data
+ *  @param pid search key
+ *  @return pointer to test case data item,
+ *          or returns INITPTR if operation failed.  
+ *
+ */
+LOCAL DLListIterator tc_find_by_pid (DLList * list_handle, long tm_pid);
 
 /* -------------------------------------------------------------------------
  * FORWARD DECLARATIONS
@@ -80,11 +89,8 @@ eapiIn_t *in;
 /* None */
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
-/* ------------------------------------------------------------------------- */
 
-/* ======================== FUNCTIONS ====================================== */
-
-void eapi_add_test_module (char *modulepath)
+LOCAL void eapi_add_test_module (char *modulepath)
 {
         test_module_info_s *modinfo = INITPTR;
 
@@ -95,16 +101,15 @@ void eapi_add_test_module (char *modulepath)
                 }
         } else {
                 MIN_WARN ("failed to add module");
-                if (in->no_module) {
-                        in->no_module (modulepath);
-                }
-                
+                if (in->no_module)  in->no_module (modulepath);
         }
                 
         return;
 }
 
-void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
+/* ------------------------------------------------------------------------- */
+
+LOCAL void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
 {
         DLListIterator it;
         test_module_info_s *modinfo;
@@ -131,10 +136,99 @@ void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
         } 
 }
 
-void eapi_error (char *what, char *msg)
+/* ------------------------------------------------------------------------- */
+
+LOCAL void eapi_start_test_case (unsigned module_id, unsigned case_id)
+{
+        int             result = 0;
+	DLListIterator mod_it, case_it;
+        test_module_info_s *module;
+	
+        pthread_mutex_lock (&tec_mutex_);
+
+	mod_it = tm_find_by_module_id (instantiated_modules, module_id);
+	if (mod_it == INITPTR) {
+		MIN_WARN ("No module by id %d found", module_id);
+		return;
+	}
+	module = (test_module_info_s *)dl_list_data (mod_it);
+	case_it = tc_find_by_case_id (module->test_case_list_, case_id);
+	if (case_it == INITPTR) {
+		MIN_WARN ("No case by id %d found", case_id);
+		return;
+	}
+
+	/*add to selected cases list */
+        case_it = ec_select_case (case_it, 0);
+
+	if (case_it == INITPTR) {
+		MIN_WARN ("No case by id %d found", case_id);
+		return;
+	}
+
+	/*add to selected cases list */
+        case_it = ec_select_case (case_it, 0);
+
+        pthread_mutex_unlock (&tec_mutex_);
+        result = ec_exec_case (case_it);
+
+        return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+LOCAL void eapi_pause_case (long test_run_id)
+{
+	DLListIterator it;
+
+	it = tc_find_by_pid (selected_cases, test_run_id);
+	if (it != INITPTR)
+		ec_pause_test_case (it);
+}
+
+/* ------------------------------------------------------------------------- */
+
+LOCAL void eapi_resume_case (long test_run_id)
+{
+	DLListIterator it;
+
+	it = tc_find_by_pid (selected_cases, test_run_id);
+	if (it != INITPTR)
+		ec_resume_test_case (it);
+
+}
+
+/* ------------------------------------------------------------------------- */
+
+LOCAL void eapi_error (char *what, char *msg)
 {
         MIN_FATAL ("%s - %s",what,msg);
 }
+
+/* ------------------------------------------------------------------------- */
+
+LOCAL DLListIterator tc_find_by_pid (DLList * list_handle, long tm_pid)
+{
+	test_case_s    *tc;
+	test_module_info_s *tm;
+        DLListIterator  it;
+
+        
+        for (it = dl_list_head (list_handle); it != INITPTR;
+             it = dl_list_next(it)) {
+		tc = (test_case_s *)dl_list_data (it);
+		tm = (test_module_info_s *)dl_list_data (tc->tm_data_item_);
+		if (tm->process_id_ == tm_pid) {
+                        return it;
+                }
+        }
+
+        
+        return INITPTR;
+
+}
+
+/* ======================== FUNCTIONS ====================================== */
 
 void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 {
@@ -144,9 +238,10 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
         modules = dl_list_create();        
         out->add_test_module = eapi_add_test_module;
         out->add_test_case_file = eapi_add_test_case_file;
-        out->run_test = ec_run_test_case;
+        out->start_case = eapi_start_test_case;
+	out->pause_case = eapi_pause_case;
+	out->resume_case = eapi_resume_case;
         out->fatal_error = eapi_error;
-
 }
 
 

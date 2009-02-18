@@ -157,9 +157,10 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
 DLListIterator  tc_find_by_case_id (DLList * list_handle, 
 				    int test_case_id)
 {
-        pthread_mutex_lock (&TC_MUTEX);
         DLListIterator  it;
         
+        pthread_mutex_lock (&TC_MUTEX);
+
         for (it = dl_list_head (list_handle); it != INITPTR;
              it = dl_list_next(it)) {
                 if (((test_case_s    *)dl_list_data(it))->tc_id_ ==

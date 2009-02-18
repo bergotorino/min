@@ -48,20 +48,25 @@
  * Structures
  */
 typedef struct  {
-        void (*report_result) (unsigned moduleid, unsigned caseid, char *desc);
-        void (*report_case_status) (unsigned moduleid, unsigned caseid, 
-                                    unsigned stat);
-        void (*module_prints) (unsigned moduleid, unsigned caseid, 
+        void (*report_result) (long test_run_id, int result, char *desc);
+        void (*module_prints) (unsigned module_id, unsigned case_id, 
                                char *message);
-        void (*new_module) (char *modulename, unsigned moduleid);
+        void (*new_module) (char *modulename, unsigned module_id);
         void (*no_module) (char *modulename);
-        void (*new_case) (unsigned moduleid, unsigned caseid, char *casetitle);
+        void (*new_case) (unsigned module_id, unsigned case_id, 
+			  char *casetitle);
+        void (*case_started) (unsigned module_id, unsigned case_id, 
+			      long test_run_id);
+        void (*case_paused) (long test_run_id);
+        void (*case_resumed) (long test_run_id);
 } eapiIn_t;
 
 typedef struct {
         void (*add_test_module) (char *modulepath);
         void (*add_test_case_file) (unsigned moduleid, char *testcasefile);
-        void (*run_test) (unsigned moduleid, unsigned caseid);
+        void (*start_case) (unsigned moduleid, unsigned caseid);
+        void (*pause_case) (long test_run_id);
+        void (*resume_case) (long test_run_id);
         void (*fatal_error) (char *what, char *error_string);
 } eapiOut_t;
 
