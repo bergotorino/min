@@ -1573,7 +1573,7 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
                 work_case_item = dl_list_next (work_case_item);
 
         }
-
+	
         pthread_mutex_unlock (&tec_mutex_);
 
         if (work_case_item == DLListNULLIterator){
@@ -1595,6 +1595,9 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
                         break;
                 work_result_item = dl_list_next (work_result_item);
         }
+	
+	if (in->module_prints) in->module_prints (message->sender_, 
+						  message->message_);
 
         work_list = tr_get_priontouts_list (work_result_item);
         work_printout_item = dl_list_head (work_list);
