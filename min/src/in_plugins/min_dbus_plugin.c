@@ -93,6 +93,10 @@ eapiOut_t min_clbk;
 typedef enum {
         E_SIGNAL_MODULE_ADDED,
         E_SIGNAL_NEW_TEST_CASE,
+        E_SIGNAL_CASE_STARTED,
+        E_SIGNAL_CASE_PAUSED,
+        E_SIGNAL_CASE_RESUMED,
+        E_SIGNAL_CASE_RESULT,
         E_SIGNAL_COUNT        
 } MinSignalId;
 
@@ -166,13 +170,15 @@ static void min_object_init (MinObject *obj)
 static void min_object_class_init (MinObjectClass *klass)
 {
         /* Init our class object.*/
+        /* module_added */
         klass->signals[0] = g_signal_new (SIGNAL_MODULE_ADDED,
                                         G_OBJECT_CLASS_TYPE(klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,NULL,NULL,
                                         g_cclosure_marshal_VOID__STRING,
                                         G_TYPE_NONE,2,G_TYPE_STRING,G_TYPE_UINT);
-
+        
+        /* new_test_case */
         klass->signals[1] = g_signal_new (SIGNAL_NEW_TEST_CASE,
                                         G_OBJECT_CLASS_TYPE(klass),
                                         G_SIGNAL_RUN_LAST,
@@ -180,6 +186,43 @@ static void min_object_class_init (MinObjectClass *klass)
                                         g_cclosure_marshal_VOID__STRING,
                                         G_TYPE_NONE,3,
                                         G_TYPE_UINT,G_TYPE_UINT,G_TYPE_STRING);
+
+        /* case_started */
+        klass->signals[2] = g_signal_new (SIGNAL_CASE_STARTED,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,3,
+                                        G_TYPE_UINT,G_TYPE_UINT,G_TYPE_LONG);
+
+        /* case_paused */
+        klass->signals[3] = g_signal_new (SIGNAL_CASE_PAUSED,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,1,
+                                        G_TYPE_LONG);
+
+        /* case_resumed */
+        klass->signals[4] = g_signal_new (SIGNAL_CASE_RESUMED,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,1,
+                                        G_TYPE_LONG);
+
+        /* case_result */
+        klass->signals[5] = g_signal_new (SIGNAL_CASE_RESULT,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,3,
+                                        G_TYPE_LONG,G_TYPE_INT,G_TYPE_STRING);
+                                        
 
         dbus_g_object_type_install_info (MIN_TYPE_OBJECT,
                                         &dbus_glib_min_object_object_info);
@@ -196,6 +239,14 @@ static void handle_error(const char* msg,const char* reason,gboolean fatal)
 static void pl_case_result (unsigned moduleid, unsigned caseid, char *desc)
 {
         /* emit signal */
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_CASE_RESULT],
+                        0,
+                        moduleid,
+                        caseid,
+                        desc);
 }
 /* ------------------------------------------------------------------------- */
 static void pl_case_started (unsigned moduleid,
@@ -203,18 +254,36 @@ static void pl_case_started (unsigned moduleid,
                         long testrunid)
 {
         /* emit signal */
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_CASE_STARTED],
+                        0,
+                        moduleid,
+                        caseid,
+                        testrunid);
 }
 /* ------------------------------------------------------------------------- */
 static void pl_case_paused (long testrunid)
 {
         /* emit signal */
-
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_CASE_PAUSED],
+                        0,
+                        testrunid);
 }
 /* ------------------------------------------------------------------------- */
 static void pl_case_resumed (long testrunid)
 {
         /* emit signal */
-
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_CASE_RESUMED],
+                        0,
+                        testrunid);
 }
 /* ------------------------------------------------------------------------- */
 static void pl_msg_print (unsigned moduleid, unsigned caseid, char *message)

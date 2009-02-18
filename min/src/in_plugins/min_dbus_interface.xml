@@ -23,10 +23,31 @@
                         <arg type="s" name="modulename"/>
                         <arg type="u" name="moduleid"/>
                 </signal>
+
                 <signal name="min_new_test_case">
                         <arg type="u" name="moduleid"/>
                         <arg type="u" name="caseid"/>
                         <arg type="s" name="casetitle"/>
+                </signal>
+
+                <signal name="min_case_started">
+                        <arg type="u" name="moduleid"/>
+                        <arg type="u" name="caseid"/>
+                        <arg type="t" name="testrunid"/>
+                </signal>
+
+                <signal name="min_case_paused">
+                        <arg type="t" name="testrunid"/>
+                </signal>
+
+                <signal name="min_case_resumed">
+                        <arg type="t" name="testrunid"/>
+                </signal>
+
+                <signal name="min_case_result">
+                        <arg type="t" name="testrunid"/>
+                        <arg type="i" name="result"/>
+                        <arg type="s" name="desc"/>
                 </signal>
         </interface>
 </node>

@@ -1,0 +1,306 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Juha Perälä
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+
+/**
+ *  @file       template.c
+ *  @version    0.1
+ *  @brief      This file contains implementation of ...
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDE FILES */
+#include "consoleui.h"
+#include "dllist.h"
+#include "data_api.h"
+#include <stdio.h>
+#include <string.h>
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL GLOBAL VARIABLES */
+extern DLList* available_modules; /* list of available test modules */
+extern DLList* instantiated_modules; /* list of running test modules */
+extern DLList* selected_cases; /* list of test cases selected for execution */
+DLList* available_tcs[100];
+DLList* available_tr;
+DLList* printouts;
+DLList* printouts2;
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* GLOBAL VARIABLES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL GLOBAL VARIABLES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL CONSTANTS AND MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MODULE DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* None */
+
+/* ======================== FUNCTIONS ====================================== */
+
+void create_available_modules(int n_modules)
+{
+        DLListItem* dllist_item = INITPTR;
+        test_module_info_s* tm_data = INITPTR;
+        char title[30];
+        int i = 0;
+
+        available_modules = dl_list_create();
+
+        for( i = 0; i < n_modules; i++ ) {
+                sprintf( title, "%s%d","module_", i+1 );
+                tm_data = tm_create( title, NULL );
+                dllist_item = tm_add( available_modules, tm_data );
+        }
+}
+
+void create_instantiated_tms_tcs_trs(int n_modules, int n_cases)
+{
+        DLListItem* dl_item_tm = INITPTR;
+        DLListItem* dl_item_tc = INITPTR;
+        DLListItem* dl_item_tr = INITPTR;
+        test_case_s *tc_data = INITPTR;
+        test_module_info_s* tm_data = INITPTR;
+        test_result_s *tr_data = INITPTR;
+        int i = 0;
+        int j = 0;
+        int n = 0;
+        char title[20];       /* 20 */
+        test_result_printout_s *string;
+
+        instantiated_modules = dl_list_create();
+
+        for( i = 0; i < n_modules; i++ ) {
+                sprintf( title, "%s%d","module_", i+1 );
+                tm_data = tm_create( title, NULL );
+                dl_item_tm = tm_add( instantiated_modules, tm_data );
+
+                available_tcs[i] = dl_list_create();
+
+                for( j = 0; j < n_cases; j++ ) {
+                        sprintf( title, "%s%d::%s%d", "module_",i+1,"tc_",j+1);
+                        tc_data = tc_create( NULL, "testcase.cfg", title );
+                        dl_item_tc = tc_add( available_tcs[i], tc_data );
+
+                        /* tr test code begins */
+                        available_tr = dl_list_create();
+                        printouts = dl_list_create();
+
+                        tr_data = tr_create_data_item( dl_item_tc );
+                        tr_data->printouts_list_ = INITPTR;
+
+                        if( j % 2 ) {
+                                tr_data->start_time_ = time( NULL );
+                                tr_data->end_time_ = time( NULL )+5;
+                                tr_data->result_type_ = TEST_RESULT_NOT_RUN;
+
+                                /* printouts stuff */
+                                for( n=0; n<5; n++ ) {
+                                        string = malloc(sizeof(test_result_printout_s*));
+                                        string->printout_ = malloc(20*sizeof(char*));
+                                        sprintf(string->printout_, "testing_%d...", n);
+                                        dl_list_add(printouts, (void*)string);
+                                }
+
+                                tr_data->printouts_list_ = printouts;
+                                printouts2 = printouts;
+                        }
+                        else if( j % 3) 
+                                tr_data->result_type_ = TEST_RESULT_FAILED;
+                        else if( j % 4) 
+                                tr_data->result_type_ = TEST_RESULT_TIMEOUT;
+                        else if( j % 5) 
+                                tr_data->result_type_ = TEST_RESULT_TIMEOUT;
+
+                        dl_item_tr = tr_add( available_tr, tr_data );
+
+                        tr_data = tr_create_data_item( dl_item_tc );
+                        tr_data->printouts_list_ = INITPTR;
+                        dl_item_tr = tr_add( available_tr, tr_data );
+
+                        tc_data->test_result_list_ = available_tr;
+                        /* tr code ends */
+                }
+
+                tm_set_tclist( dl_item_tm, available_tcs[i] );
+        }
+}
+
+void create_selected_cases()
+{
+        DLListItem* dllist_item;
+        test_module_info_s* tm_data;
+
+        selected_cases = dl_list_create();
+
+        dllist_item = dl_list_head(available_tcs[0]);
+        tc_set_status(dllist_item, TEST_CASE_ONGOING);
+        tm_data = (test_module_info_s*)dl_list_data(dllist_item);
+        dl_list_add(selected_cases, (void*)tm_data);
+
+        dllist_item = dl_list_next(dllist_item);
+        tc_set_status(dllist_item, TEST_CASE_PAUSED);
+        tm_data = (test_module_info_s*)dl_list_data(dllist_item);
+        dl_list_add(selected_cases, (void*)tm_data);
+
+        dllist_item = dl_list_next(dllist_item);
+        tc_set_status(dllist_item, TEST_CASE_ONGOING);
+        tm_data = (test_module_info_s*)dl_list_data(dllist_item);
+        dl_list_add(selected_cases, (void*)tm_data);
+
+        dllist_item = dl_list_next(dllist_item);
+        tc_set_status(dllist_item, TEST_CASE_ONGOING);
+        tm_data = (test_module_info_s*)dl_list_data(dllist_item);
+        dl_list_add(selected_cases, (void*)tm_data);
+}
+
+void* dummy_thread(void* arg)
+{
+        DLListItem* dllist_item;
+        DLListItem* dl_item_tc;
+        DLListItem* dl_item_tr;
+        DLList* dl_list_po;
+        DLList* dl_list_tr;
+        test_result_s* tr;
+        test_case_s* tc;
+        test_result_printout_s *string;
+        int n;
+
+        sleep(5);
+
+        dl_list_po = printouts2;
+
+        /* printouts stuff */
+        /*
+        for( n=0; n<10; n++ ) {
+                string = malloc(sizeof(test_result_printout_s*));
+                string->printout_ = malloc(20*sizeof(char));
+                sprintf(string->printout_, "testing_%d...", n);
+                dl_list_add(dl_list_po, (void*)string);
+                cui_refresh_view();
+                sleep(1);
+        }
+
+        sleep(5);
+        */
+/*
+        dllist_item = dl_list_head(selected_cases);
+
+        while( dllist_item != INITPTR ) {
+                dl_list_remove_it( dllist_item);
+                cui_refresh_view();
+                sleep(2);
+                dllist_item = dl_list_head(selected_cases);
+        }
+*/
+        for(;;) {
+                sleep(1);
+                cui_refresh_view();
+        }
+
+        return NULL;
+}
+
+int main(void)
+{
+        create_available_modules(100);
+        create_instantiated_tms_tcs_trs(9,9);
+        create_selected_cases();
+
+        int thread_creation_result;
+        pthread_t listener_thread;
+        long tmp = getpid();
+
+        thread_creation_result = pthread_create(
+                &listener_thread, 
+                NULL,
+                dummy_thread,
+                (void*)&tmp);
+
+        if (thread_creation_result != 0) printf("Failed to create new thread");
+
+        cui_exec();
+
+        return 0;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
+
+
+/* ================= OTHER EXPORTED FUNCTIONS ============================== */
+/* None */
+
+
+/* ================= TESTS FOR LOCAL FUNCTIONS ============================= */
+#ifdef MIN_UNIT_TEST
+#include "check.h"
+
+/* ------------------------------------------------------------------------- */
+
+int template_tests()
+{
+  int number_failed;
+
+  number_failed = 0;
+
+  return number_failed;
+}
+
+/* ------------------------------------------------------------------------- */
+
+#endif /* MIN_UNIT_TEST */
+
+/* End of file */
