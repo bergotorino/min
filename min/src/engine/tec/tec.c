@@ -680,6 +680,11 @@ int ec_exec_case (DLListIterator work_case_item)
                 STRCPY (message.desc_, "\0", MaxDescSize);
                 tc_get_cfg_filename (work_case_item, message.message_);
                 res = mq_send_message (mq_id, &message);
+		if (in->case_started) 
+			in->case_started (tm_get_module_id (work_module_item),
+					  tc_get_id (work_case_item),
+					  tm_get_pid (work_module_item));
+				      
                 break;
 
         case TEST_MODULE_BUSY:
@@ -802,6 +807,11 @@ LOCAL int ec_exec_case_temp (DLListIterator work_module_item)
         STRCPY (message.desc_, "\0", MaxDescSize);
         tc_get_cfg_filename (work_case_item, message.message_);
         mq_send_message (mq_id, &message);
+	
+	if (in->case_started) 
+		in->case_started (tm_get_module_id (work_module_item),
+				  tc_get_id (work_case_item),
+				  tm_get_pid (work_module_item));
 
         return 0;
 }
@@ -2480,6 +2490,7 @@ int ec_pause_test_case (DLListIterator work_case_item)
                 result = mq_send_message2 (mq_id, addr, MSG_PAUSE, 0, "\0");
                 if (result == 0)
                         tc_set_status (work_case_item, TEST_CASE_PAUSED);
+		if (in->case_paused) in->case_paused (addr);
                 break;
         case TEST_CASE_PAUSED:
                 result = -2;
@@ -2515,6 +2526,7 @@ int ec_resume_test_case (DLListIterator work_case_item)
                 if (result == 0) {
                         tc_set_status (work_case_item, TEST_CASE_ONGOING);
                 }
+		if (in->case_resumed) in->case_resumed (addr);
                 break;
         case TEST_CASE_ONGOING:
                 result = -2;
