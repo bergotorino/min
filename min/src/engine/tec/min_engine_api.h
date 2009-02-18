@@ -47,8 +47,10 @@
 /* ----------------------------------------------------------------------------
  * Structures
  */
+
+/** Callbacks from plugin called by Engine */
 typedef struct  {
-        void (*report_result) (long test_run_id, int result, char *desc);
+        void (*case_result) (long test_run_id, int result, char *desc);
         void (*module_prints) (unsigned module_id, unsigned case_id, 
                                char *message);
         void (*new_module) (char *modulename, unsigned module_id);
@@ -61,12 +63,14 @@ typedef struct  {
         void (*case_resumed) (long test_run_id);
 } eapiIn_t;
 
+/** Callbacks to functions from engine called by plugin */
 typedef struct {
         void (*add_test_module) (char *modulepath);
         void (*add_test_case_file) (unsigned moduleid, char *testcasefile);
         void (*start_case) (unsigned moduleid, unsigned caseid);
         void (*pause_case) (long test_run_id);
         void (*resume_case) (long test_run_id);
+        void (*abort_test) (unsigned moduleid, unsigned caseid);
         void (*fatal_error) (char *what, char *error_string);
 } eapiOut_t;
 

@@ -961,7 +961,7 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         /*dl_list_add(dl_list_data(work_result_item),results); */
         /*result data was copied. Now we need to find case from temp module in
            "selected cases" */
-	if (in->report_result) in->report_result (tm_get_pid 
+	if (in->case_result) in->case_result (tm_get_pid 
 						  (work_module_item), 
 						  tr_get_result_type
 						  (work_result_item), 
@@ -1262,7 +1262,7 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         tc_set_status (work_case_item, TEST_CASE_TERMINATED);
         group_id = tc_get_group_id (work_case_item);
 
-	if (in->report_result) in->report_result (tm_get_pid 
+	if (in->case_result) in->case_result (tm_get_pid 
 						  (work_module_item), 
 						  tr_get_result_type
 						  (work_result_item), 

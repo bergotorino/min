@@ -232,7 +232,6 @@ LOCAL DLListIterator tc_find_by_pid (DLList * list_handle, long tm_pid)
 
 void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 {
-        
         in = inp;
 
         modules = dl_list_create();        

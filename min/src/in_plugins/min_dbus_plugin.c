@@ -130,7 +130,7 @@ static void requestStatusHandler (DBusGProxy *proxy,
                                 const char *message, 
                                 gpointer userData);
 /* ------------------------------------------------------------------------- */
-static void pl_report_result (unsigned moduleid, unsigned caseid, char *desc);
+static void pl_case_result (unsigned moduleid, unsigned caseid, char *desc);
 /* ------------------------------------------------------------------------- */
 static void pl_report_case_status (unsigned moduleid,
                                 unsigned caseid,
@@ -193,7 +193,7 @@ static void handle_error(const char* msg,const char* reason,gboolean fatal)
         }
 }
 /* -------------------------------------------------------------------------- */
-static void pl_report_result (unsigned moduleid, unsigned caseid, char *desc)
+static void pl_case_result (unsigned moduleid, unsigned caseid, char *desc)
 {
         /* emit signal */
 }
@@ -260,7 +260,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         /* Binds the callbacks */
         memcpy (&min_clbk,in_callback,sizeof(eapiOut_t));
 
-        (*out_callback)->report_result            = pl_report_result;
+        (*out_callback)->case_result              = pl_case_result;
         (*out_callback)->case_started             = pl_case_started;
         (*out_callback)->case_paused              = pl_case_paused;
         (*out_callback)->case_resumed             = pl_case_resumed;
