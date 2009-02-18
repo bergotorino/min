@@ -136,6 +136,14 @@ static void pl_report_case_status (unsigned moduleid,
                                 unsigned caseid,
                                 unsigned stat);
 /* ------------------------------------------------------------------------- */
+static void pl_case_started (unsigned moduleid,
+                        unsigned caseid,
+                        long testrunid);
+/* ------------------------------------------------------------------------- */
+static void pl_case_paused (long testrunid);
+/* ------------------------------------------------------------------------- */
+static void pl_case_resumed (long testrunid);
+/* ------------------------------------------------------------------------- */
 static void pl_msg_print (unsigned moduleid, unsigned caseid, char *message);
 /* ------------------------------------------------------------------------- */
 static void pl_new_module (char *modulename, unsigned moduleid);
@@ -158,7 +166,7 @@ static void min_object_init (MinObject *obj)
 static void min_object_class_init (MinObjectClass *klass)
 {
         /* Init our class object.*/
-/*        klass->signals[0] = g_signal_new (SIGNAL_MODULE_ADDED,
+        klass->signals[0] = g_signal_new (SIGNAL_MODULE_ADDED,
                                         G_OBJECT_CLASS_TYPE(klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,NULL,NULL,
@@ -172,7 +180,7 @@ static void min_object_class_init (MinObjectClass *klass)
                                         g_cclosure_marshal_VOID__STRING,
                                         G_TYPE_NONE,3,
                                         G_TYPE_UINT,G_TYPE_UINT,G_TYPE_STRING);
-*/
+
         dbus_g_object_type_install_info (MIN_TYPE_OBJECT,
                                         &dbus_glib_min_object_object_info);
 }
@@ -190,9 +198,20 @@ static void pl_report_result (unsigned moduleid, unsigned caseid, char *desc)
         /* emit signal */
 }
 /* ------------------------------------------------------------------------- */
-static void pl_report_case_status (unsigned moduleid,
-                                unsigned caseid,
-                                unsigned stat)
+static void pl_case_started (unsigned moduleid,
+                        unsigned caseid,
+                        long testrunid)
+{
+        /* emit signal */
+}
+/* ------------------------------------------------------------------------- */
+static void pl_case_paused (long testrunid)
+{
+        /* emit signal */
+
+}
+/* ------------------------------------------------------------------------- */
+static void pl_case_resumed (long testrunid)
 {
         /* emit signal */
 
@@ -208,24 +227,24 @@ static void pl_new_module (char *modulename, unsigned moduleid)
 {
         /* emit signal */
         if (!global_obj) return;
-/*        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
         g_signal_emit (global_obj,
                         klass->signals[E_SIGNAL_MODULE_ADDED],
+                        0,
                         modulename,
                         moduleid);
-*/
 }
 /* ------------------------------------------------------------------------- */
 static void pl_no_module (char *modulename)
 {
         /* emit signal */
         if (!global_obj) return;
-/*        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
         g_signal_emit (global_obj,
                         klass->signals[E_SIGNAL_MODULE_ADDED],
+                        0,
                         modulename,
                         0);
-*/
 }
 /* -------------------------------------------------------------------------- */
 static void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
@@ -242,7 +261,9 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         memcpy (&min_clbk,in_callback,sizeof(eapiOut_t));
 
         (*out_callback)->report_result            = pl_report_result;
-        (*out_callback)->report_case_status       = pl_report_case_status;
+        (*out_callback)->case_started             = pl_case_started;
+        (*out_callback)->case_paused              = pl_case_paused;
+        (*out_callback)->case_resumed             = pl_case_resumed;
         (*out_callback)->module_prints            = pl_msg_print;
         (*out_callback)->new_module               = pl_new_module;
         (*out_callback)->no_module                = pl_no_module;
@@ -355,8 +376,8 @@ gboolean min_object_min_run_test(MinObject *obj,
                                 gint caseid)
 {
         /* Calls callback from MIN */
-        if (min_clbk.run_test) {
-                min_clbk.run_test (moduleid,caseid);
+        if (min_clbk.start_case) {
+                min_clbk.start_case (moduleid,caseid);
                 return TRUE;
         }
         return FALSE;
