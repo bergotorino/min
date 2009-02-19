@@ -250,7 +250,7 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 
 /* ================= TESTS FOR LOCAL FUNCTIONS ============================= */
 #ifdef MIN_UNIT_TEST
-#include "min_engine_api.tests"
+//#include "min_engine_api.tests"
 #endif                          /* MIN_UNIT_TEST */
 
 /* End of file */

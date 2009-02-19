@@ -26,6 +26,18 @@
  */
 
 char **envp_;
+eapiIn_t in_str;
+eapiOut_t out_str;
+
+LOCAL void setup (void)
+{
+	eapi_init (&in_str, &out_str);
+}
+
+LOCAL void teardown (void)
+{
+
+}
 
 START_TEST(initialize)
 {
@@ -106,7 +118,7 @@ START_TEST(msg_ok_handler_test)
 	instantiated_modules = dl_list_create();
         work_list = dl_list_create();
         dl_list_add(work_list,(void*)"dummycfg");
-	work_module = tm_create("dummyfile",work_list);
+	work_module = tm_create("dummyfile",work_list, 0);
         work_item = tm_add(instantiated_modules,work_module);
         tm_set_status(work_item,TEST_MODULE_INITIALIZED);
         act_pid = getpid();
@@ -137,7 +149,7 @@ START_TEST(msg_ok_handler_test_2)
         selected_cases = dl_list_create();
         work_list = dl_list_create();
         dl_list_add(work_list,(void*)"dummycfg");
-        work_module = tm_create("dummyfile",work_list);
+        work_module = tm_create("dummyfile",work_list,0);
         work_item = tm_add(instantiated_modules,work_module);
         work_case = tc_create(work_item,"dummy","dummy");
         tc_add(selected_cases,work_case);
@@ -176,7 +188,7 @@ START_TEST(msg_ko_handler_test)
         instantiated_modules = dl_list_create();
         work_list = dl_list_create();
         dl_list_add(work_list,(void*)"dummycfg");
-        work_module = tm_create("dummyfile",work_list);
+        work_module = tm_create("dummyfile",work_list,0);
         work_item = tm_add(instantiated_modules,work_module);
         act_pid = getpid();
         tm_set_pid (work_item,act_pid);
@@ -208,7 +220,7 @@ START_TEST(msg_tcd_handler_test)
         instantiated_modules = dl_list_create();
         work_list = dl_list_create();
         dl_list_add(work_list,(void*)"dummycfg");
-        work_module = tm_create("dummyfile",work_list);
+        work_module = tm_create("dummyfile",work_list,0);
         work_item = tm_add(instantiated_modules,work_module);
         act_pid = getpid();
         tm_set_pid(work_item,act_pid);
@@ -259,7 +271,7 @@ START_TEST(start_one_case)
         work_list = dl_list_create();
         results = dl_list_create();
         dl_list_add(work_list,(void*)"dummycfg");
-        work_module = tm_create("dummyfile",work_list);
+        work_module = tm_create("dummyfile",work_list,0);
         work_module_item = tm_add(instantiated_modules,work_module);
         tm_set_status(work_module_item,TEST_MODULE_READY);
         act_pid = getpid();
@@ -296,7 +308,7 @@ START_TEST(msg_ret_handling_test)
         selected_cases = dl_list_create();
         work_list = dl_list_create();
         dl_list_add(work_list,(void*)"dummycfg");
-        work_module = tm_create("dummyfile",work_list);
+        work_module = tm_create("dummyfile",work_list,0);
         work_module_item = tm_add(instantiated_modules,work_module);
         act_pid = getpid();
         tm_set_pid(work_module_item,act_pid);
@@ -339,7 +351,7 @@ START_TEST(msg_usr_handler_test)
         selected_cases = dl_list_create();
         work_list = dl_list_create();
         dl_list_add(work_list,(void*)"dummycfg");
-        work_module = tm_create("dummyfile",work_list);
+        work_module = tm_create("dummyfile",work_list,0);
         work_module_item = tm_add(instantiated_modules,work_module);
         act_pid = getpid();
         tm_set_pid(work_module_item,act_pid);
@@ -388,7 +400,7 @@ START_TEST(pause_case_test)
         work_list = dl_list_create();
         results = dl_list_create();
         dl_list_add(work_list,(void*)"dummycfg");
-        work_module = tm_create("dummyfile",work_list);
+        work_module = tm_create("dummyfile",work_list,0);
         work_module_item = tm_add(instantiated_modules,work_module);
         act_pid = getpid();
         tm_set_pid(work_module_item,act_pid);
@@ -424,7 +436,7 @@ START_TEST(resume_case_test)
         work_list = dl_list_create();
         results = dl_list_create();
         dl_list_add(work_list,(void*)"dummycfg");
-        work_module = tm_create("dummyfile",work_list);
+        work_module = tm_create("dummyfile",work_list,0);
         work_module_item = tm_add(instantiated_modules,work_module);
         act_pid = getpid();
         tm_set_pid(work_module_item,act_pid);
@@ -454,7 +466,7 @@ START_TEST(remove_temp_module)
         long act_pid = getpid();
         mq_id = mq_open_queue('q');
         MsgBuffer message;
-        test_module_info_s* temp_module = tm_create("fname",empty_list);
+        test_module_info_s* temp_module = tm_create("fname",empty_list,0);
         DLListIterator work_module_item = tm_add(instantiated_modules,temp_module);
         tm_set_pid(work_module_item,act_pid);
         ec_remove_module_temp(work_module_item);
@@ -487,8 +499,8 @@ START_TEST(paralllel_exe)
         DLListIterator work_module_item_2;
         test_case_s* case_1;
         test_case_s* case_2;
-        module_1 = tm_create("fname",empty_list);
-        module_2 = tm_create("fname2",empty_list);
+        module_1 = tm_create("fname",empty_list,0);
+        module_2 = tm_create("fname2",empty_list,0);
         work_module_item_1 = tm_add(instantiated_modules,module_1);
         work_module_item_2 = tm_add(instantiated_modules,module_2);
         tm_set_pid(work_module_item_1,act_pid);
@@ -539,8 +551,8 @@ START_TEST(sequence_exe)
         DLListIterator work_module_item_2;
         test_case_s* case_1;
         test_case_s* case_2;
-        module_1 = tm_create("fname",empty_list);
-        module_2 = tm_create("fname2",empty_list);
+        module_1 = tm_create("fname",empty_list,0);
+        module_2 = tm_create("fname2",empty_list,0);
         work_module_item_1 = tm_add(instantiated_modules,module_1);
         work_module_item_2 = tm_add(instantiated_modules,module_2);
         tm_set_pid(work_module_item_1,act_pid);
@@ -583,7 +595,7 @@ START_TEST(case_selection)
         test_module_info_s* module_1;
         DLListIterator work_module_item_1;
         test_case_s* case_1;
-        module_1 = tm_create("fname",empty_list);
+        module_1 = tm_create("fname",empty_list,0);
         work_module_item_1 = tm_add(instantiated_modules,module_1);
         tm_set_pid(work_module_item_1,act_pid);
         tm_set_status(work_module_item_1,TEST_MODULE_READY);
@@ -612,7 +624,7 @@ START_TEST(groupid_check)
         work_list = dl_list_create();
         results = dl_list_create();
         dl_list_add(work_list,(void*)"dummycfg");
-        work_module = tm_create("dummyfile",work_list);
+        work_module = tm_create("dummyfile",work_list,0);
         work_module_item = tm_add(instantiated_modules,work_module);
         tm_set_status(work_module_item,TEST_MODULE_READY);
         act_pid = getpid();
@@ -639,7 +651,7 @@ START_TEST(write_set_test)
 {
         DLList* cfg_list = dl_list_create();
         DLList* case_list = dl_list_create();
-        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list);
+        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list,0);
         char* set_path;
         DLListIterator work_module_item;
         test_case_s* test_case_1;
@@ -674,7 +686,7 @@ START_TEST(read_set_test)
         DLList* case_list = dl_list_create();
         DLList* setcases = dl_list_create();
         char* set_path;
-        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list);
+        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list,0);
         DLListIterator work_module_item;
         test_case_s* test_case_1;
         test_case_s* test_case_2;
@@ -706,7 +718,7 @@ START_TEST(seq_set_exec)
         long act_pid = getpid();
         selected_cases = dl_list_create();
         instantiated_modules = dl_list_create();
-        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list);
+        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list,0);
         DLListIterator work_module_item;
         test_case_s* test_case_1;
         test_case_s* test_case_2;
@@ -753,7 +765,7 @@ START_TEST(par_set_exec)
         long act_pid = getpid();
         selected_cases = dl_list_create();
         instantiated_modules = dl_list_create();
-        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list);
+        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list,0);
         DLListIterator work_module_item;
         test_case_s* test_case_1;
         test_case_s* test_case_2;
@@ -797,7 +809,7 @@ START_TEST(add_module)
         int result = 0;
         ec_min_init(NULL,NULL,NULL,envp_,0);
         
-        ec_add_module("minDemoModule",empty_list);
+        ec_add_module("minDemoModule",empty_list,0);
         usleep(5000);
         result = dl_list_size(instantiated_modules);
         fail_unless(result != 1,"Module not added");
@@ -810,7 +822,7 @@ START_TEST(add_module_full_path)
         int result = 0;
         ec_min_init(NULL,NULL,NULL,envp_,0);
         
-        ec_add_module("/usr/lib/min/minDemoModule.so",empty_list);
+        ec_add_module("/usr/lib/min/minDemoModule.so",empty_list,0);
         usleep(5000);
         result = dl_list_size(instantiated_modules);
         fail_unless(result != 1,"Module not added");
@@ -884,6 +896,8 @@ Suite* tec_suite()
 
         /* Set new timeout limit */
         tcase_set_timeout ( tc_core , 10 );
+
+	tcase_add_checked_fixture (tc_core, setup, teardown);
 
         /*Add test cases*/
         tcase_add_test(tc_core,initialize);

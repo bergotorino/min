@@ -59,7 +59,6 @@ extern DLList  *defines;
 /** list of allocated slaves. Used during the validation process. */
 static LegoBasicType *current = INITPTR;
 /** used for validation of stopping interference */
-DLList         *interf_objs = INITPTR;
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
 /* None */
@@ -177,12 +176,14 @@ LOCAL int       check_sleep_line (MinItemParser * line, int line_number);
 /** Checks validity of line with "testinterference" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
+ *  @param interf_objs list of interference objects
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
 LOCAL int       check_interference_line (MinItemParser * line,
-                                         int line_number);
+                                         int line_number,
+					 DLList * interf_objs);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "expect" keyword 
  *  @param line [in] MinItemParser containing line.
@@ -896,7 +897,8 @@ LOCAL int check_timeout_line (MinItemParser * line, int line_number)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL int check_interference_line (MinItemParser * line, int line_number)
+LOCAL int check_interference_line (MinItemParser * line, int line_number,
+				   DLList * interf_objs)
 {
         int             retval = ENOERR;
         char           *name = INITPTR;
@@ -1205,6 +1207,7 @@ char           *validate_test_case (MinSectionParser * testcase)
         DLListIterator  call_item = INITPTR;
         DLListIterator  tc_item = INITPTR;
 	DLList         *slaves;
+	DLList         *interf_objs = INITPTR;
         TestCaseInfo   *tc;
         char           *tc_title = NULL;
         DLList         *testclasses = dl_list_create ();
@@ -1759,7 +1762,8 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordInterference:
                         check_result =
-                            check_interference_line (line, line_number);
+				check_interference_line (line, line_number,
+							 interf_objs);
                         if (check_result != ENOERR) {
                                 MIN_ERROR ("Test Interference Fault");
                                 DELETE (tc_title);

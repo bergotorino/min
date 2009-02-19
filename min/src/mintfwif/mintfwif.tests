@@ -28,6 +28,7 @@
 #include <check.h>
 #include <mintfwif.h>
 #include <tec.h>
+#include <min_engine_api.h>
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -39,7 +40,8 @@
 
 /* ------------------------------------------------------------------------- */
 /* DATA TYPES */
-/* None */
+eapiIn_t in_str;
+eapiOut_t out_str;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
@@ -67,6 +69,16 @@ LOCAL void emptycallback2 (int run_id, char *text)
 LOCAL void emptycallback3(char* text,int len)
 {
         return;
+}
+
+void setup (void)
+{
+	eapi_init (&in_str, &out_str);
+}
+
+void teardown (void)
+{
+
 }
 
 /* ------------------------------------------------------------------------- */
@@ -775,6 +787,7 @@ Suite* mintfwif_suite()
 
         /* Core test case */
         TCase *tc_core = tcase_create ("Core");
+	tcase_add_checked_fixture (tc_core, setup, teardown);
 
         tcase_add_test ( tc_core, open_success );
         tcase_add_test ( tc_core, close_success );
@@ -812,6 +825,7 @@ int mintfwif_tests(char *envp[])
         number_failed = 0;
         s  = mintfwif_suite ();
         sr = srunner_create (s);
+	
   //      srunner_set_fork_status (sr,CK_NOFORK);
         srunner_run_all(sr, CK_NORMAL);
         number_failed = srunner_ntests_failed(sr);

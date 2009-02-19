@@ -100,13 +100,13 @@ START_TEST(test_module_info_add_to_list)
     
     TOO_LONG_FILENAME[MaxFileName + 30] = '\0';
     
-    tm_data = tm_create(TOO_LONG_FILENAME, INITPTR);
+    tm_data = tm_create(TOO_LONG_FILENAME, INITPTR,0);
     fail_unless(tm_data == INITPTR,
                 "failed to check too long filename string");
 
     dllist = dl_list_create();
     fail_unless (dllist != INITPTR, "failed to create linked list");
-    tm_data = tm_create("test_module1.dat", INITPTR);
+    tm_data = tm_create("test_module1.dat", INITPTR,0);
     fail_unless (tm_data != INITPTR,
                  "failed to create Test Module Info data item");
     
@@ -129,7 +129,7 @@ START_TEST(test_module_info_set_pid)
     dllist = dl_list_create();
     fail_unless (dllist != INITPTR, "failed to create list");
     
-    tm_data = tm_create("test_module1.dat", INITPTR);
+    tm_data = tm_create("test_module1.dat", INITPTR,0);
     fail_unless (tm_data != INITPTR,
                  "failed to create Test Module Info data item");
     
@@ -160,7 +160,7 @@ START_TEST(test_module_info_remove_from_list)
     fail_unless (tm_list != INITPTR, "failed to create list");
     
     for (i=0; i<5; i++) {
-        test_module[i] = tm_create("test_module.dat", INITPTR);
+	    test_module[i] = tm_create("test_module.dat", INITPTR,0);
         fail_unless(test_module[i] != INITPTR,
                     "failed to create Test Module Info data item");
                 
@@ -217,7 +217,7 @@ START_TEST(test_module_info_delete_data)
             "failed to add config filename string to list");
     }
         
-    test_module = tm_create("test_module.dat", cfg_filename_list);
+    test_module = tm_create("test_module.dat", cfg_filename_list,0);
     fail_unless(test_module != INITPTR,
                 "failed to create Test Module Info data item");
     
@@ -260,7 +260,7 @@ START_TEST(test_module_info_set_and_get_cfg_filename_list)
     dllist = dl_list_create();
     fail_unless(dllist != INITPTR, "failed to create list");
     
-    tm_data = tm_create("test_module1.dat", INITPTR);
+    tm_data = tm_create("test_module1.dat", INITPTR,0);
     fail_unless(tm_data != INITPTR,
                 "failed to create Test Module Info data item");
     
@@ -298,7 +298,7 @@ START_TEST(test_module_info_get_ptr_by_pid)
     fail_unless(tm_list != INITPTR, "failed to create list");
     
     for (i = 0; i<10; i++) {
-        test_module[i] = tm_create("test_module.dat", INITPTR);    
+	    test_module[i] = tm_create("test_module.dat", INITPTR,0);    
         fail_unless(test_module[i] != INITPTR,
                     "failed to create Test Module Info data item");
         
@@ -341,7 +341,7 @@ START_TEST(test_module_info_set_and_get_module_filename)
     dllist = dl_list_create();
     fail_unless(dllist != INITPTR, "failed to create list");
     
-    tm_data = tm_create(TEST_FILENAME, INITPTR);
+    tm_data = tm_create(TEST_FILENAME, INITPTR,0);
     fail_unless(tm_data != INITPTR,
                 "failed to create Test Module Info data item");
     
@@ -388,7 +388,7 @@ START_TEST(test_module_info_ts_detail_expections)
     fail_unless(count == -1,
                 "failed to check Test Module Info data NULL pointer");
                 
-    test_module = tm_create(TEST_MODULE_FILENAME, INITPTR);
+    test_module = tm_create(TEST_MODULE_FILENAME, INITPTR,0);
     fail_unless(test_module != NULL,
                 "failed to create Test Module Info data item");
     
@@ -417,7 +417,7 @@ START_TEST(test_module_info_get_and_set_ts_details)
     tm_list = dl_list_create();
     fail_unless(tm_list != INITPTR, "failed to create list");
                     
-    test_module = tm_create(TEST_MODULE_FILENAME, INITPTR);
+    test_module = tm_create(TEST_MODULE_FILENAME, INITPTR,0);
     fail_unless(test_module != INITPTR,
                 "failed to create Test Module Info data item");
     
@@ -470,7 +470,7 @@ START_TEST(test_module_info_set_and_get_tclist)
     tm_list = dl_list_create();
     fail_unless(tm_list != INITPTR, "failed to create list");
                     
-    test_module = tm_create("TEST_MODULE.DAT", INITPTR);
+    test_module = tm_create("TEST_MODULE.DAT", INITPTR,0);
     fail_unless(test_module != INITPTR,
                 "failed to create Test Module Info data item");
     
@@ -523,7 +523,7 @@ START_TEST(test_module_info_set_and_get_status)
     fail_unless(result == -1,
         "failed to use INITPTR Test Module Info data with status value");
     
-    tm_data = tm_create("TEST_MODULE.DAT", INITPTR);
+    tm_data = tm_create("TEST_MODULE.DAT", INITPTR,0);
     fail_unless(tm_data != INITPTR,
                 "failed to create Test Module Info data item");
     
@@ -584,7 +584,7 @@ START_TEST(test_module_info_get_test_summary_data)
     fail_unless(dl_list_data(tm_data_item) == INITPTR,
                 "failed to add INITPTR Test Module Info data item");
 
-    test_module = tm_create("TEST_MODULE.DAT", INITPTR);
+    test_module = tm_create("TEST_MODULE.DAT", INITPTR,0);
     fail_unless(test_module != INITPTR,
         "failed to create Test Module Info data");
 
@@ -1001,7 +1001,7 @@ START_TEST(test_case_set_and_get_test_module_ptr)
     tm_list = dl_list_create();
     fail_unless(tm_list != INITPTR, "failed to create list");
   
-    test_module = tm_create("TEST_MODULE.DAT", INITPTR);
+    test_module = tm_create("TEST_MODULE.DAT", INITPTR,0);
     fail_unless(test_module != INITPTR,
                 "failed to create Test Module data structure");
     
