@@ -1,0 +1,6 @@
+The purpose of MIN Logger is to get information from the modules in order to write different log files or to send information to another data store via, for example, Bluetooth. By offering a common logger in MIN, logging can be controlled. 
+
+Test modules can also use their own logging mechanisms, but it is preferred that the new test code use MIN Logger.
+
+For more information about MIN Logger, see @ref{Using MIN Logger for logging purposes,,,min-reference,MIN Reference Guide}.
+

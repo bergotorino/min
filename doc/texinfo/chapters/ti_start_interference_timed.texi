@@ -1,0 +1,14 @@
+If there is need to make more complicated interference scenario (for example, to mimic "normal" device usage to some extent), @code{ti_start_interference_timed} function might be used. This causes generated disturbance to start and stop in specified time intervals, until stopped permanently. Function has the following prototype:
+@example
+testInterference *ti_start_interference_timed (TInterferenceType aType,
+                                               int aIdleTime,
+                                               int aBusyTime,
+                                               int aLoadValue
+                                              );
+@end example
+And should be used in the following way:
+@example
+testInterference* disturbance;
+disturbance = ti_start_interference_timed(EMemLoad,10000,10000,99);
+@end example
+This will cause interference process to take 99 megabytes of memory for 10000 milliseconds(10 seconds), then release it for 10 seconds, and repeat cycle until interference is stopped. @code{aIdleTime} argument specifies the time during which interference process is stopped. @code{aBusyTime} holds amount of time the interference is actually causing the disturbance. Both time values are specified in milliseconds. Return value of function follows the same rules as @code{ti_start_interference}.

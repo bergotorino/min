@@ -1,0 +1,3 @@
+MIN Text interface is designed to be used, to handle C strings allocated on the heap, without worrying about the amount of memory needed to be allocated. Text interface can grow or shrink automatically.
+
+MIN Text interface is always allocated on the heap by using tx_create method. It is required by the end user to free all allocated resource by calling tx_destroy on it.

@@ -1,0 +1,6 @@
+MIN Event System enables synchronization between the test cases/modules through convenient interface. The MIN Event System has two types of events: state events and indication events. State events are used to indicate that some state is active / inactive. Test process can set and unset a state event. Indication events are used to indicate that some event happened; an indication event can only be set.
+
+MIN Event System can be used to synchronize test case execution. The high-level part of MIN Event System is implemented inside Test Engine and the low-level part inside Test Module Controller.
+
+For more information about MIN Event System, see @ref{Using MIN Event System for test cases synchronization,,,min-reference,MIN Reference Guide}.
+

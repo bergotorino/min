@@ -1,0 +1,4 @@
+The @code{title} keyword is used to give a verbal description for a test case. The description is placed after the keyword. The @code{title} keyword is mandatory for every test case and must be placed as the first keyword in the test case description (@ref{Test Scripter test case file}). For example:
+@example
+title Create, print, run example and delete
+@end example

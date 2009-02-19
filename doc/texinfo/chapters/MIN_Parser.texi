@@ -1,0 +1,4 @@
+MIN Parser can be used when there is a need to parse a test module's test case files or a test module's initialization files. By providing a common parser in MIN, it can obtain better control of the test case behavior. For more information on MIN Parser, see 
+@ref{Using MIN Parser for test data parsing,,,min-reference,MIN Reference Guide}.
+
+

@@ -1,0 +1,12 @@
+The @code{release} keyword is used to release an event. Every requested event must be released explicitly when it is not used anymore. @code{release} has one mandatory argument, which is described below.
+
+@table @b
+@item Argument
+@item Event
+The event name.
+@end table
+The release keyword can be used, for example, in the following way:
+@example
+release Event1
+@end example
+

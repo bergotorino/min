@@ -1,0 +1,28 @@
+A new test class can be easily created with MIN Test Module Template Wizard that comes with the MIN release
+
+@code{$ createtestmodule}
+
+@itemize @minus
+@item Give testclass as ModuleType
+@item Enter a name and path for the test class
+@end itemize
+A new test class is now created with the given name to the given path. The next step is to create the building block methods to the test class.
+
+To create the building block methods to the test class:
+@enumerate
+@item Implement the building blocks to @code{/<testclassname>/src/<testclassname>Cases.c} file (there is one example method, @code{ExampleTest}, that can be copy-pasted).
+@item Add entry for every method to function ts_get_test_cases (@code{<testclassname>Cases.c}):
+
+@code{ENTRY(*list,"Example",ExampleTest);}
+@item Add entry lines for every method to FORWARD DECLARATIONS:
+
+@code{LOCAL int ExampleTest( MinItemParser* item );}
+@item Build the test class from the @code{/<testclassname>/group} directory by using @code{build.sh} script. It will automatically copy test class library to @code{/home/<user name>/.min}.
+
+Now the test class is created. The next step is to implement test cases to test the test case file used by Test Scripter. An example test case file can be found in @code{/<testclassname>/group/Example.CFG}. The test case file is constructed using the script language defined in this document.
+
+Copy the test case file to @code{/home/<user name>/.min/}
+
+Now you should be able to execute your test class module by using console UI or EXT INTERFACE.
+
+@end enumerate

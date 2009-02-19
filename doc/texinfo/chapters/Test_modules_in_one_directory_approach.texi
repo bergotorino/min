@@ -1,0 +1,19 @@
+If there are many test suites to be added to the build, creating them individually with Test Module Template Wizard may be undesired, since each module is generated to own directory, and contains files that could be shared between the modules.  For MINUnit a new way of creating test modules is introduced. MIN now installs from the folder @code{min/shared} a file (@code{minunit.c}), which can be used by all MINUnit modules, so that the file is compiled with a pre-processor flag stating the file containing the test cases. Example shows @code{Makefile.am} for two test modules used in this fashion.
+
+@example
+check_PROGRAMS = testmodulea.so testmoduleb.so
+TESTS = $(check_PROGRAMS)
+TESTS_ENVIRONMENT = min --console --execute
+
+testmodulea_so_CFLAGS = -DCASES_FILE='"a_testCases.c"'
+testmodulea_so_LDFLAGS = -shared 
+testmodulea_so_SOURCES = ../shared/minunit.c 
+testmodulea_so_LDADD =  -lminutils -lmintmapi -lminevent
+
+testmoduleb_so_CFLAGS = -DCASES_FILE='"b_testCases.c"'
+testmoduleb_so_LDFLAGS = -shared 
+testmoduleb_so_SOURCES = ../shared/minunit.c b_test_utils.c
+testmoduleb_so_LDADD =  -lminutils -lmintmapi -lminevent
+@end example
+
+MIN package contains unit tests, that can be executed to verify operation of MIN components, by executing command make check in directory @code{min/} after MIN has been built and installed. The traditional CHECK tests are in directory @code{min/tests}, and tests that are using MIN tool itself can be found from @code{min/mintests}.

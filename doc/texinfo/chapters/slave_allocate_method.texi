@@ -1,0 +1,11 @@
+The @code{slave_allocate} functionality allocates slave device which is needed for remote test case execution. As parameters it takes slave type and slave name. It returns a handle to the slave which is then used for calling methods on slave.
+
+Available slave types are: SlaveTypePhone and SlaveTypeTablet
+
+Example:
+@example
+function case_function() - slave_allocate example
+	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
+end
+@end example
+Note that the allocated slave must be freed.

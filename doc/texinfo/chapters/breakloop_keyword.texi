@@ -1,0 +1,12 @@
+The @code{breakloop} keyword is used to prematurely exit the current loop.
+The @code{breakloop} keyword can be used, for example, in the following way:
+@example
+loop 5
+var exitcond
+someclass somemethod someparam
+if exitcond
+    breakloop
+endif
+endloop
+@end example
+

@@ -1,0 +1,19 @@
+This chapter contains the MIN Logger API description for guidance on how to use MIN Logger for logging purposes.
+
+The purpose of MIN Logger is to get information from the modules in order to write different log files or to send information via Linux Syslog system to standard log output file. Logging to Null Output is also available from MIN Logger.
+
+Figure below shows the basic architecture of MIN Logger and how it is involved in MIN. MIN Engine uses MIN Logger for Test Module Controller and Test Module logs. MIN Logger can be used when logging from test modules.
+
+@ifinfo
+@image{images/minlogger1,8cm,,MIN Logger,txt}
+@end ifinfo
+@ifplaintext
+@image{images/minlogger1,8cm,,MIN Logger,txt}
+@end ifplaintext
+@ifhtml
+@image{images/minlogger1,8cm,,MIN Logger,png}
+@end ifhtml
+@iftex
+@image{images/minlogger1,8cm,,MIN Logger,png}
+@end iftex
+

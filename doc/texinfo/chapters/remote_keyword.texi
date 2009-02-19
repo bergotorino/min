@@ -1,0 +1,28 @@
+The @code{remote} keyword is used to start the execution of a test case in a slave, to request and release events from the slave and sending a variable value to a slave or expecting a variable value from a slave. Other test case controlling for remote test cases is done with the same keywords as for the local test cases.
+
+The @code{remote} keyword has two mandatory arguments, described below.
+@table @b
+@item Argument
+@item Slave name
+The slave name, the same that was given for allocate.
+@item Command name
+The remote command name (supported: @code{run}, @code{request}, @code{wait}, @code{set}, @code{unset}, @code{release}, @code{expect}, @code{sendreceive}).
+@end table
+The @code{remote} keyword can be used for example in the following ways:
+@example
+remote MySlave run netmodule net.cfg 5 
+remote MySlave request Event1
+remote MySlave wait Event1
+remote MySlave set Event1
+remote MySlave unset Event1
+remote MySlave release Event1
+remote MySlave expect variable1
+remote MySlave sendreceive variable1=/tmp/file.txt
+@end example
+
+The @code{remote} keyword with sendreceive command is used in the master script for sending a variable value to one of the slaves identified by slave name. This remote command supports the same parameters as @code{sendreceive} keyword. @xref{sendreceive keyword} .
+
+The @code{remote} keyword with expect command is used in master script for expecting a variable value from one of the slaves identified by slave name. This remote command supports the same parameters as the @code{expect} keyword. @xref{expect keyword} .
+
+The other supported remote commands are @code{run}, @code{request}, @code{release}, @code{set}, @code{unset} and @code{wait}. They support the same parameters as the same keywords described in @ref{run keyword}, @ref{request keyword} and @ref{release keyword}.
+

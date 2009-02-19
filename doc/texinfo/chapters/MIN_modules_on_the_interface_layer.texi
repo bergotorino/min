@@ -1,0 +1,14 @@
+Currently, three interfaces are supported in MIN:
+@itemize @bullet
+@item MIN Console UI
+@item MIN Command line interface (limited)
+@item MIN EXT interface
+@end itemize
+
+The UI is used to start the test case execution. The UI can also show information about the test case progress to the user.
+
+The interface modules have access to the engine functionality. There exists several asynchronous functions in Test Engine, and therefore the user interface has to handle several ongoing asynchronous requests. 
+
+The MIN Console UI is used to manually start the test case execution.
+
+The command line interface can be used, for example, to execute all the test cases of all configured test module(s). 

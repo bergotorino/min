@@ -1,0 +1,11 @@
+The @code{canceliferror} keyword is used to cancel the execution of the remaining test cases if one of the executed test cases has failed. This keyword is normally used to stop the test case execution when some of the test cases are long running.
+
+The example below shows how this keyword can be used. The first test case fails and the ongoing execution of the second test case is cancelled.
+@example
+[Test]
+title Simple test case with canceliferror keyword
+canceliferror
+run testmodule1 myConfig.cfg 1 // test case fails 
+run testmodule2 mySecondConfig.cfg 2 // long running test case
+[Endtest] 		
+@end example

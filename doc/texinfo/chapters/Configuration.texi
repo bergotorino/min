@@ -1,0 +1,10 @@
+To use python scripted test cases, user needs to configure python interpreter module like any other module, by appropriate entries in MIN configuration files, like in the following example (name of test case file is an example of course):
+@example
+[New_Module]
+ModuleName = pythonscripter
+TestCaseFile = pythonscript.py
+[End_Module] 
+@end example
+Python scripter module reads script given as test case file, and uses functions with names starting with "case_" as test cases. More information on syntax of test case file will be given later. Then, python module is used as any other test module of MIN.
+
+It should be noted, that during the execution, min modifies PYTHONPATH by appending definition of directories used to store files necessary for min python module. Appended directories are defined in min configuration file, in "ModSearchPath" entries. Variable is restored to  original value after closing MIN. 

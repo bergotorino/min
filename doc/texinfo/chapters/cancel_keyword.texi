@@ -1,0 +1,11 @@
+The @code{cancel} keyword is used to cancel a started test case. The test case is cancelled by immediately killing the thread that executes the test case. The @code{cancel} keyword has one mandatory argument as described below.
+@table @b
+@item Argument
+@item testid
+The test ID from the run command.
+@end table
+The cancel keyword can be used, for example, in the following way:
+@example
+cancel test1
+@end example
+

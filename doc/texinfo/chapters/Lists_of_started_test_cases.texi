@@ -1,0 +1,2 @@
+The Case menu offers a list of @b{Ongoing cases}, @b{Executed cases}, @b{Passed cases}, @b{Failed cases} and @b{Aborted/Crashed} cases. When selecting one of these, a list of the cases is shown on the display. The list is updated whenever the test case status is changed. For example, when a case is finished, it is moved from the Ongoing cases list to either the list of passed or failed cases, depending on the result of the test case.
+

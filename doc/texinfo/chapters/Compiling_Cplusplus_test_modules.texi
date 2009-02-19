@@ -1,0 +1,1 @@
+It is possible to use C++ inside MIN test modules. Currently (since version 2009w04) Test Module Template Wizard has limited support for C++, some manual changes are required from the user for C++ code to compile. The support in Test Module Template wizard can be improved if required.

@@ -1,0 +1,5 @@
+The MIN Console UI application can be used to create a test set containing a set of test cases that can be run either sequentially or in parallel. MIN Console UI supports one test set at a time, but a different test set can be loaded via @b{Load test set} menu, which specifies the test set name.
+
+Test set controlling is handled from the @b{Test set} menu that can be found from the main menu of MIN Console UI. The @b{Test set} menu provides the possibility to create or load a test set, or to control a test set (add/remove test cases, save, remove or execute test set).
+
+The saved test name is created using time stamp date and time for example @code{2008-1-23,14:52.set}. The default path for test sets is @code{/home/<username>/.min}. This is the location to which test sets are saved and from which they are loaded.

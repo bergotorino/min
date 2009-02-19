@@ -1,0 +1,9 @@
+Function used to stop and destroy previously created @code{testInterference}. Function has the following prototype:
+@example
+void ti_stop_interference(testInterference* aInterference);
+@end example
+and can be used in the following way:
+@example
+ti_stop_interference(disturbance);
+@end example
+@code{aInterference} argument is a pointer to @code{testInterference} structure, and after function returns, it will be set to @code{NULL}. Interference process will be killed. Memory taken for test interference data will be freed.

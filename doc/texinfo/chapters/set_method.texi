@@ -1,0 +1,16 @@
+The @code{set} functionality is used to set an event. As a parameter it takes the name of the event to be set and as an optional second parameter the event type which can be StateEvent or IndicationEvent. By default the type is IndicationEvent.
+
+Examples:
+@example
+function case_function() -- set example indication event
+	min.set("Event1");
+end
+
+function case_function() -- set example state event 2
+	min.set("Event1",StateEvent);
+end
+
+function case_function() -- set example indication event
+	min.set("Event1",IndicationEvent);
+end
+@end example

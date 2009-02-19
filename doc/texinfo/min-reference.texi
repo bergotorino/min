@@ -1,0 +1,955 @@
+\input texinfo  @c -*-texinfo-*-
+@c %**start of header (This is for running texinfo on a region.)
+@setfilename min-reference.info
+@settitle MIN Test Framework Reference Guide
+@c %**end of header (This is for running texinfo on a region.)
+
+@ignore
+@ifinfo
+@format
+START-INFO-DIR-ENTRY
+* MIN: (min-reference.info). MIN Test Framework for Lunux/Maemo.
+END-INFO-DIR-ENTRY
+@end format
+@end ifinfo
+@end ignore
+
+@set document_version 1.2
+@set document_title MIN Test Framework
+@set document_full_title MIN Test Framework Reference Guide
+@set document_author MIN Development Team
+@set application_full_name MIN Test Framework
+@set module_wizard_command createtestmodule
+@set application_command min
+@set copyright_owner Nokia
+@set copyright_date 2008
+
+
+@ifinfo
+This file documents @value{application_full_name}
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts and no Back-Cover Texts.  A copy of the license is included in the section entitled "GNU Free Documentation License".
+
+@end ifinfo
+
+@titlepage
+@title @value{document_title}
+@subtitle @value{document_full_title}
+@author @value{document_author}
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+@sp 2
+Document Version @value{document_version}
+@sp 2
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts and no Back-Cover Texts.  A copy of the license is included in the section entitled "GNU Free Documentation License".
+@end titlepage
+
+@ifinfo
+@node Top, Document Version, (dir), (dir)
+@top General Introduction
+This file documents @value{application_full_name}
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+Document Version @value{document_version}
+@end ifinfo
+
+@ifhtml
+@node Top, Document Version, (dir), (dir)
+@top General Introduction
+This file documents @value{application_full_name}
+@sp 2
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+@sp 2
+Document Version @value{document_version}
+@end ifhtml
+
+
+@menu
+
+* Top: Top.
+* Document Version: Document Version.
+* Document control: Document control.
+* Documentation conventions: Documentation conventions.
+* Abbreviations: Abbreviations.
+* Definitions: Definitions.
+* Using MIN for test cases implementation: Using MIN for test cases implementation.
+* Test Module API: Test Module API.
+* tm_get_test_cases: tm_get_test_cases.
+* tm_run_test_case: tm_run_test_case.
+* tm_initialize: tm_initialize.
+* tm_finalize: tm_finalize.
+* Test Module API features: Test Module API features.
+* tm_printf: tm_printf.
+* Creating test module templates: Creating test module templates.
+* Implementing test cases for a Hardcoded test module: Implementing test cases for a Hardcoded test module.
+* Implementing test cases for a normal test module: Implementing test cases for a normal test module.
+* Implementing test cases for a MINUnit test module: Implementing test cases for a MINUnit test module.
+* Integrating MIN tests to build environment: Integrating MIN tests to build environment.
+* Support in Test Module Template Wizard: Support in Test Module Template Wizard.
+* Test modules in one directory approach: Test modules in one directory approach.
+* Using MIN Parser for test data parsing: Using MIN Parser for test data parsing.
+* MIN Parser API: MIN Parser API.
+* MinParser: MinParser.
+* MinSectionParser: MinSectionParser.
+* MinItemParser: MinItemParser.
+* Using Test Scripter for creating scripted test cases: Using Test Scripter for creating scripted test cases.
+* Test Scripter test case file: Test Scripter test case file.
+* Setting up the Scripter: Setting up the Scripter.
+* Creating a test class: Creating a test class.
+* Accessing script variables from test class: Accessing script variables from test class.
+* Scripter internal variables: Scripter internal variables.
+* General keywords: General keywords.
+* title keyword: title keyword.
+* timeout keyword: timeout keyword.
+* print keyword: print keyword.
+* var keyword: var keyword.
+* Test Case control: Test Case control.
+* createx keyword: createx keyword.
+* delete keyword: delete keyword.
+* allownextresult keyword: allownextresult keyword.
+* allowerrorcodes keyword: allowerrorcodes keyword.
+* sleep keyword: sleep keyword.
+* pausecombiner keyword: pausecombiner keyword.
+* run keyword: run keyword.
+* cancel keyword: cancel keyword.
+* pause keyword: pause keyword.
+* resume keyword: resume keyword.
+* complete keyword: complete keyword.
+* loop keyword: loop keyword.
+* breakloop keyword: breakloop keyword.
+* endloop keyword: endloop keyword.
+* if else and endif keywords: if else and endif keywords.
+* Object name: Object name.
+* Event control: Event control.
+* request keyword: request keyword.
+* wait keyword: wait keyword.
+* release keyword: release keyword.
+* set keyword: set keyword.
+* unset keyword: unset keyword.
+* Remote test case control: Remote test case control.
+* allocate keyword: allocate keyword.
+* free keyword: free keyword.
+* var keyword: var keyword.
+* sendreceive keyword: sendreceive keyword.
+* expect keyword: expect keyword.
+* remote keyword: remote keyword.
+* Using LuaScripter for creating scripted test cases: Using LuaScripter for creating scripted test cases.
+* Overview of Lua scripting language: Overview of Lua scripting language.
+* Lua Scripter test case file: Lua Scripter test case file.
+* Setting up the Lua Scripter: Setting up the Lua Scripter.
+* Lua test class: Lua test class.
+* General: General.
+* Test case result: Test case result.
+* Test case result description: Test case result description.
+* Test case title: Test case title.
+* Calling test functions in test cases: Calling test functions in test cases.
+* MIN2Lua API: MIN2Lua API.
+* print method: print method.
+* load method: load method.
+* unload method: unload method.
+* sleep method: sleep method.
+* request method: request method.
+* release method: release method.
+* set method: set method.
+* unset method: unset method.
+* wait method: wait method.
+* run method: run method.
+* slave_allocate method: slave_allocate method.
+* slave_free method: slave_free method.
+* expect method: expect method.
+* send method: send method.
+* Remote test case execution: Remote test case execution.
+* Python interpreter module: Python interpreter module.
+* Introduction: Introduction.
+* Python test module usage: Python test module usage.
+* Configuration: Configuration.
+* Python test case definition: Python test case definition.
+* Test case file details: Test case file details.
+* MIN python extension library reference: MIN python extension library reference.
+* PyUnit cases wrapper: PyUnit cases wrapper.
+* Using MIN Logger for logging purposes: Using MIN Logger for logging purposes.
+* MIN Logger API: MIN Logger API.
+* MinLogger API: MinLogger API.
+* Use of MIN Logger: Use of MIN Logger.
+* Using MIN Event System for test cases synchronization: Using MIN Event System for test cases synchronization.
+* Event interface for the test modules: Event interface for the test modules.
+* State events: State events.
+* Indication events: Indication events.
+* MIN Event System usage: MIN Event System usage.
+* MIN Text interface usage: MIN Text interface usage.
+* Critical information: Critical information.
+* Usage example: Usage example.
+* MIN Text interface API description: MIN Text interface API description.
+* Test interference: Test interference.
+* Overview: Overview.
+* Prerequisites: Prerequisites.
+* Test Interference API: Test Interference API.
+* ti_start_interference: ti_start_interference.
+* ti_start_interference_timed: ti_start_interference_timed.
+* ti_pause_interference: ti_pause_interference.
+* ti_resume_interference: ti_resume_interference.
+* ti_stop_interference: ti_stop_interference.
+* Using test interference in scripted test cases: Using test interference in scripted test cases.
+* Compiling C++ test modules: Compiling C++ test modules.
+* Enabling C++ in MINUnit or HardCoded test module: Enabling C++ in MINUnit or HardCoded test module.
+* GNU Free Documentation License: GNU Free Documentation License.
+@end menu
+
+@summarycontents
+@contents
+
+@node Document Version, Document control, Top, Top
+@unnumbered Document Version History
+
+@multitable @columnfractions .10 .20 .15 .50 
+@headitem Version @tab Date @tab Status @tab Comments 
+@item 1.0 @tab 17.12.2008 @tab Draft @tab Initial draft 
+@item 1.1 @tab 20.01.2009 @tab Draft @tab Added chapter describing C++ modules
+@item 1.2 @tab 01.02.2009 @tab Draft @tab TeXinfo version 
+@end multitable
+
+
+@node Document control, Documentation conventions, Document Version, Top
+@chapter Document control
+@menu
+* Documentation conventions: Documentation conventions.
+* Abbreviations: Abbreviations.
+* Definitions: Definitions.
+@end menu
+
+@node Documentation conventions, Abbreviations, Document control, Document control
+@section Documentation conventions
+@include chapters/Documentation_conventions.texi
+
+@node Abbreviations, Definitions, Documentation conventions, Document control
+@section Abbreviations
+@include chapters/Abbreviations.texi
+
+@node Definitions, Using MIN for test cases implementation, Abbreviations, Document control
+@section Definitions
+@include chapters/Definitions.texi
+
+@c @node Introduction, Introduction to MIN Test Framework, Definitions, Top
+@c @chapter Introduction
+@c @include chapters/Introduction.texi
+
+@node Using MIN for test cases implementation, Test Module API, Definitions, Top
+@chapter Using MIN for test cases implementation
+@include chapters/Using_MIN_for_test_cases_implementation.texi
+@menu
+* Test Module API: Test Module API.
+* tm_get_test_cases: tm_get_test_cases.
+* tm_run_test_case: tm_run_test_case.
+* tm_initialize: tm_initialize.
+* tm_finalize: tm_finalize.
+* Test Module API features: Test Module API features.
+* tm_printf: tm_printf.
+* Creating test module templates: Creating test module templates.
+* Implementing test cases for a Hardcoded test module: Implementing test cases for a Hardcoded test module.
+* Implementing test cases for a normal test module: Implementing test cases for a normal test module.
+* Implementing test cases for a MINUnit test module: Implementing test cases for a MINUnit test module.
+@end menu
+
+@node Test Module API, tm_get_test_cases, Using MIN for test cases implementation, Using MIN for test cases implementation
+@section Test Module API
+@include chapters/Test_Module_API.texi
+@menu
+* tm_get_test_cases: tm_get_test_cases.
+* tm_run_test_case: tm_run_test_case.
+* tm_initialize: tm_initialize.
+* tm_finalize: tm_finalize.
+@end menu
+
+@node tm_get_test_cases, tm_run_test_case, Test Module API, Test Module API
+@subsection tm_get_test_cases
+@include chapters/tm_get_test_cases.texi
+
+@node tm_run_test_case, tm_initialize, tm_get_test_cases, Test Module API
+@subsection tm_run_test_case
+@include chapters/tm_run_test_case.texi
+
+@node tm_initialize, tm_finalize, tm_run_test_case, Test Module API
+@subsection tm_initialize
+@include chapters/tm_initialize.texi
+
+@node tm_finalize, Test Module API features, tm_initialize, Test Module API
+@subsection tm_finalize
+@include chapters/tm_finalize.texi
+
+@node Test Module API features, tm_printf, tm_finalize, Using MIN for test cases implementation
+@section Test Module API features
+@include chapters/Test_Module_API_features.texi
+@menu
+* tm_printf: tm_printf.
+@end menu
+
+@node tm_printf, Creating test module templates, Test Module API features, Test Module API features
+@subsection tm_printf
+@include chapters/tm_printf.texi
+
+@node Creating test module templates, Implementing test cases for a Hardcoded test module, tm_printf, Using MIN for test cases implementation
+@section Creating test module templates
+@include chapters/Creating_test_module_templates.texi
+
+@node Implementing test cases for a Hardcoded test module, Implementing test cases for a normal test module, Creating test module templates, Using MIN for test cases implementation
+@section Implementing test cases for a Hardcoded test module
+@include chapters/Implementing_test_cases_for_a_Hardcoded_test_module.texi
+
+@node Implementing test cases for a normal test module, Implementing test cases for a MINUnit test module, Implementing test cases for a Hardcoded test module, Using MIN for test cases implementation
+@section Implementing test cases for a normal test module
+@include chapters/Implementing_test_cases_for_a_normal_test_module.texi
+
+@node Implementing test cases for a MINUnit test module, Integrating MIN tests to build environment, Implementing test cases for a normal test module, Using MIN for test cases implementation
+@section Implementing test cases for a MINUnit test module
+@include chapters/Implementing_test_cases_for_a_MINUnit_test_module.texi
+
+@node Integrating MIN tests to build environment, Support in Test Module Template Wizard, Implementing test cases for a MINUnit test module, Top
+@chapter Integrating MIN tests to build environment
+@include chapters/Integrating_MIN_tests_to_build_environment.texi
+@menu
+* Support in Test Module Template Wizard: Support in Test Module Template Wizard.
+* Test modules in one directory approach: Test modules in one directory approach.
+@end menu
+
+@node Support in Test Module Template Wizard, Test modules in one directory approach, Integrating MIN tests to build environment, Integrating MIN tests to build environment
+@section Support in Test Module Template Wizard
+@include chapters/Support_in_Test_Module_Template_Wizard.texi
+
+@node Test modules in one directory approach, Using MIN Parser for test data parsing, Support in Test Module Template Wizard, Integrating MIN tests to build environment
+@section Test modules in one directory approach
+@include chapters/Test_modules_in_one_directory_approach.texi
+
+@node Using MIN Parser for test data parsing, MIN Parser API, Test modules in one directory approach, Top
+@chapter Using MIN Parser for test data parsing
+@include chapters/Using_MIN_Parser_for_test_data_parsing.texi
+@menu
+* MIN Parser API: MIN Parser API.
+* MinParser: MinParser.
+* MinSectionParser: MinSectionParser.
+* MinItemParser: MinItemParser.
+@end menu
+
+@node MIN Parser API, MinParser, Using MIN Parser for test data parsing, Using MIN Parser for test data parsing
+@section MIN Parser API
+@include chapters/MIN_Parser_API.texi
+@menu
+* MinParser: MinParser.
+* MinSectionParser: MinSectionParser.
+* MinItemParser: MinItemParser.
+@end menu
+
+@node MinParser, MinSectionParser, MIN Parser API, MIN Parser API
+@subsection MinParser
+@include chapters/MinParser.texi
+
+@node MinSectionParser, MinItemParser, MinParser, MIN Parser API
+@subsection MinSectionParser
+@include chapters/MinSectionParser.texi
+
+@node MinItemParser, Using Test Scripter for creating scripted test cases, MinSectionParser, MIN Parser API
+@subsection MinItemParser
+@include chapters/MinItemParser.texi
+
+@node Using Test Scripter for creating scripted test cases, Test Scripter test case file, MinItemParser, Top
+@chapter Using Test Scripter for creating scripted test cases
+@include chapters/Using_Test_Scripter_for_creating_scripted_test_cases.texi
+@menu
+* Test Scripter test case file: Test Scripter test case file.
+* Setting up the Scripter: Setting up the Scripter.
+* Creating a test class: Creating a test class.
+* Accessing script variables from test class: Accessing script variables from test class.
+* Scripter internal variables: Scripter internal variables.
+* General keywords: General keywords.
+* title keyword: title keyword.
+* timeout keyword: timeout keyword.
+* print keyword: print keyword.
+* var keyword: var keyword.
+* Test Case control: Test Case control.
+* createx keyword: createx keyword.
+* delete keyword: delete keyword.
+* allownextresult keyword: allownextresult keyword.
+* allowerrorcodes keyword: allowerrorcodes keyword.
+* sleep keyword: sleep keyword.
+* pausecombiner keyword: pausecombiner keyword.
+* run keyword: run keyword.
+* cancel keyword: cancel keyword.
+* pause keyword: pause keyword.
+* resume keyword: resume keyword.
+* complete keyword: complete keyword.
+* loop keyword: loop keyword.
+* breakloop keyword: breakloop keyword.
+* endloop keyword: endloop keyword.
+* if else and endif keywords: if else and endif keywords.
+* Object name: Object name.
+* Event control: Event control.
+* request keyword: request keyword.
+* wait keyword: wait keyword.
+* release keyword: release keyword.
+* set keyword: set keyword.
+* unset keyword: unset keyword.
+* Remote test case control: Remote test case control.
+* allocate keyword: allocate keyword.
+* free keyword: free keyword.
+* sendreceive keyword: sendreceive keyword.
+* expect keyword: expect keyword.
+* remote keyword: remote keyword.
+@end menu
+
+@node Test Scripter test case file, Setting up the Scripter, Using Test Scripter for creating scripted test cases, Using Test Scripter for creating scripted test cases
+@section Test Scripter test case file
+@include chapters/Test_Scripter_test_case_file.texi
+
+@node Setting up the Scripter, Creating a test class, Test Scripter test case file, Using Test Scripter for creating scripted test cases
+@section Setting up the Scripter
+@include chapters/Setting_up_the_Scripter.texi
+
+@node Creating a test class, Accessing script variables from test class, Setting up the Scripter, Using Test Scripter for creating scripted test cases
+@section Creating a test class
+@include chapters/Creating_a_test_class.texi
+
+@node Accessing script variables from test class, Scripter internal variables, Creating a test class, Using Test Scripter for creating scripted test cases
+@section Accessing script variables from test class
+@include chapters/Accessing_script_variables_from_test_class.texi
+
+@node Scripter internal variables, General keywords, Accessing script variables from test class, Using Test Scripter for creating scripted test cases
+@section Scripter internal variables
+@include chapters/Scripter_internal_variables.texi
+
+@node General keywords, title keyword, Scripter internal variables, Using Test Scripter for creating scripted test cases
+@section General keywords
+@include chapters/General_keywords.texi
+@menu
+* title keyword: title keyword.
+* timeout keyword: timeout keyword.
+* print keyword: print keyword.
+* var keyword: var keyword.
+@end menu
+
+@node title keyword, timeout keyword, General keywords, General keywords
+@subsection title keyword
+@include chapters/title_keyword.texi
+
+@node timeout keyword, print keyword, title keyword, General keywords
+@subsection timeout keyword
+@include chapters/timeout_keyword.texi
+
+@node print keyword, var keyword, timeout keyword, General keywords
+@subsection print keyword
+@include chapters/print_keyword.texi
+
+@node var keyword, Test Case control, print keyword, General keywords
+@subsection var keyword
+@include chapters/var_keyword.texi
+
+@node Test Case control, createx keyword, var keyword, Using Test Scripter for creating scripted test cases
+@section Test Case control
+@include chapters/Test_Case_control.texi
+@menu
+* createx keyword: createx keyword.
+* delete keyword: delete keyword.
+* allownextresult keyword: allownextresult keyword.
+* allowerrorcodes keyword: allowerrorcodes keyword.
+* sleep keyword: sleep keyword.
+* pausecombiner keyword: pausecombiner keyword.
+* run keyword: run keyword.
+* cancel keyword: cancel keyword.
+* pause keyword: pause keyword.
+* resume keyword: resume keyword.
+* complete keyword: complete keyword.
+* loop keyword: loop keyword.
+* breakloop keyword: breakloop keyword.
+* endloop keyword: endloop keyword.
+* if else and endif keywords: if else and endif keywords.
+* Object name: Object name.
+@end menu
+
+@node createx keyword, delete keyword, Test Case control, Test Case control
+@subsection createx keyword
+@include chapters/createx_keyword.texi
+
+@node delete keyword, allownextresult keyword, createx keyword, Test Case control
+@subsection delete keyword
+@include chapters/delete_keyword.texi
+
+@node allownextresult keyword, allowerrorcodes keyword, delete keyword, Test Case control
+@subsection allownextresult keyword
+@include chapters/allownextresult_keyword.texi
+
+@node allowerrorcodes keyword, sleep keyword, allownextresult keyword, Test Case control
+@subsection allowerrorcodes keyword
+@include chapters/allowerrorcodes_keyword.texi
+
+@node sleep keyword, pausecombiner keyword, allowerrorcodes keyword, Test Case control
+@subsection sleep keyword
+@include chapters/sleep_keyword.texi
+
+@node pausecombiner keyword, run keyword, sleep keyword, Test Case control
+@subsection pausecombiner keyword (DEPRECATED)
+@include chapters/pausecombiner_keyword.texi
+@c * run keyword: run keyword.
+@c * cancel keyword: cancel keyword.
+@c * pause keyword: pause keyword.
+@c * resume keyword: resume keyword.
+@c * complete keyword: complete keyword.
+
+@node run keyword, cancel keyword, pausecombiner keyword, Test Case control
+@subsection run keyword
+@include chapters/run_keyword.texi
+
+@node cancel keyword, pause keyword, run keyword, Test Case control
+@subsection cancel keyword
+@include chapters/cancel_keyword.texi
+
+@node pause keyword, resume keyword, cancel keyword, Test Case control
+@subsection pause keyword
+@include chapters/pause_keyword.texi
+
+@node resume keyword, complete keyword, pause keyword, Test Case control
+@subsection resume keyword
+@include chapters/resume_keyword.texi
+
+@node complete keyword, loop keyword, resume keyword, Test Case control
+@subsection complete keyword
+@include chapters/complete_keyword.texi
+
+@node loop keyword, breakloop keyword, complete keyword, Test Case control
+@subsection loop keyword
+@include chapters/loop_keyword.texi
+
+@node breakloop keyword, endloop keyword, loop keyword, Test Case control
+@subsection breakloop keyword
+@include chapters/breakloop_keyword.texi
+
+@node endloop keyword, if else and endif keywords, breakloop keyword, Test Case control
+@subsection endloop keyword
+@include chapters/endloop_keyword.texi
+
+@node if else and endif keywords, Object name, endloop keyword, Test Case control
+@subsection if else and endif keywords
+@include chapters/if_else_and_endif_keywords.texi
+
+@node Object name, Event control, if else and endif keywords, Test Case control
+@subsection Object name
+@include chapters/Object_name.texi
+
+@node Event control, request keyword, Object name, Using Test Scripter for creating scripted test cases
+@section Event control
+@include chapters/Event_control.texi
+@menu
+* request keyword: request keyword.
+* wait keyword: wait keyword.
+* release keyword: release keyword.
+* set keyword: set keyword.
+* unset keyword: unset keyword.
+@end menu
+
+@node request keyword, wait keyword, Event control, Event control
+@subsection request keyword
+@include chapters/request_keyword.texi
+
+@node wait keyword, release keyword, request keyword, Event control
+@subsection wait keyword
+@include chapters/wait_keyword.texi
+
+@node release keyword, set keyword, wait keyword, Event control
+@subsection release keyword
+@include chapters/release_keyword.texi
+
+@node set keyword, unset keyword, release keyword, Event control
+@subsection set keyword
+@include chapters/set_keyword.texi
+
+@node unset keyword, Remote test case control, set keyword, Event control
+@subsection unset keyword
+@include chapters/unset_keyword.texi
+
+@node Remote test case control, allocate keyword, unset keyword, Using Test Scripter for creating scripted test cases
+@section Remote test case control
+@menu
+* allocate keyword: allocate keyword.
+* free keyword: free keyword.
+* sendreceive keyword: sendreceive keyword.
+* expect keyword: expect keyword.
+* remote keyword: remote keyword.
+@end menu
+
+@node allocate keyword, free keyword, Remote test case control, Remote test case control
+@subsection allocate keyword
+@include chapters/allocate_keyword.texi
+
+@node free keyword, sendreceive keyword, allocate keyword, Remote test case control
+@subsection free keyword
+@include chapters/free_keyword.texi
+
+@node sendreceive keyword, expect keyword, free keyword, Remote test case control
+@subsection sendreceive keyword
+@include chapters/sendreceive_keyword.texi
+
+@node expect keyword, remote keyword, sendreceive keyword, Remote test case control
+@subsection expect keyword
+@include chapters/expect_keyword.texi
+
+@node remote keyword, Using LuaScripter for creating scripted test cases, expect keyword, Remote test case control
+@subsection remote keyword
+@include chapters/remote_keyword.texi
+
+@node Using LuaScripter for creating scripted test cases, Overview of Lua scripting language, remote keyword, Top
+@chapter Using LuaScripter for creating scripted test cases
+@include chapters/Using_LuaScripter_for_creating_scripted_test_cases.texi
+@menu
+* Overview of Lua scripting language: Overview of Lua scripting language.
+* Lua Scripter test case file: Lua Scripter test case file.
+* Setting up the Lua Scripter: Setting up the Lua Scripter.
+* Lua test class: Lua test class.
+* General: General.
+* Test case result: Test case result.
+* Test case result description: Test case result description.
+* Test case title: Test case title.
+* Calling test functions in test cases: Calling test functions in test cases.
+* MIN2Lua API: MIN2Lua API.
+* print method: print method.
+* load method: load method.
+* unload method: unload method.
+* sleep method: sleep method.
+* request method: request method.
+* release method: release method.
+* set method: set method.
+* unset method: unset method.
+* wait method: wait method.
+* run method: run method.
+* slave_allocate method: slave_allocate method.
+* slave_free method: slave_free method.
+* expect method: expect method.
+* send method: send method.
+* Remote test case execution: Remote test case execution.
+
+@end menu
+
+@node Overview of Lua scripting language, Lua Scripter test case file, Using LuaScripter for creating scripted test cases, Using LuaScripter for creating scripted test cases
+@section Overview of Lua scripting language
+@include chapters/Overview_of_Lua_scripting_language.texi
+
+@node Lua Scripter test case file, Setting up the Lua Scripter, Overview of Lua scripting language, Using LuaScripter for creating scripted test cases
+@section Lua Scripter test case file
+@include chapters/Lua_Scripter_test_case_file.texi
+
+@node Setting up the Lua Scripter, Lua test class, Lua Scripter test case file, Using LuaScripter for creating scripted test cases
+@section Setting up the Lua Scripter
+@include chapters/Setting_up_the_Lua_Scripter.texi
+
+@node Lua test class, General, Setting up the Lua Scripter, Using LuaScripter for creating scripted test cases
+@section Lua test class
+@include chapters/Lua_test_class.texi
+
+@node General, Test case result, Lua test class, Using LuaScripter for creating scripted test cases
+@section General
+@include chapters/General.texi
+@menu
+* Test case result: Test case result.
+* Test case result description: Test case result description.
+* Test case title: Test case title.
+* Calling test functions in test cases: Calling test functions in test cases.
+
+@end menu
+
+@node Test case result, Test case result description, General, General
+@subsection Test case result
+@include chapters/Test_case_result.texi
+
+@node Test case result description, Test case title, Test case result, General
+@subsection Test case result description
+@include chapters/Test_case_result_description.texi
+
+@node Test case title, Calling test functions in test cases, Test case result description, General
+@subsection Test case title
+@include chapters/Test_case_title.texi
+
+@node Calling test functions in test cases, MIN2Lua API, Test case title, General
+@subsection Calling test functions in test cases
+@include chapters/Calling_test_functions_in_test_cases.texi
+
+@node MIN2Lua API, print method, Calling test functions in test cases, Using LuaScripter for creating scripted test cases
+@section MIN2Lua API
+@include chapters/MIN2Lua_API.texi
+@menu
+* print method: print method.
+* load method: load method.
+* unload method: unload method.
+* sleep method: sleep method.
+* request method: request method.
+* release method: release method.
+* set method: set method.
+* unset method: unset method.
+* wait method: wait method.
+* run method: run method.
+* slave_allocate method: slave_allocate method.
+* slave_free method: slave_free method.
+* expect method: expect method.
+* send method: send method.
+* Remote test case execution: Remote test case execution.
+@end menu
+
+@node print method, load method, MIN2Lua API, MIN2Lua API
+@subsection print method
+@include chapters/print_method.texi
+
+@node load method, unload method, print method, MIN2Lua API
+@subsection load method
+@include chapters/load_method.texi
+
+@node unload method, sleep method, load method, MIN2Lua API
+@subsection unload method
+@include chapters/unload_method.texi
+
+@node sleep method, request method, unload method, MIN2Lua API
+@subsection sleep method
+@include chapters/sleep_method.texi
+
+@node request method, release method, sleep method, MIN2Lua API
+@subsection request method
+@include chapters/request_method.texi
+
+@node release method, set method, request method, MIN2Lua API
+@subsection release method
+@include chapters/release_method.texi
+
+@node set method, unset method, release method, MIN2Lua API
+@subsection set method
+@include chapters/set_method.texi
+
+@node unset method, wait method, set method, MIN2Lua API
+@subsection unset method
+@include chapters/unset_method.texi
+
+@node wait method, run method, unset method, MIN2Lua API
+@subsection wait method
+@include chapters/wait_method.texi
+
+@node run method, slave_allocate method, wait method, MIN2Lua API
+@subsection run method
+@include chapters/slave_allocate_method.texi
+
+@node slave_allocate method, slave_free method, run method, MIN2Lua API
+@subsection slave_allocate method
+@include chapters/slave_allocate_method.texi
+
+@node slave_free method, expect method, slave_allocate method, MIN2Lua API
+@subsection slave_free method
+@include chapters/slave_free_method.texi
+
+@node expect method, send method, slave_free method, MIN2Lua API
+@subsection expect method
+@include chapters/expect_method.texi
+
+@node send method, Remote test case execution, expect method, MIN2Lua API
+@subsection send method
+@include chapters/send_method.texi
+
+@node Remote test case execution, Python interpreter module, send method, MIN2Lua API
+@subsection Remote test case execution
+@include chapters/Remote_test_case_execution.texi
+
+@node Python interpreter module, Introduction, Remote test case execution, Top
+@chapter Python interpreter module
+@include chapters/Python_interpreter_module.texi
+@menu
+* Introduction: Introduction.
+* Python test module usage: Python test module usage.
+* Configuration: Configuration.
+* Python test case definition: Python test case definition.
+* Test case file details: Test case file details.
+* MIN python extension library reference: MIN python extension library reference.
+* PyUnit cases wrapper: PyUnit cases wrapper.
+@end menu
+
+@node Introduction, Python test module usage, Python interpreter module, Python interpreter module
+@section Introduction
+@include chapters/Introduction.texi
+
+@node Python test module usage, Configuration, Introduction, Python interpreter module
+@section Python test module usage
+@include chapters/Python_test_module_usage.texi
+@menu
+* Configuration: Configuration.
+@end menu
+
+@node Configuration, Python test case definition, Python test module usage, Python test module usage
+@subsection Configuration
+@include chapters/Configuration.texi
+
+@node Python test case definition, Test case file details, Configuration, Python interpreter module
+@section Python test case definition
+@include chapters/Python_test_case_definition.texi
+@menu
+* Test case file details: Test case file details.
+* MIN python extension library reference: MIN python extension library reference.
+@end menu
+
+@node Test case file details, MIN python extension library reference, Python test case definition, Python test case definition
+@subsection Test case file details
+@include chapters/Test_case_file_details.texi
+
+@node MIN python extension library reference, PyUnit cases wrapper, Test case file details, Python test case definition
+@subsection MIN python extension library reference
+@include chapters/MIN_python_extension_library_reference.texi
+
+@node PyUnit cases wrapper, Using MIN Logger for logging purposes, MIN python extension library reference, Python interpreter module
+@section PyUnit cases wrapper
+@include chapters/PyUnit_cases_wrapper.texi
+
+@node Using MIN Logger for logging purposes, MIN Logger API, PyUnit cases wrapper, Top
+@chapter Using MIN Logger for logging purposes
+@include chapters/Using_MIN_Logger_for_logging_purposes.texi
+@menu
+* MIN Logger API: MIN Logger API.
+* MinLogger API: MinLogger API.
+* Use of MIN Logger: Use of MIN Logger.
+@end menu
+
+@node MIN Logger API, MinLogger API, Using MIN Logger for logging purposes, Using MIN Logger for logging purposes
+@section MIN Logger API
+@include chapters/MIN_Logger_API.texi
+@menu
+* MinLogger API: MinLogger API.
+* Use of MIN Logger: Use of MIN Logger.
+@end menu
+
+@node MinLogger API, Use of MIN Logger, MIN Logger API, MIN Logger API
+@subsection MinLogger API
+@include chapters/MinLogger_API.texi
+
+@node Use of MIN Logger, Using MIN Event System for test cases synchronization, MinLogger API, MIN Logger API
+@subsection Use of MIN Logger
+@include chapters/Use_of_MIN_Logger.texi
+
+@node Using MIN Event System for test cases synchronization, Event interface for the test modules, Use of MIN Logger, Top
+@chapter Using MIN Event System for test cases synchronization
+@include chapters/Using_MIN_Event_System_for_test_cases_synchronization.texi
+@menu
+* Event interface for the test modules: Event interface for the test modules.
+* State events: State events.
+* Indication events: Indication events.
+* MIN Event System usage: MIN Event System usage.
+@end menu
+
+@node Event interface for the test modules, State events, Using MIN Event System for test cases synchronization, Using MIN Event System for test cases synchronization
+@section Event interface for the test modules
+@include chapters/Event_interface_for_the_test_modules.texi
+@menu
+* State events: State events.
+* Indication events: Indication events.
+@end menu
+
+@node State events, Indication events, Event interface for the test modules, Event interface for the test modules
+@subsection State events
+@include chapters/State_events.texi
+
+@node Indication events, MIN Event System usage, State events, Event interface for the test modules
+@subsection Indication events
+@include chapters/Indication_events.texi
+
+@node MIN Event System usage, MIN Text interface usage, Indication events, Using MIN Event System for test cases synchronization
+@section MIN Event System usage
+@include chapters/MIN_Event_System_usage.texi
+
+@node MIN Text interface usage, Critical information, MIN Event System usage, Top
+@chapter MIN Text interface usage
+@include chapters/MIN_Text_interface_usage.texi
+@menu
+* Critical information: Critical information.
+* Usage example: Usage example.
+* MIN Text interface API description: MIN Text interface API description.
+@end menu
+
+@node Critical information, Usage example, MIN Text interface usage, MIN Text interface usage
+@section Critical information
+@include chapters/Critical_information.texi
+
+@node Usage example, MIN Text interface API description, Critical information, MIN Text interface usage
+@section Usage example
+@include chapters/Usage_example.texi
+
+@node MIN Text interface API description, Test interference, Usage example, MIN Text interface usage
+@section MIN Text interface API description
+@include chapters/MIN_Text_interface_API_description.texi
+
+@node Test interference, Overview, MIN Text interface API description, Top
+@chapter Test interference
+@include chapters/Test_interference.texi
+@menu
+* Overview: Overview.
+* Prerequisites: Prerequisites.
+* Test Interference API: Test Interference API.
+* ti_start_interference: ti_start_interference.
+* ti_start_interference_timed: ti_start_interference_timed.
+* ti_pause_interference: ti_pause_interference.
+* ti_resume_interference: ti_resume_interference.
+* ti_stop_interference: ti_stop_interference.
+* Using test interference in scripted test cases: Using test interference in scripted test cases.
+@end menu
+
+@node Overview, Prerequisites, Test interference, Test interference
+@section Overview
+@include chapters/Overview.texi
+
+@node Prerequisites, Test Interference API, Overview, Test interference
+@section Prerequisites
+@include chapters/Prerequisites.texi
+
+@node Test Interference API, ti_start_interference, Prerequisites, Test interference
+@section Test Interference API
+@include chapters/Test_Interference_API.texi
+@menu
+* ti_start_interference: ti_start_interference.
+* ti_start_interference_timed: ti_start_interference_timed.
+* ti_pause_interference: ti_pause_interference.
+* ti_resume_interference: ti_resume_interference.
+* ti_stop_interference: ti_stop_interference.
+@end menu
+
+@node ti_start_interference, ti_start_interference_timed, Test Interference API, Test Interference API
+@subsection ti_start_interference
+@include chapters/ti_start_interference.texi
+
+@node ti_start_interference_timed, ti_pause_interference, ti_start_interference, Test Interference API
+@subsection ti_start_interference_timed
+@include chapters/ti_start_interference_timed.texi
+
+@node ti_pause_interference, ti_resume_interference, ti_start_interference_timed, Test Interference API
+@subsection ti_pause_interference
+@include chapters/ti_pause_interference.texi
+
+@node ti_resume_interference, ti_stop_interference, ti_pause_interference, Test Interference API
+@subsection ti_resume_interference
+@include chapters/ti_resume_interference.texi
+
+@node ti_stop_interference, Using test interference in scripted test cases, ti_resume_interference, Test Interference API
+@subsection ti_stop_interference
+@include chapters/ti_stop_interference.texi
+
+@node Using test interference in scripted test cases, Compiling C++ test modules, ti_stop_interference, Test interference
+@section Using test interference in scripted test cases
+@include chapters/Using_test_interference_in_scripted_test_cases.texi
+
+@node Compiling C++ test modules, Enabling C++ in MINUnit or HardCoded test module, Using test interference in scripted test cases, Top
+@chapter Compiling C++ test modules
+@include chapters/Compiling_Cplusplus_test_modules.texi
+@menu
+* Enabling C++ in MINUnit or HardCoded test module: Enabling C++ in MINUnit or HardCoded test module.
+@end menu
+
+@node Enabling C++ in MINUnit or HardCoded test module, GNU Free Documentation License, Compiling C++ test modules, Compiling C++ test modules
+@section Enabling C++ in MINUnit or HardCoded test module
+@include chapters/Enabling_Cplusplus_in_MINUnit_or_HardCoded_test_module.texi
+
+@c @node GNU Free Documentation License, None , Enabling C++ in MINUnit or HardCoded test module, Top
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include chapters/GNU_Free_Documentation_License.texi
+
+
+
+@bye
+
+

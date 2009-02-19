@@ -1,0 +1,24 @@
+The @code{var} keyword declares a variable for the scripter.  A variable can be initialized during its declaration. The value of variable can be set in script or test class.  When calling methods from a test object, the declared variable can be passed as an argument to this method. If variable name appears in text used with print keyword, its value gets printed. 
+The @code{var} keyword has one mandatory and one optional argument, described below.
+
+@b{Note:} @code{var} keyword may be used to declare variables used in remote test case execution. @xref{Remote test case control}, @ref{expect keyword}.
+
+@table @b
+@item @b{Argument}
+@item variable name
+The variable name.
+
+@item @b{Optional argument}
+@item variable value
+The value which declared variable is to be initialized.
+@end table
+
+The @code{var} keyword can be used for example in the following way:
+@example
+var variable2
+var variable1 text
+var variable2 1
+sometestobj somemethod variable1 variable2
+print variable2
+@end example
+

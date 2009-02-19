@@ -1,0 +1,2 @@
+Cooperation between MIN and script written in Lua is done by API defined in MIN and exported to the script. All functions are placed in min namespace.
+

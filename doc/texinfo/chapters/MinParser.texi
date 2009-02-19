@@ -1,0 +1,154 @@
+The @code{MinParser} component functionality opens and reads test data. The purpose of @code{MinParser} is to parse a required section of the test data. The section may be a whole test data file or some part of the data file.
+
+The main functions of @code{MinParser} are:
+@itemize
+@item @code{mp_create} for creating a parser with path and file information
+@item @code{mp_create_mem}
+@item @code{mp_destroy}
+@item @code{mp_section}
+@item @code{mp_next_section}
+@end itemize
+
+
+@table @code
+@item MinParser* mp_create(const TPtrC* path, const TPtrC* file, TCommentType comments)
+Creates MinParser with path and file information.
+@table @code
+@item @b{Possible errno return values}
+@code{ENOENT}: invalid path argument.          
+
+@code{EACCES}: permission denied.                
+
+@item const TPtrC* path
+
+The path to folder where config file located.
+
+@item const TPtrC* file
+
+The  filename of config file.
+
+@item TCommentType comments
+
+Indication of the comment type.
+
+@code{ENoComments}: Comments are included with parsing.
+
+@code{ECStyleComments}: The user wants to parse sections without c-style comments.
+
+@item @b{Return value}
+
+MinParser struct object.
+@end table
+@end table
+
+
+
+
+
+@table @code
+@item MinParser* mp_create_mem(const TPtrC* buffer, TCommentType comments)
+Creating a parser with buffer information.
+
+@table @code
+@item const TPtrC* buffer
+The buffer to be parsed.
+
+@item TCommentType comments
+Indication of the comment type.
+
+@code{ENoComments}: Comments are included with parsing.
+
+@code{ECStyleComments}: The user wants to parse sections without c-style comments.
+@item @b{Return value}
+MinParser struct object.
+@end table
+@end table
+
+
+@table @code
+@item void mp_destroy(MinParser** mp)
+Destroy MinParser struct component and free allocated memory and resources.
+@table @code
+@item MinParser** mp
+Pointer reference to used MinParser struct component.
+
+@code{INITPTR} pointer value is returned in mp pointer parameter if destroying operation completed successfully.
+@item @b{Return value}
+None
+@end table
+@end table
+
+
+
+@table @code
+@item MinSectionParser* mp_section(MinParser *mp, const TPtrC* start_tag, const TPtrC* end_tag, int seeked)
+Open and read configuration source and parses a required section. If start tag is empty the parsing starts begin of the configuration file.                                                                     
+
+If end tag is empty the parsing goes end of configuration file.           
+
+This function will parse next section after the earlier section if the sought parameter is set to 1.                                             
+
+If configuration file includes several sections with both start and end tags so sought parameter seeks the required section.                  
+
+@table @code
+@item @b{Possible errno return values}
+
+@code{EINVAL}: invalid value was passed to the function.      
+
+@item MinParser *mp
+Pointer to MinParser instance.
+
+@item const TPtrC* start_tag
+Start tag name.
+
+If the start tag is empty, the parsing starts at the beginning of the file.
+
+@item const TPtrC* end_tag
+End tag name.
+
+If the end tag is empty, the parsing goes to the end of the file.
+
+@item int seeked
+Indicates the tag on which the parsing ends.
+@item @b{Return value}
+MinSectionParser struct object.
+@end table
+@end table
+
+@table @code
+@item MinSectionParser* mp_next_section( MinParser *mp, const TPtrC* start_tag, const TPtrC* end_tag, int seeked)
+Open and read configuration source and parses a required section. If start tag is empty the parsing starts begin of the configuration file.                                                                      
+
+If end tag is empty the parsing goes end of configuration file.                       
+
+This method will parse next section after the earlier section if sought parameter is set to 1.                                                         
+
+If configuration file includes several sections with both start and end tags so sought parameter seeks the required section.
+
+Possible errno return values:
+
+@code{EINVAL}: Invalid value was passed to the function.
+
+@table @code
+@item MinParser *mp
+Pointer to MinParser instance.
+
+@item const TPtrC* start_tag
+Start tag name.
+
+If the start tag is empty, the parsing starts at the beginning of the file.
+
+@item const TPtrC* end_tag
+End tag name.
+
+If the end tag is empty, the parsing goes to the end of the file.
+@item int seeked
+A section indicator.
+
+@item @b{Return value}
+@code{MinSectionParser} struct object.
+@end table
+@end table
+
+
+

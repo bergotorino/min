@@ -1,0 +1,19 @@
+MIN Console UI is a menu-based console application, which can be used to manually execute test cases. A module under development can be tested on target before the actual UI is usable.
+
+MIN Console UI can be seen in figure below.
+
+@ifinfo
+@image{images/mainmenuscrot,10cm,,MIN Menu,txt}
+@end ifinfo
+@ifplaintext
+@image{images/mainmenuscrot,10cm,,MIN Menu,txt}
+@end ifplaintext
+@ifhtml
+@image{images/mainmenuscrot,10cm,,MIN Menu,png}
+@end ifhtml
+@iftex
+@image{images/mainmenuscrot,10cm,,MIN Menu,png}
+@end iftex
+
+
+

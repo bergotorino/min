@@ -1,0 +1,44 @@
+MIN Event System can be used for various purposes and in different ways. As an example, a state event can be used to indicate when a phone call is active: a state event is set right after the call is connected and unset just before the call is deactivated. Some other test case may request the state event and wait until it is set, then send an SMS and release the state event after that. It is guaranteed that the state remains until the requester releases the event, which means that the called unset blocks until the release is called.
+An indication event can be used for example to indicate that an HTTP packet is received: An indication event is set every time when an HTTP packet has been received. Some other test case may then e.g. wait for the indication event and then start heavy loading of the system to interfere with the Web page receiving.
+The following is a sample code for setting a state event:
+@example
+minEventIf *s_event = min_event_create ("TestModuleState1", EState);
+event->SetType (s_event, ESetEvent);
+Event (s_event);
+@end example
+The following is a sample code for unsetting a state event:
+@example
+event->SetType (s_event, EUnsetEvent);
+Event (s_event);
+@end example
+The following is a sample code for setting an indication event:
+@example
+minEventIf *i_event = min_event_create ("TestModuleIndication1", 
+                                        EIndication);
+event->SetType (i_event, ESetEvent);
+Event (i_event);
+@end example
+The following is a sample code for requesting, waiting and releasing a state event:
+@example
+minEventIf *s_event = min_event_create ("TestModuleState1", 
+                                        EState);
+s_event->SetType (s_event, EReqEvent);
+Event (s_event);
+s_event->SetType (s_event, EWaitEvent);
+Event (s_event);
+/* Do something */
+s_event->SetType(s_event, ERelEvent);
+Event (s_event);
+@end example
+The following is a sample code for requesting, waiting and releasing an indication event:
+@example
+minEventIf *i_event = min_event_create ("TestModuleIndication1", 
+                                         EIndication); 
+i_event->SetType (i_event, EReqEvent);
+Event (i_event);
+i_event->SetType (i_event, EWaitEvent);
+Event (i_event);
+/* Do something */
+i_event->SetType (i_event, ERelEvent);
+Event (i_event);
+@end example

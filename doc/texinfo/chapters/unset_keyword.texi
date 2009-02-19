@@ -1,0 +1,12 @@
+The @code{unset} keyword is used to unset a state event. Every @code{set} state event must be @code{unset}. Indication events cannot be unset. @code{unset} blocks until everyone who has requested the specified event has released the event.
+@code{unset} has one mandatory argument, which is described below.
+@table @b
+@item Argument
+@item Event
+The event name.
+@end table
+The unset keyword can be used, for example, in the following way:
+@example
+unset Event1
+@end example
+

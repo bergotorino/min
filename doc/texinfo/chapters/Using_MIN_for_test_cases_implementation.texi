@@ -1,0 +1,21 @@
+This chapter describes how MIN can be used for implementing test cases.
+
+A test module contains the actual test case implementation. Test modules are implemented as separate libraries that MIN dynamically loads. Test modules can be freely implemented, as long as they use the required interface, which TMC can use. Test module can be Hardcoded, normal or MINUnit. These test module types can be seen in figure below. 
+
+
+
+@ifinfo
+@image{images/implementation1,15cm,,MIN test module types,txt}
+@end ifinfo
+@ifplaintext
+@image{images/implementation1,15cm,,MIN test module types,txt}
+@end ifplaintext
+@ifhtml
+@image{images/implementation1,15cm,,MIN test module types,png}
+Test modules are indicated with @b{bolded font}. 
+@end ifhtml
+@iftex
+@image{images/implementation1,15cm,,MIN test module types,png}
+Test modules are indicated with @b{bolded font}. 
+@end iftex
+

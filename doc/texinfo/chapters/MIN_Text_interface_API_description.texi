@@ -1,0 +1,180 @@
+@table @code
+@item Text *tx_create (const char * txt)
+Creates Text structure and initializes it.
+@table @code
+@item const char * txt
+Initial value, C-string.
+@item @b{Return value}
+Test interface initialized with @code{*txt} value
+@end table
+@end table
+
+
+@table @code
+@item void tx_destroy (Text ** txt)
+Destroys Text structure allocated with tx_create
+@table @code
+@item Text ** txt
+Text interface to be destroyed
+@item @b{Return value}
+none
+@end table
+@end table
+
+
+@table @code
+@item void tx_append (Text * dest, const Text * src)
+Appends one Text interface to another
+@table @code
+@item Text * dest
+Text interface to append to
+@item const Text * src
+Text interface to be appended to @code{*dest}
+@item @b{Return value}
+none
+@end table
+@end table
+
+
+@table @code
+@item void tx_copy (Text * dest, const Text * src)
+Copies content of one Text to another
+@table @code
+@item Text * dest
+Destination Text interface
+@item const Text * src
+Source Text interface
+@item @b{Return value}
+none
+@end table
+@end table
+
+
+@table @code
+@item void tx_c_append (Text * dest, const char *src)
+Appends C string to Text interface
+@table @code
+@item Text * dest
+Destination Text interface to append to
+@item const char *src
+C-string to be appended to @code{*dest}
+@item @b{Return value}
+none
+@end table
+@end table
+
+
+@table @code
+@item void tx_prepend (Text * src, Text * dest)
+Prepends to one Text interface another
+@table @code
+@item Text * src
+Text interface to be prepended to @code{*dest}
+@item Text * dest
+Text interface to prepend to
+@item @b{Return value}
+none
+@end table
+@end table
+
+ 
+@table @code
+@item void tx_c_prepend (Text * src, const char * dest)
+Prepends C-string to Text interface
+@table @code
+@item Text * src
+Text interface to prepend to
+@item const char * dest
+C-string to be prepended to @code{*src}
+@item @b{Return value}
+none
+@end table
+@end table
+
+
+@table @code
+@item tx_c_copy (Text * dest, const char *src)
+Copies content of c string to Text interface
+@table @code
+@item Text * dest
+Text interface to copy the string to
+@item const char *src
+C-string to be copied to @code{*dest}
+@item @b{Return value}
+none
+@end table
+@end table
+
+
+@table @code
+@item char *tx_get_buf (Text * txt)
+Getter for C string representation of data held in Text interface
+@table @code
+@item Text * txt
+Text interface to copy from
+@item @b{Return value}
+Copy of data held by the Text interface
+@end table
+@end table
+
+
+@table @code
+@item char *tx_share_buf (Text * txt)
+Getter for adress of data held in Text interface
+@table @code
+@item Text * txt
+Text interface to get pointer from
+@item @b{Return value}
+pointer to the data held by Text interface
+@end table
+@end table
+
+
+@table @code
+@item void tx_back_trim (Text * txt, const char *chars)
+Removes specified set of characters from the end of Text
+@table @code
+@item Text * txt
+Text interface to remove from
+@item const char *chars
+Characters to be removed
+@item @b{Return value}
+none
+@end table
+@end table
+
+
+@table @code
+@item char tx_at (Text * txt, unsigned int index)
+Gives character from the Text that is at given position
+@table @code
+@item Text * txt
+Text interface
+@item unsigned int index
+index of character
+@item @b{Return value}
+Character at @code{index} position
+
+If index exceeds the length of the data NULL byte is returned
+@end table
+@end table
+
+
+@table @code
+@item tx_int_append (Text * dest, const char *options, int src)
+Appends integer to Text interface
+@table @code
+@item Text * dest
+Text interface to append to
+@item const char *options
+format modifiers [flags][width][.precision][length].
+
+Modifiers are the same as in printf (for more details see @code{man printf})
+@item int src
+Number to append to Text interface
+@item @b{Return value}
+none
+@end table
+@end table
+
+

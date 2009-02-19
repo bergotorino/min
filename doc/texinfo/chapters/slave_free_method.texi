@@ -1,0 +1,9 @@
+The @code{slave_free} functionality is used to free allocated slave device. As a parameter it takes handler to the slave.
+
+Example:
+@example
+function case_function() -- run example
+	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
+	min.slave_free(slavehnd);
+end
+@end example

@@ -1,0 +1,25 @@
+The Lua Scripter uses scripts written in Lua as the test case file. Each test must be defined as a separate function which does not take any parameters and which is prefixed with "case_" statement. Test case file may contain several test functions, and some defined global variables as well. User can define its own functions inside of a test case file - every function not prefixed with "case_" will not be treated as test case.
+
+The test case result is returned from test case function to the MIN by using return keyword.
+
+Interaction with MIN is achieved by using MIN2Lua API which is covered in this chapter.
+
+An example of a test case file is described below:
+
+@example
+function case_foo() -- Test case title
+	min.print("Hello World");
+	return TP_PASSED;
+end
+@end example
+
+Test case file may contain definitions. The definitions are global variables and can be defined as follows:
+@example
+-- Begin of define section
+MODULE = TestCaseModuleThatCanBeUsedWithLua
+-- End of define section
+
+function case_foo() -- Test case title
+	min.print(string.format("Using: %s test module",MODULE));
+end
+@end example

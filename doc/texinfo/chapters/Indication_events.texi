@@ -1,0 +1,16 @@
+The indication events are used to send an event that a specific occasion has happened. Indications are not cached, so in order to receive an indication, it must have been requested before the indication event is set.
+
+@ifinfo
+@image{images/indicationevents,11cm,,Indication Events,txt}
+@end ifinfo
+@ifplaintext
+@image{images/indicationevents,11cm,,Indication Events,txt}
+@end ifplaintext
+@ifhtml
+@image{images/indicationevents,11cm,,Indication Events,png}
+@end ifhtml
+@iftex
+@image{images/indicationevents,11cm,,Indication Events,png}
+@end iftex
+
+Figure above depicts the indication event handling. Client 1 sets a specific indication event always after some specific occasion. After client 2 starts, it requests the indication event and goes waiting for it. After client 1 sets the event, the waiting returns to client 2 and it proceeds the processing. After client 2 has done its tasks, it releases the event. Then client 1 sets the event again, but because client 2 has no pending event request, it does not get the event. Next, client 2 requests the event again. Client 1 then sets the event and when client 2 goes waiting for the event, it returns immediately because the event is set. After that, client 2 goes waiting for the event again and the waiting returns to client 2 when client 1 sets the event again. Finally, client 2 releases the event.

@@ -1,0 +1,8 @@
+The @code{unset} functionality is used to unset a state event that has been set before. As a parameter it takes the event name.
+Example:
+@example
+function case_function() -- unset example
+	min.set("Event1",StateEvent);
+	min.unset("Event1");
+end
+@end example

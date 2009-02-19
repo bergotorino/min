@@ -1,0 +1,16 @@
+MIN startup script has several command line parameters.
+@table @b
+@item --version, -v
+prints version information.
+@item --help, -h
+prints help screen with usage description.
+@item --console, -c
+starts  MIN without the console UI. All test cases defined in min.conf are executed sequentially (unless specified with -x switch)
+@item -f
+forces MIN to kill already running MIN instance without prompting user.
+@item --info, -i
+print info about given test module.
+@item --execute, -x
+loads MIN with given test module (and optional configuration file(s)
+@end table
+

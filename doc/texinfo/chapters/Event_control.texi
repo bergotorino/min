@@ -1,0 +1,2 @@
+The keywords described in the following sections are used to control MIN Event System. For information about MIN Event System. @xref{Using MIN Event System for test cases synchronization}.
+

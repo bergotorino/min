@@ -1,0 +1,4 @@
+MIN provides generic Text interface to manipulate strings without knowledge about the amount of memory needed to store particular string. Text interface will grow or shrink, depending on situation.
+
+For more details check @ref{MIN Text interface,,Min Text interface,min-reference,MIN Reference Guide}.
+

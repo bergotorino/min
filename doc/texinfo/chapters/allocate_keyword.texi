@@ -1,0 +1,18 @@
+The @code{allocate} keyword is used to allocate a slave, for example for running a test case on a remote phone. It uses Remote Control Protocol (RPC). The slave must always be allocated first before it can be used.
+The @code{allocate} keyword has two mandatory arguments, described below.
+
+@table @b
+@item Argument
+@item Slave type
+The type of the slave
+
+MIN only supports slave phone. phone indicates that slave phone is also running MIN. Other types must be handled by the slave implementation, i.e. when implementing separate support for external network simulator.
+@item Slave name
+A unique name for the slave
+@end table
+
+The @code{allocate} keyword can be used for example in the following way:
+@example
+allocate phone MySlave
+@end example
+

@@ -1,0 +1,1 @@
+To use test interference, it is mandatory to have sp-stress package installed. Lack of the package will make scripted cases, that use test interference, invalid. In case of "coded" test cases - user needs to check explicitly if creation of test interference succeeded. 

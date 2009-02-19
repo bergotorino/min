@@ -1,0 +1,1 @@
+The @code{tm_run_test_case} function is used to execute a specified test case. The test case file is provided as a parameter (optional). The method returns the result of the executed test case.

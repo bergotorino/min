@@ -1,0 +1,1 @@
+MIN provides a set of C functions, that make it possible to use test interference functionality in the same way as other MIN facilities. 

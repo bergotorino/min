@@ -1,0 +1,1 @@
+The @code{print} keyword can be used to print, for example, progress information to the UI. The printed description is placed after the @code{print} keyword; see the example in section @ref{Test Scripter test case file}

@@ -1,0 +1,2 @@
+
+MIN searches for module configurations (files containing @code{[New_Module]} @dots{} @code{[End_Module]} definitions) also from directory @code{/etc/min.d}. The idea is that if test modules are implemented for example as Debian packages, the @code{min.conf} does not need to be patched during the package (un)install. 

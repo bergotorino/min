@@ -1,0 +1,28 @@
+It is possible to execute functionalities on the slave device with following methods:
+
+@itemize
+@item request (@xref{request method}.)
+@item release (@xref{release method}.)
+@item run (@xref{run method}.)
+@item expect (@xref{expect method}.)
+@item send (@xref{send method}.)
+@end itemize 
+
+In order to do this one must use slave handler:
+
+@example
+function case_function() -- remote example
+	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
+	slavehnd:request("Event1");
+	min.slave_free(slavehnd);
+end
+
+function case_function() -- remote example 2
+	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
+	slavehnd.request(slavehnd,"Event1");
+	min.slave_free(slavehnd);
+end
+@end example
+Note that the first parameter is always slave handler. You must specify it when using '.' Or use ':' because then it is added automatically.
+
+

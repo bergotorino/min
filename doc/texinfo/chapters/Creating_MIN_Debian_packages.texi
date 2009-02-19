@@ -1,0 +1,13 @@
+MIN release includes metadata for creating Debian packages. The min and min-dev packages can be created with dpkg-buildpackage in the release min/ directory.@*
+@code{$ cd  tags/<YYYY>w<WW>}@*
+@code{$ dpkg-buildpackage -rfakeroot}
+
+After running the command, min and min-dev packages should appear in the parent directory.@*
+@code{$ ls ../*.deb}@*
+@code{../min_2008w50_i386.deb  ../min-dev_2008w50_i386.deb}
+
+The MIN package install binaries (to @code{/usr/bin}), and a demo test library (to @code{/usr/lib/min}). The min-dev package contains Test Module Wizard and header and libraries needed to build MIN test modules.
+
+After installing MIN package there should be min and tmc binaries in @code{/usr/bin} directory and a default @code{min.conf} in @code{/etc/}.
+
+Test module Debian packaging is also supported. This feature is available for modules created using Test Module Wizard. 

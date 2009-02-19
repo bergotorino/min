@@ -1,0 +1,23 @@
+Function that creates test interference "instance" and starts the interference process. By "instance" we understand @code{testInterference} structure. Pointer to this structure is returned by @code{ti_start_interference} function, and is used for manipulating created interference process (pausing/resuming and stopping). When function returns, test interference process is started. As argument, function takes enumerator @code{TInterferenceType}, and value of load. @code{TinterferenceType} enumerator has the following values:
+@example
+typedef enum @{
+        ECpuLoad,
+        EMemLoad,
+        EIOLoad
+@} TInterferenceType; 
+@end example
+Enumerator (along with all test interference functions)  is available if file includes the header @code{min_test_interference.h}. 
+Function has the following prototype:
+@example
+testInterference *ti_start_interference (TInterferenceType aType,
+                                               int aLoadValue
+                                              );
+@end example
+and should be used in following way:
+@example
+testInterference* disturbance;
+disturbance = ti_start_interference(ECpuLoad, 75);
+@end example
+In case of @code{EcpuLoad}, load value holds amount of CPU time that should be taken, in percent. In case of @code{EmemLoad}, @code{aLoadValue} holds amount of memory to be taken, in megabytes. In case of @code{IOLoad} (which performs disk IO operations), this value is ignored. It should be also noted, that if it is not possible to create test interference (for any reason, including missing sp-stress package), function will return @code{NULL}. More detailed problem information can then be found in syslog.
+
+

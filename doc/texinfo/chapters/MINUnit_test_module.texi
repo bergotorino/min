@@ -1,0 +1,20 @@
+The MINUnit test module differs from Hardcoded test module mainly in the syntax of test case definition. MINUnit is an implementation of XUnit testing framework (see http://en.wikipedia.org/wiki/XUnit). The MINUnit test module supports assert macros as well as test fixtures setup and cleanup. 
+See MIN Reference Guide for instructions on how to create a test case for MINUnit test module. 
+
+Figure below shows where the MINUnit test module is situated in MIN.
+
+
+
+@ifinfo
+@image{images/moduleminunit,10cm,,MINUnit Module,txt}
+@end ifinfo
+@ifplaintext
+@image{images/moduleminunit,10cm,,MINUnit Module,txt}
+@end ifplaintext
+@ifhtml
+@image{images/moduleminunit,10cm,,MINUnit Module,png}
+@end ifhtml
+@iftex 
+@image{images/moduleminunit,10cm,,MINUnit Module,png}
+@end iftex 
+

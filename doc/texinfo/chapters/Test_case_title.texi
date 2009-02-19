@@ -1,0 +1,16 @@
+The title is used to give verbal id to the test case. If test case title is defined it will be seen on the Console UI, if not then function name will be seen instead. It is recommended to add title to each test case.
+
+Test case title is defined in the same line on which function name is written, after "@code{--}"-marks. Please note that this @code{--} is a comment in Lua.
+@example
+function case_function() -- This is a title
+
+end
+@end example
+The example above shows a test case with title defined, where following example shows test case without title:
+@example
+function case_function()
+
+end
+@end example
+Both of them will be shown on the Console UI, which differs from standard MIN Scripter (In standard MIN Scripter test case title is mandatory).
+

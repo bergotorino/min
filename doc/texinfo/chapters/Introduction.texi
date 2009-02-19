@@ -1,0 +1,17 @@
+The script language provided by "scripter" test module has several limitations. If it is needed to implement more sophisticated logic, one can use functions written in python as test cases. In that case, architecture of system is as presented on Figure below.
+
+@ifinfo
+@image{images/minpython1,8cm,,Min Python Scripter,txt}
+@end ifinfo
+@ifplaintext
+@image{images/minpython1,8cm,,Min Python Scripter,txt}
+@end ifplaintext
+@ifhtml
+@image{images/minpython1,8cm,,Min Python Scripter,png}
+@end ifhtml
+@iftex
+@image{images/minpython1,8cm,,Min Python Scripter,png}
+@end iftex
+
+
+"Python Interpreter" test module and "MIN" Python extension are provided with MIN release. Python Interpreter test module is seen by system like any other test module. MIN Python extension is extension module that is imported by python script that serves as test case file (this will be explained in more detail later). SUT_EXTENSION is another extension module that python script needs to import. This one, however, is implemented by tester (based on template, also provided with MIN release). This extension serves as an interface to actual system under test.

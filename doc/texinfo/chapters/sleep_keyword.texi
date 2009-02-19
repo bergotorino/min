@@ -1,0 +1,13 @@
+The @code{sleep} keyword is used to pause the execution of a test case for a specified timeout. Sleep has one mandatory argument, which is described below.
+The @code{sleep} keyword only stops the test case line-runner active object for the specified period. All the other user active objects will continue to be serviced. That is, no further lines of the test case file will be executed during that delay, but the process is not halted; any user active objects may still be completed.
+@table @b
+@item Argument
+@item Timeout
+The timeout for the pause, specified in milliseconds.
+@end table
+The sleep keyword can be used, for example, in the following way:
+@example
+sleep 10000   // pause for 10 seconds
+@end example
+
+@b{Note:} @code{sleep} keyword works in the same way as deprecated @code{pausecombiner} keyword.

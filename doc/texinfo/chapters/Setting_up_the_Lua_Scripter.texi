@@ -1,0 +1,9 @@
+Lua Scripter is configured for use by adding Lua Scripter as a test module to MIN. The test case file is added as a test case file for Lua Scripter. An example:
+@example
+[New_Module]
+ModuleName=luascripter
+TestCaseFile=script.lua
+[End_Module]
+@end example
+
+Example above defines a new module for MIN (should be put in @code{min.conf} file) that uses Lua Scripter module with @code{script.lua} test case file.

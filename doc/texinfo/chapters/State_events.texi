@@ -1,0 +1,17 @@
+The state events are used to indicate that some specific state is active or inactive. State events are cached, that is, their state is stored in Test Engine. This means that when a test case requests a state event, the state of the event is checked, and if it is active, the event is set immediately and it remains set as long as it is unset by the one who has set it. If the state is inactive, the event is set for the requesting client immediately after the event is set.
+
+@ifinfo
+@image{images/stateevents,11cm,,State Events,txt}
+@end ifinfo
+@ifplaintext
+@image{images/stateevents,11cm,,State Events,txt}
+@end ifplaintext
+@ifhtml
+@image{images/stateevents,11cm,,State Events,png}
+@end ifhtml
+@iftex
+@image{images/stateevents,11cm,,State Events,png}
+@end iftex
+
+
+In figure above, first client 1 sets a specific state event. Then client 2 requests the event and goes waiting for it. The waiting returns immediately because the event is already set. After some processing, client 2 checks that the event is still active and after waiting returns immediately and proceeds with processing of its tasks. In the meanwhile, client 1 unsets the event, but the unset blocks because client 2 has requested the event. After client 2 releases the event, the unset returns to client 1. Client 2 starts processing again and requests the event again and goes waiting for it. Because the event is unset, the waiting blocks until client 1 sets the event and then the waiting returns to client 2. Then client 2 does its tasks and finally releases the event and client 1 unsets the event.

@@ -1,0 +1,13 @@
+This chapter describes what the MIN Test Framework (MIN) is, and what are the program modules that MIN consist of.
+
+MIN is a test harness for testing Linux non-UI components. This test framework can be used for both test case implementation and test cases execution.
+
+MIN separates the actual test cases from the test case execution environment. It provides different user interfaces and a common reporting mechanism, and allows executing test cases simultaneously. This test framework contains user interfaces on the interface layer, MIN Engine on the engine layer and the test modules and tools on the test layer.
+
+The console UI or an interface to a test automation tool can be used to start and monitor test case execution.
+
+Test Engine is responsible for loading test modules and for executing the test cases.
+
+Test cases are collected to separate modules, known as test modules, which are easy to implement.
+
+MIN is not an automatic test case creator but allows you to concentrate on the actual test case implementation.

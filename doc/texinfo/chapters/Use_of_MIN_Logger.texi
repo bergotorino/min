@@ -1,0 +1,53 @@
+There are three logging output variations: file output, null output and Syslog output. It is also available three logging format types: normal text, html and data formats. When be taken logging system for use then it is needed to define logger output and type by mnl_create() method. Other parameters are consists target logging directory, filename, additional information options and used buffer size definitions. If logger creation be completed successfully then method returns pointer to created logger data structure. If creation failed then returned pointer is @code{INITPTR} value.
+@example
+MinLogger* min_logger = mnl_create( "/temp/logs/"
+                                    , "min_testing.log"
+                      	             , ESHtml 
+                                    , ESFile
+                                    , ESTrue
+                                    , ESTrue
+                                    , ESTrue
+                                    , ESFalse
+                                    , ESFalse
+                      		 , ESFalse
+                      		 , 1000
+                      		 , ESFalse );
+@end example
+
+Writing to logging file, null output or Syslog file is executed by mnl_log() method and it is possible to use text styles (e.g. bold, underline or "remark" additions) and "sprintf" style string formatting with mnl_log() method. This method returns error code if log writing failed by some reason. 
+@example
+int retval = mnl_log( min_logger
+ 	             , ESBold
+                     , "Process ID = %s. Current number = %d"
+                     , pid, data );
+@end example
+It is also possible to add pre-defined or own specific delimiter character into logging file or output.
+
+@example
+mnl_write_delimiter( min_logger );
+
+mnl_write_own_delimiter( min_logger, ':', 1 );
+@end example
+MIN Logger API includes also getting methods to check used logger output plug-in and types.
+@example
+unsigned int output_types = mnl_output_type( min_logger );
+
+unsigned int logger_types = mnl_logger_type( min_logger );
+@end example
+Created logger data structure will be deleted by mnl_destroy() method after logging output not needed any more. If deletion be completed successfully then used logger pointer is set with INITPTR value. 
+@example
+mnl_destroy( &min_logger );
+@end example
+For convenience MIN provides several macros that can be used for logging purposes. Those macros are MIN_XXX(char *format, ... ) where XXX is one of: TRACE, DEBUG, NOTICE, INFO, WARN, ERROR and FATAL. Those names indicates importance level for logged message (FATAL is the highest, TRACE is the lowest (the most verbose)).
+
+Before one start using those macros the min_log_open(char *component, int level) function must be called. The supplied component name is then used in log messages to indicate the source of logged information, the level parameter is present only for binary compatibility and can be whatever value, usually 0.
+
+When one is done with logger usage min_log_close() function should be called.
+
+Typical usage looks like:
+@example
+min_log_open("Component Name",0);
+MIN_INFO("Log message number %d",1);
+MIN_DEBUG("Debug");
+min_log_close();
+@end example

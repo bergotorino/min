@@ -1,0 +1,16 @@
+The @code{pause} keyword is used to pause a test case. The test case is paused by stopping the process that executes the test case. The @code{pause} keyword has one mandatory and one optional argument, described below.
+
+@table @b
+@item Mandatory argument
+@item testid
+The test ID from the run command.
+@item Optrional argument
+@item Time
+Pause time in milliseconds. After this time, resume is called automatically (if not given, resume needs to be called explicitly).
+@end table
+
+The pause keyword can be used, for example, in the following way:
+@example
+pause test1 time=10
+@end example
+

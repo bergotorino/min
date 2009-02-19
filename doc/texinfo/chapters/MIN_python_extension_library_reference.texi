@@ -1,0 +1,333 @@
+MIN python extension library provides users with set of functions that enable them to use the same features as in other types of modules. Functions are described below (note that arguments are specified in order in which they should appear in function calls):
+
+@table @code
+@item Print_to_cui
+Prints specified message to MIN console UI
+@table @b
+@item (mandatory) String
+Contains message to be printed
+@item @b{Return value}
+Integer, always 0
+@end table
+@end table
+
+Example:
+@example
+min_ext.Print_to_cui("Printout text")
+@end example
+
+
+@table @code
+@item Set_indication_event
+Sets MIN event of type "indication" and specified name
+@table @code
+@item (mandatory) String
+Name of event to set
+@item @b{Return value}
+Integer, always 0
+@end table
+@end table
+
+Example:
+@example
+min_ext.Set_indication_event("MyEventInd")
+@end example
+
+
+@table @code
+@item Set_state_event
+Sets MIN event of type "state" and specified name
+@table @code
+@item (mandatory) String 
+Name of event to set
+@item @b{Return value}
+Integer, always 0
+@end table
+@end table
+
+Example:
+@example
+min_ext.Set_state_event("MyEventState")
+@end example
+
+
+@table @code
+@item Unset_event
+Unsets MIN event of type "state" and specified name. Note, that only events of type "state" can be unset.
+@table @code
+@item (mandatory) String
+Name of event to unset
+@item @b{Return value}
+Integer, always 0
+@end table
+@end table
+
+Example:
+@example
+min_ext.Unset_event("MyStateEvent")
+@end example
+
+
+@table @code
+@item Request_event
+Requests event. If test case will be waiting for some event, it first needs to request.
+@table @code
+@item (mandatory) String 
+Name of requested event
+@item (optional) "state"
+Keyword that should be specified if event is of type "state". If it is omitted system will  assume that requested event is of type "indication"
+@item @b{Return value}
+Integer, always 0
+@end table
+@end table
+
+Example:
+@example
+min_ext.Request_event("MyEventInd") 
+
+min_ext.Request_event("MyEventState","state")
+@end example
+
+
+@table @code
+@item Release_event
+Releases the previously requested event when it is not needed anymore.
+@table @code
+@item (mandatory) String 
+Name of event to request
+@item @b{Return value}
+Integer, always 0
+@end table
+@end table
+
+Example:
+@example
+min_ext.Release_event("MyEvent")
+@end example
+
+
+@table @code
+@item Wait_event
+Waits on previously requested event
+@table @code
+@item (mandatory) String
+Name of event
+@item @b{Return value}
+Integer, 0 if event was properly received, other value in case of error
+@end table
+@end table
+
+Example:
+@example
+min_ext.Wait_event("MyEvent")
+@end example
+
+
+@table @code
+@item Complete_case
+Executes test case from other MIN test module. Function doesn't return until started test case finishes execution.
+@table @code
+@item (mandatory) String 
+Name of test module
+@item (optional)String
+Name of test case file
+@item (mandatory) String
+Title of test case
+@item @b{Return value}
+Integer, result of test case (@xref{Test Module API}.)
+@end table
+@end table
+
+Example:
+@example
+min_ext.Complete_case("min_hardcoded_module","testcase_title")
+
+min_ext.Complete_case("min_other_module","testcase_file","testcase_title")
+@end example
+
+
+@table @code
+@item Start_case
+Starts asynchronous execution of test case from another module. Note that Python test case won't end until this test case finishes, but result of test case is not provided. It is possible to synchronize with this test case via events.
+@table @code
+@item (mandatory) String 
+Name of test module
+@item (optional)String
+Name of test case file
+@item (mandatory) String
+Title of test case
+@item @b{Return value}
+Integer, always 0
+@end table
+@end table
+
+Example:
+@example
+min_ext.Start_case("min_hardcoded_module","testcase_title")
+
+min_ext.Start_case("min_other_module","testcase_file","testcase_title")
+@end example
+
+
+@table @code
+@item Create_logger
+Creates MIN logger structure (Keep in mind, that the logger created in test case has to be destroyed in the same case, otherwise there will be resource leak)
+@table @code
+@item (mandatory) String 
+Path to log directory
+@item (mandatory) String
+Log filename
+@item (mandatory) String
+Log format (can be "html" or "txt")
+@item @b{Return value}
+Handle to MIN logger structure (used to log and destroy logger)
+@end table
+@end table
+
+Example:
+@example
+My_logger = min_ext.Create_logger("/tmp","logfile.log","txt")
+@end example
+
+
+@table @code
+@item Log
+Writes specified string to log
+@table @code
+@item (mandatory) int
+Handle to logger (returned by @code{Create_log})
+@item (optional) char
+Style (can be "b" or "B" for bold, "u" or "U" for underline and "i" or "I" for italic - other values are ignored.).  Styles work of course only in case of html logger.
+@item (mandatory) String
+Log message to write
+@item @b{Return value}
+Integer, always 0
+@end table
+@end table
+
+Example:
+@example
+min_ext.Log(My_logger,"b","log this text")
+@end example
+
+
+@table @code
+@item Destroy_logger
+Destroys MIN logger structures, required to free system resources allocated by @code{Create_logger}.
+@table @code
+@item (mandatory) int
+Handle to logger returned by @code{Create_logger}
+@item @b{Return value}
+Integer, always 0
+@end table
+@end table
+
+Example:
+@example
+min_ext.Destroy_logger(My_logger)
+@end example
+
+
+@table @code
+@item Allocate_slave
+Allocates slave device, in external controlled master/slave scenarios
+@table @code
+@item (mandatory) String 
+Name of slave device
+@item @b{Return value}
+Integer, 0 if operation was successful, error value otherwise
+@end table
+@end table
+
+Example:
+@example
+min_ext.Allocate_slave("other_device")
+@end example
+
+
+@table @code
+@item Free_slave
+Releases slave device in external controlled master/slave scenarios
+@table @code
+@item (mandatory) String 
+Name of slave device
+@item @b{Return value}
+Integer, 0 if operation was successful, error value otherwise
+@end table
+@end table
+
+Example:
+@example
+min_ext.Free_slave("the_other_device")
+@end example
+
+
+@table @code
+@item Request_remote_event
+Requests event from slave device in externally controlled master/slave scenarios
+@table @code
+@item (mandatory) String 
+Name of slave device
+@item (mandatory) String
+Name of the event
+@item (optional) "State"
+Indicates if the requested event is of type state. If it is specified as a string different than "State" (case insensitive), or not specified at all, event will be considered indication event.
+@item @b{Return value}
+Integer, 0 if operation was successful, error value otherwise
+@end table
+@end table
+@b{Comment:} After the event is requested from remote device, master test case can wait on it in the same way it would wait on local event.
+
+
+Example:
+@example
+min_ext.Request_remote_event("other_device","some_indication_event")
+
+min_ext.Request_remote_event("the_other_device","some_state_event","state")
+@end example
+
+
+@table @code
+@item Release_remote_event
+Releases previously requested remote event
+@table @code
+@item (mandatory) String 
+Name of slave device
+@item (mandatory) String
+Name of event
+@item @b{Return value}
+Integer, 0 if operation was successful, error value otherwise
+@end table
+@end table
+@b{Comment:} Function fails in case of problems in master/slave communication or faulty argument specification
+
+Example:
+@example
+min_ext.Release_remote_event("other_device","event")
+@end example
+
+
+@table @code
+@item Run_remote_case
+Executes Test case in previously allocated slave device
+@table @code
+@item (mandatory) String
+Name of slave device
+@item (mandatory) String
+Name of module
+@item (optional) String
+Test case filename
+@item (mandatory) int
+Number of test case
+@item @b{Return value}
+Integer, 0 if operation was successful, error value otherwise
+@end table
+@end table
+@b{Comment:} Function is considered successful if remote test case was started. After that, only available method of communication with slave test case is by events. Result of remote test case will not be provided. However, python test case will not finish, until slave test case finishes (or external controller timeout expires).
+
+Example:
+@example
+min_ext.Run_remote_case("other_device","hardcoded_min_module",1)
+
+min_ext.Run_remote_case("another_device","other_min_module","testcase_file",3)
+@end example

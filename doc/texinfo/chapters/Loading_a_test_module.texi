@@ -1,0 +1,3 @@
+To load module, which is not automatically loaded when starting MIN, go to @b{Module menu}, and choose option @b{Add test module}. List of available modules should appear, with module files in @code{/usr/lib/min} and @code{~/.min/} directories. When the module is selected, there will be list of test case files in the same directories, multiple files may be marked to be added, when this is ready choose @b{Add selected test case file(s)} option. Message "Module added" is shown and module along with selected test cases is ready to use.
+
+@b{Note:} Using @b{Add test module} menu will work only for current run of Console UI, to add module permanently, use @code{min.conf} file. @xref{Configuring MIN via the MIN Test Framework initialization file}.

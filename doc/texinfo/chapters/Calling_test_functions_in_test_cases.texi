@@ -1,0 +1,16 @@
+Each test case is a method exported from Test Module. First of all it is a must to load Lua Test Class as a Test Module, then you can call each test function as follows:
+@example
+function case_function() -- load test
+	foo = min.load("Bar");
+	foo.Example();
+	min.unload(foo);
+	return TP_PASSED;
+end
+@end example
+
+Note that the following call:
+@example
+foo.Example();
+@end example
+is referring to the test function name given in ENTRY macro. It is not the real test function name.
+

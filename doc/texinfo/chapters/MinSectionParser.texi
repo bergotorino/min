@@ -1,0 +1,268 @@
+The purpose of @code{MinSectionParser} is to parse the required lines of the section to forward operations.
+
+The main methods of CMinSectionParser are:
+@itemize
+@item @code{msp_create}
+@item @code{msp_destory} 
+@item @code{msp_get_item_line}
+@item @code{msp_get_next_item_line}
+@item @code{msp_get_next_tagged_item_line}
+@item @code{msp_sub_section}
+@item @code{msp_next_sub_section}
+@item @code{msp_next_sub_section }
+@item @code{msp_get_line}
+@item @code{msp_get_next_line}
+@item @code{msp_get_next_tagged_line}
+@item @code{msp_get_position}
+@item @code{msp_set_position}
+@item @code{msp_set_data}
+@item @code{msp_des}
+@end itemize
+
+
+
+
+
+@table @code
+@item MinSectionParser* msp_create(unsigned int length);
+Creates a new MinSectionParser.
+@table @code
+@item unsigned int length
+The length of the section to be parsed.
+
+@item @b{Possible errno return values}
+@code{ENOMEM}: No sufficient memory to allocate new struct object.
+@item @b{Return value}
+@code{MinSectionParser} struct object.
+@end table
+@end table
+
+
+@table @code
+@item void msp_destroy(MinSectionParser** msp)
+Destroys previously created MinSectionParser.
+@table @code
+@item MinSectionParser** msp
+the reference pointer to MinSectionParser struct component.
+Returns address of @code{MinItemParser} or @code{INITPTR} in case of failure.
+@item @b{Return value}
+none
+@item @b{Possible errno values}
+@code{ENOMEM}: No sufficient memory to allocate new struct object.
+@end table
+@end table
+
+
+
+@table @code
+@item MinItemParser* msp_get_item_line(MinSectionParser* msp, const TPtrC* tag, TTagToReturmValue tag_indicator)
+Parses the next line for items parsing with a tag.
+
+Returns address of MinItemParser or INITPTR in case of failure.
+@table @code
+@item MinSectionParser* msp
+The reference pointer to MinSectionParser struct component.                                           
+@item const TPtrC* tag
+Indicates the tag to start with. If start tag is empty                    the parsing starts begin of the section.
+@item TTagToReturmValue tag_indicator
+Idicates if tag will be included to the returned object.
+@item @b{Return value}
+MinItemParser struct object or INITPTR in case of failure.
+@end table
+@end table
+
+@table @code
+@item MinSectionParser* msp_get_next_item_line(MinSectionParser* msp)
+Parses a next line for items parsing.
+@table @code
+@item MinSectionParser* msp
+MinSectionParser entity to operate on.
+@item @b{Return value}
+MinSectionParser construct object.
+@end table
+@end table
+
+@table @code
+@item MinItemParser* msp_get_next_tagged_item_line(MinSectionParser* msp, const TPtrC* tag, TTagToReturnValue tag_indicator)
+Parses a next line for items parsing with a tag.
+
+Returns pointer to MinItemParser struct component.
+@table @code
+@item MinSectionParser* msp
+MinSectionParser entity to operate on.
+@item const TPtrC* tag
+Indicates the tag to start with. If start tag is empty the parsing starts begin of the section.
+@item TTagToReturnValue tag_indicator
+Indicates if tag will be included to the returned object.
+@item @b{Return value}
+MinItemParser struct object.
+@end table
+@end table
+
+@table @code
+@item MinSectionParser* msp_sub_section(TPtrC* start_tag, TPtrC* end_tag, int seeked)
+Parses a sub sections from the main section with a start and with an end tag.
+
+Returns pointer to MinSectionParser struct component.
+
+@table @code
+@item const TPtrC* start_tag
+Indicates the tag to start on.
+@item const TPtrC* end_tag
+Indicates the tag to end on.
+@item int seeked
+The sought parameter indicates subsection that will be parsed.
+@item @b{Return value}
+MinSectionParser struct object.
+@end table
+@end table
+
+@table @code
+@item MinSectionParser* msp_next_sub_section(MinSectionParser* msp, const TPtrC* start_tag, const TPtrC* end_tag, int seeked)
+Parses a next subsection from the main section with a start and with an end tag.
+
+Returns pointer of MinSectionParser or INITPTR in case of failure.
+
+@table @code
+@item MinSectionParser* msp
+MinSectionParser entity to operate on.
+@item const TPtrC* start_tag
+Indicates the tag to start on.
+@item const TPtrC* end_tag
+Indicates the tag to end on.
+@item int seeked
+The sought parameter indicates subsection that will be parsed.
+@item @b{Return value}
+MinSectionParser struct object.
+@end table
+@end table
+
+@table @code
+@item MinSectionParser* msp_next_sub_section(MinSectionParser* msp, const TPtrC* start_tag, const TPtrC* end_tag, int seeked)
+Parses a next subsection from the main section with a start and width an end tag.
+@table @code
+@item MinSectionParser* msp
+Pointer to the MinSectionParser struct component.
+@item const TPtrC* start_tag
+Pointer to start tag string.
+@item const TPtrC* end_tag
+Pointer to end tag string.
+@item int seeked
+The sought parameter indicates subsection that will be parsed.
+@item @b{Return value}
+Return pointer to MinSectionParser struct component or INITPTR pointer value in case of failure.
+@end table
+@end table
+
+
+@table @code
+@item int msp_get_line(MinSectionParser* msp, const TPtrC* tag, TPtrC** line, TTagToReturnValue tag_indicator)
+Get a line from section with a tag.
+@table @code
+@item @b{Possible errno values}
+@code{EINVAL} errno value when invalid value was passed as a parameter.
+@item MinSectionParser* msp
+Pointer to the MinSectionParser struct component.
+@item const TPtrC* tag
+Indicates the tag to start with. If start tag is empty the parsing starts begin of the section.
+@item TPtrC** line
+Parsed line is returned through this variable.
+@item TTagToReturnValue tag_indicator
+Indicates if tag will be included to the returned line.
+@item @b{Return value}
+Returns 0 in case of success, -1 in case of failure.
+@end table
+@end table
+
+@table @code
+@item int msp_get_next_line(MinSectionParser* msp, TPtrC** line)
+Parses  next line.
+@table @code
+@item @b{Possible errno values}
+@code{EINVAL} when invalid value was passed as a parameter.
+@item MinSectionParser* msp
+Pointer to the MinSectionParser struct component.
+@item TPtrC** line
+Parsed line is returned through this variable.
+@item @b{Return value}
+Returns value 0 in case of success, -1 in case of failure.
+@end table
+@end table
+
+@table @code
+@item int msp_get_next_tagged_line(MinSectionParser* msp, const TPtrC* tag, TPtrC** line, TTagToReturnValue tag_indicator)
+Get next line with tag.
+@table @code
+@item @b{Possible errno values}
+@code{EINVAL} when invalid value was passed as a parameter.
+@item MinSectionParser* msp
+Pointer to the MinSectionParser struct component.
+@item const TPtrC* tag
+Indicates the tag to start with. If start tag is empty the parsing starts begin of the section.
+@item TPtrC** line
+Parsed line is returned through this variable. If line is no found INITPTR pointer value is returned.
+@item TTagToReturnValue tag_indicator
+Indicates if tag will be included to the return line.
+@item Return value
+Returns value 0 in case of success, -1 in case of failure.
+@end table
+@end table
+
+@table @code
+@item int msp_get_position(MinSectionParser* msp)
+Get current position.
+@table @code
+@item @b{Possible errno values}
+@code{EINVAL} when invalid value was passed as a parameter.
+@item MinSectionParser* msp
+Pointer to the MinSectionParser struct component.
+@item @b{Return value}
+Returns current parsing position, or value -1 in case of failure.
+@end table
+@end table
+
+
+
+@table @code
+@item int msp_set_position(MinSectionParser* msp, unsigned int pos)
+Set position. This function can be used to set parsing position, e.g. to rewind back to some old position retrieved with GetPosition.
+@table @code
+@item @b{Possible errno values}
+@code{EINVAL} when invalid value was passed as a parameter.
+@item MinSectionParser* msp
+Pointer to the MinSectionParser struct component.
+@item unsigned int pos
+Indicates the position to which section parser should go.
+@item @b{Return value}
+Returns error value in case of  failure.
+@end table
+@end table
+
+
+@table @code
+@item void msp_set_data(MinSectionParser* msp, const TPtrC* data, TPtrC* start_pos, unsigned int length)
+Create a section.
+@table @code
+@item MinSectionParser* msp
+Pointer to the MinSectionParser struct component.
+@item const TPtrC* data
+String data which are to be parsed.
+@item TPtrC* start_pos
+Position from which parsing should start.
+@item unsigned int length
+Length of the data in bytes.
+@item @b{Return value}
+None
+@end table
+@end table
+
+@table @code 
+@item const TPtrC* msp_des(const MinSectionParser* msp)
+Returns current section.
+@table @code
+@item const MinSectionParser* msp
+Pointer to the MinSectionParser struct component.
+@item @b{Return value}
+Return pointer to the data that parser is parsing.
+@end table
+@end table

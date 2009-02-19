@@ -1,0 +1,7 @@
+The following steps are needed for enabling C++ in MINUnit or HardCoded test module created by the Test Module Template Wizard:
+@enumerate
+@item Uncomment AC_PROG_CXX in @code{<module_name>/configure.in}
+@item Uncomment @code{CC=g++} and @code{<module_name>_la_CXXFLAGS} in @code{<module_name>/Makefile.am} file.
+@item Change the @code{<file_name>.c} files into @code{<file_name>.cpp} in @code{<module_name>/src} directory and @code{<module_name>/Makefile.am} file.
+@end enumerate
+

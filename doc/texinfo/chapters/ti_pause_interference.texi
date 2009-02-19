@@ -1,0 +1,9 @@
+Function is used to pause test interference process at any moment. It has the following prototype:
+@example
+void ti_pause_interference(testInterference* aInterference);
+@end example
+and can be used in the following way:
+@example
+ti_pause_interference(disturbance);
+@end example
+@code{aInterference} argument is pointer to @code{testInterference} structure, returned by @code{ti_start_interference} or @code{ti_start_interference_timed} function.

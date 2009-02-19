@@ -1,0 +1,32 @@
+In order to use user created test code with Lua Scripter it is necessary to use MIN test module which is compliant with Lua: the Lua test class module.
+
+A new Lua test class can be easily created with MIN Test Module Template Wizard that comes with the MIN release
+
+@example
+$createtestmodule
+@end example
+@itemize
+@item Give luatestclass as ModuleType.
+@item Enter a name and path for the Lua test class.
+@end itemize
+A new Lua test class is now created with the given name to the given path. The next step is to create the building block methods to the test class.
+
+To create the building block methods to the Lua test class:
+@enumerate
+@item Implement the building blocks to the @code{/<testclassname>/src/<testclassname>Cases.c} file (there is one example method, that can be copy-pasted).
+@item Add entry lines for every method to function @code{ts_get_test_cases (<testclassname>Cases.c)}:
+@example
+ENTRY(*list,"Example",ExampleTest);
+@end example
+@item Add entry lines for every method to FORWARD DECLARATIONS:
+@example
+LOCAL int ExampleTest( lua_State *l );
+@end example
+@item Build the test class from the @code{/<testclassname>} directory by using @code{build.sh} script. It will automatically copy test class library to @code{/home/<user name>/.min}.
+@end enumerate
+
+Now the Lua test class is created. The next step is to implement test cases to test the test case file used by Lua Scripter. An example test case file can be found in @code{/<testclassname>/Example.lua}. The test case file is constructed using the script language defined in this chapter.
+
+Copy the test case file to @code{/home/<user name>/.min/}
+
+Now you should be able to execute your test class module by using console UI or EXT INTERFACE.

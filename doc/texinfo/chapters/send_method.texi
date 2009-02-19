@@ -1,0 +1,9 @@
+Method @code{send} is used to send variable through external interface. As a parameter it takes the name under which it will be sent and the variable (number or string).
+@example
+function case_function() - remote expect example
+	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
+	a = 5;
+	slavehnd:send("foo",a);
+	min.slave_free(slavehnd);
+end
+@end example

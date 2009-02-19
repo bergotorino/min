@@ -1,0 +1,9 @@
+@example
+Text *string = tx_create("MIN");  // allocate Text with "MIN" 
+                                  // as initializer
+
+tx_c_append(" is great");         // modification of Text data
+
+tx_destroy(&string);              // deallocate Text, and buffer
+                                  // used to hold string data
+@end example

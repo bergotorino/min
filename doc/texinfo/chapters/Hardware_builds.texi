@@ -1,0 +1,12 @@
+The recommended way is to create a debian package in Scratchbox and install it to hardware.
+
+Alternatively MIN must be compiled in Scratchbox and following binaries have to be copied into the hardware:
+@itemize @bullet
+@item @code{min/src/main/min.bin} to @code{/usr/bin/}
+@item @code{min/src/main/min} to @code{/usr/bin/}
+@item @code{min/src/tmc/tmc} to @code{/usr/bin/}
+@item @code{min/conf/min.conf} to @code{/etc/}
+@item @code{Your_test_library.so} to @code{/home/<user name>/.min/}
+@end itemize
+
+@b{Note:} The location of these files must match the paths in @code{min.conf} file. 

@@ -1,0 +1,1 @@
+The @code{unload} functionality is used to unload loaded Lua Test Class. As a parameter it takes the handle to the loaded Test Module. @xref{load method}.

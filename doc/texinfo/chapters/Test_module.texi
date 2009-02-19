@@ -1,0 +1,21 @@
+Test cases are collected to separate modules, known as test modules, which are easy to implement.
+
+There can be several test cases implemented in one test module, and test cases can be defined for example, by hard coding test cases to the test module. In addition, MIN supports running different test cases simultaneously from several test modules.
+
+A test module contains the actual test case implementation. The test module is a library, which implements the MIN Test Module API. The most important function in that interface is @code{int tm_run_test_case( unsigned int id, const char *cfg_file, TestCaseResult *result)}, which executes the test case and returns the test case result. 
+
+The MIN services interface from the test module to MIN provides synchronous operations for the test module. For example, printing from the test module is implemented inside a synchronous function that causes a synchronous request to be completed inside Test Module Controller.
+
+Currently, three different test module types are supported in MIN:
+@itemize @bullet
+@item Hardcoded
+@item Normal
+@item MINUnit
+@end itemize
+
+MIN Test Module Template Wizard provides test module templates for test module creation. The possible test module template types of MIN are:
+@itemize @bullet
+@item Hardcoded (for a Hardcoded test module)
+@item Normal
+@item MINUnit
+@end itemize

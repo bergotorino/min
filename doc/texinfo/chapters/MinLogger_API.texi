@@ -1,0 +1,130 @@
+he methods of MIN Logger are listed and explained below:
+The main methods of MinLogger are:
+@itemize
+@item @code{mnl_create} for creating MIN Logger "object"
+@item @code{mnl_destroy} for destroying MIN Logger instance
+@item @code{mnl_log} for logging message
+@item @code{mnl_write_delimiter} for writing delimiter to log
+@item @code{mnl_write_own_delimiter} for writing user defined delimiter to log
+@item @code{mnl_output_type} for get information about used output plug-in
+@item @code{mnl_logger_type} for get information which logs are created
+@end itemize
+
+
+@table @code
+@item MinLogger *mnl_create (const TSChar * path, const TSChar * file, unsigned int loggertype, unsigned int output, TSBool overwrite, TSBool withtimestamp, TSBool withlinebreak, TSBool witheventranking, TSBool pididtologfile, TSBool createlogdir, unsigned int staticbuffersize, TSBool unicode)
+Creates MIN Logger "object".
+@table @code
+@item const TSChar* path
+Output directory
+@item const TSChar* file
+Output filename
+@item unsigned int loggertype
+Type of the logger that is in use
+@item unsigned int output
+Output plugin type number
+@item TSBool overwrite
+Overwrite file if exists flag
+@item TSBool withtimestamp
+Add timestamp flag
+@item TSBool withlinebreak
+Add line break flag
+@item TSBool witheventranking
+Do event ranking flag
+@item TSBool pididtologfile
+Process ID to log file flag
+@item TSBool createlogdir
+Create output directory if not exists flag
+@item unsigned int staticbuffersize
+Size of static buffer
+@item TSBool unicode
+Unicode flag
+@item @b{Return value}
+Pointer to created MIN Logger data structure
+@end table
+@end table
+
+
+@table @code
+@item void mnl_destroy (MinLogger** mnl)
+Destroys MIN Logger instance
+@table @code
+@item MinLogger** mnl
+The pointer reference to MinLogger data structure
+@item @b{Return value}
+none
+@end table
+@end table
+
+
+@table @code
+@item int mnl_log (MinLogger * mnl, TSStyle style, const TSChar * format, ...);
+Writes information to log
+@table @code
+@item MinLogger * mnl
+Pointer to the MinLogger instance to be used
+@item TSStyle style
+The style to be used
+@item const TSChar * format
+Format of the message to be logged
+@item ...
+Extra parameters, according to the message format
+@item @b{Return value}
+Return error code 0 if logging operation completed successfully, else error code -1 if operation failed
+@end table
+@end table
+
+
+@table @code
+@item mnl_write_delimiter (MinLogger * mnl)
+Writes delimiter to log
+@table @code
+@item MinLogger * mnl
+Pointer to MIN Logger instance
+@item @b{Return value}
+none
+@end table
+@end table
+
+
+@table @code
+@item void mnl_write_own_delimiter (MinLogger * mnl, const TSChar c, unsigned int t);
+Writes user defined delimiter to log
+@table @code
+@item MinLogger * mnl
+Pointer to MIN Logger instance
+@item const TSChar c
+Character used as a delimiter
+@item unsigned int t
+Number of character in the delimiter string
+@item @b{Return value}
+none
+@end table
+@end table
+
+
+@table @code
+@item unsigned int mnl_output_type (MinLogger * mnl)
+Returns the information which output plug-in is used with logger
+@table @code
+@item MinLogger * mnl
+Pointer to MIN Logger instance
+@item @b{Return value}
+"OR" modified mask of output plug-in types that were created for this logger
+@end table
+@end table
+
+
+@table @code
+@item unsigned int mnl_logger_type (MinLogger * mnl)
+Returns the information which logs are created
+@table @code
+@item MinLogger * mnl
+Pointer to MIN Logger instance
+@item @b{Return value}
+"OR" modified mask of log typed plug-in types that were created
+@end table
+@end table
+
+
+

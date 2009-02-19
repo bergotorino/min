@@ -1,0 +1,390 @@
+\input texinfo  @c -*-texinfo-*-
+@c %**start of header (This is for running texinfo on a region.)
+@setfilename min.info
+@settitle MIN Test Framework User's Guide
+@c %**end of header (This is for running texinfo on a region.)
+
+@ignore
+@ifinfo
+@format
+START-INFO-DIR-ENTRY
+* MIN: (min.info). MIN Test Framework for Lunux/Maemo.
+END-INFO-DIR-ENTRY
+@end format
+@end ifinfo
+@end ignore
+
+@set document_version 1.2
+@set document_title MIN Test Framework
+@set document_full_title MIN Test Framework User's Guide
+@set document_author MIN Development Team
+@set application_full_name MIN Test Framework
+@set module_wizard_command createtestmodule
+@set application_command min
+@set copyright_owner Nokia
+@set copyright_date 2008
+
+
+@ifinfo
+This file documents @value{application_full_name}
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts and no Back-Cover Texts.  A copy of the license is included in the section entitled "GNU Free Documentation License".
+
+@end ifinfo
+
+@titlepage
+@title @value{document_title}
+@subtitle @value{document_full_title}
+@author @value{document_author}
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+@sp 2
+Document Version @value{document_version}
+@sp 2
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts and no Back-Cover Texts.  A copy of the license is included in the section entitled "GNU Free Documentation License".
+@end titlepage
+
+@ifinfo
+@node Top, Document Version, (dir), (dir)
+@top General Introduction
+This file documents @value{application_full_name}
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+Document Version @value{document_version}
+@end ifinfo
+
+@ifhtml
+@node Top, Document Version, (dir), (dir)
+@top General Introduction
+This file documents @value{application_full_name}
+@sp 2
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+@sp 2
+Document Version @value{document_version}
+@end ifhtml
+
+
+@menu
+
+* Top: Top.
+* Document Version: Document Version.
+* Document control: Document control.
+* Documentation conventions: Documentation conventions.
+* Abbreviations: Abbreviations.
+* Definitions: Definitions.
+* Introduction to MIN Test Framework: Introduction to MIN Test Framework.
+* MIN architecture overview: MIN architecture overview.
+* MIN modules on the interface layer: MIN modules on the interface layer.
+* MIN Console UI: MIN Console UI.
+* MIN EXT interface: MIN EXT interface.
+* MIN module on the engine layer: MIN module on the engine layer.
+* Test Engine: Test Engine.
+* MIN modules on the test layer: MIN modules on the test layer.
+* Test Module controller: Test Module controller.
+* Test module: Test module.
+* Hardcoded test module: Hardcoded test module.
+* Normal test module: Normal test module.
+* MINUnit test module: MINUnit test module.
+* MIN Parser: MIN Parser.
+* MIN Logger: MIN Logger.
+* MIN Event System: MIN Event System.
+* MIN Text interface: MIN Text interface.
+* MIN features: MIN features.
+* Setting up MIN: Setting up MIN.
+* Building MIN: Building MIN.
+* Creating MIN Debian packages: Creating MIN Debian packages.
+* Hardware builds: Hardware builds.
+* Configuring MIN via the MIN Test Framework initialization file: Configuring MIN via the MIN Test Framework initialization file.
+* Configuring MIN Modules through /etc/min.d directory: Configuring MIN Modules through _etc_min_d directory.
+* Using MIN for test cases execution: Using MIN for test cases execution.
+* Working with MIN Console UI: Working with MIN Console UI.
+* Startup parameters: Startup parameters.
+* Test module identification: Test module identification.
+* Starting MIN Console UI: Starting MIN Console UI.
+* Menu navigation: Menu navigation.
+* Loading a test module: Loading a test module.
+* Starting a test case: Starting a test case.
+* Lists of started test cases: Lists of started test cases.
+* Aborting suspending and resuming a test case: Aborting_suspending and resuming a test case.
+* Viewing the test case output: Viewing the test case output.
+* Test sets: Test sets.
+* Working with the MIN command line interface: Working with the MIN command line interface.
+* GNU Free Documentation License: GNU Free Documentation License.
+@end menu
+
+@summarycontents
+@contents
+
+@node Document Version, Document control, Top, Top
+@unnumbered Document Version History
+
+@c multitables are constructed on the most common text inside of each cell, with word "add" as a spacer to prevent cells connecting to each other
+@multitable @columnfractions .10 .20 .15 .50 
+@headitem Version @tab Date @tab Status @tab Comments 
+@item 1.0 @tab 17.12.2008 @tab Draft @tab Initial draft 
+@item 1.1 @tab 20.01.2009 @tab Draft @tab Added chapter describing C++ modules
+@item 1.2 @tab 01.02.2009 @tab Draft @tab TeXinfo version 
+@end multitable
+
+
+@node Document control, Documentation conventions, Document Version, Top
+@chapter Document control
+@menu
+* Documentation conventions: Documentation conventions.
+* Abbreviations: Abbreviations.
+* Definitions: Definitions.
+@end menu
+
+@node Documentation conventions, Abbreviations, Document control, Document control
+@section Documentation conventions
+@include chapters/Documentation_conventions.texi
+
+@node Abbreviations, Definitions, Documentation conventions, Document control
+@section Abbreviations
+@include chapters/Abbreviations.texi
+
+@node Definitions, Introduction to MIN Test Framework, Abbreviations, Document control
+@section Definitions
+@include chapters/Definitions.texi
+
+@c @node Introduction, Introduction to MIN Test Framework, Definitions, Top
+@c @chapter Introduction
+@c @include chapters/Introduction.texi
+
+@node Introduction to MIN Test Framework, MIN architecture overview, Definitions, Top
+@chapter Introduction to MIN Test Framework
+@include chapters/Introduction_to_MIN_Test_Framework.texi
+@menu
+* MIN architecture overview: MIN architecture overview.
+* MIN modules on the interface layer: MIN modules on the interface layer.
+* MIN Console UI: MIN Console UI.
+* MIN EXT interface: MIN EXT interface.
+* MIN module on the engine layer: MIN module on the engine layer.
+* Test Engine: Test Engine.
+* MIN modules on the test layer: MIN modules on the test layer.
+* Test Module controller: Test Module controller.
+* Test module: Test module.
+* Hardcoded test module: Hardcoded test module.
+* Normal test module: Normal test module.
+* MINUnit test module: MINUnit test module.
+* MIN Parser: MIN Parser.
+* MIN Logger: MIN Logger.
+* MIN Event System: MIN Event System.
+* MIN Text interface: MIN Text interface.
+* MIN features: MIN features.
+@end menu
+
+@node MIN architecture overview, MIN modules on the interface layer, Introduction to MIN Test Framework, Introduction to MIN Test Framework
+@section MIN architecture overview
+@include chapters/MIN_architecture_overview.texi
+
+@node MIN modules on the interface layer, MIN Console UI, MIN architecture overview, Introduction to MIN Test Framework
+@section MIN modules on the interface layer
+@include chapters/MIN_modules_on_the_interface_layer.texi
+@menu
+* MIN Console UI: MIN Console UI.
+* MIN EXT interface: MIN EXT interface.
+@end menu
+
+@node MIN Console UI, MIN EXT interface, MIN modules on the interface layer, MIN modules on the interface layer
+@subsection MIN Console UI
+@include chapters/MIN_Console_UI.texi
+
+@node MIN EXT interface, MIN module on the engine layer, MIN Console UI, MIN modules on the interface layer
+@subsection MIN EXT interface
+@include chapters/MIN_EXT_interface.texi
+
+@node MIN module on the engine layer, Test Engine, MIN EXT interface, Introduction to MIN Test Framework
+@section MIN module on the engine layer
+@include chapters/MIN_module_on_the_engine_layer.texi
+@menu
+* Test Engine: Test Engine.
+@end menu
+
+@node Test Engine, MIN modules on the test layer, MIN module on the engine layer, MIN module on the engine layer
+@subsection Test Engine
+@include chapters/Test_Engine.texi
+
+@node MIN modules on the test layer, Test Module controller, Test Engine, Introduction to MIN Test Framework
+@section MIN modules on the test layer
+@include chapters/MIN_modules_on_the_test_layer.texi
+@menu
+* Test Module controller: Test Module controller.
+* Test module: Test module.
+* Hardcoded test module: Hardcoded test module.
+* Normal test module: Normal test module.
+* MINUnit test module: MINUnit test module.
+* MIN Parser: MIN Parser.
+* MIN Logger: MIN Logger.
+* MIN Event System: MIN Event System.
+* MIN Text interface: MIN Text interface.
+@end menu
+
+@node Test Module controller, Test module, MIN modules on the test layer, MIN modules on the test layer
+@subsection Test Module controller
+@include chapters/Test_Module_controller.texi
+
+@node Test module, Hardcoded test module, Test Module controller, MIN modules on the test layer
+@subsection Test module
+@include chapters/Test_module.texi
+@menu
+* Hardcoded test module: Hardcoded test module.
+* Normal test module: Normal test module.
+* MINUnit test module: MINUnit test module.
+@end menu
+
+@node Hardcoded test module, Normal test module, Test module, Test module
+@subsubsection Hardcoded test module
+@include chapters/Hardcoded_test_module.texi
+
+@node Normal test module, MINUnit test module, Hardcoded test module, Test module
+@subsubsection Normal test module
+@include chapters/Normal_test_module.texi
+
+@node MINUnit test module, MIN Parser, Normal test module, Test module
+@subsubsection MINUnit test module
+@include chapters/MINUnit_test_module.texi
+
+@node MIN Parser, MIN Logger, MINUnit test module, MIN modules on the test layer
+@subsection MIN Parser
+@include chapters/MIN_Parser.texi
+
+@node MIN Logger, MIN Event System, MIN Parser, MIN modules on the test layer
+@subsection MIN Logger
+@include chapters/MIN_Logger.texi
+
+@node MIN Event System, MIN Text interface, MIN Logger, MIN modules on the test layer
+@subsection MIN Event System
+@include chapters/MIN_Event_System.texi
+
+@node MIN Text interface, MIN features, MIN Event System, MIN modules on the test layer
+@subsection MIN Text interface
+@include chapters/MIN_Text_interface.texi
+
+@node MIN features, Setting up MIN, MIN Text interface, Introduction to MIN Test Framework
+@section MIN features
+@include chapters/MIN_features.texi
+
+@node Setting up MIN, Building MIN, MIN features, Top
+@chapter Setting up MIN
+@include chapters/Setting_up_MIN.texi
+@menu
+* Building MIN: Building MIN.
+* Creating MIN Debian packages: Creating MIN Debian packages.
+* Hardware builds: Hardware builds.
+* Configuring MIN via the MIN Test Framework initialization file: Configuring MIN via the MIN Test Framework initialization file.
+* Configuring MIN Modules through /etc/min.d directory: Configuring MIN Modules through _etc_min_d directory.
+@end menu
+
+@node Building MIN, Creating MIN Debian packages, Setting up MIN, Setting up MIN
+@section Building MIN
+@include chapters/Building_MIN.texi
+
+@node Creating MIN Debian packages, Hardware builds, Building MIN, Setting up MIN
+@section Creating MIN Debian packages
+@include chapters/Creating_MIN_Debian_packages.texi
+@menu
+* Hardware builds: Hardware builds.
+@end menu
+
+@node Hardware builds, Configuring MIN via the MIN Test Framework initialization file, Creating MIN Debian packages, Creating MIN Debian packages
+@subsection Hardware builds
+@include chapters/Hardware_builds.texi
+
+@node Configuring MIN via the MIN Test Framework initialization file, Configuring MIN Modules through _etc_min_d directory, Hardware builds, Setting up MIN
+@section Configuring MIN via the MIN Test Framework initialization file
+@include chapters/Configuring_MIN_via_the_MIN_Test_Framework_initialization_file.texi
+
+@node Configuring MIN Modules through _etc_min_d directory, Using MIN for test cases execution, Configuring MIN via the MIN Test Framework initialization file, Setting up MIN
+@section Configuring MIN Modules through /etc/min.d directory
+@include chapters/Configuring_MIN_Modules_through__etc_min.d_directory.texi
+
+@node Using MIN for test cases execution, Working with MIN Console UI, Configuring MIN Modules through _etc_min_d directory, Top
+@chapter Using MIN for test cases execution
+@include chapters/Using_MIN_for_test_cases_execution.texi
+@menu
+* Working with MIN Console UI: Working with MIN Console UI.
+* Startup parameters: Startup parameters.
+* Test module identification: Test module identification.
+* Starting MIN Console UI: Starting MIN Console UI.
+* Menu navigation: Menu navigation.
+* Loading a test module: Loading a test module.
+* Starting a test case: Starting a test case.
+* Lists of started test cases: Lists of started test cases.
+* Aborting, suspending and resuming a test case: Aborting_suspending and resuming a test case.
+* Viewing the test case output: Viewing the test case output.
+* Test sets: Test sets.
+* Working with the MIN command line interface: Working with the MIN command line interface.
+@end menu
+
+@node Working with MIN Console UI, Startup parameters, Using MIN for test cases execution, Using MIN for test cases execution
+@section Working with MIN Console UI
+@include chapters/Working_with_MIN_Console_UI.texi
+@menu
+* Startup parameters: Startup parameters.
+* Test module identification: Test module identification.
+* Starting MIN Console UI: Starting MIN Console UI.
+* Menu navigation: Menu navigation.
+* Loading a test module: Loading a test module.
+* Starting a test case: Starting a test case.
+* Lists of started test cases: Lists of started test cases.
+* Aborting, suspending and resuming a test case: Aborting_suspending and resuming a test case.
+* Viewing the test case output: Viewing the test case output.
+* Test sets: Test sets.
+@end menu
+
+@node Startup parameters, Test module identification, Working with MIN Console UI, Working with MIN Console UI
+@subsection Startup parameters
+@include chapters/Startup_parameters.texi
+
+@node Test module identification, Starting MIN Console UI, Startup parameters, Working with MIN Console UI
+@subsection Test module identification
+@include chapters/Test_module_identification.texi
+
+@node Starting MIN Console UI, Menu navigation, Test module identification, Working with MIN Console UI
+@subsection Starting MIN Console UI
+@include chapters/Starting_MIN_Console_UI.texi
+
+@node Menu navigation, Loading a test module, Starting MIN Console UI, Working with MIN Console UI
+@subsection Menu navigation
+@include chapters/Menu_navigation.texi
+
+@node Loading a test module, Starting a test case, Menu navigation, Working with MIN Console UI
+@subsection Loading a test module
+@include chapters/Loading_a_test_module.texi
+
+@node Starting a test case, Lists of started test cases, Loading a test module, Working with MIN Console UI
+@subsection Starting a test case
+@include chapters/Starting_a_test_case.texi
+
+@node Lists of started test cases, Aborting_suspending and resuming a test case, Starting a test case, Working with MIN Console UI
+@subsection Lists of started test cases
+@include chapters/Lists_of_started_test_cases.texi
+
+@node Aborting_suspending and resuming a test case, Viewing the test case output, Lists of started test cases, Working with MIN Console UI
+@subsection Aborting, suspending and resuming a test case
+@include chapters/Aborting_suspending_and_resuming_a_test_case.texi
+
+@node Viewing the test case output, Test sets, Aborting_suspending and resuming a test case, Working with MIN Console UI
+@subsection Viewing the test case output
+@include chapters/Viewing_the_test_case_output.texi
+
+@node Test sets, Working with the MIN command line interface, Viewing the test case output, Working with MIN Console UI
+@subsection Test sets
+@include chapters/Test_sets.texi
+
+@node Working with the MIN command line interface, GNU Free Documentation License, Test sets, Using MIN for test cases execution
+@section Working with the MIN command line interface
+@include chapters/Working_with_the_MIN_command_line_interface.texi
+
+@c @node GNU Free Documentation License, None , Enabling C++ in MINUnit or HardCoded test module, Top
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include chapters/GNU_Free_Documentation_License.texi
+
+
+
+@bye
+
+

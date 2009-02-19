@@ -1,0 +1,33 @@
+MIN Parser is divided into three main parts: MinParser, MinSectionParser and MinItemParser (see figure below).
+
+@ifinfo
+@image{images/minparser2,4cm,,MIN Parser parts,txt}
+@end ifinfo
+@ifplaintext
+@image{images/minparser2,4cm,,MIN Parser parts,txt}
+@end ifplaintext
+@ifhtml
+@image{images/minparser2,4cm,,MIN Parser parts,png}
+@end ifhtml
+@iftex
+@image{images/minparser2,4cm,,MIN Parser parts,png}
+@end iftex
+
+
+MIN Parser supports hierarchical parsing for:
+@itemize
+@item Sections
+@item Subsections
+@item Lines
+@item Strings
+@item Characters
+@item Integers
+@end itemize
+
+MIN Parser also supports INCLUDE command. See the following limitations of this feature:
+@itemize
+@item INCLUDE keyword must be written in capital letters and must start from the first column of the line.
+@item File name (with path and extension) must follow INCLUDE command. Rest of line would be ignored.
+@item All files included from Unicode file should also be in Unicode format (and vice versa).
+@item Loops in includes are not allowed (for example incorrect situation is when file A includes file B and file B includes file A). In that case, the second include will be ignored, and MIN will continue working).
+@end itemize

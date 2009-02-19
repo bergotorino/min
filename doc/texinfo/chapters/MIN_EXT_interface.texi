@@ -1,0 +1,1 @@
+The MIN EXT interface is used to start test case execution from for example, a test automation system. 

@@ -1,0 +1,27 @@
+The @code{request} functionality is used to request an event. As a parameter it takes the name of the event to be requested and as an optional second parameter the event type which can be StateEvent or IndicationEvent. By default it is StateEvent.
+
+Examples:
+@example
+function case_function() -- request example state event
+	min.request("Event1");
+end
+
+function case_function() -- request example state event 2
+	min.request("Event1",StateEvent);
+end
+
+function case_function() -- request example indication event
+	min.request("Event1",IndicationEvent);
+end
+@end example
+Note that it is needed to release event after it has been requested.
+
+Method @code{request} may be also used to request an event from slave. @xref{Remote test case execution}.
+@example
+function case_function() -- remote example
+	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
+	slavehnd:request( "Event1");
+	min.slave_free(slavehnd);
+end
+@end example
+

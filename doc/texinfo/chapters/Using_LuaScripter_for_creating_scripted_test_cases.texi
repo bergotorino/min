@@ -1,0 +1,1 @@
+This chapter describes Lua Test Scripter feature of MIN. Lua Test Scripter feature is used for running scripted test cases where the script itself is written in Lua scripting language (www.lua.org).

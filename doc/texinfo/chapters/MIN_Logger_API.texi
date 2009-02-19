@@ -1,0 +1,9 @@
+MIN Logger is divided into the following logger structures:
+@table @code
+@item MinLogger
+The purpose of MinLogger is to get log or data information and send that forward generating the required form.
+@item MinTxtLogger, MinHtmlLogger, and MinDataLogger
+The log or data information may be generated to different forms. The common way is to log information to a basic text file. There is also a possibility to generate a log file in HTML format that is in some cases more readable.
+@item MinLoggerFileOutput, MinLoggerNullOutput and MinLoggerSyslogOutput
+The purpose of the output methods is to write log or data information to a file or Linux Syslog output. Here is also output method for null output.
+@end table

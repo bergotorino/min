@@ -1,0 +1,1 @@
+Often a source package contains test cases that are built as part of the package, and can be run to verify that the software is functioning properly, after it has been built. This chapter explains how MIN could be used for this purpose.

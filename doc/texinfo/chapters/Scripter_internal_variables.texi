@@ -1,0 +1,16 @@
+Scirpter holds internal variables that are available to script or test class similar to local variables. The internal variables are counters shown in  and can be used, for example, to bail out from a long test loop in case some error level is reached, or to call some special clean up function in case of crashed test method calls.
+@table @code
+@item @b{Scripter internal variables}
+@item FAIL_COUNT
+Number of failed method and combiner calls
+@item CRASH_COUNT
+Number of crashed method and combiner calls
+@item TOUT_COUNT
+Number of timed out method and combiner calls
+@item ABORT_COUNT
+Number of aborted method and combiner calls
+@item ERROR_COUNT
+Sum of all the of the above
+@item TOTAL_COUNT
+Total number of method and combiner calls
+@end table

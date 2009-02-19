@@ -1,0 +1,55 @@
+The architecture is divided into three main layers: the interface layer, the engine layer and the test layer. The arrows show the direction of the data flow. 
+
+Figure below shows an overview of the MIN architecture. 
+@c @image{arch.png, , , , png}
+
+@ifinfo
+@image{images/architecture,15cm,,MIN architecture overview,txt}
+@end ifinfo
+@ifplaintext
+@image{images/architecture,15cm,,MIN architecture overview,txt}
+@end ifplaintext
+@ifhtml
+@image{images/architecture,15cm,,MIN architecture overview,png}
+@end ifhtml
+@iftex
+@image{images/architecture,15cm,,MIN architecture overview,png}
+@end iftex
+
+
+The architecture of MIN is modular. The interface between the modules is either a function call or IPC interface. There are no cyclic dependencies between the modules. The user interface module uses MIN Engine, MIN Engine uses Test Module Controller(s) and Test Module Controller uses test module.
+
+Main modules are listed in Table below. 
+
+@multitable @columnfractions .30 .20 .25 .25
+@headitem Module
+@tab Type
+@tab Multiplicity
+@tab Implementation
+@item User Interface
+@tab Executable 
+@tab One
+@tab Executable
+@item EXT interface
+@tab Executable
+@tab One
+@tab Executable
+@item Engine
+@tab Library
+@tab One
+@tab Static linked library
+@item Test Module Controller
+@tab Library
+@tab Several instances
+@tab Executable
+@item Test Modules
+@tab Library
+@tab Several separate libraries and several instances
+@tab Library (.so)
+@end multitable
+
+
+The MIN modules on the interface layer are described in Section @ref{MIN modules on the interface layer}. The MIN Engine module on the engine layer is described in Section @ref{MIN module on the engine layer} and the MIN modules on the test layer are described in Section @ref{MIN modules on the test layer}.
+
+
+

@@ -1,0 +1,12 @@
+Test cases defined in Lua scripting language return their results by value (as they are functions). Two macros are provided: @code{TP_PASSED} and @code{TP_FAILED}.
+
+Example:
+@example
+function case_function() -- This is a title
+	Return TP_PASSED;
+end
+
+function case_function() -- This is a title
+	Return TP_FAILED;
+end
+@end example

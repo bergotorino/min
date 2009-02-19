@@ -1,0 +1,11 @@
+Function is used to resume previously paused interference process. If the process was not paused, call is ignored. 
+
+Function has the following prototype:
+@example
+void ti_resume_interference(testInterference* aInterference);
+@end example
+and can be used in the following way:
+@example
+ti_pause_interference(disturbance);
+@end example
+@code{aInterference} argument is pointer to @code{testInterference} structure.

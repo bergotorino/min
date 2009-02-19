@@ -1,0 +1,11 @@
+The @code{wait} keyword is used to wait for an event. A request must be called before wait, and @code{wait} blocks until the requested event is set. @code{wait} may proceed immediately if the requested event is a state event and already pending (for example, a phone call is already active). @code{wait} has one mandatory argument, which is described below.
+@table @b
+@item Argument
+@item Event
+The event name.
+@end table
+The wait keyword can be used, for example, in the following way:
+@example
+wait Event1
+@end example
+

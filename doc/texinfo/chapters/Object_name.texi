@@ -1,0 +1,5 @@
+The test object name can be considered as a temporary keyword, which is valid between its creation with the @code{createx} keyword and its deletion with the @code{delete} keyword. The object name is used to call methods from a test object. The method name is given as the first argument for the object name, and the method may have arguments, which are forwarded to the test class method.
+For example: 
+@example
+TestObjectName MethodName <method arguments 1 2 3>.
+@end example

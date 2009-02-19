@@ -1,0 +1,20 @@
+To start the MIN Console UI from the command line, type (note that MIN have to be installed):
+@example
+min
+@end example
+
+When MIN starts it checks if:
+@enumerate
+@item there is already MIN running
+@item there are TMC processes
+@item there is message queue left behind.
+@end enumerate
+
+When a MIN instance is found during startup, the default behavior is to ask the user if they want it to be killed (this behavior can be changed by using the -f parameter. @xref{Startup parameters}. )
+
+When starting MIN, it searches min.conf file from following locations:
+@enumerate
+@item Current working directory
+@item @code{/home/<user name>/.min}
+@item @code{/etc}
+@end enumerate

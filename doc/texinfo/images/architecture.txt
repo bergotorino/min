@@ -1,0 +1,38 @@
+           ---------------                   -------------------      
+          |               |                 |  test             |     
+          |   ConsoleUI   |                 |  automation       |     
+          |               |                 |  system           |     
+           ---------------                   -------------------      
+                   \                            /                           
+                    \    MIN ENGINE            /                            
+               +---------------------------------------------+              
+               |   Main data                                 |              
+               |   structures                                |              
+               |      ,..,             Test module control   |           
+               |     /    \                                  |           
+               |    |      ^        Test execution control   |        
+               |    |      |                                 |        
+               |     \    /                                  |        
+               |      `'-`                                   |        
+               +---------------------------------------------+        
+                           /          \                               
+                          /            \                              
+                         / MSG Queue IF \                             
+            TEST MODULE /                \ TEST MODULE                
+            CONTROLLER /                  \ CONTROLLER        
+            +-----------------+    +-----------------+        
+            | Test Module API |    | Test Module API |        
+            |- - - - - - - - -|    |- - - - - - - - -|        
+         _.-|  Test Module    |    | Scripter Module |        
+       ,'   +-----------------+    +-----------------+        
+      /                  ^              ^                     
+     /                   |              |                     
+     |                   | MSG Queue IF |                   * * *
+   fork()    TEST        |              |    TEST             
+     \       PROCESS     v              v    PROCESS
+      \     +-----------------+    +--------------------+         
+       `.   |                 |    |                    |      
+         `->|    Test Case    |    | Scripted Test Case |      
+            |                 |    |                    |      
+            +-----------------+    +--------------------+         
+            

@@ -1,0 +1,10 @@
+The @code{delete} keyword is used to delete an instance of a test class. @code{delete} has one mandatory argument, which is described in Table below.
+@table @b
+@item Argument
+@item Test object name
+The name of the instance of the test class that is deleted.
+@end table
+The @code{delete} keyword can be used, for example, in the following way:
+@example
+delete test 
+@end example

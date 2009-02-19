@@ -1,0 +1,15 @@
+The following features are currently supported:
+@itemize @bullet
+@item Test module implements test cases
+@item Error and exception handling
+@item Concurrent test case execution
+@item Test Module Template Wizard (createtestmodule)
+@item File parsing with MIN Parser
+@item Logging facilities for test modules with MIN Logger (currently only limited set of features)
+@item Test case synchronization with MIN Event System
+@item Write once, test everywhere, that is, test cases made during the development phase can be used in system testing, automatic release testing, and so on
+@item Easy to use
+@item Multiple test cases can be executed concurrently
+@item All execution errors and exceptions are handled properly and reported to teste.
+@item Support for test automation
+@end itemize

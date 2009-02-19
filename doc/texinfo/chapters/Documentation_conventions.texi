@@ -1,0 +1,1 @@
+Code, commandline input and output is written with the @code{fixed-width font}.

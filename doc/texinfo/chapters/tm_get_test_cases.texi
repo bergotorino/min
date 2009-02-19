@@ -1,0 +1,1 @@
+The @code{tm_get_test_cases} function is used to query test cases from a test module. The test case file is provided as a parameter (optional). This method is called for every test case file separately

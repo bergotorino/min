@@ -1,0 +1,8 @@
+Test case result description is returned as a second value from function. It is recommended but not needed to have proper test case.
+
+Example:
+@example
+function case_function() -- This is a title
+	Return TP_FAILED,"Test Case result description";
+end
+@end example

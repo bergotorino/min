@@ -1,0 +1,16 @@
+The @code{allowerrorcodes} keyword is used to add valid result values for a method and for asynchronous commands. The default value for the expected result is 0, and if a value is set with allowerrorcodes, 0 is removed from the expected values. A method may either return or leave with the specified result. Every method call removes all allowed results. That is, after every method call, the default value 0 is again the only expected result value. Either multiple allowerrorcodes keywords can be placed before a method call or @code{allowerrorcodes} keyword can have multiple parameters.
+@table @b
+@item Argument
+@item An error code
+Error code, which is allowed from the next method. It can be custom value, or errno.
+@end table
+The allowerrorcodes keyword can be used, for example, in the following way:
+@example
+allowerrorcodes -1  
+@end example
+
+The allowerrorcodes keyword can be used, for example, in the following way:
+@example
+allowerrorcodes -1 -2 -3 -4
+@end example
+

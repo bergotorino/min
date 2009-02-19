@@ -1,0 +1,17 @@
+The loop keyword is used to repeat a section of the test case file for the specified number of iterations. The section to be repeated is enclosed with the loop and endloop keywords. 
+@table @b
+@item Argument
+@item Loop times
+The loop count, that is, the number of times that the loop is executed.
+@item Optional argument
+@item @code{msec}
+(optional) This keyword says that "Loop times" argument stands for the time in milliseconds during which loop will be looped
+@end table
+
+The loop keyword can be used, for example, in the following way:
+@example
+loop 5
+// execute this 5 times
+print pa ra me ter
+endloop
+@end example

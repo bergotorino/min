@@ -1,0 +1,3 @@
+To view the test case output, select a case from any of the case lists. A new operation-specific menu is shown. By selecting View Output, the user will see the test case output.
+
+By pressing any key, the focus is returned to the previous menu.

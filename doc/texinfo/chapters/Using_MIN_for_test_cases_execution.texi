@@ -1,0 +1,2 @@
+This chapter describes how the MIN interface modules (MIN Console UI and the MIN EXT interface) can be used for test cases execution.
+

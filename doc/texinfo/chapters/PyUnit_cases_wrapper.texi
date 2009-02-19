@@ -1,0 +1,6 @@
+MIN release package provides also Python template/wrapper for PyUnit tests. If you have already developed tests following the PyUnit format, you can also execute those under control of MIN. To do this: 
+@itemize
+@item Edit @code{minwrap.py} template (placed under @code{/min_py_module/min_ext/}), replacing all occurrences of @code{PyUnit_module_xxx} with the name of the module containing PyUnit test cases. For convenience, save the file with another name, in directory specified in "PYTHONPATH" environment variable.
+@item Configure py_moduleTestModule in your @code{min.conf}, giving file that you saved in previous point as a test case file.
+@item MIN will now see your PyUnit test cases as its own and will be able to execute those.
+@end itemize

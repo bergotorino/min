@@ -1,0 +1,2 @@
+This chapter describes the use of MIN Event System for test cases synchronization.
+

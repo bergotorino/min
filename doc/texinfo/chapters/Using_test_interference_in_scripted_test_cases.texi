@@ -1,0 +1,22 @@
+Test Interference can be also used in scripted test cases, by scripter commands. New keyword, @code{testinterference} is used for that. Starting interference is done in the following way:
+@example
+testinterference name command type value idle_time busy_time
+@end example
+
+@code{testinterference} - mandatory keyword
+
+@code{name} - identifier of created testinterference
+
+@code{command} - can have two values, "start" or "stop"
+
+@code{type} - can have the following values: "cpuload", "memload" and "ioload". Determines type of started interference.
+
+@code{value} - numeric parameter, for cpuload determines amount of taken CPU time in percent. For memload it holds amount of taken memory in megabytes. For ioload value is ignored.
+
+@code{idle_time} - numeric parameter, specifies time in cycle when disturbance is stopped (in milliseconds). Giving it value 0 is equal to starting constant disturbance.
+
+@code{busy_time} - numeric parameter, time the disturbance is active during cycle.  
+
+All numeric parameters are mandatory ( due to way parameters are handled in scripter). 
+
+Failure to call "stop" command for all "started" interferences in test case will make the case invalid.

@@ -1,0 +1,1 @@
+Test Scripter is configured for use by adding Test Scripter as a test module to MIN. The test case file is added as a test case file for Test Scripter. An example of configuring Test Scripter as a test module can be seen in example in section @ref{Configuring MIN via the MIN Test Framework initialization file,,,min,MIN User's Guide}.

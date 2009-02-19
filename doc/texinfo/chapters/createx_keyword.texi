@@ -1,0 +1,13 @@
+
+The createx keyword is used to create a new instance of a test class. createx has two mandatory arguments, which are described below.
+@table @b
+@item Argument
+@item Test class name
+The test class name for the new object.
+@item Test object name
+The name of the created new instance of the test class.
+@end table
+The createx keyword can be used, for example, in the following way:
+@example
+createx TestScriptClass test
+@end example

@@ -1,0 +1,14 @@
+The @code{sendreceive} keyword is used in slave script to send a variable value from slave to master. Sending a variable value from master to slave is described in Section @ref{remote keyword}.
+The @code{sendreceive} keyword has two mandatory arguments, described below.
+@table @b
+@item Argument
+@item variable name
+The variable name.
+@item variable value
+The variable value.
+@end table
+The sendreceive keyword can be used for example in the following way:
+@example
+sendreceive variable1=/tmp/file.txt
+@end example
+

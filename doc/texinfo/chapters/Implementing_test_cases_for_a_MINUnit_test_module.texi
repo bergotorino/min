@@ -1,0 +1,18 @@
+Implement a test case as a separate function to a @code{<own_module_name>Cases.c} file using the following type of function:
+
+@example
+MIN_TESTDEFINE(test_dllist_create)
+@{
+MIN_ASSERT_NOT_EQUALS( l, 0 );
+@}
+@end example
+
+The fill consists of two sections @code{TEST_VAR_DECLARATIONS} and @code{TEST_CASES}.
+
+Variables that are common for all test cases are defined in the @code{TEST_VAR_DECLARATIONS} section. 
+
+The @code{TEST_CASES} section contains test fixtures (@code{MIN_SETUP} and @code{MIN_TEARDOWN}) and the test cases (@code{MIN_TESTDEFINE}). Code placed in the @code{MIN_SETUP} is executed for each test case before the test case execution; and @code{MIN_TEARDOWN} after each test case. The @code{MIN_SETUP} section should be used to initialize the common variables and possible startup routines.  Similarly @code{MIN_TEARDOWN} can be used for clean up routines (e.g., freeing memory).
+
+Implementation of test case itself is done by adding new @code{MIN_TESTDEFINE} section to @code{TEST_CASES} section. Name of the new test cases is defined as a parameter for the macro. Needed test case functionality must be placed in this section (apart from setup and teardown activities).
+
+The result of each test case is determined by using of one or several @code{MIN_ASSERT_} macros. If any of the @code{MIN_ASSERT_} macros discovers that the test case result is other than expected, test case result will be marked as failed.

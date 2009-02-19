@@ -1,0 +1,75 @@
+MIN has an initialization file that is used to set the MIN functionality. Currently initialization file contains paths for searching test modules and configuration files, defaults for MIN logger and the used test modules. 
+
+An example of the initialization file is shown below.
+@example
+[Engine_Defaults]
+ModSearchPath=/usr/lib/min
+ModSearchPath=$HOME/.min
+[End_Defaults]
+[New_Module]
+ModuleName=/home/user/.min/exampleModule.so
+TestCaseFile=/home/user/.min/Example.cfg
+[End_Module]
+
+[Logger_Defaults]
+EmulatorBasePath=/tmp
+EmulatorFormat=TXT
+EmulatorOutput=FILE SYSLOG
+ThreadIdToLogFile=NO
+[End_Logger_Defaults]
+@end example
+
+Table below shows the possible settings in the min.conf file.
+
+@multitable @columnfractions .25 .50 .25
+@headitem Tag
+@tab Description
+@tab Optional/Required
+@item TmcBinPath
+@tab Path of TMC (absolute path, detected automatically)
+@tab Optional
+@item ModuleName
+@tab Path of test library/libraries (absolute path if the module is not in a location specified in ModSearchPaths)
+@tab Required
+@item ConfigFile@*TestCaseFile
+@tab A configuration / test case file where the test cases are defined.@*There can be several configuration / test case files for one test module
+@tab Optional
+@end multitable
+
+Table below shows the possible logger settings in the @code{min.conf} file.
+
+@multitable @columnfractions .25 .50 .25
+@headitem Tag
+@tab Description
+@tab Optional/Required
+@item EmulatorBasePath
+@tab Directory that will be used for logger output.
+@tab Optional
+@item EmulatorFormat
+@tab Output format, can be either TXT or HTML. Can be also both of them.
+@tab Optional
+@item EmulatorOutput
+@tab Output facility, can be NULL either FILE or SYSLOG, or both of them.
+@tab Optional
+@item ThreadIdToLogFile
+@tab Indicates if PID should be a part of output file name
+@tab Optional
+@item CreateLogDirectories
+@tab Indicates if logger output directory should be created if not exists, possible values are YES or NO
+@tab Optional
+@item WithTimeStamp
+@tab Indicates if time stamp should be added to the log messages, possible values are YES or NO
+@tab Optional
+@item WithLineBreak
+@tab Indicates if line breaks should be added, possible values are YES or NO
+@tab Optional
+@item FileCreationMode
+@tab File creation mode, possible values are APPEND or OVERWRITE
+@tab Optional
+@item LogLevel
+@tab LogLevel value, can be one of following: Trace, Debug, Notice, Info, Warning, Error, Fatal
+@tab Optional, default value is Info.
+@end multitable
+
+
+

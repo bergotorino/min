@@ -1,0 +1,23 @@
+Unzip the MIN package.@*
+@code{$ unzip MIN<year>w<week>.zip}@*
+Go to the package newly created directory.@*
+@code{$ cd MIN<year>w<week>/min}@*
+To build MIN, type:@*
+@code{$ sh build.sh}@*
+To Install MIN, type:@*
+@code{$ sudo make install}@*
+After these steps you should have MIN and tmc binaries in the @code{/usr/bin} directory and a default min.conf in @code{/etc}.
+
+To start MIN, type:@*
+@code{$ min} (uses the default @code{min.conf} from @code{/etc})
+
+When starting MIN, the tool searches min.conf file from following locations:
+@enumerate
+@item Current working directory
+@item @code{/home/<user name>/.min}
+@item @code{/etc}
+@end enumerate
+
+Use Test Module Wizard to generate new Test Module, as instructed in @ref{Creating test module templates,,,min-reference,MIN Reference Guide}. When building generated module, it is automatically added to @code{~/.min/min.conf} file.
+
+

@@ -1,0 +1,33 @@
+The test layer consists of the following modules:
+
+@itemize @bullet
+@item Test Module Controller(s)
+@item Test module(s)
+@item Tools
+	@itemize @minus
+	@item MIN Parser
+	@item MIN Logger
+	@item MIN Event System
+	@end itemize
+@end itemize
+
+Figure below shows how the MIN test layer modules are placed in the MIN architecture. 
+@ifnotinfo
+Boxes with bolded font indicate the MIN modules on the test layer.
+@end ifnotinfo
+@ifinfo
+@image{images/modulegeneral,10cm,,MIN Module,txt}
+@end ifinfo
+@ifplaintext
+@image{images/modulegeneral,10cm,,MIN Module,txt}
+@end ifplaintext
+
+@ifhtml
+@image{images/modulegeneral,10cm,,MIN Module,png}
+@end ifhtml
+@iftex
+@image{images/modulegeneral,10cm,,MIN Module,png}
+@end iftex
+
+
+

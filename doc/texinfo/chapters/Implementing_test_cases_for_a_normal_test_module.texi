@@ -1,0 +1,6 @@
+To add new test cases to test modules that have just been created, the user must modify the functions @code{tm_get_test_cases()} and @code{tm_run_test_case()}.
+
+MIN calls the @code{tm_get_test_cases()} function to get the test cases from the test module. 
+
+MIN calls the @code{tm_run_test_case()} function to execute a test.
+

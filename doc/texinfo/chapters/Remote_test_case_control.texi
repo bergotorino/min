@@ -1,0 +1,20 @@
+Test Scripter can control and use slaves when running test cases. A slave can be used for running test cases in master control. Synchronization between test cases can be done using events.
+
+@b{Note:} The master cannot see the slave's event system, and neither can slave see the master's event system. Master's and slave's events are visible only to Test Scripter, and therefore it must observe running tests and transfer events to other module(s) if synchronization is needed between master and slave module.
+
+@example
+[Test] 
+title Events between master and slave
+allocate phone slave
+remote slave request event1
+remote slave run scripter testcasefile.cfg 1
+run scripter testcasefile2.cfg 2
+remote slave wait event1
+set event2
+remote slave release event1
+free slave
+[Endtest]
+@end example
+
+In this example, Test scripter allocates the slave phone and starts the slave's Test Scripter type of test case. After that a local test case is started, and at some point it starts to wait for event2. Test Scripter also starts waiting for event1 from the slave test module. When the slave test case sets event1, Test Scripter sets event2 for local test case and it can then continue the execution.
+

@@ -1,0 +1,2 @@
+When selecting a case from the @b{Ongoing} cases list, a new menu is shown that allows aborting or to suspend the test case execution, or resume the execution in case it was suspended.
+

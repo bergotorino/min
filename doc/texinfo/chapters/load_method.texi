@@ -1,0 +1,15 @@
+The @code{load} functionality is used to load Lua Test Class provided by the end user. As a parameter it takes module name. As a result it returns a handle to the loaded Lua Test Class that can be used to call user defined test cases from the loaded Test Module.
+
+If loading fails then returned value is @code{nil}
+@example
+function case_function() -- load test
+	foo = min.load("Bar");
+	if foo == nil then
+		return TP_FAILED;
+	end
+	foo.Example();
+	min.unload(foo);
+	return TP_PASSED;
+end
+@end example
+Example above will load module @code{Bar.so} (extension is added automatically) from paths specified in @code{min.conf} file. Module handler is checked then if loading has been correct.

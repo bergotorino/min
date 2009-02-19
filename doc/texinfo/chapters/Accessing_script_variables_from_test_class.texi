@@ -1,0 +1,27 @@
+Script local variables (@xref{var keyword}.) can be retrieved from inside the test class as well as set to different value . The functions below are available for test class to set and get variable values.
+
+@example
+int SetLocalValue (const char *varname, const char *varval);
+/* --------------------------------------------------------------- */
+/** Assign integer value to script variable
+ * @@param varname name of variable
+ * @@param varval value to assign
+ * @@return 0 on success, -1 on error
+ */
+int SetLocalValueInt (const char *varname, const long value);
+/* --------------------------------------------------------------- */
+/** Get value of script variable as an integer
+ * @@param varname name of variable
+ * @@param value [out] variable value
+ * @@return 0 on success, -1 on error
+ */
+int GetLocalValueInt (const char *varname, long *value);
+/* --------------------------------------------------------------- */
+/** Get value of script variable as a string
+ * @@param varname name of variable
+ * @@param value [out] variable value
+ * @@return 0 on success, -1 on error
+ */
+int GetLocalValue (const char *varname, char **value);
+@end example
+Note that test class can only get and set local script variables, it's not possible to declare variables in the tests class.

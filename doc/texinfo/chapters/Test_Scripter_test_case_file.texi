@@ -1,0 +1,23 @@
+The Test Scripter test case file defines the commands to be executed in a test case described with a simple scripting language. The test case file may contain several test cases, the descriptions of which start with the tag @code{[Test]} and end with the tag @code{[Endtest]}. The test case is executed sequentially line by line. The test case itself is described with keywords, arguments and argument value pairs between the start and end tags. An example of a test case is described below.
+
+
+@example
+[Test]
+title Create, print, run example and delete
+createx TestScriptClass testobj
+print Call Example method
+testobj Example pa ra me ters
+print Example method called, delete instance
+delete testobj
+[Endtest]
+@end example
+
+
+The test case title must be given after the @code{title} keyword on the first line of the test case definition. In the example above, the @code{create} keyword creates a new instance of @code{TestScriptClass}, which is named @code{test}. The @code{print} keyword is used to print information to the UI. The fourth line of the example test case executes the @code{Example} method of the test object with four parameters: @code{pa}, @code{ra}, @code{me} and @code{ters}. The @code{delete} keyword is used to delete the @code{test} object.
+Test Scripter's test case file and test module initialization file may contain macro definitions used in test cases. Macros are defined inside a define section started with @code{[Define]} tag ended with @code{[Enddefine]} tag, for example:
+@example
+[Define]
+ENOERR 0
+[Enddefine]
+@end example
+

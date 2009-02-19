@@ -1,0 +1,4 @@
+The API functions provided to the test module provides optional features to the test module:
+@itemize
+@item Printf (output to UI)
+@end itemize

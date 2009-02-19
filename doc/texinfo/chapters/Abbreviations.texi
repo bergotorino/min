@@ -1,0 +1,6 @@
+@table @b
+@item DLL
+Dynamic Link Library
+@item CUI
+Console User Interface
+@end table

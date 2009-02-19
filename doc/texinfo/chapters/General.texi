@@ -1,0 +1,1 @@
+This chapter describes the MIN2Lua API as well as it gives a general look on the Lua syntax.

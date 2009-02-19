@@ -1,0 +1,21 @@
+There is a test module template for Hardcoded module (min/TestModuleTemplates/ HardCodedTestModuleXXX). It contains some ready made test cases for MIN try-out purposes.  
+
+Figure below shows how Hardcoded test modules are situated in MIN.
+@ifnotinfo
+Boxes with bolded font indicate the MIN modules on the test layer. The Hardcoded test module is underlined in the figure.
+@end ifnotinfo
+
+@ifinfo
+@image{images/modulehardcoded,10cm,,MIN Hardcoded Module,txt}
+@end ifinfo
+@ifplaintext
+@image{images/modulehardcoded,10cm,,MIN Hardcoded Module,txt}
+@end ifplaintext
+
+@ifhtml
+@image{images/modulehardcoded,10cm,,MIN Hardcoded Module,png}
+@end ifhtml
+@iftex
+@image{images/modulehardcoded,10cm,,MIN Hardcoded Module,png}
+@end iftex
+

@@ -1,0 +1,7 @@
+All menus are lists where pressing the Arrow down key changes the position down by one menu item and the Arrow up key changes the position up by one item. If the end of the list is reached, the position is changed to the beginning of the list, and vice versa.
+
+A menu item is selected using the Arrow right key.
+
+The Arrow left key is used to navigate back to the previous menu.
+
+Selecting @b{Exit} in the main menu closes MIN Console UI.

@@ -1,0 +1,1 @@
+This chapter describes how MIN can be taken into use.

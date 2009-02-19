@@ -1,0 +1,10 @@
+The @code{if}, @code{else} and @code{endif} keywords can be used for conditional execution in the script. The condition for @code{if} must be variable or value. Value @code{0} and string @code{"false"} (case insensitive) is interpreted as @code{false}, other values as @code{true}. If block must always be closed with @code{endif} keyword. Nesting of if-blocks is supported.
+@example
+var v
+if v
+  print is true
+else
+  print is false
+endif 
+@end example
+

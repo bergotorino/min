@@ -1,0 +1,14 @@
+Test Engine provides an API for user (console UI or EXT interface) for executing test cases and loading the test modules. Test Engine can load several test modules and execute different test cases from separate test modules at the same time. Engine provides user (CUI or EXT - in the following chapter, both will be referred to as User) with functionalities for control of test execution and test result collection.
+
+Engine and User interface run in same process, divided into threads servicing user's requests and commands, and communication with "test module" layer of the system. This process also spawns, by means of @code{fork( )} system call, new processes for each needed Test Module Controller. Later on, it controls those processes and communicates with them, to facilitate test execution and result reception.
+
+Main interface for communication between Engine and Test Module Controller processes is POSIX message queue. One thread in Engine is polling queue continuously for messages addressed to engine (from Test Module Controllers). Functions that send messages to queue run also in other Engine's thread, enabling control of test execution by User. 
+
+Communication with User is realized by function interface, since physically engine is statically linked library, compiled into one executable with User interface. 
+
+Test Engine uses the initialization file of MIN for its initial parameters. This initialization file also contains a preloading list of the test modules that are used to automatically load and initialize the test modules on the MIN startup.
+
+Test Engine generates its own test report that can be used to analyze the test case progress after the test cases have been executed. Test Engine also creates a log file that contains detailed information about the operations that are performed in a MIN Engine.
+
+Test Engine keeps a list of test modules, as well as a list of available test cases from the modules. There is also data for every run of each test case, to facilitate test results logging/display and report generation.
+

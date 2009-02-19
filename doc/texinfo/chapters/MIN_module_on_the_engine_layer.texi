@@ -1,0 +1,1 @@
+Test Engine is the main module of MIN. It is responsible for loading test modules and for executing the test cases.

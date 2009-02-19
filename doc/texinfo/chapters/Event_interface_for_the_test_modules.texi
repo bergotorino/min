@@ -1,0 +1,1 @@
+The interface for event system is defined in file @code{min_test_event_if.h} and has three interface functions @code{min_event_create()}, @code{min_event_destroy ()} and @code{Event()}. @xref{MIN Event System usage}.

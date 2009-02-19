@@ -1,0 +1,1 @@
+For each test case, there exists one Test Module Controller that gets requests from MIN Engine and either handles the requests itself or calls the corresponding function from the test module. For example, a request to execute a test case causes a function call to the test module and a request to stop the test case is handled inside Test Module Controller.

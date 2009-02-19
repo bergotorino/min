@@ -1,0 +1,12 @@
+Implement a test case as a separate function to a @code{<own_module_name>.c}  file using the following type of method:
+
+@example
+int test_X( TestCaseResult* tcr )
+@end example
+Add your new function also into int tm_get_test_cases( const char * cfg_file, DLList ** cases ) -function.
+
+@example
+ENTRY(*cases,"My new test case", test_X);
+@end example
+
+See also examples from @code{min/src/test_libraries/}. For example @code{testlibrary2.c} shows an example of a test module that has all the test cases implemented inside a test module.

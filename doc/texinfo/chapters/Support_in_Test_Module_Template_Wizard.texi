@@ -1,0 +1,40 @@
+Makefiles for HardCoded, Normal and MINUnit test modules, created by the Test Module Template Wizard (createtestmodule), contain a make target for executing all the tests in the module with command make check.
+
+@example
+maemo@@maemo:~/mymodule$ make check
+make  mymoduleTestModule.so
+make[1]: Entering directory `/home/maemo/mymodule'
+make[1]: `mymoduleTestModule.so' is up to date.
+make[1]: Leaving directory `/home/maemo/mymodule'
+make  check-TESTS
+make[1]: Entering directory `/home/maemo/mymodule'
+Checking for active min processes...
+Checking for active tmc processes...
+Checking for MQ left behind...
+Checking for SHM left behind...
+MIN Test Framework,  Nokia 2008, All rights reserved,
+licensed under the Gnu General Public License version 2,
+Contact: Antti Heimola, DG.MIN-Support@@nokia.com
+
+Test case gathering...1 
+  2008-10-13 04:18:10
+    ---------
+  * Test Module /home/maemo/mymodule/mymoduleTestModule.so
+    ---------
+    Test Case: mymodule_1
+      o Test Result: success
+      o Result Desc: PASSED
+      o Message    : Passed
+    ---------
+    Test Case: mymodule_2
+      o Test Result: failure
+      o Result Desc: AssertEquals failed
+      o Message    : Failed
+FAIL: mymoduleTestModule.so
+===================
+1 of 1 tests failed
+===================
+make[1]: *** [check-TESTS] Error 1
+make[1]: Leaving directory `/home/maemo/mymodule'
+make: *** [check-am] Error 2
+@end example

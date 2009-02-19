@@ -1,0 +1,1 @@
+When using MIN, it is also possible to use python scripting language to create test case logic. MIN can treat specific Python functions as test cases, python extension module is provided that makes it possible to use MIN-specific features (like events or ability to combine test cases from other test modules).

@@ -1,0 +1,11 @@
+Test Module API is a user-friendly API for test case execution
+
+A test module has to provide the following interfaces to MIN:
+@itemize
+@item A list of the test cases
+@item Specified test case execution
+@end itemize
+
+These features are provided by the Test Module API that the test module has to implement in order fulfill MIN test module requirements.
+
+In addition, there are some optional features that are offered by the MIN services API. MIN Services is interface from the test module to MIN Engine. For example, the interface offers UI independent printing functions, which can be used to show the test case progress on the screen, if there is a screen available (e.g. the console screen with the MIN Console UI application).
