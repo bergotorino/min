@@ -2358,6 +2358,7 @@ int test_complete (const char *testid)
         int             retval = ENOERR;
         DLListIterator  it = DLListNULLIterator;
         ScriptedTestProcessDetails *stpd;
+	int 		tc_not_ended=0;
 
         if (testid == INITPTR) {
                 retval = -1;
@@ -2380,9 +2381,9 @@ int test_complete (const char *testid)
         /* Check if test with given testid has already completed */
         while (it != DLListNULLIterator) {
                 stpd = dl_list_data (it);
+		tc_not_ended = tc_not_ended + 1;
                 if (stpd->status_ == TP_ENDED) {
-                        MIN_WARN ("Test %s already complete", testid);
-                        goto EXIT;
+			tc_not_ended = tc_not_ended - 1;
                 }
                 it = dl_list_next (it);
                 if (it == DLListNULLIterator)
@@ -2390,7 +2391,10 @@ int test_complete (const char *testid)
                 it = dl_list_find (it, dl_list_tail (scripter_mod.tp_details),
                                    _findid, (void *)testid);
         }
-
+	if(tc_not_ended==0){
+                MIN_WARN ("Test %s already complete", testid);
+                goto EXIT;
+	}
         /* Set 'wait for complete' flag */
         scripter_mod.testcomplete = NEW2 (char, strlen (testid) + 1);
         STRCPY (scripter_mod.testcomplete, testid, strlen (testid) + 1);
