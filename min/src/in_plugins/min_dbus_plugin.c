@@ -113,9 +113,16 @@ gboolean min_object_min_add_test_module(MinObject *obj, gchar *modulepatch);
 gboolean min_object_min_add_test_case_file(MinObject *obj,
                                         gint moduleid,
                                         gchar *testcasefile);
-gboolean min_object_min_run_test(MinObject *obj,
+gboolean min_object_min_start_case(MinObject *obj,
                                 gint moduleid,
                                 gint caseid);
+gboolean min_object_min_pause_case(MinObject *obj,
+                                long testrunid);
+gboolean min_object_min_resume_case(MinObject *obj,
+                                long testrunid);
+gboolean min_object_min_abort_case(MinObject *obj,
+                                unsigned moduleid,
+                                unsigned caseid);
 G_DEFINE_TYPE(MinObject, min_object, G_TYPE_OBJECT);
 
 #include "min_dbus_plugin.h"
@@ -440,13 +447,48 @@ gboolean min_object_min_add_test_case_file(MinObject *obj,
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
-gboolean min_object_min_run_test(MinObject *obj,
+gboolean min_object_min_start_case(MinObject *obj,
                                 gint moduleid,
                                 gint caseid)
 {
         /* Calls callback from MIN */
         if (min_clbk.start_case) {
                 min_clbk.start_case (moduleid,caseid);
+                return TRUE;
+        }
+        return FALSE;
+}
+/* ------------------------------------------------------------------------- */
+gboolean min_object_min_pause_case(MinObject *obj,
+                                long testrunid)
+{
+        /* Calls callback from MIN */
+        if (min_clbk.pause_case) {
+                min_clbk.pause_case (testrunid);
+                return TRUE;
+        }
+        return FALSE;
+}
+/* ------------------------------------------------------------------------- */
+gboolean min_object_min_resume_case(MinObject *obj,
+                                long testrunid)
+{
+        /* Calls callback from MIN */
+        if (min_clbk.resume_case) {
+                min_clbk.resume_case (testrunid);
+                return TRUE;
+        }
+        return FALSE;
+
+}
+/* ------------------------------------------------------------------------- */
+gboolean min_object_min_abort_case(MinObject *obj,
+                                unsigned moduleid,
+                                unsigned caseid)
+{
+        /* Calls callback from MIN */
+        if (min_clbk.abort_case) {
+                min_clbk.abort_case (moduleid,caseid);
                 return TRUE;
         }
         return FALSE;

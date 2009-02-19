@@ -13,9 +13,22 @@
                         <arg type="u" name="moduleid" direction="in"/>
                         <arg type="s" name="testcasefile" direction="in"/>
                 </method>
-                <method name="min_run_test">
+                <method name="min_start_case">
                         <arg type="u" name="moduleid" direction="in"/>
                         <arg type="u" name="caseid" direction="in"/>
+                </method>
+
+                <method name="min_pause_case">
+                        <arg type="t" name="testrunid"/>
+                </method>
+
+                <method name="min_resume_case">
+                        <arg type="t" name="testrunid"/>
+                </method>
+
+                <method name="min_abort_case">
+                        <arg type="u" name="moduleid"/>
+                        <arg type="u" name="caseid"/>
                 </method>
 
                 <!-- Signals -->
