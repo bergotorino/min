@@ -2381,9 +2381,8 @@ int test_complete (const char *testid)
         /* Check if test with given testid has already completed */
         while (it != DLListNULLIterator) {
                 stpd = dl_list_data (it);
-		tc_not_ended = tc_not_ended + 1;
-                if (stpd->status_ == TP_ENDED) {
-			tc_not_ended = tc_not_ended - 1;
+                if (stpd->status_ != TP_ENDED) {
+			tc_not_ended = tc_not_ended + 1;
                 }
                 it = dl_list_next (it);
                 if (it == DLListNULLIterator)
