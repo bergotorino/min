@@ -57,7 +57,6 @@ extern DLList  *defines;
 /* LOCAL GLOBAL VARIABLES */
 /* ------------------------------------------------------------------------- */
 /** list of allocated slaves. Used during the validation process. */
-DLList         *slaves = INITPTR;
 static LegoBasicType *current = INITPTR;
 /** used for validation of stopping interference */
 DLList         *interf_objs = INITPTR;
@@ -107,30 +106,36 @@ LOCAL int       check_loop_line (MinItemParser * line, int line_number);
 /** Checks validity of line with "allocate" keyword
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
+ *  @param slaves [in] list of slaves
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
-LOCAL int       check_allocate_line (MinItemParser * line, int line_number);
+LOCAL int       check_allocate_line (MinItemParser * line, int line_number,
+				     DLList * slaves);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "free" keyword
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
+ *  @param slaves [in] list of slaves
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
-LOCAL int       check_free_line (MinItemParser * line, int line_number);
+LOCAL int       check_free_line (MinItemParser * line, int line_number,
+				 DLList * slaves);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "remote" keyword
  *  @param line [in] MinItemParser containing line.
+ *  @param variables [in] list of variables
  *  @param line_number - line number for debug messages
+ *  @param slaves [in] list of slaves
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
 LOCAL int       check_remote_line (MinItemParser * line, DLList * variables,
-                                   int line_number);
+                                   int line_number, DLList * slaves);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "allownextresult" keyword 
  *  @param line [in] MinItemParser containing line.
@@ -636,7 +641,8 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number)
 }
 
 /*------------------------------------------------------------------------- */
-LOCAL int check_allocate_line (MinItemParser * line, int line_number)
+LOCAL int check_allocate_line (MinItemParser * line, int line_number,
+			       DLList * slaves)
 {
         int             retval = ENOERR;
         int             result = 0;
@@ -687,7 +693,8 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number)
 }
 
 /*------------------------------------------------------------------------- */
-LOCAL int check_free_line (MinItemParser * line, int line_number)
+LOCAL int check_free_line (MinItemParser * line, int line_number,
+			   DLList *slaves)
 {
         int             retval = ENOERR;
         int             result = 0;
@@ -727,7 +734,7 @@ LOCAL int check_free_line (MinItemParser * line, int line_number)
 
 /*------------------------------------------------------------------------- */
 LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
-                             int line_number)
+                             int line_number, DLList * slaves)
 {
         int             retval = ENOERR;
         int             result = 0;
@@ -1197,6 +1204,7 @@ char           *validate_test_case (MinSectionParser * testcase)
         DLList         *class_methods = INITPTR;
         DLListIterator  call_item = INITPTR;
         DLListIterator  tc_item = INITPTR;
+	DLList         *slaves;
         TestCaseInfo   *tc;
         char           *tc_title = NULL;
         DLList         *testclasses = dl_list_create ();
@@ -1590,7 +1598,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordAllocate:
                         check_result =
-                            check_allocate_line (line, line_number);
+				check_allocate_line (line, line_number, slaves);
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
@@ -1603,7 +1611,8 @@ char           *validate_test_case (MinSectionParser * testcase)
                         continue;
                         break;
                 case EKeywordFree:
-                        check_result = check_free_line (line, line_number);
+                        check_result = check_free_line (line, line_number, 
+							slaves);
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
@@ -1618,7 +1627,8 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordRemote:
 
                         check_result =
-                            check_remote_line (line, var_list, line_number);
+				check_remote_line (line, var_list, line_number,
+						   slaves);
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
