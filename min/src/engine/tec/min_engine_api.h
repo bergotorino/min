@@ -53,6 +53,7 @@ typedef struct  {
         void (*case_result) (long test_run_id, int result, char *desc);
         void (*new_module) (char *modulename, unsigned module_id);
         void (*no_module) (char *modulename);
+        void (*module_ready) (unsigned module_id);
         void (*new_case) (unsigned module_id, unsigned case_id, 
 			  char *casetitle);
         void (*case_started) (unsigned module_id, unsigned case_id, 

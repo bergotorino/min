@@ -1377,6 +1377,10 @@ LOCAL int ec_msg_tcd_handler (MsgBuffer * message)
                                 tm_set_status (work_module_item,
                                                TEST_MODULE_READY);
                                 result = 0;
+				if (in->module_ready) 
+					in->module_ready 
+						(tm_get_module_id 
+						 (work_module_item));
 				goto EXIT;
                         }
                         break;
