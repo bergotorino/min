@@ -34,7 +34,7 @@
 #include <consoleui.h>
 #include <data_api.h>
 #include <dllist.h>
-#include <tec.h>
+#include <data_api.h>
 #include <dirent.h>
 #include <min_common.h>
 #include <min_plugin_interface.h>
@@ -99,6 +99,10 @@ callback_s      cb_main_menu[] = {
         {"Exit", NULL, quit_program, NULL, NULL, NULL},
         {NULL, NULL, NULL, NULL, NULL, NULL}
 };
+
+DLList         *selected_cases;
+DLList         *available_modules;
+DLList         *instantiated_modules;
 
 /** linked list of test set files */
 DLList         *test_set_files = INITPTR;
@@ -500,9 +504,9 @@ LOCAL void add_module (void *p)
                 }
         }
 
-        if (ec_add_module (module_name, conf_list, 0) == 0) {
+        //if (ec_add_module (module_name, conf_list, 0) == 0) {
                 popup_window ("Module added", 1);
-        }
+		//}
 }
 
 /* ------------------------------------------------------------------------- */
@@ -521,7 +525,7 @@ LOCAL int get_test_modules (void)
 
         /* free memory allocated for callback structure */
         free_cbs (cb_add_test_module_menu);
-
+#if 0
         /* remove items from current test sets list */
         if (dl_list_size (test_modules) != -1) {
                 dl_item = dl_list_head (test_modules);
@@ -601,7 +605,7 @@ LOCAL int get_test_modules (void)
                          0);
                 i++;
         }
-
+#endif
         /* last menu item should be NULL one */
         null_cbs (&cb_add_test_module_menu[i]);
 
@@ -637,7 +641,7 @@ LOCAL int get_test_case_files (void)
                         dl_item = dl_list_head (test_case_files);
                 }
         }
-
+#if 0
         dl_item = dl_list_head (ec_settings.search_dirs);
         while (dl_item != INITPTR) {
                 /* get data from list iterator */
@@ -766,7 +770,7 @@ LOCAL int get_test_case_files (void)
                          "", NULL, NULL, add_test_module_menu, NULL, NULL, 0);
                 i++;
         }
-
+#endif
         /* last menu item should be NULL one */
         null_cbs (&cb_add_test_case_files_menu[i]);
 
@@ -1750,7 +1754,7 @@ LOCAL void invert_select_tcs_selection ()
  */
 LOCAL void pause_tc (void *p)
 {
-        ec_pause_test_case ((DLListIterator) p);
+        //ec_pause_test_case ((DLListIterator) p);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1759,7 +1763,7 @@ LOCAL void pause_tc (void *p)
  */
 LOCAL void resume_tc (void *p)
 {
-        ec_resume_test_case ((DLListIterator) p);
+        //ec_resume_test_case ((DLListIterator) p);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1768,7 +1772,7 @@ LOCAL void resume_tc (void *p)
  */
 LOCAL void abort_tc (void *p)
 {
-        ec_abort_test_case ((DLListIterator) p);
+        //ec_abort_test_case ((DLListIterator) p);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1776,7 +1780,7 @@ LOCAL void abort_tc (void *p)
  */
 LOCAL void start_one_tc (void *p)
 {
-        ec_exec_test_case ((DLListIterator) p);
+        //ec_exec_test_case ((DLListIterator) p);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1785,7 +1789,7 @@ LOCAL void start_one_tc (void *p)
 LOCAL void start_cases_sequentially (void *p)
 {
         get_selected_cases ();
-        ec_run_cases_seq (user_selected_cases);
+        //ec_run_cases_seq (user_selected_cases);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1794,7 +1798,7 @@ LOCAL void start_cases_sequentially (void *p)
 LOCAL void start_cases_parallel (void *p)
 {
         get_selected_cases ();
-        ec_run_cases_par (user_selected_cases);
+        // ec_run_cases_par (user_selected_cases);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -2180,7 +2184,7 @@ LOCAL int create_test_set_menu ()
  */
 LOCAL void start_test_set_sequentially ()
 {
-        if (ec_run_set_seq (test_set) == 0)
+        //if (ec_run_set_seq (test_set) == 0)
                 popup_window ("Start sequential test set execution", 1);
 }
 
@@ -2189,7 +2193,7 @@ LOCAL void start_test_set_sequentially ()
  */
 LOCAL void start_test_set_parallel ()
 {
-        if (ec_run_set_par (test_set) == 0)
+        //if (ec_run_set_par (test_set) == 0)
                 popup_window ("Start parallel test set execution", 1);
 }
 
@@ -2228,8 +2232,8 @@ LOCAL void save_test_set ()
         char           *string = INITPTR;
         int             length = 0;
 
-        filename = create_path ();
-        ec_set_write_file (test_set, filename);
+        //filename = create_path ();
+        // ec_set_write_file (test_set, filename);
 
         length = strlen (str) + strlen (filename) + 1;
         string = NEW2 (char, length);
@@ -2251,7 +2255,7 @@ LOCAL void load_test_set (void *p)
 
         filename = (char *)dl_list_data ((DLListIterator) p);
 
-        ec_set_read (test_set, filename);
+        // ec_set_read (test_set, filename);
 }
 
 /* ------------------------------------------------------------------------- */

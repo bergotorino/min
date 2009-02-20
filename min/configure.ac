@@ -53,5 +53,6 @@ AC_OUTPUT(\
         src/utils/lua-5.1.3/src/Makefile \
         src/services/lua_scripter_module/Makefile \
 	src/in_plugins/Makefile \
+	src/in_plugins/cui/Makefile \
 	shared/Makefile \
 	man/Makefile)
