@@ -697,6 +697,7 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
         int             status;
         TestCaseResult *tcr;
         char            tmp2[12];
+	TSBool		complete_used=ESFalse;
 
         if (message == INITPTR) {
                 errno = EINVAL;
@@ -726,13 +727,18 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
                 if (scripter_mod.testcomplete != INITPTR &&
                     !strcmp (scripter_mod.testcomplete,
                              stpd->options_.testid_)) {
+			complete_used=ESTrue;
                         DELETE (scripter_mod.testcomplete);
                         scripter_mod.testcomplete = INITPTR;
                 } 
                 
                 /* set status */
                 stpd->status_ = TP_ENDED;
-
+		
+		if(complete_used==ESTrue){
+			test_complete(stpd->options_.testid_);
+		}
+		
                 /* kill TP :) */
                 kill (sender, SIGUSR2);
                 waitpid (sender, &status, 0);
@@ -2391,7 +2397,7 @@ int test_complete (const char *testid)
                                    _findid, (void *)testid);
         }
 	if(tc_not_ended==0){
-                MIN_WARN ("Test %s already complete", testid);
+                MIN_WARN ("All tests with testid= %s already completed", testid);
                 goto EXIT;
 	}
         /* Set 'wait for complete' flag */
