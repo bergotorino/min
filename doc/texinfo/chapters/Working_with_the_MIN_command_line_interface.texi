@@ -24,7 +24,7 @@ call "rtc. FailingOne"  FAILED (4 other errors/failures)
 
 Note that it's possible to pass also one or more configuration files to the test module from command line (as in the example above). 
 
-MIN does not show the printouts from test module wants on the screen, when the @code{-c} switch is specified. It only shows the test case that is running and the result of the test case when it is completed.
+MIN does not show the printouts from test module on the screen, when the @code{-c} switch is specified. It only shows the test case that is running and the result of the test case when it is completed.
 
 If the @code{-x} switch is used without the @code{-c} switch the console UI is started, but only the test module specified on the command line is visible in the menus.
 
