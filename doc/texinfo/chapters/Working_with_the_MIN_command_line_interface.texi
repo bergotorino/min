@@ -1,38 +1,30 @@
 MIN can execute test cases also directly from the command line.  User can tell MIN not to start the console UI with @code{--console} (or @code{-c}) command line switch. If @code{-c} is the only switch MIN executes all the test cases in all the modules configured in the @code{min.conf} file. MIN can also be instructed to omit the module definitions in @code{min.conf} and execute the cases from a test module specified on the command line with switch @code{--execute} (or @code{-x}). 
 
 @example
-maemo@@maemo:~$min --console --execute \
-                /usr/lib/min/scripter.so:/home/maemo/.min/script.cfg \
-                --execute /home/maemo/.min/min84TestModule.so 
+maemo@@maemo:~$ min --console --execute /usr/lib/min/minDemoModule.so\
+--execute /usr/lib/min/scripter.so:.min/script.cfg 
 Checking for active min processes...
 Checking for active tmc processes...
 Checking for MQ left behind...
+Checking for SHM left behind...
+SHM 4063270 removed from the system...
+SHM 4096039 removed from the system...
+MIN Test Framework, © Nokia 2008, All rights reserved,
+licensed under the Gnu General Public License version 2,
+Contact: Antti Heimola, DG.MIN-Support@@nokia.com
+
 Test case gathering...1 
-  2008-08-29 07:17:39
-    ---------
-  * Test Module /usr/lib/min/scripter.so
-    ---------
-    Test Case: scripted test
-      o Test Result : success
-      o Result Descr: Scripted test case passed
-      o Message     : Passed
-    ---------
-  * Test Module /home/maemo/.min/min84TestModule.so
-    ---------
-    Test Case: min84_fixed
-      o Test Result : success
-      o Result Descr: PASSED
-      o Message     : Passed
-    ---------
-    Test Case: min84_2
-      o Test Result : failure
-      o Result Descr: AssertEquals failed
-      o Message     : Failed
+2009-02-20 14:22:20 Passed  minDemoModule.so Demo_1 PASSED
+2009-02-20 14:22:20 Passed  minDemoModule.so Demo_2 PASSED
+2009-02-20 14:22:20 FAILED  scripter.so bail on error example Test Method call\
+"f. fail5th"  FAILED
+2009-02-20 14:22:20 FAILED  scripter.so loop and break Test Method call \
+"rtc. FailingOne"  FAILED (4 other errors/failures)
 @end example
 
-Note that it's possible to pass also one or more configuration files to the test module from command line (as in the example) above. 
+Note that it's possible to pass also one or more configuration files to the test module from command line (as in the example above). 
 
-MIN does not then show the data that the test module wants to print on the screen. It only shows the test case that is running and the result of the test case when it is completed.
+MIN does not show the printouts from test module wants on the screen, when the @code{-c} switch is specified. It only shows the test case that is running and the result of the test case when it is completed.
 
 If the @code{-x} switch is used without the @code{-c} switch the console UI is started, but only the test module specified on the command line is visible in the menus.
 
