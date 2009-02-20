@@ -25,14 +25,15 @@
 
 /* ------------------------------------------------------------------------- */
 /* INCLUDE FILES */
-#include "consoleui.h"
 #include <string.h>             /* for strlen() */
 #include <stdlib.h>             /* for calloc() */
 #include <menu.h>               /* for ncurses  */
 #include <unistd.h>             /* for usleep() */
 #include <pthread.h>            /* for mutex */
 
+#include "consoleui.h"
 #include <min_system_logger.h>
+#include <min_plugin_interface.h>
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -60,6 +61,9 @@ WINDOW         *menu_window = INITPTR;
 MENU           *my_menu = INITPTR;
 /** flag indicating whether to continue program */
 bool            continue_ = true;
+
+eapiIn_t        out_clbk_;
+eapiOut_t       min_clbk_;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -128,7 +132,12 @@ LOCAL void      wclreoln (WINDOW * pwin, int y, int x);
 LOCAL void      restore_focus_pos (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      save_focus_pos (int index, int top_row);
-
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_msg_print (unsigned moduleid, unsigned caseid, char *message);
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
@@ -384,8 +393,52 @@ LOCAL void save_focus_pos (int index, int top_row)
                 focus_pos->top_row = top_row;
         }
 }
-
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_msg_print (unsigned moduleid, unsigned caseid, char *message)
+{
+        cui_refresh_view();
+}
+/* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
+/* ------------------------------------------------------------------------- */
+void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
+{
+        /* Binds the callbacks */
+        memcpy (&min_clbk_,in_callback,sizeof(eapiOut_t));
+
+        /*(*out_callback)->case_result              = pl_case_result;
+        (*out_callback)->case_started             = pl_case_started;
+        (*out_callback)->case_paused              = pl_case_paused;
+        (*out_callback)->case_resumed             = pl_case_resumed;
+        (*out_callback)->new_module               = pl_new_module;
+        (*out_callback)->no_module                = pl_no_module;*/
+
+        (*out_callback)->case_result              = NULL;
+        (*out_callback)->case_started             = NULL;
+        (*out_callback)->case_paused              = NULL;
+        (*out_callback)->case_resumed             = NULL;
+        (*out_callback)->module_prints            = pl_msg_print;
+        (*out_callback)->new_module               = NULL;
+        (*out_callback)->no_module                = NULL;
+
+        return;
+}
+/* ------------------------------------------------------------------------- */
+void pl_open_plugin ()
+{
+        cui_exec();
+        return;
+}
+/* ------------------------------------------------------------------------- */
+void pl_close_plugin ()
+{
+        return;
+}
+/* ------------------------------------------------------------------------- */
+void pl_detach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
+{
+        return;
+}
 /* ------------------------------------------------------------------------- */
 /** Updates menu
  *  @param cb pointer to new menu to show
