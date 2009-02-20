@@ -88,7 +88,6 @@ LOCAL void      quit_program (void);
 LOCAL void      load_test_set_list (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      load_test_set (void *p);
-
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 /** main menu structure */

@@ -34,6 +34,7 @@
 #include "consoleui.h"
 #include <min_system_logger.h>
 #include <min_plugin_interface.h>
+#include <min_text.h>
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -100,14 +101,20 @@ LOCAL int       maxx = 0;
 /* current menu's focus position */
 LOCAL focus_pos_s       *focus_pos = &main_menu_focus;
 
+/* List of cases */
+DLList *case_list_ = INITPTR;
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
 /* None */
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
-/* None */
-
+/* ------------------------------------------------------------------------- */
+typedef struct {
+        unsigned moduleid_;
+        unsigned caseid_;
+        Text *casetitle_;
+} CUICaseData;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
@@ -451,6 +458,7 @@ LOCAL void pl_case_resumed (long testrunid)
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_msg_print (unsigned moduleid, unsigned caseid, char *message)
 {
+        /* display print message */
 
         cui_refresh_view();
 }
@@ -469,7 +477,18 @@ LOCAL void pl_no_module (char *modulename)
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 {
+        CUICaseData *ccd = INITPTR;        
 
+        /* add new case to some list */
+        if (case_list_==INITPTR) case_list_ = dl_list_create();
+
+        ccd = NEW2(CUICaseData);
+        ccd->moduleid_ = moduleid;
+        ccd->caseid_   = caseid;
+        ccd->casetitle_ = tx_create(casetitle);
+        dl_list_add (case_list_,(void*)ccd);
+
+        /* update the screen */
         cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */

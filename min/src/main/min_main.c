@@ -373,7 +373,10 @@ int main (int argc, char *argv[], char *envp[])
         if (no_cui_flag) {
                 ext_if_exec ();
                 retval = log_summary_stdout ();
-        } else
+        } else {
+                retval = pthread_create (&plugin_thread, NULL, plugin_open,
+                                 (void *)tmp);
+        }
 		while (1) { sleep (50000);}
 
         dl_list_free (&modulelist);
