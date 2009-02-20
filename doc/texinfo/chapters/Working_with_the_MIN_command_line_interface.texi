@@ -16,10 +16,10 @@ Contact: Antti Heimola, DG.MIN-Support@@nokia.com
 Test case gathering...1 
 2009-02-20 14:22:20 Passed  minDemoModule.so Demo_1 PASSED
 2009-02-20 14:22:20 Passed  minDemoModule.so Demo_2 PASSED
-2009-02-20 14:22:20 FAILED  scripter.so bail on error example Test Method call\
-"f. fail5th"  FAILED
-2009-02-20 14:22:20 FAILED  scripter.so loop and break Test Method call \
-"rtc. FailingOne"  FAILED (4 other errors/failures)
+2009-02-20 14:22:20 FAILED  scripter.so bail on error example Test \
+Method call "f. fail5th"  FAILED
+2009-02-20 14:22:20 FAILED  scripter.so loop and break Test Method \
+call "rtc. FailingOne"  FAILED (4 other errors/failures)
 @end example
 
 Note that it's possible to pass also one or more configuration files to the test module from command line (as in the example above). 
