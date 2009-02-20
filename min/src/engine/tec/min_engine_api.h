@@ -70,7 +70,7 @@ typedef struct {
         void (*start_case) (unsigned moduleid, unsigned caseid);
         void (*pause_case) (long test_run_id);
         void (*resume_case) (long test_run_id);
-        void (*abort_test) (unsigned moduleid, unsigned caseid);
+        void (*abort_case) (unsigned moduleid, unsigned caseid);
         void (*fatal_error) (char *what, char *error_string);
 } eapiOut_t;
 

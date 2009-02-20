@@ -337,7 +337,7 @@ int main (int argc, char *argv[], char *envp[])
                 exit (0);
         }
 
-        pluginhandle = dlopen ("/usr/lib/min/min_dbus.so", RTLD_NOW);
+        pluginhandle = dlopen ("/usr/lib/min/min_cui.so", RTLD_NOW);
         if (!pluginhandle) {
                 printf ("Error opening plugin %s\n", dlerror());
                 exit (-1);
@@ -374,7 +374,7 @@ int main (int argc, char *argv[], char *envp[])
                 ext_if_exec ();
                 retval = log_summary_stdout ();
         } else
-                cui_exec ();
+//                cui_exec ();
 
         dl_list_free (&modulelist);
         ec_cleanup ();

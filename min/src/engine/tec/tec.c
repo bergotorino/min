@@ -994,7 +994,7 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
 
 #ifndef MIN_EXTIF
 #ifndef MIN_UNIT_TEST
-        cui_refresh_view ();
+        //cui_refresh_view ();
 #endif
 #endif
 #ifdef MIN_EXTIF
@@ -1313,7 +1313,7 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
                 ec_check_next_in_group (group_id);
 #ifndef MIN_EXTIF
 #ifndef MIN_UNIT_TEST
-        cui_refresh_view ();
+        //cui_refresh_view ();
 #endif
 #endif
 #ifdef MIN_EXTIF
@@ -1617,7 +1617,7 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
         dl_list_add (work_list, (void *)print_msg);
 #ifndef MIN_EXTIF
 #ifndef MIN_UNIT_TEST
-        cui_refresh_view ();
+        //cui_refresh_view ();
 #endif
 #endif
 #ifdef MIN_EXTIF
