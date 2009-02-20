@@ -1,4 +1,6 @@
 The @code{complete} keyword is used to have a started test case wait to complete. It blocks until the test case has finished. @code{complete} has one mandatory argument, described below.
+
+
 @table @b
 @item Argument
 @item testid
@@ -8,3 +10,5 @@ The complete keyword can be used, for example, in the following way:
 @example
 complete test1
 @end example
+
+@b{Note:} If this keyword is used when more than one test case has the same @code{testid} (even if it's completed already) it will wait for the last test case to complete. Avoid using the same @code{testid} for many test case runs. @xref{run keyword}.
