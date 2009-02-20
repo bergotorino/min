@@ -47,6 +47,7 @@ extern WINDOW  *main_window;    /* main window */
 extern WINDOW  *menu_window;    /* window including menu */
 extern eapiIn_t out_clbk_;      /*  */
 extern eapiOut_t min_clbk_;     /*  */
+extern DLList *case_list_;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
@@ -853,7 +854,7 @@ LOCAL int get_tcs_for_start_new_case ()
         DLListItem     *dl_item_tm = INITPTR;
         DLListItem     *dl_item_tc = INITPTR;
         DLList         *dl_list_tc = INITPTR;
-        test_case_s    *tc = INITPTR;
+        CUICaseData    *tc = INITPTR;
         int             n = 0;
         int             i = 0;
 
@@ -861,76 +862,36 @@ LOCAL int get_tcs_for_start_new_case ()
         free_cbs (cb_start_new_case_menu);
 
         /* count the number of all test cases */
-        if (available_modules != INITPTR && available_modules != NULL) {
-                /* get head of linked list including available modules */
-                dl_item_tm = dl_list_head (available_modules);
-
-                while (dl_item_tm != INITPTR) {
-                        /* get test case list of current test module */
-                        dl_list_tc = tm_get_tclist (dl_item_tm);
-
-                        if (dl_list_tc != NULL && dl_list_tc != INITPTR) {
-                                i = dl_list_size (dl_list_tc);
-                                if (i != -1)
-                                        n += i;
-                        }
-
-                        /* get next module */
-                        dl_item_tm = dl_list_next (dl_item_tm);
-                }
-        }
-        i = 0;
+        n = dl_list_size (case_list_);
 
         if (n > 0) {
                 /* allocate memory for n+1 items */
-                cb_start_new_case_menu =
-                    (callback_s *) calloc (n + 1, sizeof (callback_s));
+                cb_start_new_case_menu = NEW2(callback_s,n+1);
 
-                if (cb_start_new_case_menu == NULL)
-                        return -1;
+                if (cb_start_new_case_menu == NULL) return -1;
 
-                /* get head of linked list including available modules */
-                for (dl_item_tm = dl_list_head (available_modules);
-                     dl_item_tm != INITPTR;
-                     dl_item_tm = dl_list_next (dl_item_tm)) {
-                        /* get test case list of current test module */
-                        dl_list_tc = tm_get_tclist (dl_item_tm);
-
-                        if (dl_list_tc == INITPTR || dl_list_tc == NULL)
+                dl_item_tc = dl_list_head(case_list_);
+                while (dl_item_tc!=DLListNULLIterator) {
+                        /* get tc title and so on */
+                        tc = (CUICaseData*)dl_list_data (dl_item_tc);
+                        if (tc == INITPTR || tc->casetitle_ == INITPTR) {
                                 continue;
-                        /* get head of linked list of test cases */
-                        for (dl_item_tc = dl_list_head (dl_list_tc);
-                             dl_item_tc != INITPTR;
-                             dl_item_tc = dl_list_next (dl_item_tc)) {
-
-                                /* get data from list iterator */
-                                tc = (test_case_s *)
-                                    dl_list_data (dl_item_tc);
-
-                                if (tc == INITPTR || tc->title_ == NULL)
-                                        continue;
-                                /* fill callback structure  */
-                                /* with data */
-                                set_cbs (&cb_start_new_case_menu[i],
-                                         tc->title_, NULL,
-                                         case_menu, case_menu,
-                                         start_one_tc, dl_item_tc, 0);
-                                i++;
-
                         }
+                        /* fill callback structure with data */
+                        set_cbs (&cb_start_new_case_menu[i],
+                                tx_get_buf(tc->casetitle_),
+                                NULL,case_menu, case_menu,start_one_tc,
+                                dl_item_tc, 0);
+                        i++;
+                        dl_item_tc = dl_list_next(dl_item_tc);
                 }
         } else {
                 /* allocate memory for empty menu */
-                cb_start_new_case_menu =
-                    (callback_s *) calloc (2, sizeof (callback_s));
-
-                if (cb_start_new_case_menu == NULL)
-                        return -1;
-
+                cb_start_new_case_menu = NEW2(callback_s,2);
+                if (cb_start_new_case_menu == NULL) return -1;
                 i = 0;
                 set_cbs (&cb_start_new_case_menu[i],
                          "", NULL, NULL, case_menu, NULL, NULL, 0);
-
                 i++;
         }
 

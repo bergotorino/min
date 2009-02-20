@@ -29,6 +29,7 @@
 /* ------------------------------------------------------------------------- */
 /* INCLUDES */
 #include <min_common.h>
+#include <min_text.h>
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -77,6 +78,11 @@ typedef struct {
         int top_row;
 } focus_pos_s;
 
+typedef struct {
+        unsigned moduleid_;
+        unsigned caseid_;
+        Text *casetitle_;
+} CUICaseData;
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* None */

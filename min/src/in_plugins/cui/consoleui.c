@@ -1,4 +1,4 @@
-/*
+;/*
  * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
  * and/or its subsidiary(-ies).
  * Contact: Juha Perala
@@ -66,6 +66,9 @@ bool            continue_ = true;
 eapiIn_t        out_clbk_;
 eapiOut_t       min_clbk_;
 
+/* List of cases */
+DLList *case_list_ = INITPTR;
+
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -101,20 +104,12 @@ LOCAL int       maxx = 0;
 /* current menu's focus position */
 LOCAL focus_pos_s       *focus_pos = &main_menu_focus;
 
-/* List of cases */
-DLList *case_list_ = INITPTR;
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
 /* None */
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
-/* ------------------------------------------------------------------------- */
-typedef struct {
-        unsigned moduleid_;
-        unsigned caseid_;
-        Text *casetitle_;
-} CUICaseData;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
@@ -482,7 +477,7 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
         /* add new case to some list */
         if (case_list_==INITPTR) case_list_ = dl_list_create();
 
-        ccd = NEW2(CUICaseData);
+        ccd = NEW(CUICaseData);
         ccd->moduleid_ = moduleid;
         ccd->caseid_   = caseid;
         ccd->casetitle_ = tx_create(casetitle);
@@ -502,13 +497,15 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         /* Binds the callbacks */
         memcpy (&min_clbk_,in_callback,sizeof(eapiOut_t));
 
-        (*out_callback)->case_result              = pl_case_result;
-        (*out_callback)->case_started             = pl_case_started;
-        (*out_callback)->case_paused              = pl_case_paused;
-        (*out_callback)->case_resumed             = pl_case_resumed;
-        (*out_callback)->module_prints            = pl_msg_print;
-        (*out_callback)->new_module               = pl_new_module;
-        (*out_callback)->no_module                = pl_no_module;
+        (*out_callback)->case_result            = pl_case_result;
+        (*out_callback)->case_started           = pl_case_started;
+        (*out_callback)->case_paused            = pl_case_paused;
+        (*out_callback)->case_resumed           = pl_case_resumed;
+        (*out_callback)->module_prints          = pl_msg_print;
+        (*out_callback)->new_module             = pl_new_module;
+        (*out_callback)->no_module              = pl_no_module;
+        (*out_callback)->module_ready           = NULL;
+        (*out_callback)->new_case               = pl_new_case;
 
         return;
 }
