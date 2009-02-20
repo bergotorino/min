@@ -374,7 +374,7 @@ int main (int argc, char *argv[], char *envp[])
                 ext_if_exec ();
                 retval = log_summary_stdout ();
         } else
-//                cui_exec ();
+		while (1) { sleep (50000);}
 
         dl_list_free (&modulelist);
         ec_cleanup ();
