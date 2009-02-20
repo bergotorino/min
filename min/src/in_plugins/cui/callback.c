@@ -37,6 +37,7 @@
 #include <tec.h>
 #include <dirent.h>
 #include <min_common.h>
+#include <min_plugin_interface.h>
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -44,6 +45,8 @@ extern bool     continue_;      /* flag indicating whether to continue prog  */
 extern MENU    *my_menu;        /* menu itself */
 extern WINDOW  *main_window;    /* main window */
 extern WINDOW  *menu_window;    /* window including menu */
+extern eapiIn_t out_clbk_;      /*  */
+extern eapiOut_t min_clbk_;     /*  */
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */

@@ -133,8 +133,29 @@ LOCAL void      restore_focus_pos (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      save_focus_pos (int index, int top_row);
 /* ------------------------------------------------------------------------- */
+LOCAL void pl_case_result (unsigned moduleid, unsigned caseid, char *desc);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_report_case_status (unsigned moduleid,
+                                unsigned caseid,
+                                unsigned stat);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_started (unsigned moduleid,
+                        unsigned caseid,
+                        long testrunid);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_paused (long testrunid);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_resumed (long testrunid);
+/* ------------------------------------------------------------------------- */
 LOCAL void pl_msg_print (unsigned moduleid, unsigned caseid, char *message);
 /* ------------------------------------------------------------------------- */
+LOCAL void pl_new_module (char *modulename, unsigned moduleid);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_no_module (char *modulename);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -394,10 +415,66 @@ LOCAL void save_focus_pos (int index, int top_row)
         }
 }
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_msg_print (unsigned moduleid, unsigned caseid, char *message)
+LOCAL void pl_case_result (unsigned moduleid, unsigned caseid, char *desc)
 {
+
         cui_refresh_view();
 }
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_report_case_status (unsigned moduleid,
+                                unsigned caseid,
+                                unsigned stat)
+{
+
+        cui_refresh_view();
+}
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_started (unsigned moduleid,
+                        unsigned caseid,
+                        long testrunid)
+{
+
+        cui_refresh_view();
+}
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_paused (long testrunid)
+{
+
+        cui_refresh_view();
+}
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_resumed (long testrunid)
+{
+
+        cui_refresh_view();
+}
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_msg_print (unsigned moduleid, unsigned caseid, char *message)
+{
+
+        cui_refresh_view();
+}
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_new_module (char *modulename, unsigned moduleid)
+{
+
+        cui_refresh_view();
+}
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_no_module (char *modulename)
+{
+        
+        cui_refresh_view();
+}
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
+{
+
+        cui_refresh_view();
+}
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
@@ -406,20 +483,13 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         /* Binds the callbacks */
         memcpy (&min_clbk_,in_callback,sizeof(eapiOut_t));
 
-        /*(*out_callback)->case_result              = pl_case_result;
+        (*out_callback)->case_result              = pl_case_result;
         (*out_callback)->case_started             = pl_case_started;
         (*out_callback)->case_paused              = pl_case_paused;
         (*out_callback)->case_resumed             = pl_case_resumed;
-        (*out_callback)->new_module               = pl_new_module;
-        (*out_callback)->no_module                = pl_no_module;*/
-
-        (*out_callback)->case_result              = NULL;
-        (*out_callback)->case_started             = NULL;
-        (*out_callback)->case_paused              = NULL;
-        (*out_callback)->case_resumed             = NULL;
         (*out_callback)->module_prints            = pl_msg_print;
-        (*out_callback)->new_module               = NULL;
-        (*out_callback)->no_module                = NULL;
+        (*out_callback)->new_module               = pl_new_module;
+        (*out_callback)->no_module                = pl_no_module;
 
         return;
 }
