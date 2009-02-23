@@ -14,14 +14,16 @@ case "$1" in
 	makeinfo min-reference.texi
 	;;
 	"plaintext")
-	makeinfo --plaintext --no-ifinfo min.texi > min.txt
-	makeinfo --plaintext --no-ifinfo min-reference.texi >min-reference.txt
+	makeinfo --plaintext --no-ifinfo --output=min.txt min.texi
+	makeinfo --plaintext --no-ifinfo --output=min-reference.txt min-reference.texi
 	;;
 	"html-s")
 	makeinfo --html min.texi
-	cp -r images min/
+	mkdir min/images/
+	cp images/*.png min/images/
 	makeinfo --html min-reference.texi
-	cp -r images min-reference/
+	mkdir min-reference/images/
+	cp images/*.png min-reference/images/
 	;;
 	#"html-c")
 	#texi2html --node-files -split chapter -prefix min -top-file index.htm -toc-file contents.htm min.texi

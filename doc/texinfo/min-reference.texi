@@ -53,6 +53,14 @@ Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
 Document Version @value{document_version}
 @end ifinfo
 
+@ifdocbook
+@node Top, Document Version, (dir), (dir)
+@top General Introduction
+This file documents @value{application_full_name}
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+Document Version @value{document_version}
+@end ifdocbook
+
 @ifhtml
 @node Top, Document Version, (dir), (dir)
 @top General Introduction
