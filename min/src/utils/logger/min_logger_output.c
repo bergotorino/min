@@ -421,7 +421,7 @@ LOCAL void fo_create_new_file (struct min_logger_file_output_t *fo,
 
                 fo->file_ = fopen (fname, "a");
 
-                if (file) {
+                if (fo->file_) {
                         fo->fileanddirname_ = fname;
                         fo->isfileopen_ = ESTrue;
                 } else {
