@@ -68,6 +68,7 @@ eapiOut_t       min_clbk_;
 
 /* List of cases */
 DLList *case_list_ = INITPTR;
+DLList *executed_cases_list_ = INITPTR;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -439,6 +440,24 @@ LOCAL void pl_case_started (unsigned moduleid,
                         unsigned caseid,
                         long testrunid)
 {
+        // Case has been started, add it to the executed cases list and set
+        // its status to ongoing.
+        if (executed_cases_list_==INITPTR) {
+                executed_cases_list_ = dl_list_create();
+        }
+
+        ExecutedTestCase *tmp = NEW(ExectuedTestCase);
+        tmp->status_ = 1;
+        tmp->result_ = -1;
+        resultdesc_ = tx_create("");
+ /*
+typedef struct {
+        unsigned status_;
+        unsigned result_;
+        Text *resultdesc_;
+} ExecutedTestCase;
+*/
+
 //        cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */

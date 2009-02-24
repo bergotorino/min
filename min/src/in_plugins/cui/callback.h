@@ -83,6 +83,12 @@ typedef struct {
         unsigned caseid_;
         Text *casetitle_;
 } CUICaseData;
+
+typedef struct {
+        unsigned status_;
+        unsigned result_;
+        Text *resultdesc_;
+} ExecutedTestCase;
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* None */

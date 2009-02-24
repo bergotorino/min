@@ -48,6 +48,7 @@ extern WINDOW  *menu_window;    /* window including menu */
 extern eapiIn_t out_clbk_;      /*  */
 extern eapiOut_t min_clbk_;     /*  */
 extern DLList *case_list_;
+extern DLList *executed_case_list;      /* */
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
