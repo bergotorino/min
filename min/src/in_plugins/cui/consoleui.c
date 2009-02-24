@@ -68,7 +68,7 @@ eapiOut_t       min_clbk_;
 
 /* List of cases */
 DLList *case_list_ = INITPTR;
-DLList *executed_cases_list_ = INITPTR;
+DLList *executed_case_list_ = INITPTR;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -442,8 +442,8 @@ LOCAL void pl_case_started (unsigned moduleid,
 {
         // Case has been started, add it to the executed cases list and set
         // its status to ongoing.
-        if (executed_cases_list_==INITPTR) {
-                executed_cases_list_ = dl_list_create();
+        if (executed_case_list_==INITPTR) {
+                executed_case_list_ = dl_list_create();
         }
 
         ExecutedTestCase *tmp = NEW(ExecutedTestCase);

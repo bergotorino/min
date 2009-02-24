@@ -48,7 +48,7 @@ extern WINDOW  *menu_window;    /* window including menu */
 extern eapiIn_t out_clbk_;      /*  */
 extern eapiOut_t min_clbk_;     /*  */
 extern DLList *case_list_;
-extern DLList *executed_case_list;      /* */
+extern DLList *executed_case_list_;      /* */
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
@@ -1030,7 +1030,7 @@ LOCAL int get_tcs_for_run_multiple_tests ()
 LOCAL int get_ongoing_cases ()
 {
         DLListItem       *dl_item_tc = INITPTR;
-        ExecutedTestCase *tc = INITPTR;
+        ExecutedTestCase *etc = INITPTR;
         int               n = 0;
         int               i = 0;
 
@@ -1038,15 +1038,15 @@ LOCAL int get_ongoing_cases ()
         free_cbs (cb_ongoing_cases_menu);
 
         /* count the number of ongoing test cases */
-        if (executed_case_list != INITPTR && executed_case_list != NULL) {
+        if (executed_case_list_ != INITPTR && executed_case_list_ != NULL) {
                 /* get head of linked list including available modules */
-                dl_item_tc = dl_list_head (executed_case_list);
+                dl_item_tc = dl_list_head (executed_case_list_);
 
                 while (dl_item_tc != INITPTR) {
-		        tc = dl_list_data (dl_item_tc);
+		        etc = (ExecutedTestCase *)dl_list_data (dl_item_tc);
                         /* check if test case's status is ongoing or paused */
-                        if (tc->status_ == TCASE_STATUS_ONGOING ||
-                            tc->status_  == TCASE_STATUS_PAUSED)
+                        if (etc->status_ == TCASE_STATUS_ONGOING ||
+                            etc->status_  == TCASE_STATUS_PAUSED)
 			      n++;
                         /* get next test case */
                         dl_item_tc = dl_list_next (dl_item_tc);
@@ -1062,24 +1062,24 @@ LOCAL int get_ongoing_cases ()
                         return -1;
 
                 /* process linked list including available modules */
-                for (dl_item_tc = dl_list_head (executed_case_list);
+                for (dl_item_tc = dl_list_head (executed_case_list_);
                      dl_item_tc != INITPTR;
                      dl_item_tc = dl_list_next (dl_item_tc)) {
-		        tc = dl_list_data (dl_item_tc);
-                        if (tc->status_ != TCASE_STATUS_ONGOING &&
-                            tc->status_ != TCASE_STATUS_PAUSED)
+		        etc = (ExecutedTestCase *)dl_list_data (dl_item_tc);
+                        if (etc->status_ != TCASE_STATUS_ONGOING &&
+                            etc->status_ != TCASE_STATUS_PAUSED)
                                 continue;
                         /* get test_case_s from linked list iterator */
-                        tc = dl_list_data (dl_item_tc);
-                        if (tc == INITPTR || tc->case_->casetitle_ == NULL)
+                        etc = dl_list_data (dl_item_tc);
+                        if (etc == INITPTR || etc->case_->casetitle_ == NULL)
                                 continue;
 
-                        switch (tc->status_) {
+                        switch (etc->status_) {
 
                         case TCASE_STATUS_ONGOING:
                                 /* fill callback structure with data */
                                 set_cbs (&cb_ongoing_cases_menu
-                                         [i], tc->case_->casetitle_,
+                                         [i], etc->case_->casetitle_,
                                          "(ongoing)", NULL,
                                          case_menu,
                                          pause_resume_abort_menu,
@@ -1090,7 +1090,7 @@ LOCAL int get_ongoing_cases ()
                         case TCASE_STATUS_PAUSED:
                                 /* fill callback structure with data */
                                 set_cbs (&cb_ongoing_cases_menu
-                                         [i], tc->case_->casetitle_,
+                                         [i], etc->case_->casetitle_,
                                          "(paused)", NULL,
                                          case_menu,
                                          pause_resume_abort_menu,
