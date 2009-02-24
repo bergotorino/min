@@ -381,7 +381,6 @@ int main (int argc, char *argv[], char *envp[])
 
 
         dl_list_free (&modulelist);
-        ec_cleanup ();
         return retval;
 }
 

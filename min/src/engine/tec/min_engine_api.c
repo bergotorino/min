@@ -207,10 +207,20 @@ LOCAL void eapi_error (char *what, char *msg)
 
 /* ------------------------------------------------------------------------- */
 
+LOCAL void eapi_open (char *what, char *msg)
+{
+        MIN_DEBUG ("Closing");
+	ec_min_init();
+        MIN_DEBUG ("Closed");
+}
+
+
+/* ------------------------------------------------------------------------- */
+
 LOCAL void eapi_close (char *what, char *msg)
 {
         MIN_DEBUG ("Closing");
-	
+	ec_cleanup();
         MIN_DEBUG ("Closed");
 }
 

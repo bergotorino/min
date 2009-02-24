@@ -141,6 +141,7 @@ int ext_if_exec ()
                 sleep (1);
 
         }
+	ec_cleanup();
         log_summary ();
         return 0;
 }
