@@ -238,7 +238,7 @@ int main (int argc, char *argv[], char *envp[])
         DLList         *modulelist;
         DLListIterator  work_module_item;
         pthread_t       plugin_thread;
-        long tmp;
+        void *tmp;
         void (*plugin_attach) (eapiIn_t **out_callback, 
                                 eapiOut_t *in_callback);
 
@@ -367,7 +367,7 @@ int main (int argc, char *argv[], char *envp[])
                                 cont_flag = 0;
                         work_module_item = dl_list_next (work_module_item);
                 }
-                printf ("Test case gathering...%d \n", cont_flag);
+                //printf ("Test case gathering...%d \n", cont_flag);
         }
 
         if (no_cui_flag) {
@@ -375,9 +375,10 @@ int main (int argc, char *argv[], char *envp[])
                 retval = log_summary_stdout ();
         } else {
                 retval = pthread_create (&plugin_thread, NULL, plugin_open,
-                                 (void *)tmp);
+                                 &tmp);
+		pthread_join (plugin_thread, &tmp);
         }
-		while (1) { sleep (50000);}
+
 
         dl_list_free (&modulelist);
         ec_cleanup ();

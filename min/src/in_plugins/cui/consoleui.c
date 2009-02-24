@@ -184,6 +184,10 @@ LOCAL void init_ncurses ()
 LOCAL void quit ()
 {
         int             i = 0;
+	
+	popup_window ("Exiting MIN...", 1);
+
+        if (min_clbk_.min_close) min_clbk_.min_close ();
 
         /* unpost and free all allocated menu and item resources */
         unpost_menu (my_menu);

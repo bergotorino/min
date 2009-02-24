@@ -207,6 +207,15 @@ LOCAL void eapi_error (char *what, char *msg)
 
 /* ------------------------------------------------------------------------- */
 
+LOCAL void eapi_close (char *what, char *msg)
+{
+        MIN_DEBUG ("Closing");
+	
+        MIN_DEBUG ("Closed");
+}
+
+/* ------------------------------------------------------------------------- */
+
 LOCAL DLListIterator tc_find_by_pid (DLList * list_handle, long tm_pid)
 {
 	test_case_s    *tc;
@@ -241,6 +250,7 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 	out->pause_case = eapi_pause_case;
 	out->resume_case = eapi_resume_case;
         out->fatal_error = eapi_error;
+	out->min_close = eapi_close;
 }
 
 
