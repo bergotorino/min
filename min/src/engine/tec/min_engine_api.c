@@ -209,9 +209,8 @@ LOCAL void eapi_error (char *what, char *msg)
 
 LOCAL void eapi_open (char *what, char *msg)
 {
-        MIN_DEBUG ("Closing");
-	ec_min_init();
-        MIN_DEBUG ("Closed");
+        MIN_DEBUG ("Opening");
+        MIN_DEBUG ("Open");
 }
 
 

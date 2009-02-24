@@ -442,11 +442,12 @@ LOCAL void pl_case_started (unsigned moduleid,
 {
         // Case has been started, add it to the executed cases list and set
         // its status to ongoing.
+  Text *resultdesc_;
         if (executed_cases_list_==INITPTR) {
                 executed_cases_list_ = dl_list_create();
         }
 
-        ExecutedTestCase *tmp = NEW(ExectuedTestCase);
+        ExecutedTestCase *tmp = NEW(ExecutedTestCase);
         tmp->status_ = 1;
         tmp->result_ = -1;
         resultdesc_ = tx_create("");

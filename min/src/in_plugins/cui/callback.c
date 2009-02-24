@@ -1029,24 +1029,25 @@ LOCAL int get_tcs_for_run_multiple_tests ()
  */
 LOCAL int get_ongoing_cases ()
 {
-        DLListItem     *dl_item_tc = INITPTR;
-        test_case_s    *tc = INITPTR;
-        int             n = 0;
-        int             i = 0;
+        DLListItem       *dl_item_tc = INITPTR;
+        ExecutedTestCase *tc = INITPTR;
+        int               n = 0;
+        int               i = 0;
 
         /* free memory allocated for callback structure */
         free_cbs (cb_ongoing_cases_menu);
 
         /* count the number of ongoing test cases */
-        if (selected_cases != INITPTR && selected_cases != NULL) {
+        if (executed_case_list != INITPTR && executed_case_list != NULL) {
                 /* get head of linked list including available modules */
-                dl_item_tc = dl_list_head (selected_cases);
+                dl_item_tc = dl_list_head (executed_case_list);
 
                 while (dl_item_tc != INITPTR) {
+		        tc = dl_list_data (dl_item_tc);
                         /* check if test case's status is ongoing or paused */
-                        if (tc_get_status (dl_item_tc) == TEST_CASE_ONGOING ||
-                            tc_get_status (dl_item_tc) == TEST_CASE_PAUSED)
-                                n++;
+                        if (tc->status_ == TCASE_STATUS_ONGOING ||
+                            tc->status_  == TCASE_STATUS_PAUSED)
+			      n++;
                         /* get next test case */
                         dl_item_tc = dl_list_next (dl_item_tc);
                 }
@@ -1061,24 +1062,24 @@ LOCAL int get_ongoing_cases ()
                         return -1;
 
                 /* process linked list including available modules */
-                for (dl_item_tc = dl_list_head (selected_cases);
+                for (dl_item_tc = dl_list_head (executed_case_list);
                      dl_item_tc != INITPTR;
                      dl_item_tc = dl_list_next (dl_item_tc)) {
-
-                        if (tc_get_status (dl_item_tc) != TEST_CASE_ONGOING &&
-                            tc_get_status (dl_item_tc) != TEST_CASE_PAUSED)
+		        tc = dl_list_data (dl_item_tc);
+                        if (tc->status_ != TCASE_STATUS_ONGOING &&
+                            tc->status_ != TCASE_STATUS_PAUSED)
                                 continue;
                         /* get test_case_s from linked list iterator */
-                        tc = (test_case_s *) dl_list_data (dl_item_tc);
-                        if (tc == INITPTR || tc->title_ == NULL)
+                        tc = dl_list_data (dl_item_tc);
+                        if (tc == INITPTR || tc->case_->casetitle_ == NULL)
                                 continue;
 
-                        switch (tc_get_status (dl_item_tc)) {
+                        switch (tc->status_) {
 
-                        case TEST_CASE_ONGOING:
+                        case TCASE_STATUS_ONGOING:
                                 /* fill callback structure with data */
                                 set_cbs (&cb_ongoing_cases_menu
-                                         [i], tc->title_,
+                                         [i], tc->case_->casetitle_,
                                          "(ongoing)", NULL,
                                          case_menu,
                                          pause_resume_abort_menu,
@@ -1086,10 +1087,10 @@ LOCAL int get_ongoing_cases ()
                                 i++;
                                 break;
 
-                        case TEST_CASE_PAUSED:
+                        case TCASE_STATUS_PAUSED:
                                 /* fill callback structure with data */
                                 set_cbs (&cb_ongoing_cases_menu
-                                         [i], tc->title_,
+                                         [i], tc->case_->casetitle_,
                                          "(paused)", NULL,
                                          case_menu,
                                          pause_resume_abort_menu,

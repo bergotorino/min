@@ -92,6 +92,7 @@ typedef struct {
         unsigned status_;
         unsigned result_;
         Text *resultdesc_;
+        CUICaseData *case_;
 } ExecutedTestCase;
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
