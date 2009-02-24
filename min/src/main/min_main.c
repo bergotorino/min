@@ -348,8 +348,8 @@ int main (int argc, char *argv[], char *envp[])
         out = &out_str;
         eapi_init (in, out);
         plugin_attach (&in, out);
-        retval = pthread_create (&plugin_thread, NULL, plugin_open,
-                                 (void *)tmp);
+//        retval = pthread_create (&plugin_thread, NULL, plugin_open,
+//                                 (void *)tmp);
 
         ec_min_init (NULL, NULL, NULL, envp, oper_mode);
 

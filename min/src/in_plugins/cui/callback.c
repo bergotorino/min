@@ -1741,6 +1741,10 @@ LOCAL void abort_tc (void *p)
 LOCAL void start_one_tc (void *p)
 {
         //ec_exec_test_case ((DLListIterator) p);
+        DLListIterator it = (DLListIterator)p;
+        CUICaseData *c = (CUICaseData*)dl_list_data(it);
+        if (min_clbk_.start_case) min_clbk_.start_case(c->moduleid_,
+                                                        c->caseid_);
 }
 
 /* ------------------------------------------------------------------------- */

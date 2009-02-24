@@ -167,7 +167,7 @@ LOCAL void eapi_start_test_case (unsigned module_id, unsigned case_id)
 	}
 
 	/*add to selected cases list */
-        case_it = ec_select_case (case_it, 0);
+        //case_it = ec_select_case (case_it, 0);
 
         pthread_mutex_unlock (&tec_mutex_);
         result = ec_exec_case (case_it);

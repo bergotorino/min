@@ -435,8 +435,7 @@ LOCAL void pl_case_started (unsigned moduleid,
                         unsigned caseid,
                         long testrunid)
 {
-
-        cui_refresh_view();
+//        cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_paused (long testrunid)
