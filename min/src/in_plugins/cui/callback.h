@@ -85,6 +85,10 @@ typedef struct {
 } CUICaseData;
 
 typedef struct {
+#define TCASE_STATUS_INVALID   0
+#define TCASE_STATUS_ONGOING   1
+#define TCASE_STATUS_PAUSED    2
+#define TCASE_STATUS_FINNISHED 3
         unsigned status_;
         unsigned result_;
         Text *resultdesc_;
