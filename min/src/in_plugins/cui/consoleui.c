@@ -136,7 +136,7 @@ LOCAL void      restore_focus_pos (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      save_focus_pos (int index, int top_row);
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_case_result (unsigned moduleid, unsigned caseid, char *desc);
+LOCAL void pl_case_result (long testrunid, int result, char *desc);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_report_case_status (unsigned moduleid,
                                 unsigned caseid,
@@ -422,7 +422,7 @@ LOCAL void save_focus_pos (int index, int top_row)
         }
 }
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_case_result (unsigned moduleid, unsigned caseid, char *desc)
+LOCAL void pl_case_result (long testrunid, int result, char *desc)
 {
 
         cui_refresh_view();
