@@ -18,10 +18,10 @@ case "$1" in
 	makeinfo --plaintext --no-ifinfo --output=min-reference.txt min-reference.texi
 	;;
 	"html-s")
-	makeinfo --html min.texi
+	makeinfo --html --css-include=min.css min.texi
 	mkdir min/images/
 	cp images/*.png min/images/
-	makeinfo --html min-reference.texi
+	makeinfo --html --css-include=min.css min-reference.texi
 	mkdir min-reference/images/
 	cp images/*.png min-reference/images/
 	;;
@@ -31,8 +31,8 @@ case "$1" in
 	#ln -s images min-reference/images
 	#;;
 	"html")
-	makeinfo --no-split --html min.texi
-	makeinfo --no-split --html min-reference.texi
+	makeinfo --no-split --css-include=min.css --html min.texi
+	makeinfo --no-split --css-include=min.css --html min-reference.texi
 	;;
 	*)
 	echo "USAGE: $0 <format>"
