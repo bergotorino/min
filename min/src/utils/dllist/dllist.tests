@@ -111,31 +111,34 @@ END_TEST
 /* ------------------------------------------------------------------------- */
 START_TEST(test_dllist_add_item_at_2)
 {
-        int a[3];
-        int new    = 55;
-        int retval = 0;
-        int k      = 0;
-        int* pom   = INITPTR;
-        DLList* l  = dl_list_create();
+        int a[6];
+        int retval = -1;
+        int i = 0;
+        DLListIterator it = DLListNULLIterator;
+        DLList* l = dl_list_create();
         fail_unless( l != INITPTR, "List creation error." );
-        a[0] = 88;
-        a[1] = 89;
-        a[2] = 90;
-        retval = dl_list_add_at(l,&a[0],0);
-        fail_unless(retval != -1,"Adding failed.");
-        fail_unless( dl_list_size(l) == 1, "Wrong size after addition.");
-        retval = dl_list_add_at(l,&a[1],1);
-        fail_unless(retval != -1,"Adding failed.");
-        fail_unless( dl_list_size(l) == 2, "Wrong size after addition. (2)");
-        retval = dl_list_add_at(l,&a[2],2);
-        fail_unless(retval != -1,"Adding failed.");
-        fail_unless( dl_list_size(l) == 3, "Wrong size after addition. (3)");
-        for( k = 0 ; k < dl_list_size(l) ; k++ ) {
-                pom = (int*)dl_list_data( dl_list_at(l,k) );
-                fail_unless(pom != INITPTR, "NULL value.");
-                fail_unless(*pom == a[k], "Bad value.");
+        a[0]    = 5;
+        a[1]    = 7;
+        a[2]    = 5;
+        a[3]    = 98;
+        a[4]    = 5;
+        a[5]    = 5; 
+        
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
         }
-        dl_list_free( &l );
+
+        i = 5;
+        retval = dl_list_count (dl_list_begin(l),
+                                dl_list_end(l),
+                                equal,
+                                &i);
+        fail_unless( retval==4,
+               "Count does nto work, invalid result. Expected %d, got %d",
+                4,retval);
+
+        dl_list_free(&l); 
 }
 END_TEST
 /* ------------------------------------------------------------------------- */
@@ -639,6 +642,40 @@ START_TEST(test_dllist_find)
 }
 END_TEST
 /* ------------------------------------------------------------------------- */
+START_TEST(test_dllist_count)
+{
+        int a[6];
+        int retval = -1;
+        int i = 0;
+        DLListIterator it = DLListNULLIterator;
+        DLList* l = dl_list_create();
+        fail_unless( l != INITPTR, "List creation error." );
+        a[0]    = 5;
+        a[1]    = 7;
+        a[2]    = 5;
+        a[3]    = 98;
+        a[4]    = 5;
+        a[5]    = 5; 
+        
+        for( i = 0 ; i < 3 ; i++ ) {
+                retval = dl_list_add(l,&a[i]);
+                fail_unless(retval != -1,"Adding failed.");
+        }
+
+        i = 5;
+        retval = dl_list_count (dl_list_begin(l),
+                                dl_list_end(l),
+                                equal,
+                                &i);
+        fail_unless( retval==4,
+               "Count does nto work, invalid result. Expected %d, got %d",
+                4,retval);
+
+        dl_list_destroy(&l); 
+                                
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
 /* ========================== FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
 Suite* dllist_suite()
@@ -667,6 +704,9 @@ Suite* dllist_suite()
         tcase_add_test (tc_core, test_dllist_remove);
         tcase_add_test (tc_core, test_dllist_data_at);
         tcase_add_test (tc_core, test_dllist_find);
+
+        tcase_add_test (tc_core, test_dllist_count);
+
         suite_add_tcase (s, tc_core);
 
         return s;

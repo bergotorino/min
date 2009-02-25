@@ -344,6 +344,51 @@ DLListIterator dl_list_find (DLListConstIterator begin,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Counts elements on the list which are find by specified method that is
+ *  used to compare.
+ *  @param begin left border of the search area
+ *  @param end right border of the search area
+ *  @param unary the function to call for each element.
+ *  @param data pointer to user data passed to the function.
+ *  @return number of found items.
+ *
+ *  Possible errors:
+ *  - EINVAL when one or more parameters are invalid.
+ */
+unsigned dl_list_count (DLListConstIterator begin,
+                        DLListConstIterator end, ptr2compare unary,
+                        const void *data)
+{
+        unsigned retval = 0;
+        DLListConstIterator current = DLListNULLIterator;
+        
+        if (begin == DLListNULLIterator)
+                errno = EINVAL;
+        else if (end == DLListNULLIterator)
+                errno = EINVAL;
+        else if (unary == (ptr2compare) 0xDEADBEEF)
+                errno = EINVAL;
+        else if (data == INITPTR)
+                errno = EINVAL;
+        else {
+                current = begin;
+
+                while (current != end && current != DLListNULLIterator) {
+                        if (unary (current->data_, data) == 0) {
+                                retval++;
+                        }
+                        current = current->next_;
+                }
+
+                if (current == end) {
+                        if (unary (end->data_, data) == 0) {
+                                retval++;
+                        }
+                }
+        }
+        return retval;
+}
+/* ------------------------------------------------------------------------- */
 /** Tells how many elements are appended to the list.
  *  @param list_handle link to list which size is returned.
  *  @return number of elements appended to the list, returns -1 and sets errno

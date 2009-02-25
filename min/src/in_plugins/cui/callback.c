@@ -1141,7 +1141,6 @@ LOCAL void _find_case_by_result (const void *a, const void *b)
  */
 LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
 {
-        int             n = 0;
         int             i = 0;
 
         DLListItem     *dl_item_tm = INITPTR;
@@ -1155,199 +1154,95 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         /* free memory allocated for callback structure */
         free_cbs (*cb);
 
-
         DLListIterator it = DLListNULLIterator;
         DLListIterator begin = dl_list_head (executed_case_list_);
+        int n = 0;
+        callback_s *tmp1 = INITPTR;
+        callback_s *tmp2 = INITPTR;
+        ExecutedTestCase *etc = INITPTR;
 
-        do {
+        /* Count all items of given test result */
+        while (begin!=DLListNULLIterator) {
+                it = dl_list_find (begin,
+                                dl_list_tail (executed_case_list_),
+                                _find_case_by_result,
+                                result_type);
+                if (it!=DLListNULLIterator) {
+                        n++;
+                        begin = dl_list_next(it);
+                } else {
+                        break;
+                }
+        }
+        if (n==0) goto empty_menu;
+
+        /* Allocate memory for menu items. */
+        (*cb) = NEW2(callback_s,n+1);
+        if (!(*cb)) return -1;
+
+        /* Construct the menu. */
+        n=0;
+        begin = dl_list_head (executed_case_list_);
+        while (begin!=DLListNULLIterator) {
                 it = dl_list_find (begin,
                                 dl_list_tail (executed_case_list_),
                                 _find_case_by_result,
                                 result_type);
                 if (it==DLListNULLIterator) break;
 
+                etc = dl_list_data(it);
 
+                set_cbs (&(*cb)[i],
+                        tx_share_buf(etc->case_->casetitle_),
+                        NULL,
+                        NULL,
+                        case_menu,
+                        tr_for_executed_case, etc, 0);
 
+                if (result_type==TEST_RESULT_ABORTED ||
+                        result_type==TEST_RESULT_CRASHED) {
+                        set_cbs (&(*cb)[i],
+                                tx_share_buf(etc->case_->casetitle_),
+                                NULL,
+                                NULL,
+                                case_menu,
+                                tr_for_aborted_case, etc, 0);
+                        n++; 
+                } else if (result_type==TEST_RESULT_PASSED) {
+                        set_cbs (&(*cb)[i],
+                                tx_share_buf(etc->case_->casetitle_),
+                                NULL,
+                                NULL,
+                                case_menu,
+                                tr_for_passed_case, etc, 0);
+                        n++;
+                } else if (result_type==TEST_RESULT_FAILED) {
+                        set_cbs (&(*cb)[i],
+                                tx_share_buf(etc->case_->casetitle_),
+                                NULL,
+                                NULL,
+                                case_menu,
+                                tr_for_failed_case, etc, 0);
+                        n++;
+                }
                 begin = dl_list_next(it);
-
-        } while (it!=DLListNULLIterator);
-
-
-        if (instantiated_modules == INITPTR || instantiated_modules == NULL)
-                goto empty_menu;
-
-
-
-
-
-
-        /* process linked list including test modules */
-        for (dl_item_tm = dl_list_head (instantiated_modules);
-             dl_item_tm != INITPTR; dl_item_tm = dl_list_next (dl_item_tm)) {
-                /* get test case list of the test module */
-                dl_list_tc = tm_get_tclist (dl_item_tm);
-
-                if (dl_list_tc == INITPTR || dl_list_tc == NULL)
-                        continue;
-
-                /* process linked list including test cases */
-                for (dl_item_tc = dl_list_head (dl_list_tc);
-                     dl_item_tc != INITPTR;
-                     dl_item_tc = dl_list_next (dl_item_tc)) {
-                        /* get test result list of the test case */
-                        dl_list_tr = tc_get_tr_list (dl_item_tc);
-
-                        if (dl_list_tr == INITPTR || dl_list_tr == NULL)
-                                continue;
-                        /* process linked list including test results */
-
-                        for (dl_item_tr = dl_list_head (dl_list_tr);
-                             dl_item_tr != INITPTR;
-                             dl_item_tr = dl_list_next (dl_item_tr)) {
-                                tc = (test_case_s *)
-                                    dl_list_data (dl_item_tc);
-
-                                if (tc == INITPTR || tc->title_ == NULL)
-                                        continue;
-                                /* for getting all executed cases */
-                                if ((result_type == TEST_RESULT_ALL) &&
-                                    (tr_get_result_type (dl_item_tr) !=
-                                     TEST_RESULT_NOT_RUN))
-                                        n++;
-                                /* for aborted & crashed cases */
-                                else if (result_type == TEST_RESULT_ABORTED &&
-                                         (tr_get_result_type (dl_item_tr) ==
-                                          TEST_RESULT_ABORTED ||
-                                          tr_get_result_type (dl_item_tr) ==
-                                          TEST_RESULT_CRASHED))
-                                        n++;
-                                /* for passed or failed cases */
-                                else if (tr_get_result_type (dl_item_tr) ==
-                                         result_type)
-                                        n++;
-                        }
-                }
         }
-
-
-        if (n == 0)
-                goto empty_menu;
-
-        /* allocate memory for n+1 items */
-        *cb = (callback_s *) calloc (n + 1, sizeof (callback_s));
-        if (*cb == NULL)
-                return -1;
-
-        /* process linked list including test modules */
-        for (dl_item_tm = dl_list_head (instantiated_modules);
-             dl_item_tm != INITPTR; dl_item_tm = dl_list_next (dl_item_tm)) {
-                /* get test case list of the test module */
-                dl_list_tc = tm_get_tclist (dl_item_tm);
-
-                if (dl_list_tc == INITPTR || dl_list_tc == NULL)
-                        continue;
-
-                /* process linked list including test cases */
-                for (dl_item_tc = dl_list_head (dl_list_tc);
-                     dl_item_tc != INITPTR;
-                     dl_item_tc = dl_list_next (dl_item_tc)) {
-                        /* get head of linked list including test results */
-                        dl_list_tr = tc_get_tr_list (dl_item_tc);
-
-                        if (dl_list_tr == INITPTR || dl_list_tr == NULL)
-                                continue;
-                        /*process linked list including test results */
-                        for (dl_item_tr = dl_list_head (dl_list_tr);
-                             dl_item_tr != INITPTR;
-                             dl_item_tr = dl_list_next (dl_item_tr)) {
-                                tc = (test_case_s *)
-                                    dl_list_data (dl_item_tc);
-                                tr = (test_result_s *)
-                                    dl_list_data (dl_item_tr);
-
-                                if (tc == INITPTR || tr == INITPTR ||
-                                    tc->title_ == NULL)
-                                        continue;
-
-                                /*  getting all executed cases */
-                                if ((result_type == TEST_RESULT_ALL) &&
-                                    (tr_get_result_type (dl_item_tr) !=
-                                     TEST_RESULT_NOT_RUN)) {
-                                        set_cbs (&(*cb)[i],
-                                                 tc->title_,
-                                                 NULL,
-                                                 NULL,
-                                                 case_menu,
-                                                 tr_for_executed_case, tr, 0);
-
-                                        i++;
-
-                                        /* getting aborted & crashed cases */
-                                } else if (result_type == TEST_RESULT_ABORTED
-                                           && (tr_get_result_type (dl_item_tr)
-                                               == TEST_RESULT_ABORTED
-                                               ||
-                                               tr_get_result_type (dl_item_tr)
-                                               == TEST_RESULT_CRASHED)) {
-
-                                        set_cbs (&(*cb)[i],
-                                                 tc->title_,
-                                                 NULL,
-                                                 NULL,
-                                                 case_menu,
-                                                 tr_for_aborted_case, tr, 0);
-
-                                        i++;
-                                        
-                                        /*  getting passed or failed cases */
-                                } else if (tr_get_result_type (dl_item_tr) ==
-                                           result_type) {
-					if (result_type == TEST_RESULT_PASSED) {
-                                                set_cbs (&(*cb)[i],
-                                                         tc->title_,
-                                                         NULL,
-                                                         NULL,
-                                                         case_menu,
-                                                         tr_for_passed_case,
-                                                         tr, 0);
-
-                                                i++;
-                                        } else if (result_type ==
-                                                   TEST_RESULT_FAILED) {
-
-                                                set_cbs (&(*cb)[i],
-                                                         tc->title_,
-                                                         NULL,
-                                                         NULL,
-                                                         case_menu,
-                                                         tr_for_failed_case,
-                                                         tr, 0);
-                                                i++;
-                                        }
-                                }
-                        }
-                }
-        }
-
-
 
         /* last menu item should be NULL one */
-        null_cbs (&(*cb)[i]);
+        null_cbs (&(*cb)[n]);
         return 0;
 
       empty_menu:
         /* allocate memory for empty menu */
-        *cb = (callback_s *) calloc (2, sizeof (callback_s));
-        if (*cb == NULL)
-                return -1;
+        *cb = NEW2(callback_s,2);
+        if (*cb==NULL) return -1;
 
-        i = 0;
-        set_cbs (&(*cb)[i], "", NULL, NULL, case_menu, NULL, NULL, 0);
-        i++;
-
+        n = 0;
+        set_cbs (&(*cb)[n], "", NULL, NULL, case_menu, NULL, NULL, 0);
+        n++;
 
         /* last menu item should be NULL one */
-        null_cbs (&(*cb)[i]);
+        null_cbs (&(*cb)[n]);
 
         return 0;
 }

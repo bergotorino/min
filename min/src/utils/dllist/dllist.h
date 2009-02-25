@@ -114,6 +114,10 @@ DLListIterator  dl_list_find (DLListConstIterator begin,
                               DLListConstIterator end, ptr2compare unary,
                               const void *data);
 /* ------------------------------------------------------------------------- */
+unsigned dl_list_count (DLListConstIterator begin,
+                        DLListConstIterator end, ptr2compare unary,
+                        const void *data);
+/* ------------------------------------------------------------------------- */
 int             dl_list_size (const DLList * list_handle);
 /* ------------------------------------------------------------------------- */
 DLListIterator  dl_list_head (const DLList * list_handle);
