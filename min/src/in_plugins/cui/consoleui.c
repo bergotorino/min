@@ -438,7 +438,7 @@ LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 
 	for (it = dl_list_head (executed_case_list_);
 	     it != INITPTR;
-	     dl_list_next (it)) {
+	     it = dl_list_next (it)) {
 		etc = (ExecutedTestCase *)dl_list_data (it);
 		if (etc->runid_ == testrunid)
 			return etc;
@@ -451,10 +451,10 @@ LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 LOCAL void pl_case_result (long testrunid, int result, char *desc)
 {
 	ExecutedTestCase *etc;
-
+	MIN_DEBUG ("run id = %ld", testrunid);
 	etc = get_executed_tcase_with_runid (testrunid);
 	if (etc == INITPTR) {
-		MIN_ERROR ("No test found with run id %l", testrunid);
+		MIN_ERROR ("No test found with run id %ld", testrunid);
 		return;
 	}
 	if (etc->status_ != TCASE_STATUS_ONGOING) {
@@ -464,12 +464,13 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc)
 	etc->status_ = TCASE_STATUS_FINNISHED;
 	etc->resultdesc_ = tx_create (desc);
 	etc->result_ = result;
+
         cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_report_case_status (unsigned moduleid,
-                                unsigned caseid,
-                                unsigned stat)
+				  unsigned caseid,
+				  unsigned stat)
 {
 
         cui_refresh_view();
@@ -491,6 +492,8 @@ LOCAL void pl_case_started (unsigned moduleid,
         ExecutedTestCase *tmp = INITPTR;
         DLListIterator it = DLListNULLIterator;
         DLListIterator begin = DLListNULLIterator;
+
+	MIN_DEBUG ("run id = %ld", testrunid);
 
         /* Case has been started, add it to the executed cases list and set
            its status to ongoing.

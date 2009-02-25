@@ -201,6 +201,7 @@ void ip_send_ret (const TMCIPCInterface * tmcipi, int result,
 
         mq_send_message2 (tmcipi->mqid_, tmcipi->receiver_, MSG_RET, result,
                           desc);
+
 }
 
 /* ------------------------------------------------------------------------- */

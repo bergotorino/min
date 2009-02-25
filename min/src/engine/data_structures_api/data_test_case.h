@@ -66,6 +66,8 @@ typedef enum {
 typedef struct {
     /** Test Case ID */
         int             tc_id_;
+    /** Test Case run time ID */
+        long            tc_run_id_;
     /** Test Case group ID */
         int             tc_group_id_;
     /** Pointer to Test Module Info which includes this Test Case */
@@ -102,6 +104,8 @@ void            tc_delete (test_case_s * test_case);
 
 int             tc_get_id (DLListIterator tc_data_item);
 
+long            tc_get_run_id (DLListIterator tc_data_item);
+
 int             tc_get_group_id (DLListIterator tc_data_item);
 
 int             tc_get_title (DLListIterator tc_data_item,
@@ -121,6 +125,8 @@ DLListIterator  tc_get_test_module_ptr (DLListIterator tc_data_item);
 /* ------------------------------------------------------------------------- */
 
 void            tc_set_id (DLListIterator tc_data_item, int test_case_id);
+
+void            tc_set_run_id (DLListIterator tc_data_item, long run_id);
 
 void            tc_set_group_id (DLListIterator tc_data_item, int group_id);
 

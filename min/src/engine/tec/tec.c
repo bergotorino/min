@@ -680,11 +680,6 @@ int ec_exec_case (DLListIterator work_case_item)
                 STRCPY (message.desc_, "\0", MaxDescSize);
                 tc_get_cfg_filename (work_case_item, message.message_);
                 res = mq_send_message (mq_id, &message);
-		if (in->case_started) 
-			in->case_started (tm_get_module_id (work_module_item),
-					  tc_get_id (work_case_item),
-					  tm_get_pid (work_module_item));
-				      
                 break;
 
         case TEST_MODULE_BUSY:
@@ -808,11 +803,6 @@ LOCAL int ec_exec_case_temp (DLListIterator work_module_item)
         tc_get_cfg_filename (work_case_item, message.message_);
         mq_send_message (mq_id, &message);
 	
-	if (in->case_started) 
-		in->case_started (tm_get_module_id (work_module_item),
-				  tc_get_id (work_case_item),
-				  tm_get_pid (work_module_item));
-
         return 0;
 }
 
@@ -957,15 +947,10 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         ((test_result_s *) dl_list_data (temp_result))->printouts_list_ =
             INITPTR;
 
-        /*now add result to global "results" list */
-        /*dl_list_add(dl_list_data(work_result_item),results); */
-        /*result data was copied. Now we need to find case from temp module in
-           "selected cases" */
-	if (in->case_result) in->case_result (tm_get_pid 
-						  (work_module_item), 
-						  tr_get_result_type
-						  (work_result_item), 
-						  message->message_);
+	if (in->case_result) in->case_result (tc_get_run_id (orig_case), 
+					      tr_get_result_type
+					      (work_result_item), 
+					      message->message_);
 
 
 
@@ -1262,11 +1247,10 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         tc_set_status (work_case_item, TEST_CASE_TERMINATED);
         group_id = tc_get_group_id (work_case_item);
 
-	if (in->case_result) in->case_result (tm_get_pid 
-						  (work_module_item), 
-						  tr_get_result_type
-						  (work_result_item), 
-						  message->message_);
+	if (in->case_result) in->case_result (tc_get_run_id (work_case_item), 
+					      tr_get_result_type
+					      (work_result_item), 
+					      message->message_);
 
 
         /* Now let's link created result item to original test case. 
@@ -1627,6 +1611,55 @@ EXIT:
         return result;
 }
 
+
+/** Function handling MSG_RUN_ID message. 
+ * @param message - pointer to MsgBuffer containing message
+ * @return result of message handling, 0 if message was handled, -1 otherwise
+ */
+LOCAL int ec_msg_run_id_handler (MsgBuffer * message)
+{
+        int             result = -1;
+        int             work_module_status = 0;
+        int             address = 0;
+        DLListIterator  work_module_item = DLListNULLIterator;
+        DLListIterator  work_case_item = DLListNULLIterator;
+        test_case_s    *work_case = INITPTR;
+	long            runid;
+
+	if (!in->case_started)
+		return 0;
+
+        work_module_item =
+            tm_get_ptr_by_pid (instantiated_modules, message->sender_);
+        if (work_module_item == DLListNULLIterator)
+		goto EXIT;
+
+	work_case_item = dl_list_head (selected_cases);
+        while (work_case_item != DLListNULLIterator) {
+
+                work_case = (test_case_s *) dl_list_data (work_case_item);
+                if (((tc_get_status (work_case_item)) == TEST_CASE_ONGOING) &&
+                    ((tm_get_pid (tc_get_test_module_ptr (work_case_item))) ==
+                     message->sender_))
+                        break;
+                work_case_item = dl_list_next (work_case_item);
+
+        }
+	if (work_case_item == DLListNULLIterator)
+		goto EXIT;
+
+	tc_set_run_id (work_case_item, message->param_);
+
+	in->case_started (tm_get_module_id (work_module_item),
+			  tc_get_id (work_case_item),
+			  tc_get_run_id (work_case_item));
+				      
+	
+        result = 0;
+EXIT:
+	return result;
+}
+
 /** Function called to dispatch message - it recognizes message type and
  * calls function that handles message. If received message is not of the type
  * expected by engine, function logs error information.
@@ -1678,6 +1711,10 @@ LOCAL int ec_message_dispatch (MsgBuffer * rcvd_message)
                 msg_handling_result = ec_msg_sndrcv_handler (rcvd_message);
                 break;
 #endif
+	case MSG_RUN_ID:
+                msg_handling_result = ec_msg_run_id_handler (rcvd_message);
+		break;
+		
         default:
 
                 MIN_WARN ("Faulty message received of type: %d",rcvd_message->type_);
@@ -2510,7 +2547,8 @@ int ec_pause_test_case (DLListIterator work_case_item)
                 result = mq_send_message2 (mq_id, addr, MSG_PAUSE, 0, "\0");
                 if (result == 0)
                         tc_set_status (work_case_item, TEST_CASE_PAUSED);
-		if (in->case_paused) in->case_paused (addr);
+		if (in->case_paused) in->case_paused 
+					     (tc_get_run_id (work_case_item));
                 break;
         case TEST_CASE_PAUSED:
                 result = -2;
@@ -2546,7 +2584,8 @@ int ec_resume_test_case (DLListIterator work_case_item)
                 if (result == 0) {
                         tc_set_status (work_case_item, TEST_CASE_ONGOING);
                 }
-		if (in->case_resumed) in->case_resumed (addr);
+		if (in->case_resumed) 
+			in->case_resumed (tc_get_run_id (work_case_item));
                 break;
         case TEST_CASE_ONGOING:
                 result = -2;

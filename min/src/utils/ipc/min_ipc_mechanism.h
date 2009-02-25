@@ -79,7 +79,8 @@ typedef enum {
         MSG_EVENT_IND = 37,       /**< ( E--->G ) Event Indication           */
         MSG_RUN = 41,             /**< ( G--->T ) Run Testclass func.        */
         MSG_EXTIF = 43,           /**< ( uE--->G--->E ) Master/Slave command */
-        MSG_SNDRCV = 47           /**< ( E--->G--->uE ) sendreceive response */
+        MSG_SNDRCV = 47,          /**< ( E--->G--->uE ) sendreceive response */
+	MSG_RUN_ID = 59           /**< ( G--->E ) Identifier for test run    */
 } MINMsgType;
 
 typedef struct _MsgBuffer MsgBuffer;

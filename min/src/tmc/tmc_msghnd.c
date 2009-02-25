@@ -190,6 +190,8 @@ void            dummy_handler (int sig);
 LOCAL void gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file)
 {
         long            tmp = -1;
+	MsgBuffer msg;
+
         /*if( id == 2 ) */ tp_set_timeout (&tmc->tpc_, 0);
         tp_set_timeout_handler ();
         tmp = fork ();
@@ -201,6 +203,12 @@ LOCAL void gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file)
         } else if (tmp > 0) {
                 MIN_INFO ("Test Process created [%d]", tmp);
                 tp_set_pid (&tmc->tpc_, tmp);
+		msg.sender_ = getpid();
+		msg.receiver_ = getppid();
+		msg.type_ = MSG_RUN_ID;
+		msg.param_ = tmp;
+		msg.desc_[0] = '\0';
+		mq_send_message (tmc->tmcipi_.mqid_, &msg);
                 tp_set_status (&tmc->tpc_, TP_RUNNING);
                 tp_start_timeout (&tmc->tpc_);
         } else {
@@ -431,7 +439,7 @@ void gu_read_message (TMC_t * tmc, MsgBuffer * input_buffer)
                         break;
                 }
         }
-        return 1;
+        return;
 }
 
 /* ------------------------------------------------------------------------- */

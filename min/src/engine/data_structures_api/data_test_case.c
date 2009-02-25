@@ -250,6 +250,34 @@ int tc_get_id (DLListIterator tc_data_item)
 
 /* ------------------------------------------------------------------------- */
 
+/** Gets run ID value of specific Test Case data item
+ *  @param tc_data_item pointer to Test Case data item.
+ *  @return positive integer value of ID, or -1 if get ID failed.
+ *
+ *  Possible errors:
+ *  -1 if Test Case data item not exists.
+ */
+long tc_get_run_id (DLListIterator tc_data_item)
+{
+        pthread_mutex_lock (&TC_MUTEX);
+
+        long             run_id;
+        test_case_s    *test_case;
+
+        test_case = (test_case_s *) dl_list_data (tc_data_item);
+
+        if ((test_case != INITPTR) && (test_case != NULL))
+                run_id = test_case->tc_run_id_;
+        else
+                run_id = -1;
+
+        pthread_mutex_unlock (&TC_MUTEX);
+
+        return run_id;
+}
+
+/* ------------------------------------------------------------------------- */
+
 /** Gets group ID value of specific Test Case data item
  *  @param tc_data_item pointer to Test Case data item.
  *  @return positive integer value of group ID,
@@ -458,6 +486,26 @@ void tc_set_id (DLListIterator tc_data_item, int test_case_id)
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
+
+/* ------------------------------------------------------------------------- */
+
+/** Sets Test Case run ID value
+ *  @param tc_data_item pointer to Test Case data item.
+ *  @param run_id integer value of Test Case ryb ID.
+ */
+void tc_set_run_id (DLListIterator tc_data_item, long run_id)
+{
+        pthread_mutex_lock (&TC_MUTEX);
+
+        test_case_s    *test_case =
+            (test_case_s *) dl_list_data (tc_data_item);
+
+        if ((test_case != INITPTR) && (test_case != NULL))
+                test_case->tc_run_id_ = run_id;
+
+        pthread_mutex_unlock (&TC_MUTEX);
+}
+
 
 /* ------------------------------------------------------------------------- */
 
