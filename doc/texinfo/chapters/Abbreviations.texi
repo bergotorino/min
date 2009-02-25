@@ -3,4 +3,27 @@
 Dynamic Link Library
 @item CUI
 Console User Interface
+@item IPC
+Inter-Process Communication, a set of techniques for the exchange of data among two or more processes.
+@item MIN Console UI
+The Console application of MIN Test Framework.
+@item MIN Logger
+A utility of MIN Test Framework that offers logging services.
+@item MIN Parser
+A utility, which extracts information from text files.
+@item MIN
+@itemx MIN Test Framework 
+The name of the developed MIN Test Framework test tool.
+@item Test Case
+A unique test, which either passes or fails.
+@item Test Engine
+A module of MIN Test Framework.
+@item Test module
+Contains test cases. (A test module type can be, for example, hard-coded.)
+@item Test Module Template Wizard
+A tool of MIN for automatically creating a test module template (e.g. MINUnit.)
+@item TMC
+Test Module Controller
+@item Test Set
+A collection of test cases, currently this is implemented in MIN Console UI.
 @end table

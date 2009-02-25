@@ -14,7 +14,7 @@ END-INFO-DIR-ENTRY
 @end ifinfo
 @end ignore
 
-@set document_version 1.2
+@set document_version 1.3
 @set document_title MIN Test Framework
 @set document_full_title MIN Test Framework Reference Guide
 @set document_author MIN Development Team
@@ -62,7 +62,7 @@ Document Version @value{document_version}
 @end ifdocbook
 
 @ifhtml
-@node Top, Document Version, (dir), (dir)
+@node Top, Table of contents, (dir), (dir)
 @top General Introduction
 This file documents @value{application_full_name}
 @sp 2
@@ -71,15 +71,16 @@ Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
 Document Version @value{document_version}
 @end ifhtml
 
-
 @menu
 
 * Top: Top.
 * Document Version: Document Version.
+@ifhtml
+* Table of contents: Table of contents.
+@end ifhtml
 * Document control: Document control.
 * Documentation conventions: Documentation conventions.
-* Abbreviations: Abbreviations.
-* Definitions: Definitions.
+* Abbreviations and definitions: Abbreviations and definitions.
 * Using MIN for test cases implementation: Using MIN for test cases implementation.
 * Test Module API: Test Module API.
 * tm_get_test_cases: tm_get_test_cases.
@@ -203,17 +204,29 @@ Document Version @value{document_version}
 * GNU Free Documentation License: GNU Free Documentation License.
 @end menu
 
+@ifnothtml
 @summarycontents
 @contents
 
 @node Document Version, Document control, Top, Top
+@end ifnothtml
+@ifhtml
+
+@node Table of contents, Document Version, Top, Top
+@summarycontents
+@contents
+
+@node Document Version, Document control, Table of contents, Top
+@end ifhtml
 @unnumbered Document Version History
 
 @multitable @columnfractions .10 .20 .15 .50 
 @headitem Version @tab Date @tab Status @tab Comments 
 @item 1.0 @tab 17.12.2008 @tab Draft @tab Initial draft 
 @item 1.1 @tab 20.01.2009 @tab Draft @tab Added chapter describing C++ modules
-@item 1.2 @tab 01.02.2009 @tab Draft @tab TeXinfo version 
+@item 1.2 @tab 01.02.2009 @tab Draft @tab TeXinfo version draft
+@item 1.3 @tab 01.02.2009 @tab Draft @tab Complete TeXinfo version 
+
 @end multitable
 
 
@@ -221,27 +234,26 @@ Document Version @value{document_version}
 @chapter Document control
 @menu
 * Documentation conventions: Documentation conventions.
-* Abbreviations: Abbreviations.
-* Definitions: Definitions.
+* Abbreviations and definitions: Abbreviations and definitions.
 @end menu
 
-@node Documentation conventions, Abbreviations, Document control, Document control
+@node Documentation conventions, Abbreviations and definitions, Document control, Document control
 @section Documentation conventions
 @include chapters/Documentation_conventions.texi
 
-@node Abbreviations, Definitions, Documentation conventions, Document control
-@section Abbreviations
+@node Abbreviations and definitions, Using MIN for test cases implementation, Documentation conventions, Document control
+@section Abbreviations and definitions
 @include chapters/Abbreviations.texi
 
-@node Definitions, Using MIN for test cases implementation, Abbreviations, Document control
-@section Definitions
-@include chapters/Definitions.texi
+@c @node Definitions, Using MIN for test cases implementation, Abbreviations, Document control
+@c @section Definitions
+@c @include chapters/Definitions.texi
 
 @c @node Introduction, Introduction to MIN Test Framework, Definitions, Top
 @c @chapter Introduction
 @c @include chapters/Introduction.texi
 
-@node Using MIN for test cases implementation, Test Module API, Definitions, Top
+@node Using MIN for test cases implementation, Test Module API, Abbreviations and definitions, Top
 @chapter Using MIN for test cases implementation
 @include chapters/Using_MIN_for_test_cases_implementation.texi
 @menu
