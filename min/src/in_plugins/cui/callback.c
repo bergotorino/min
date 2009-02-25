@@ -1078,8 +1078,8 @@ LOCAL int get_ongoing_cases ()
 
                         case TCASE_STATUS_ONGOING:
                                 /* fill callback structure with data */
-                                set_cbs (&cb_ongoing_cases_menu
-                                         [i], etc->case_->casetitle_,
+                                set_cbs (&cb_ongoing_cases_menu [i], 
+					 tx_share_buf (etc->case_->casetitle_),
                                          "(ongoing)", NULL,
                                          case_menu,
                                          pause_resume_abort_menu,
@@ -1089,8 +1089,8 @@ LOCAL int get_ongoing_cases ()
 
                         case TCASE_STATUS_PAUSED:
                                 /* fill callback structure with data */
-                                set_cbs (&cb_ongoing_cases_menu
-                                         [i], etc->case_->casetitle_,
+                                set_cbs (&cb_ongoing_cases_menu [i], 
+					 tx_share_buf (etc->case_->casetitle_),
                                          "(paused)", NULL,
                                          case_menu,
                                          pause_resume_abort_menu,
