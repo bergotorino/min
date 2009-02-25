@@ -1,7 +1,7 @@
 When using the normal test module template type, an empty test module is created. Test cases for a normal type of test module can be freely implemented, and this template enables the implementing of unique type of test cases and the use of old test cases as the basis. 
 Figue below shows where the normal test module is situated in MIN.
 @ifnotinfo
-The normal test module and its test case file are underlined in the figure.
+The normal test module and its test case file are with italic font in the figure.
 @end ifnotinfo
 
 
