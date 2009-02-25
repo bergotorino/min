@@ -1157,12 +1157,11 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         DLListIterator it = DLListNULLIterator;
         DLListIterator begin = dl_list_head (executed_case_list_);
         int n = 0;
-        callback_s *tmp1 = INITPTR;
-        callback_s *tmp2 = INITPTR;
         ExecutedTestCase *etc = INITPTR;
 
         /* Count all items of given test result */
         while (begin!=DLListNULLIterator) {
+                printf ("\nHOLA\n");
                 it = dl_list_find (begin,
                                 dl_list_tail (executed_case_list_),
                                 _find_case_by_result,
@@ -1207,7 +1206,6 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                                 NULL,
                                 case_menu,
                                 tr_for_aborted_case, etc, 0);
-                        n++; 
                 } else if (result_type==TEST_RESULT_PASSED) {
                         set_cbs (&(*cb)[i],
                                 tx_share_buf(etc->case_->casetitle_),
@@ -1215,7 +1213,6 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                                 NULL,
                                 case_menu,
                                 tr_for_passed_case, etc, 0);
-                        n++;
                 } else if (result_type==TEST_RESULT_FAILED) {
                         set_cbs (&(*cb)[i],
                                 tx_share_buf(etc->case_->casetitle_),
@@ -1223,7 +1220,6 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                                 NULL,
                                 case_menu,
                                 tr_for_failed_case, etc, 0);
-                        n++;
                 }
                 begin = dl_list_next(it);
         }
@@ -1236,13 +1232,12 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         /* allocate memory for empty menu */
         *cb = NEW2(callback_s,2);
         if (*cb==NULL) return -1;
+        memset(*cb,0x0,sizeof(callback_s)*2);
 
-        n = 0;
-        set_cbs (&(*cb)[n], "", NULL, NULL, case_menu, NULL, NULL, 0);
-        n++;
+        set_cbs (&(*cb)[0], "", NULL, NULL, case_menu, NULL, NULL, 0);
 
         /* last menu item should be NULL one */
-        null_cbs (&(*cb)[n]);
+        null_cbs (&(*cb)[1]);
 
         return 0;
 }
