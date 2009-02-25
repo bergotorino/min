@@ -1,8 +1,6 @@
-Test cases are collected to separate modules, known as test modules, which are easy to implement.
+Test cases are collected to separate modules, known as test modules.
 
-There can be several test cases implemented in one test module, and test cases can be defined for example, by hard coding test cases to the test module. In addition, MIN supports running different test cases simultaneously from several test modules.
-
-A test module contains the actual test case implementation. The test module is a library, which implements the MIN Test Module API. The most important function in that interface is @code{int tm_run_test_case( unsigned int id, const char *cfg_file, TestCaseResult *result)}, which executes the test case and returns the test case result. 
+The test module is a library, which implements the MIN Test Module API. The most important function in that interface is @code{int tm_run_test_case( unsigned int id, const char *cfg_file, TestCaseResult *result)}, which executes the test case and returns the test case result. 
 
 The MIN services interface from the test module to MIN provides synchronous operations for the test module. For example, printing from the test module is implemented inside a synchronous function that causes a synchronous request to be completed inside Test Module Controller.
 

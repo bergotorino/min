@@ -4,5 +4,4 @@ MIN Console UI can be executed in normal text console.
 
 The MIN Console UI application provides a simple way to show test cases to the tester. It also shows to the tester the progress of ongoing test cases and the results of the executed test cases.
 
-MIN Console UI is a menu-based application, which requires that at least two navigation keys are available. One key is used to activate an item from the menu, and the other key is used to change the selection. MIN Console UI also supports four-way navigation, which allows easier navigation in the menu system.
-
+MIN Console UI is a menu-based application. Navigation in the menu is perfomed with arrow keys. In addition to ``right arrow'' key the ``return'' can be used for selecting items. 

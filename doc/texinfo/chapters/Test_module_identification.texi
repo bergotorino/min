@@ -1,4 +1,4 @@
-All test module templates have their version and type compiled-in. It is possible, by using a command line switch, to have those data printed on the screen so that one can identify its test modules
+All test module templates have their version and type compiled-in. It is possible, by using a command line switch, to have that data printed on the screen.
 
 @example
 maemo@@maemo:~$ min --info /home/maemo/.min/SUnitTestModule.so

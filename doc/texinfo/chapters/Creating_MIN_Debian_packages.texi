@@ -10,4 +10,3 @@ The MIN package install binaries (to @code{/usr/bin}), and a demo test library (
 
 After installing MIN package there should be min and tmc binaries in @code{/usr/bin} directory and a default @code{min.conf} in @code{/etc/}.
 
-Test module Debian packaging is also supported. This feature is available for modules created using Test Module Wizard. 

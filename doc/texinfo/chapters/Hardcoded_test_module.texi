@@ -2,7 +2,7 @@ There is a test module template for Hardcoded module (min/TestModuleTemplates/ H
 
 Figure below shows how Hardcoded test modules are situated in MIN.
 @ifnotinfo
-Boxes with bolded font indicate the MIN modules on the test layer. The Hardcoded test module is underlined in the figure.
+The Hardcoded test module is underlined in the figure.
 @end ifnotinfo
 
 @ifinfo

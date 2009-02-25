@@ -12,9 +12,6 @@ The test layer consists of the following modules:
 @end itemize
 
 Figure below shows how the MIN test layer modules are placed in the MIN architecture. 
-@ifnotinfo
-Boxes with bolded font indicate the MIN modules on the test layer.
-@end ifnotinfo
 @ifinfo
 @image{images/modulegeneral,10cm,,MIN Module,txt}
 @end ifinfo
