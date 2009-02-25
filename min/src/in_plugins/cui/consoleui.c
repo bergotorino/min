@@ -436,29 +436,58 @@ LOCAL void pl_report_case_status (unsigned moduleid,
         cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
+LOCAL bool _find_case_by_id (const void *a, const void *b)
+{
+        CUICaseData * tmp1 = (CUICaseData*)a;
+        unsigned * tmp2 = (unsigned*)b;
+
+        if (tmp1->caseid_==(*tmp2)) return 0;
+        else return -1;
+}
+/* ------------------------------------------------------------------------- */
 LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid)
 {
-        // Case has been started, add it to the executed cases list and set
-        // its status to ongoing.
+        ExecutedTestCase *tmp = INITPTR;
+        DLListIterator it = DLListNULLIterator;
+        DLListIterator begin = DLListNULLIterator;
+
+        /* Case has been started, add it to the executed cases list and set
+           its status to ongoing.
+        */
         if (executed_case_list_==INITPTR) {
                 executed_case_list_ = dl_list_create();
         }
 
-        ExecutedTestCase *tmp = NEW(ExecutedTestCase);
+        /* Running test case details, also pointer to test case details should
+           be added here.
+        */
+        tmp = NEW2(ExecutedTestCase,1);
         tmp->status_ = 1;
         tmp->result_ = -1;
         tmp->resultdesc_ = tx_create("");
- /*
-typedef struct {
-        unsigned status_;
-        unsigned result_;
-        Text *resultdesc_;
-} ExecutedTestCase;
-*/
+        
+        begin = dl_list_head (case_list_);
+        do {
+                it = dl_list_find (begin,
+                                dl_list_tail (case_list_),
+                                _find_case_by_id,
+                                &caseid);
+                if (it==DLListNULLIterator) break;
+                CUICaseData *ccd = (CUICaseData*)dl_list_data(it);
+                if (ccd == INITPTR) break;
+                if (ccd->moduleid_!=moduleid) begin = dl_list_next(it);
+                else break;
+        } while (it!=DLListNULLIterator);
+        if (it==DLListNULLIterator) {
+                tx_destroy (&tmp->resultdesc_);
+                DELETE (tmp);
+        }
+        tmp->case_ = dl_list_data(it);
 
-//        cui_refresh_view();
+        /* add to list */
+        dl_list_add (executed_case_list_,(void*)tmp);
 }
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_paused (long testrunid)

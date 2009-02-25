@@ -1122,6 +1122,16 @@ LOCAL int get_ongoing_cases ()
 
         return 0;
 }
+/* ------------------------------------------------------------------------- */
+
+LOCAL void _find_case_by_result (const void *a, const void *b)
+{
+        ExecutedTestCase *tmp1 = (ExecutedTestCase*)a;
+        unsigned *tmp2 = (unsigned*)b;
+
+        if (tmp1->result_==(*tmp2)) return 0;
+        else return -1;
+}
 
 /* ------------------------------------------------------------------------- */
 /** Gets specific test results
@@ -1145,8 +1155,31 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         /* free memory allocated for callback structure */
         free_cbs (*cb);
 
+
+        DLListIterator it = DLListNULLIterator;
+        DLListIterator begin = dl_list_head (executed_case_list_);
+
+        do {
+                it = dl_list_find (begin,
+                                dl_list_tail (executed_case_list_),
+                                _find_case_by_result,
+                                result_type);
+                if (it==DLListNULLIterator) break;
+
+
+
+                begin = dl_list_next(it);
+
+        } while (it!=DLListNULLIterator);
+
+
         if (instantiated_modules == INITPTR || instantiated_modules == NULL)
                 goto empty_menu;
+
+
+
+
+
 
         /* process linked list including test modules */
         for (dl_item_tm = dl_list_head (instantiated_modules);
