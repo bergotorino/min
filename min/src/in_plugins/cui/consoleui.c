@@ -35,6 +35,7 @@
 #include <min_system_logger.h>
 #include <min_plugin_interface.h>
 #include <min_text.h>
+#include <min_logger.h>
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -136,6 +137,8 @@ LOCAL void      restore_focus_pos (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      save_focus_pos (int index, int top_row);
 /* ------------------------------------------------------------------------- */
+LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
+/* ------------------------------------------------------------------------- */
 LOCAL void pl_case_result (long testrunid, int result, char *desc);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_report_case_status (unsigned moduleid,
@@ -143,8 +146,8 @@ LOCAL void pl_report_case_status (unsigned moduleid,
                                 unsigned stat);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_started (unsigned moduleid,
-                        unsigned caseid,
-                        long testrunid);
+			    unsigned caseid,
+			    long testrunid);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_paused (long testrunid);
 /* ------------------------------------------------------------------------- */
@@ -421,10 +424,46 @@ LOCAL void save_focus_pos (int index, int top_row)
                 focus_pos->top_row = top_row;
         }
 }
+
+/* ------------------------------------------------------------------------- */
+/** Searches executed test case with test run id 
+ *  @param testrunid search key
+ *  @return pointer to ExecutedTestCase structure of INITPTR if not found
+ */
+
+LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
+{
+	DLListIterator it;
+	ExecutedTestCase *etc;
+
+	for (it = dl_list_head (executed_case_list_);
+	     it != INITPTR;
+	     dl_list_next (it)) {
+		etc = (ExecutedTestCase *)dl_list_data (it);
+		if (etc->runid_ == testrunid)
+			return etc;
+	}
+	
+	return INITPTR;
+}
+
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_result (long testrunid, int result, char *desc)
 {
+	ExecutedTestCase *etc;
 
+	etc = get_executed_tcase_with_runid (testrunid);
+	if (etc == INITPTR) {
+		MIN_ERROR ("No test found with run id %l", testrunid);
+		return;
+	}
+	if (etc->status_ != TCASE_STATUS_ONGOING) {
+		MIN_WARN ("Test result for a case with status "
+			  "other than ogoing");
+	}
+	etc->status_ = TCASE_STATUS_FINNISHED;
+	etc->resultdesc_ = tx_create (desc);
+	etc->result_ = result;
         cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
@@ -467,7 +506,8 @@ LOCAL void pl_case_started (unsigned moduleid,
         tmp->status_ = 1;
         tmp->result_ = -1;
         tmp->resultdesc_ = tx_create("");
-        
+        tmp->runid_ = testrunid;
+
         begin = dl_list_head (case_list_);
         do {
                 it = dl_list_find (begin,
