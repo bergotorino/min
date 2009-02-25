@@ -947,7 +947,7 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         ((test_result_s *) dl_list_data (temp_result))->printouts_list_ =
             INITPTR;
 
-	if (in->case_result) in->case_result (tc_get_run_id (orig_case), 
+	if (in->case_result) in->case_result (tc_get_run_id (work_case_item), 
 					      tr_get_result_type
 					      (work_result_item), 
 					      message->message_);
