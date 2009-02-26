@@ -1135,7 +1135,7 @@ LOCAL int _find_case_by_result (const void *a, const void *b)
 LOCAL int _find_case_by_status (const void *a, const void *b)
 {
         ExecutedTestCase *tmp1 = (ExecutedTestCase*)a;
-        int *tmp2 = (int*)b;
+        unsigned *tmp2 = (unsigned*)b;
 
         if (tmp1->status_==(*tmp2)) return 0;
         else return -1;
@@ -1181,7 +1181,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         DLList *abocra_cases = dl_list_create(); /* for aborted/crashed cases */
 
         ExecutedTestCase *etc = INITPTR;
-        int result_to_find = TCASE_STATUS_FINNISHED;
+        unsigned result_to_find = TCASE_STATUS_FINNISHED;
         
         /* 1. Find finished cases and group them on lists. */
         begin = dl_list_head(executed_case_list_);
