@@ -948,8 +948,7 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
             INITPTR;
 
 	if (in->case_result) in->case_result (tc_get_run_id (work_case_item), 
-					      tr_get_result_type
-					      (work_result_item), 
+					      message->param_, 
 					      message->message_);
         pthread_mutex_lock (&tec_mutex_);
 	
@@ -1245,8 +1244,7 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         group_id = tc_get_group_id (work_case_item);
 
 	if (in->case_result) in->case_result (tc_get_run_id (work_case_item), 
-					      tr_get_result_type
-					      (work_result_item), 
+					      message->param_, 
 					      message->message_);
 
 
