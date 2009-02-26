@@ -89,7 +89,7 @@ int _look4callname (const void *a, const void *b)
 /* ------------------------------------------------------------------------- */
 int _init_vars ()
 {
-        void *shmaddr, *tmp;
+        void *shmaddr;
         unsigned int size;
         char *var_buff, *variable_str = INITPTR, *p;
         int retval = ENOERR;

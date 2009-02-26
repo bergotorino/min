@@ -816,7 +816,6 @@ int sm_get_handler()
  */
 size_t sm_get_segsz (int shmid)
 {
-        int retval;
         struct shmid_ds shmid_ds;
         
         if (shmctl (shmid, IPC_STAT, &shmid_ds) == -1) {

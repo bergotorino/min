@@ -813,7 +813,7 @@ LOCAL int ec_exec_case_temp (DLListIterator work_module_item)
 LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
                                   MsgBuffer * message)
 {
-        /*this module has only one test case */
+        /* This module has only one test case */
         DLListIterator  work_case_item =
             dl_list_head (tm_get_tclist (temp_module_item));
         int             group_id = tc_get_group_id (work_case_item);
@@ -951,11 +951,8 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
 					      tr_get_result_type
 					      (work_result_item), 
 					      message->message_);
-
-
-
         pthread_mutex_lock (&tec_mutex_);
-
+	
         work_case_item = dl_list_head (selected_cases);
         orig_case_no = 0;
         while (work_case_item != DLListNULLIterator) {
@@ -966,17 +963,17 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
                 work_case_item = dl_list_next (work_case_item);
         }
         pthread_mutex_unlock (&tec_mutex_);
-
+	
         if (work_case_item == DLListNULLIterator) {
                 MIN_WARN ("could not find case in list");
                 return -1;
         }
         work_module_item =
-            tm_get_ptr_by_pid (instantiated_modules, message->sender_);
+		tm_get_ptr_by_pid (instantiated_modules, message->sender_);
         tc_set_status (work_case_item, TEST_CASE_TERMINATED);
         pthread_mutex_lock (&tec_mutex_);
         pthread_mutex_unlock (&tec_mutex_);
-
+	
 #ifndef MIN_EXTIF
 #ifndef MIN_UNIT_TEST
         //cui_refresh_view ();
@@ -995,7 +992,7 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         return result;
 }
 
-/**Function handling MSG_OK. As it is first message sent by module, 
+/** Function handling MSG_OK. As it is first message sent by module, 
  * function set's module status to TC_SENDING, initilaizes test cases list
  * for module and sends message MSG_GTC
  * @param message pointer to MsgBuffer structure containing message
@@ -1619,12 +1616,10 @@ EXIT:
 LOCAL int ec_msg_run_id_handler (MsgBuffer * message)
 {
         int             result = -1;
-        int             work_module_status = 0;
-        int             address = 0;
         DLListIterator  work_module_item = DLListNULLIterator;
         DLListIterator  work_case_item = DLListNULLIterator;
         test_case_s    *work_case = INITPTR;
-	long            runid;
+
 
 	if (!in->case_started)
 		return 0;

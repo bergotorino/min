@@ -84,15 +84,6 @@ void            gu_handle_gtc (TMC_t * tmc, TSBool send);
  */
 LOCAL void      gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file);
 /* ------------------------------------------------------------------------- */
-/** MSG_RET handler
- *  @param tmc adress of the TMC entity.
- *  @param result test case result
- *  @param desc description of a test case result
- *
- *  It forwards test case result to the engine via MQ.
- */
-LOCAL void      gu_handle_ret (TMC_t * tmc, int result, const char *desc);
-/* ------------------------------------------------------------------------- */
 /** MSG_END handler
  *  @param tmc adress of the TMC entity.
  *
@@ -216,16 +207,6 @@ LOCAL void gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file)
         }
 }
 
-/* ------------------------------------------------------------------------- */
-LOCAL void gu_handle_ret (TMC_t * tmc, int result, const char *desc)
-{
-        /*tp_set_status( &tmc->tpc_, TP_ENDED ); */
-
-        ip_send_ret (&tmc->tmcipi_, result, desc);
-
-        /*retval = kill( tp_pid( &tmc->tpc_ ), SIGKILL );
-           if( retval == -1 ) min_warn("RET: Cannot kill child process"); */
-}
 
 /* ------------------------------------------------------------------------- */
 LOCAL void gu_handle_end (TMC_t * tmc)
@@ -462,7 +443,6 @@ void gu_handle_message (TMC_t * tmc, const MsgBuffer * msg)
                 break;
 
         case MSG_RET:
-                /*gu_handle_ret(tmc, msg->param_,msg->message_); */
                 globaltcr.result_ = msg->param_;
                 STRCPY (globaltcr.desc_, msg->message_,
                         MaxTestResultDescription + 1);

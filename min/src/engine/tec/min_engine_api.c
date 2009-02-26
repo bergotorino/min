@@ -260,6 +260,8 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 	out->resume_case = eapi_resume_case;
         out->fatal_error = eapi_error;
 	out->min_close = eapi_close;
+	out->min_open = eapi_open;
+
 }
 
 

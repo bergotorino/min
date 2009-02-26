@@ -242,7 +242,7 @@ int main (int argc, char *argv[], char *envp[])
         void (*plugin_attach) (eapiIn_t **out_callback, 
                                 eapiOut_t *in_callback);
 
-        void (*plugin_open) (void);
+        void (*plugin_open) (void *arg);
         void *pluginhandle;
 
 
@@ -375,7 +375,7 @@ int main (int argc, char *argv[], char *envp[])
                 retval = log_summary_stdout ();
         } else {
                 retval = pthread_create (&plugin_thread, NULL, plugin_open,
-                                 &tmp);
+					 &tmp);
 		pthread_join (plugin_thread, &tmp);
         }
 

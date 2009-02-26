@@ -264,7 +264,6 @@ LOCAL LegoEndloopType *mli_create_endloop (TScripterKeyword keyword)
 /* ------------------------------------------------------------------------- */
 LOCAL LegoBreakloopType *mli_create_breakloop (TScripterKeyword keyword)
 {
-        DLListIterator  it = DLListNULLIterator;
         LegoBreakloopType *retval = INITPTR;
         retval = NEW (LegoBreakloopType);
         retval->type_ = ELegoBreakloop;

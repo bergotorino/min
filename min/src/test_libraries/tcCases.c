@@ -126,7 +126,7 @@ LOCAL int FailingOne (MinItemParser * item)
 LOCAL int CheckThreshold (MinItemParser * item)
 {
         int threshold;
-        int failcount;
+        long failcount;
 
         if (mip_get_next_int (item, &threshold) != ENOERR) {
                 tm_printf (0, "", "Threshold parameter missing");
