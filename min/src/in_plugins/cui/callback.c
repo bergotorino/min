@@ -1123,16 +1123,23 @@ LOCAL int get_ongoing_cases ()
         return 0;
 }
 /* ------------------------------------------------------------------------- */
-
 LOCAL int _find_case_by_result (const void *a, const void *b)
 {
         ExecutedTestCase *tmp1 = (ExecutedTestCase*)a;
-        unsigned *tmp2 = (unsigned*)b;
+        int *tmp2 = (int*)b;
 
         if (tmp1->result_==(*tmp2)) return 0;
         else return -1;
 }
+/* ------------------------------------------------------------------------- */
+LOCAL int _find_case_by_status (const void *a, const void *b)
+{
+        ExecutedTestCase *tmp1 = (ExecutedTestCase*)a;
+        int *tmp2 = (int*)b;
 
+        if (tmp1->status_==(*tmp2)) return 0;
+        else return -1;
+}
 /* ------------------------------------------------------------------------- */
 /** Gets specific test results
  *  @param cb pointer to menu callback structure
@@ -1141,8 +1148,6 @@ LOCAL int _find_case_by_result (const void *a, const void *b)
  */
 LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
 {
-        int             i = 0;
-
         DLListItem     *dl_item_tm = INITPTR;
         DLListItem     *dl_item_tc = INITPTR;
         DLListItem     *dl_item_tr = INITPTR;
@@ -1157,84 +1162,171 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         DLListIterator it = DLListNULLIterator;
         DLListIterator begin = dl_list_head (executed_case_list_);
         int n = 0;
+        int i = 0;
+
+        /* The UI currently shows cases that are: Executed, Passed, Failed,
+         * Aborted/Crashed. First of all we check status to find Finished
+         * cases and then we narrow the results according to filter. In order
+         * not to get lost bewteen IFs and ELSEs test cases will be filtered
+         * and links to them will be grouped in lists.
+         * There will be three lists, for: Passed, Failed and Aborted/Crashed
+         * cases (they will contain pointers to iterators from
+         * executed_case_list_) and final view will combine them.
+         * For future this sorting can be done in result reporting handler,
+         * but this would require lists to be global in scope of CUI.
+         */
+
+        DLList *passed_cases = dl_list_create(); /* for passed cases */
+        DLList *failed_cases = dl_list_create(); /* for failed cases */
+        DLList *abocra_cases = dl_list_create(); /* for aborted/crashed cases */
+
         ExecutedTestCase *etc = INITPTR;
-
-#if 0
-        TEST_RESULT_NOT_RUN,
-        TEST_RESULT_PASSED,
-        TEST_RESULT_FAILED,
-        TEST_RESULT_CRASHED,
-        TEST_RESULT_ABORTED,
-        TEST_RESULT_TIMEOUT,
-        TEST_RESULT_ALL
-#endif
-        /* Count all items of given test result */
-        if (result_type==TEST_RESULT_ALL) {
-                n = dl_list_size (executed_case_list_);
-        } else {
-//                while (begi
-        }
-        if (n==0) goto empty_menu;
-
-        /* Allocate memory for menu items. */
-        (*cb) = NEW2(callback_s,n+1);
-        if (!(*cb)) return -1;
-
-        /* Count all items of given test result */
+        int result_to_find = TCASE_STATUS_FINNISHED;
+        
+        /* 1. Find finished cases and group them on lists. */
+        begin = dl_list_head(executed_case_list_);
         while (begin!=DLListNULLIterator) {
                 it = dl_list_find (begin,
                                 dl_list_tail (executed_case_list_),
-                                _find_case_by_result,
-                                &result_type);
-                if (it!=DLListNULLIterator) {
-                        n++;
-                        begin = dl_list_next(it);
-                } else {
-                        break;
-                }
-        }
-        if (n==0) goto empty_menu;
-
-        /* Allocate memory for menu items. */
-        (*cb) = NEW2(callback_s,n+1);
-        if (!(*cb)) return -1;
-
-        /* Construct the menu. */
-        n=0;
-        begin = dl_list_head (executed_case_list_);
-        while (begin!=DLListNULLIterator) {
-                it = dl_list_find (begin,
-                                dl_list_tail (executed_case_list_),
-                                _find_case_by_result,
-                                &result_type);
+                                _find_case_by_status,
+                                &result_to_find);
                 if (it==DLListNULLIterator) break;
+                etc = (ExecutedTestCase*)dl_list_data(it);
 
-                etc = dl_list_data(it);
+                /* Values map 100% to those set by TMC, see min_common for
+                 * reference. Passed=0, Failed=1, Crashed=-2,Not Completed=2
+                 * Timeouted=-1
+                 */
+                if (etc->result_ == 0) {
+                        /* passed */
+                        dl_list_add(passed_cases,(void*)it);
+                } else if (etc->result_ == 1) {
+                        /* failed */
+                        dl_list_add(failed_cases,(void*)it);
+                } else if (etc->result_ == -2) {
+                        /* aborted/crashed */
+                        dl_list_add(abocra_cases,(void*)it);
+                } else {
+                        MIN_ERROR ("Case of result %d has not beed filtered",
+                                etc->result_);
+                }
 
-                if (result_type==TEST_RESULT_ABORTED ||
-                        result_type==TEST_RESULT_CRASHED) {
-                        set_cbs (&(*cb)[i],
-                                tx_share_buf(etc->case_->casetitle_),
-                                NULL,
-                                NULL,
-                                case_menu,
-                                tr_for_aborted_case, etc, 0);
-                } else if (result_type==TEST_RESULT_PASSED) {
-                        set_cbs (&(*cb)[i],
-                                tx_share_buf(etc->case_->casetitle_),
-                                NULL,
-                                NULL,
-                                case_menu,
-                                tr_for_passed_case, etc, 0);
-                } else if (result_type==TEST_RESULT_FAILED) {
+                begin = dl_list_next (it);
+        }
+
+        /* 2. Guess what user want to see and count items to be presented. */
+        if (result_type==TEST_RESULT_ALL) {
+                /* User want to see all test cases */
+                n = dl_list_size(passed_cases);
+                n += dl_list_size(failed_cases);
+                n += dl_list_size(abocra_cases);
+        } else if (result_type==TEST_RESULT_FAILED) {
+                /* User want to see failed test cases */
+                n = dl_list_size(failed_cases);
+        } else if (result_type==TEST_RESULT_PASSED) {
+                /* User want to see passed test cases */
+                n = dl_list_size(passed_cases);
+        } else if (result_type==TEST_RESULT_CRASHED ||
+                        result_type==TEST_RESULT_ABORTED) {
+                /* User want to see aborted/crashed test cases */
+                n = dl_list_size(abocra_cases);
+        } else {
+                n = 0;
+                MIN_ERROR ("Not handled view option %d",result_type);
+        }
+        if (n==0) goto empty_menu;
+
+        /* 3. Construct the view. */        
+        /* 3.1 Allocate memory for menu items. */
+        (*cb) = NEW2(callback_s,n+1);
+        if (!(*cb)) {
+                return -1;
+        }
+
+        if (result_type==TEST_RESULT_ALL) {
+                /* User want to see all test cases */
+                it = dl_list_head (failed_cases);
+                while (it!=DLListNULLIterator) {
+                        etc = (ExecutedTestCase*)dl_list_data(it);
                         set_cbs (&(*cb)[i],
                                 tx_share_buf(etc->case_->casetitle_),
                                 NULL,
                                 NULL,
                                 case_menu,
                                 tr_for_failed_case, etc, 0);
+                        i++;
+                        it = dl_list_next(it);
                 }
-                begin = dl_list_next(it);
+                it = dl_list_head (passed_cases);
+                while (it!=DLListNULLIterator) {
+                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        set_cbs (&(*cb)[i],
+                                tx_share_buf(etc->case_->casetitle_),
+                                NULL,
+                                NULL,
+                                case_menu,
+                                tr_for_passed_case, etc, 0);
+                        i++;
+                        it = dl_list_next(it);
+                }
+                it = dl_list_head (abocra_cases);
+                while (it!=DLListNULLIterator) {
+                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        set_cbs (&(*cb)[i],
+                                tx_share_buf(etc->case_->casetitle_),
+                                NULL,
+                                NULL,
+                                case_menu,
+                                tr_for_aborted_case, etc, 0);
+                        i++;
+                        it = dl_list_next(it);
+                }
+
+        } else if (result_type==TEST_RESULT_FAILED) {
+                /* User want to see failed test cases */
+                it = dl_list_head (failed_cases);
+                while (it!=DLListNULLIterator) {
+                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        set_cbs (&(*cb)[i],
+                                tx_share_buf(etc->case_->casetitle_),
+                                NULL,
+                                NULL,
+                                case_menu,
+                                tr_for_failed_case, etc, 0);
+                        i++;
+                        it = dl_list_next(it);
+                }
+        } else if (result_type==TEST_RESULT_PASSED) {
+                /* User want to see passed test cases */
+                it = dl_list_head (passed_cases);
+                while (it!=DLListNULLIterator) {
+                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        set_cbs (&(*cb)[i],
+                                tx_share_buf(etc->case_->casetitle_),
+                                NULL,
+                                NULL,
+                                case_menu,
+                                tr_for_passed_case, etc, 0);
+                        i++;
+                        it = dl_list_next(it);
+                }
+        } else if (result_type==TEST_RESULT_CRASHED ||
+                        result_type==TEST_RESULT_ABORTED) {
+                /* User want to see aborted/crashed test cases */
+                it = dl_list_head (abocra_cases);
+                while (it!=DLListNULLIterator) {
+                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        set_cbs (&(*cb)[i],
+                                tx_share_buf(etc->case_->casetitle_),
+                                NULL,
+                                NULL,
+                                case_menu,
+                                tr_for_aborted_case, etc, 0);
+                        i++;
+                        it = dl_list_next(it);
+                }
+        } else {
+                MIN_ERROR ("Not handled view option %d",result_type);
         }
 
         /* last menu item should be NULL one */

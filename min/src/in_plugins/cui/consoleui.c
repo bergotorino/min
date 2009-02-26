@@ -464,23 +464,7 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc)
 	}
 	etc->status_ = TCASE_STATUS_FINNISHED;
 	etc->resultdesc_ = tx_create (desc);
-
-        switch (result) {
-        case 0:
-                etc->result_ = 1;
-                break;
-        case 1:
-                etc->result_ = 2;
-                break;
-        case -2:
-                etc->result_ = 3;
-                break;
-        case 2:
-                etc->result_ = 0;
-                break;
-        default:
-                etc->result_ = 3;
-        }
+        etc->result_ = result;
 
         cui_refresh_view();
 }
