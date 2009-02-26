@@ -45,10 +45,10 @@ Destroys previously created MinSectionParser.
 @item MinSectionParser** msp
 the reference pointer to MinSectionParser struct component.
 Returns address of @code{MinItemParser} or @code{INITPTR} in case of failure.
-@item @b{Return value}
-none
 @item @b{Possible errno values}
 @code{ENOMEM}: No sufficient memory to allocate new struct object.
+@item @b{Return value}
+none
 @end table
 @end table
 
@@ -203,7 +203,7 @@ Indicates the tag to start with. If start tag is empty the parsing starts begin 
 Parsed line is returned through this variable. If line is no found INITPTR pointer value is returned.
 @item TTagToReturnValue tag_indicator
 Indicates if tag will be included to the return line.
-@item Return value
+@item @b{Return value}
 Returns value 0 in case of success, -1 in case of failure.
 @end table
 @end table

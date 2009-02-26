@@ -12,10 +12,12 @@ A test module contains the actual test case implementation. Test modules are imp
 @end ifplaintext
 @ifhtml
 @image{images/implementation1,15cm,,MIN test module types,png}
+
 Test modules are indicated with @b{bolded font}. 
 @end ifhtml
 @iftex
 @image{images/implementation1,15cm,,MIN test module types,png}
+
 Test modules are indicated with @b{bolded font}. 
 @end iftex
 

@@ -4,7 +4,9 @@ The @code{resume} keyword is used to resume a paused test case. @code{resume} ha
 @item testid
 The test ID from the run command.
 @end table
+
 The resume keyword can be used for, example, in the following way:
+
 @example
 resume test1
 @end example

@@ -125,7 +125,7 @@ This method will parse next section after the earlier section if sought paramete
 
 If configuration file includes several sections with both start and end tags so sought parameter seeks the required section.
 
-Possible errno return values:
+@item @b{Possible errno return values}:
 
 @code{EINVAL}: Invalid value was passed to the function.
 

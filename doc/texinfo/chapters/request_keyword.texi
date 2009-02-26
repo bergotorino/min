@@ -1,5 +1,6 @@
 The @code{request} keyword is used to request an event. If someone wants to use an event, it must first be requested, and after that it can be waited. After the event is not used anymore, it must be released.
-request has one mandatory argument, and one optional parameter. Both are described below.
+The @code{request} keyword has one mandatory argument, and one optional parameter. Both are described below.
+
 @table @b
 @item Argument
 @item Event
@@ -8,7 +9,9 @@ The event name.
 @item State
 Keyword "state" must be specified if request is for event of "state" type.
 @end table
+
 The request keyword can be used, for example, in the following ways:
+
 @example
 request Event1
 request Event2 state

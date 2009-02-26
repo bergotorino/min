@@ -1,4 +1,4 @@
-MIN Parser is divided into three main parts: MinParser, MinSectionParser and MinItemParser (see figure below).
+MIN Parser is divided into three main parts: @code{MinParser}, @code{MinSectionParser} and @code{MinItemParser} (see figure below).
 
 @ifinfo
 @image{images/minparser2,4cm,,MIN Parser parts,txt}

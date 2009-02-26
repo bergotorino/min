@@ -1,11 +1,15 @@
 The @code{expect} keyword is used in slave script to expect a variable value from master. Variable must be declared by using var keyword. Expecting a variable value from slave to master is described in Section @ref{remote keyword}.
+
 The @code{expect} keyword has one mandatory argument, described below.
+
 @table @b
 @item Argument
 @item variable name
 The name of the variable.
 @end table
+
 The @code{expect} keyword can be used for example in the following way:
+
 @example
 var variable1
 expect variable1

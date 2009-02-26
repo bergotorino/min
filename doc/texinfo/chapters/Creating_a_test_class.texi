@@ -6,9 +6,11 @@ A new test class can be easily created with MIN Test Module Template Wizard that
 @item Give testclass as ModuleType
 @item Enter a name and path for the test class
 @end itemize
+
 A new test class is now created with the given name to the given path. The next step is to create the building block methods to the test class.
 
 To create the building block methods to the test class:
+
 @enumerate
 @item Implement the building blocks to @code{/<testclassname>/src/<testclassname>Cases.c} file (there is one example method, @code{ExampleTest}, that can be copy-pasted).
 @item Add entry for every method to function ts_get_test_cases (@code{<testclassname>Cases.c}):

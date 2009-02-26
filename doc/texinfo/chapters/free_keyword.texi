@@ -1,11 +1,15 @@
 Every allocated slave must be freed with free when it becomes unused.
+
 The @code{free} keyword has one mandatory argument, described below.
+
 @table @b
 @item Argument
 @item slave name
 The slave name, the same that was given for allocate.
 @end table
-free can be used for example in the following way:
+
+@code{free} can be used for example in the following way:
+
 @example
 free MySlave
 @end example

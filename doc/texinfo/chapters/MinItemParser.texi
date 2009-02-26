@@ -116,7 +116,7 @@ Reference string pointer for parsed result string.
 
 @table @code
 @item int mip_get_next_tagged_string(MinItemParser* mip, TPtrC* tag, TPtrC** string)
-Gets next tagged string according to tag and earlier used StiItemParser section sting.
+Gets next tagged string according to tag and earlier used MinItemParser section string.
 @table @code
 @item @b{Possible errno values}
 @code{EINVAL} errno value when parsing operation failed.
@@ -372,8 +372,8 @@ Returns parsing type value if parsing operation completed successfully
 
 
 
-@b{Note 1}: ENormalParsing type parsing is takes string after tag keyword and is separated result strings by white spaces. For example, if the section string is "Tag1 Word1 Word2 Tag2 Word3 Word4 Tag3 Word5 Word6" if is used tag "Tag2" then parsed result string is "Word3" by mip_get_string()method. If after this parsing will did new parsing by mip_get_next_string()then next parsed result string is "Word4".
+@b{Note 1}: @code{ENormalParsing} type parsing is takes string after tag keyword and is separated result strings by white spaces. For example, if the section string is @code{"Tag1 Word1 Word2 Tag2 Word3 Word4 Tag3 Word5 Word6"} if is used tag @code{"Tag2"} then parsed result string is @code{"Word3"} by @code{mip_get_string()} method. If after this parsing will did new parsing by @code{mip_get_next_string()} then next parsed result string is @code{"Word4"}.
 
-@b{Note 2}: EQuoteStyleParsing type parsing takes string inside of two quotes and this parsed may including also white spaces. For example, if only the start tag has been found from the section string then parsing will be returned rest of string after start tag.
+@b{Note 2}: @code{EQuoteStyleParsing} type parsing takes string inside of two quotes and this parsed may including also white spaces. For example, if only the start tag has been found from the section string then parsing will be returned rest of string after start tag.
 
 @b{Note 3}: If section string including comments strings with two backslashes then parsing will be returned string after the first backslashes.  

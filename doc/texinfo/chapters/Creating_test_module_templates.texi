@@ -2,9 +2,9 @@ Within MIN, there is a specific MIN Test Module Template Wizard for automaticall
 
 The test module template type can be hardcoded, normal, testclass or minunit. These test module template types can be seen in figure in @ref{Using MIN for test cases implementation}. In the figure, the test module template types are indicated with cursive font. The figure does not contain detailed information for each test module; for example, the test case files are not shown.
 
-Note: In order to use make, you need to have Makefile generated which is done by executing $sh build.sh in the test module directory (see examples).
+Note: In order to use make, you need to have Makefile generated which is done by executing @code{$sh build.sh} in the test module directory (see examples).
 
-MIN Test Module Template Wizard can be launched by running the createtestmodule script.
+MIN Test Module Template Wizard can be launched by running the @code{createtestmodule} script.
 
 MIN Test Module Template Wizard takes the test module template, makes a new copy of it, and changes all the Test Module specific definitions (names) in the code files. MIN Test Module Template Wizard asks from the user the test module template type and name, as well as the path where the new test module template is created.
 

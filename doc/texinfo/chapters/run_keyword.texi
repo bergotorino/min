@@ -1,4 +1,5 @@
 The @code{run} keyword is used to start a specified test case. It has several mandatory and optional arguments, described below.
+
 @table @b
 @item Mandatory arguments
 @item testmodule
@@ -33,7 +34,9 @@ Test case title.  If given, following rules must be held:
 @item in master slave environment, if module does not have configuration file, dummy.cfg must be given for configfile argument.
 @end itemize
 @end table
+
 The run keyword can be used for example in the following way:
+
 @example
 run netmodule net.cfg 5 testid=test1 expect=3 ini=ini.txt
 run netmodule net.cfg -1 testid=test2 title="My test case example"

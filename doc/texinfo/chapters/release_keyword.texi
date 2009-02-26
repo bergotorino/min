@@ -5,7 +5,9 @@ The @code{release} keyword is used to release an event. Every requested event mu
 @item Event
 The event name.
 @end table
+
 The release keyword can be used, for example, in the following way:
+
 @example
 release Event1
 @end example

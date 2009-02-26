@@ -23,6 +23,6 @@ function case_function() -- remote example 2
 	min.slave_free(slavehnd);
 end
 @end example
-Note that the first parameter is always slave handler. You must specify it when using '.' Or use ':' because then it is added automatically.
+Note that the first parameter is always slave handler. You must specify it when using '@code{.}' Or use '@code{:}' because then it is added automatically.
 
 

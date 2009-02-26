@@ -1,5 +1,7 @@
 The @code{set} keyword is used to set an event. Every @code{set} state event must be explicitly unset.
+
 @code{set} has one mandatory argument and also one optional argument, as described below.
+
 @table @b
 @item Argument
 @item Event
@@ -8,7 +10,9 @@ The event name.
 @item State
 If a state is given, sets the state event, otherwise sets an indication event. A state event remains set until it is unset explicitly with the unset keyword. An indication event is set only once to every requester and implicitly unset after that.
 @end table
+
 The set keyword can be used, for example, in the following ways:
+
 @example
 set Event1
 set Event2 state

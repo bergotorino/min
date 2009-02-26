@@ -276,6 +276,7 @@ Indicates if the requested event is of type state. If it is specified as a strin
 Integer, 0 if operation was successful, error value otherwise
 @end table
 @end table
+
 @b{Comment:} After the event is requested from remote device, master test case can wait on it in the same way it would wait on local event.
 
 
@@ -299,6 +300,7 @@ Name of event
 Integer, 0 if operation was successful, error value otherwise
 @end table
 @end table
+
 @b{Comment:} Function fails in case of problems in master/slave communication or faulty argument specification
 
 Example:
@@ -323,6 +325,7 @@ Number of test case
 Integer, 0 if operation was successful, error value otherwise
 @end table
 @end table
+
 @b{Comment:} Function is considered successful if remote test case was started. After that, only available method of communication with slave test case is by events. Result of remote test case will not be provided. However, python test case will not finish, until slave test case finishes (or external controller timeout expires).
 
 Example:
@@ -331,3 +334,5 @@ min_ext.Run_remote_case("other_device","hardcoded_min_module",1)
 
 min_ext.Run_remote_case("another_device","other_min_module","testcase_file",3)
 @end example
+
+

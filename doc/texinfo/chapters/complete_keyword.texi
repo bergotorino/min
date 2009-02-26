@@ -6,7 +6,9 @@ The @code{complete} keyword is used to have a started test case wait to complete
 @item testid
 The test ID from the run command.
 @end table
+
 The complete keyword can be used, for example, in the following way:
+
 @example
 complete test1
 @end example

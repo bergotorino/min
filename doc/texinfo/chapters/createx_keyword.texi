@@ -7,6 +7,7 @@ The test class name for the new object.
 @item Test object name
 The name of the created new instance of the test class.
 @end table
+
 The createx keyword can be used, for example, in the following way:
 @example
 createx TestScriptClass test

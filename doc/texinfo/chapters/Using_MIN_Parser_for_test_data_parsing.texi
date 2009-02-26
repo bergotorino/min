@@ -1,6 +1,6 @@
 This chapter contains the MIN Parser API description for guidance on how to use MIN Parser for test data parsing.
 
-Figure below shows how MIN Parser is involved in MIN. Test Engine uses MIN Parser for parsing data from the MIN configuration file (min.conf). MIN Parser can be used when parsing test data for test modules. Test data can be included in a test module's test case file, a test module's initialization file or a buffer.
+Figure below shows how MIN Parser is involved in MIN. Test Engine uses MIN Parser for parsing data from the MIN configuration file (@code{min.conf}). MIN Parser can be used when parsing test data for test modules. Test data can be included in a test module's test case file, a test module's initialization file or a buffer.
 
 @ifinfo
 @image{images/minparser1,7cm,,Parser in MIN,txt}

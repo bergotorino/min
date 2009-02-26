@@ -64,10 +64,10 @@ Document Version @value{document_version}
 @ifhtml
 @node Top, Table of contents, (dir), (dir)
 @top General Introduction
-This file documents @value{application_full_name}
-@sp 2
+This page documents @value{application_full_name}
+
 Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
-@sp 2
+
 Document Version @value{document_version}
 @end ifhtml
 
