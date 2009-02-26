@@ -80,6 +80,12 @@ typedef struct {
 
 typedef struct {
         unsigned moduleid_;
+        Text *modulename_;
+} CUIModuleData;
+
+
+typedef struct {
+        unsigned moduleid_;
         unsigned caseid_;
         Text *casetitle_;
 } CUICaseData;

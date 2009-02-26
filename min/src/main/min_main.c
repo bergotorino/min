@@ -350,14 +350,14 @@ int main (int argc, char *argv[], char *envp[])
         plugin_attach (&in, out);
 //        retval = pthread_create (&plugin_thread, NULL, plugin_open,
 //                                 (void *)tmp);
-
-        ec_min_init (NULL, NULL, NULL, envp, oper_mode);
+	if (no_cui_flag)
+		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
 
 
         if (add_command_line_modules (modulelist))
                 exit (1);
         
-        while (cont_flag == 0) {
+        while (no_cui_flag && cont_flag == 0) {
                 cont_flag = 1;
                 usleep (500000);
                 work_module_item = dl_list_head (instantiated_modules);
@@ -376,6 +376,7 @@ int main (int argc, char *argv[], char *envp[])
         } else {
                 retval = pthread_create (&plugin_thread, NULL, plugin_open,
 					 &tmp);
+		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
 		pthread_join (plugin_thread, &tmp);
         }
 

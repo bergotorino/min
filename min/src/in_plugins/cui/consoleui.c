@@ -44,7 +44,6 @@ extern DLList  *test_set_files;
 extern DLList  *test_modules;
 extern DLList  *test_case_files;
 extern focus_pos_s main_menu_focus;
-
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
 /* None */
@@ -70,6 +69,8 @@ eapiOut_t       min_clbk_;
 /* List of cases */
 DLList *case_list_ = INITPTR;
 DLList *executed_case_list_ = INITPTR;
+/* List of modules */
+DLList  *available_modules = INITPTR;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -569,7 +570,19 @@ LOCAL void pl_msg_print (unsigned moduleid, unsigned caseid, char *message)
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 {
+	CUIModuleData *cmd = INITPTR;
 
+	if (available_modules == INITPTR) available_modules = dl_list_create();
+	
+	MIN_DEBUG ("modulename = %s, moduleid %d", modulename, moduleid);
+
+	/* add new module to  list */
+        cmd = NEW(CUIModuleData);
+        cmd->moduleid_ = moduleid;
+        cmd->modulename_ = tx_create(modulename);
+        dl_list_add (available_modules, (void*)cmd);
+
+        /* update the screen */
         cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */

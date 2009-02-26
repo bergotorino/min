@@ -49,6 +49,7 @@ extern eapiIn_t out_clbk_;      /*  */
 extern eapiOut_t min_clbk_;     /*  */
 extern DLList *case_list_;
 extern DLList *executed_case_list_;      /* */
+extern DLList *available_modules;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
@@ -102,8 +103,6 @@ callback_s      cb_main_menu[] = {
 };
 
 DLList         *selected_cases;
-DLList         *available_modules;
-DLList         *instantiated_modules;
 
 /** linked list of test set files */
 DLList         *test_set_files = INITPTR;
@@ -785,7 +784,7 @@ LOCAL int get_test_case_files (void)
 LOCAL int get_loaded_modules ()
 {
         DLListItem     *dl_item_tm = INITPTR;
-        test_module_info_s *tmi = INITPTR;
+        CUIModuleData  *tmi = INITPTR;
         int             n = 0;
         int             i = 0;
 
@@ -813,12 +812,13 @@ LOCAL int get_loaded_modules ()
                 while (dl_item_tm != INITPTR) {
                         /* get test_module_info from linked list iterator */
                         tmi =
-                            (test_module_info_s *) dl_list_data (dl_item_tm);
+                            (CUIModuleData *) dl_list_data (dl_item_tm);
 
-                        if (tmi != INITPTR && tmi->module_filename_ != NULL) {
+                        if (tmi != INITPTR && 
+			    tx_share_buf (tmi->modulename_) != NULL) {
                                 /* fill menu structure with item data */
                                 set_cbs (&cb_module_menu[i],
-                                         tmi->module_filename_,
+                                         tx_share_buf (tmi->modulename_),
                                          NULL, NULL, main_menu, NULL, NULL,
                                          1);
                                 i++;
