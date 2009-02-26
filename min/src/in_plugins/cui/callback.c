@@ -1247,7 +1247,8 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                 /* User want to see all test cases */
                 it = dl_list_head (failed_cases);
                 while (it!=DLListNULLIterator) {
-                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        begin = (DLListIterator)dl_list_data(it);
+                        etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
                                 tx_share_buf(etc->case_->casetitle_),
                                 NULL,
@@ -1259,7 +1260,8 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                 }
                 it = dl_list_head (passed_cases);
                 while (it!=DLListNULLIterator) {
-                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        begin = (DLListIterator)dl_list_data(it);
+                        etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
                                 tx_share_buf(etc->case_->casetitle_),
                                 NULL,
@@ -1271,7 +1273,8 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                 }
                 it = dl_list_head (abocra_cases);
                 while (it!=DLListNULLIterator) {
-                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        begin = (DLListIterator)dl_list_data(it);
+                        etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
                                 tx_share_buf(etc->case_->casetitle_),
                                 NULL,
@@ -1286,7 +1289,8 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                 /* User want to see failed test cases */
                 it = dl_list_head (failed_cases);
                 while (it!=DLListNULLIterator) {
-                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        begin = (DLListIterator)dl_list_data(it);
+                        etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
                                 tx_share_buf(etc->case_->casetitle_),
                                 NULL,
@@ -1300,7 +1304,8 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                 /* User want to see passed test cases */
                 it = dl_list_head (passed_cases);
                 while (it!=DLListNULLIterator) {
-                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        begin = (DLListIterator)dl_list_data(it);
+                        etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
                                 tx_share_buf(etc->case_->casetitle_),
                                 NULL,
@@ -1315,7 +1320,8 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                 /* User want to see aborted/crashed test cases */
                 it = dl_list_head (abocra_cases);
                 while (it!=DLListNULLIterator) {
-                        etc = (ExecutedTestCase*)dl_list_data(it);
+                        begin = (DLListIterator)dl_list_data(it);
+                        etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
                                 tx_share_buf(etc->case_->casetitle_),
                                 NULL,
@@ -1330,7 +1336,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         }
 
         /* last menu item should be NULL one */
-        null_cbs (&(*cb)[n]);
+        null_cbs (&(*cb)[i]);
         return 0;
 
       empty_menu:
