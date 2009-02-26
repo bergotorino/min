@@ -56,10 +56,4 @@ An example of compiling the recently created module is shown in below.
 maemo@@maemo:/tmp/example_module$ sh build.sh
 @end example
 The build script defines your test library automatically to @code{min.conf} file (@code{min.conf} path is @code{/home/<user name>/.min/}).
-It is also possible to make Debian package from your test library using command:
-@example
-maemo@@maemo-desktop:/tmp/example_module $make package
-@end example
-It makes @code{min-testlib-<your library name>.deb} into current directory.  Verify/change the target in @code{../debian/control} file before making the package.
-When test module Debian package is installed, it automatically defines it self to @code{/home/<user name>/.min/min.conf}.
 If you now start MIN newly created module should be visible on the console UI.

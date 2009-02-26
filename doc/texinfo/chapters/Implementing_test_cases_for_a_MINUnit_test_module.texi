@@ -7,7 +7,7 @@ MIN_ASSERT_NOT_EQUALS( l, 0 );
 @}
 @end example
 
-The fill consists of two sections @code{TEST_VAR_DECLARATIONS} and @code{TEST_CASES}.
+The file consists of two sections @code{TEST_VAR_DECLARATIONS} and @code{TEST_CASES}.
 
 Variables that are common for all test cases are defined in the @code{TEST_VAR_DECLARATIONS} section. 
 
