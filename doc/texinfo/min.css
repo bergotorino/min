@@ -42,9 +42,10 @@ dd p, dt b, dt code {
 
 
 
-ul.menu {
-	max-height: 0;
+ul.menu, ul.menu li {
+	max-height: 0px;
 	visibility:hidden;
+	line-height: 0px;
 }
 
 pre, code {
