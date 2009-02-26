@@ -1242,6 +1242,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         if (!(*cb)) {
                 return -1;
         }
+        memset (*cb,0x0,sizeof(callback_s)*(n+1));
 
         if (result_type==TEST_RESULT_ALL) {
                 /* User want to see all test cases */
@@ -1336,7 +1337,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         }
 
         /* last menu item should be NULL one */
-        null_cbs (&(*cb)[i]);
+//        null_cbs (&(*cb)[i]);
         return 0;
 
       empty_menu:
