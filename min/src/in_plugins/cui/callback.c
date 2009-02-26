@@ -515,13 +515,7 @@ LOCAL void add_module (void *p)
  */
 LOCAL int get_test_modules (void)
 {
-        DLListItem     *dl_item = INITPTR;
-        char           *test_module = INITPTR;
-        struct dirent **namelist;
-        int             n = 0;
         int             i = 0;
-        char           *dir = INITPTR;
-        char           *ptr = INITPTR;
 
         /* free memory allocated for callback structure */
         free_cbs (cb_add_test_module_menu);
@@ -619,15 +613,7 @@ LOCAL int get_test_modules (void)
 LOCAL int get_test_case_files (void)
 {
         DLListItem     *dl_item = INITPTR;
-        char           *tc_file = INITPTR;
-        struct dirent **namelist;
-        int             n = 0;
         int             i = 0;
-        char           *dir = INITPTR;
-	FILE           *shell_pipe = INITPTR;
-	char           *shell_io = INITPTR;
-	TSBool          addcasefile = ESTrue;
-        /*char* ptr = INITPTR; to remove compiler warning */
 
         /* free memory allocated for callback structure */
         free_cbs (cb_add_test_case_files_menu);
@@ -852,9 +838,7 @@ LOCAL int get_loaded_modules ()
  */
 LOCAL int get_tcs_for_start_new_case ()
 {
-        DLListItem     *dl_item_tm = INITPTR;
         DLListItem     *dl_item_tc = INITPTR;
-        DLList         *dl_list_tc = INITPTR;
         CUICaseData    *tc = INITPTR;
         int             n = 0;
         int             i = 0;
@@ -1148,14 +1132,6 @@ LOCAL int _find_case_by_status (const void *a, const void *b)
  */
 LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
 {
-        DLListItem     *dl_item_tm = INITPTR;
-        DLListItem     *dl_item_tc = INITPTR;
-        DLListItem     *dl_item_tr = INITPTR;
-        DLList         *dl_list_tc = INITPTR;
-        DLList         *dl_list_tr = INITPTR;
-        test_case_s    *tc = INITPTR;
-        test_result_s  *tr = INITPTR;
-
         /* free memory allocated for callback structure */
         free_cbs (*cb);
 
@@ -1240,6 +1216,10 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         /* 3.1 Allocate memory for menu items. */
         (*cb) = NEW2(callback_s,n+1);
         if (!(*cb)) {
+                /* clean up */
+                dl_list_free(&passed_cases);
+                dl_list_free(&failed_cases);
+                dl_list_free(&abocra_cases);
                 return -1;
         }
         memset (*cb,0x0,sizeof(callback_s)*(n+1));
@@ -1337,7 +1317,12 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         }
 
         /* last menu item should be NULL one */
-//        null_cbs (&(*cb)[i]);
+        null_cbs (&(*cb)[i]);
+
+        /* clean up */
+        dl_list_free(&passed_cases);
+        dl_list_free(&failed_cases);
+        dl_list_free(&abocra_cases);
         return 0;
 
       empty_menu:
@@ -1350,6 +1335,11 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
 
         /* last menu item should be NULL one */
         null_cbs (&(*cb)[1]);
+
+        /* clean up */
+        dl_list_free(&passed_cases);
+        dl_list_free(&failed_cases);
+        dl_list_free(&abocra_cases);
 
         return 0;
 }
@@ -1498,52 +1488,47 @@ LOCAL int test_result_menu (void *p, ptr_to_fun on_left)
         static void    *s_p = INITPTR;
         static ptr_to_fun s_on_left = INITPTR;
 
-        if (p != INITPTR)
-                s_p = p;
-        if (on_left != INITPTR)
-                s_on_left = on_left;
+        ExecutedTestCase *etc = INITPTR;
+        CUICaseData *ccd = INITPTR;
+
+        /* some asserts */
+        if (p != INITPTR) s_p = p;
+        if (on_left != INITPTR) s_on_left = on_left;
 
         /* check pointers */
         if (s_p != INITPTR) {
-                tr = (test_result_s *) s_p;
-                if (tr != INITPTR) {
-                        dl_item_tc = tr->tc_data_item_;
-                        if (dl_item_tc != INITPTR && dl_item_tc != NULL)
-                                tc = (test_case_s *)
-                                    dl_list_data (dl_item_tc);
-                        else
-                                return -1;
-                } else
-                        return -1;
-        } else
-                return -1;
+                etc = (ExecutedTestCase*)s_p;
+                if (etc!=INITPTR && etc->case_!=INITPTR) {
+                        ccd = etc->case_;
+                } else return -1;
+        } else return -1;
 
         /* free memory allocated for callback structure */
         free_cbs (cb_test_result_menu);
 
         /* allocate memory for menu callback structure */
-        cb_test_result_menu = (callback_s *) calloc (2, sizeof (callback_s));
+        cb_test_result_menu = NEW2(callback_s,2);
+        if (!cb_test_result_menu) return -1;
+        memset (&cb_test_result_menu,0x0,2);
 
-        if (cb_test_result_menu != NULL) {
-                set_cbs (&cb_test_result_menu[0],
-                         "View output",
-                         NULL, NULL, s_on_left, view_output, s_p, 0);
+        /* set the view items */
+        set_cbs (&cb_test_result_menu[0],
+                 "View output",
+                 NULL, NULL, s_on_left, view_output, s_p, 0);
 
-                /* last menu item should be NULL one */
-                null_cbs (&cb_test_result_menu[1]);
+        /* last menu item should be NULL one */
+        null_cbs (&cb_test_result_menu[1]);
 
-                /* add title to menu */
-                if (tc->title_ != INITPTR && tc->title_ != NULL)
-                        /* Show new menu */
-                        update_menu (cb_test_result_menu, tc->title_, 1, NULL);
-                else
-                        /* Show new menu */
-                        update_menu (cb_test_result_menu, "", 1, NULL);
+        /* add title to menu */
+        if (ccd->casetitle_!=INITPTR) {
+                update_menu (cb_test_result_menu,
+                        tx_share_buf(ccd->casetitle_),
+                        1,
+                        NULL);
+        } else update_menu (cb_test_result_menu, "", 1, NULL);
 
-                /* show test results */
-                test_result_view (s_p);
-        } else
-                return -1;
+        /* show test results */
+        test_result_view (s_p);
 
         return 0;
 }
@@ -1560,11 +1545,13 @@ LOCAL void test_result_view (void *p)
         char            buffer_start_time[20];
         char            buffer_end_time[20];
 
-        if (p != INITPTR) {
-                tr = (test_result_s *) p;
+        ExecutedTestCase *etc = INITPTR;
 
-                if (tr != INITPTR) {
-                        switch (tr->result_type_) {
+        if (p != INITPTR) {
+                etc = (ExecutedTestCase*) p;
+
+                if (etc != INITPTR) {
+                        switch (etc->result_) {
                         case TEST_RESULT_PASSED:
                                 strcpy (result, "Passed");
                                 break;
@@ -1581,10 +1568,10 @@ LOCAL void test_result_view (void *p)
                                 strcpy (result, "Timeout");
                                 break;
                         default:
-                                strcpy (result, "");
+                                strcpy (result, "Unknown");
                                 break;
                         }
-
+#if 0
                         /* change times to more readible form */
                         timeinfo = localtime ((time_t *) & (tr->start_time_));
                         strftime (buffer_start_time, 20, "%I:%M:%S %p",
@@ -1598,12 +1585,13 @@ LOCAL void test_result_view (void *p)
                         } else
                                 strcpy (buffer_end_time, "");
 
+#endif
                         /* print test results to screen */
                         mvwprintw (menu_window, 2, 0,
                                    "Result info: %s", result);
                         mvwprintw (menu_window, 3, 0,
                                    "Result descr: %s",
-                                   tr->result_description_);
+                                   tx_share_buf(etc->resultdesc_));
                         mvwprintw (menu_window, 4, 0, "Started: %s",
                                    buffer_start_time);
                         mvwprintw (menu_window, 5, 0, "Completed: %s",
