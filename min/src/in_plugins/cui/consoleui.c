@@ -463,7 +463,23 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc)
 	}
 	etc->status_ = TCASE_STATUS_FINNISHED;
 	etc->resultdesc_ = tx_create (desc);
-	etc->result_ = result;
+
+        switch (result) {
+        case 0:
+                etc->result_ = 1;
+                break;
+        case 1:
+                etc->result_ = 2;
+                break;
+        case -2:
+                etc->result_ = 3;
+                break;
+        case 2:
+                etc->result_ = 0;
+                break;
+        default:
+                etc->result_ = 3;
+        }
 
         cui_refresh_view();
 }
@@ -508,7 +524,7 @@ LOCAL void pl_case_started (unsigned moduleid,
         tmp = NEW2(ExecutedTestCase,1);
         tmp->status_ = 1;
         tmp->result_ = -1;
-        tmp->resultdesc_ = tx_create("");
+        tmp->resultdesc_ = INITPTR;
         tmp->runid_ = testrunid;
 
         begin = dl_list_head (case_list_);
@@ -524,7 +540,6 @@ LOCAL void pl_case_started (unsigned moduleid,
                 else break;
         } while (it!=DLListNULLIterator);
         if (it==DLListNULLIterator) {
-                tx_destroy (&tmp->resultdesc_);
                 DELETE (tmp);
         }
         tmp->case_ = dl_list_data(it);

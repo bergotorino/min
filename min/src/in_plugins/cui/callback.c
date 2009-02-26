@@ -1124,7 +1124,7 @@ LOCAL int get_ongoing_cases ()
 }
 /* ------------------------------------------------------------------------- */
 
-LOCAL void _find_case_by_result (const void *a, const void *b)
+LOCAL int _find_case_by_result (const void *a, const void *b)
 {
         ExecutedTestCase *tmp1 = (ExecutedTestCase*)a;
         unsigned *tmp2 = (unsigned*)b;
@@ -1159,13 +1159,33 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
         int n = 0;
         ExecutedTestCase *etc = INITPTR;
 
+#if 0
+        TEST_RESULT_NOT_RUN,
+        TEST_RESULT_PASSED,
+        TEST_RESULT_FAILED,
+        TEST_RESULT_CRASHED,
+        TEST_RESULT_ABORTED,
+        TEST_RESULT_TIMEOUT,
+        TEST_RESULT_ALL
+#endif
+        /* Count all items of given test result */
+        if (result_type==TEST_RESULT_ALL) {
+                n = dl_list_size (executed_case_list_);
+        } else {
+//                while (begi
+        }
+        if (n==0) goto empty_menu;
+
+        /* Allocate memory for menu items. */
+        (*cb) = NEW2(callback_s,n+1);
+        if (!(*cb)) return -1;
+
         /* Count all items of given test result */
         while (begin!=DLListNULLIterator) {
-                printf ("\nHOLA\n");
                 it = dl_list_find (begin,
                                 dl_list_tail (executed_case_list_),
                                 _find_case_by_result,
-                                result_type);
+                                &result_type);
                 if (it!=DLListNULLIterator) {
                         n++;
                         begin = dl_list_next(it);
@@ -1186,17 +1206,10 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                 it = dl_list_find (begin,
                                 dl_list_tail (executed_case_list_),
                                 _find_case_by_result,
-                                result_type);
+                                &result_type);
                 if (it==DLListNULLIterator) break;
 
                 etc = dl_list_data(it);
-
-                set_cbs (&(*cb)[i],
-                        tx_share_buf(etc->case_->casetitle_),
-                        NULL,
-                        NULL,
-                        case_menu,
-                        tr_for_executed_case, etc, 0);
 
                 if (result_type==TEST_RESULT_ABORTED ||
                         result_type==TEST_RESULT_CRASHED) {
