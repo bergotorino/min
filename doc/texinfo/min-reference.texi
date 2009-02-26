@@ -71,6 +71,18 @@ Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
 Document Version @value{document_version}
 @end ifhtml
 
+
+@ifplaintext
+@node Top, Document Version, (dir), (dir)
+@top General Introduction
+This page documents @value{application_full_name}
+
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+
+Document Version @value{document_version}
+@end ifplaintext
+
+
 @menu
 
 * Top: Top.
