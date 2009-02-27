@@ -50,7 +50,8 @@
 
 /** Callbacks from plugin called by Engine */
 typedef struct  {
-        void (*case_result) (long test_run_id, int result, char *desc);
+        void (*case_result) (long test_run_id, int result, char *desc,
+                        long starttime, long endtime);
         void (*new_module) (char *modulename, unsigned module_id);
         void (*no_module) (char *modulename);
         void (*module_ready) (unsigned module_id);

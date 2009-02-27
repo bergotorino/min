@@ -140,7 +140,8 @@ LOCAL void      save_focus_pos (int index, int top_row);
 /* ------------------------------------------------------------------------- */
 LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_case_result (long testrunid, int result, char *desc);
+LOCAL void pl_case_result (long testrunid, int result, char *desc,
+                        long starttime, long endtime);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_report_case_status (unsigned moduleid,
                                 unsigned caseid,
@@ -449,7 +450,8 @@ LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_case_result (long testrunid, int result, char *desc)
+LOCAL void pl_case_result (long testrunid, int result, char *desc,
+                        long starttime, long endtime)
 {
 	ExecutedTestCase *etc;
 	MIN_DEBUG ("run id = %ld", testrunid);
@@ -465,6 +467,8 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc)
 	etc->status_ = TCASE_STATUS_FINNISHED;
 	etc->resultdesc_ = tx_create (desc);
         etc->result_ = result;
+        etc->starttime_ = starttime;
+        etc->endtime_ = endtime;
 
         cui_refresh_view();
 }
@@ -512,6 +516,8 @@ LOCAL void pl_case_started (unsigned moduleid,
         tmp->resultdesc_ = INITPTR;
         tmp->runid_ = testrunid;
 	tmp->printlist_ = dl_list_create();
+        tmp->starttime_ = 0;
+        tmp->endtime_ = 0;
 
         begin = dl_list_head (case_list_);
         do {

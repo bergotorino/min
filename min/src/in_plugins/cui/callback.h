@@ -100,6 +100,8 @@ typedef struct {
         unsigned status_;
         int result_;
         Text *resultdesc_;
+        long starttime_;
+        long endtime_;
         CUICaseData *case_;
 	DLList *printlist_;
 } ExecutedTestCase;

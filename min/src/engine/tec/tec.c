@@ -949,7 +949,10 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
 
 	if (in->case_result) in->case_result (tc_get_run_id (work_case_item), 
 					      message->param_, 
-					      message->message_);
+					      message->message_,
+                                        tr_get_start_time(work_result_item),
+                                        tr_get_end_time(work_result_item));
+
         pthread_mutex_lock (&tec_mutex_);
 	
         work_case_item = dl_list_head (selected_cases);
@@ -1245,7 +1248,9 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 
 	if (in->case_result) in->case_result (tc_get_run_id (work_case_item), 
 					      message->param_, 
-					      message->message_);
+					      message->message_,
+                                        tr_get_start_time(work_result_item),
+                                        tr_get_end_time(work_result_item));
 
 
         /* Now let's link created result item to original test case. 

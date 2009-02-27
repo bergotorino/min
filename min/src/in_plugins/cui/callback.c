@@ -1132,13 +1132,18 @@ LOCAL int _find_case_by_status (const void *a, const void *b)
  */
 LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
 {
-        /* free memory allocated for callback structure */
-        free_cbs (*cb);
-
         DLListIterator it = DLListNULLIterator;
         DLListIterator begin = dl_list_head (executed_case_list_);
+        DLList *passed_cases = dl_list_create(); /* for passed cases */
+        DLList *failed_cases = dl_list_create(); /* for failed cases */
+        DLList *abocra_cases = dl_list_create(); /* for aborted/crashed cases */
         int n = 0;
         int i = 0;
+        ExecutedTestCase *etc = INITPTR;
+        unsigned result_to_find = TCASE_STATUS_FINNISHED;
+
+        /* free memory allocated for callback structure */
+        free_cbs (*cb);
 
         /* The UI currently shows cases that are: Executed, Passed, Failed,
          * Aborted/Crashed. First of all we check status to find Finished
@@ -1151,13 +1156,6 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
          * For future this sorting can be done in result reporting handler,
          * but this would require lists to be global in scope of CUI.
          */
-
-        DLList *passed_cases = dl_list_create(); /* for passed cases */
-        DLList *failed_cases = dl_list_create(); /* for failed cases */
-        DLList *abocra_cases = dl_list_create(); /* for aborted/crashed cases */
-
-        ExecutedTestCase *etc = INITPTR;
-        unsigned result_to_find = TCASE_STATUS_FINNISHED;
         
         /* 1. Find finished cases and group them on lists. */
         begin = dl_list_head(executed_case_list_);
@@ -1223,7 +1221,8 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                 return -1;
         }
         memset (*cb,0x0,sizeof(callback_s)*(n+1));
-
+        
+        /* 3.2 Create items to be displayed. */
         if (result_type==TEST_RESULT_ALL) {
                 /* User want to see all test cases */
                 it = dl_list_head (failed_cases);
@@ -1235,7 +1234,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                                 NULL,
                                 NULL,
                                 case_menu,
-                                tr_for_failed_case, etc, 0);
+                                tr_for_executed_case, etc, 0);
                         i++;
                         it = dl_list_next(it);
                 }
@@ -1248,7 +1247,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                                 NULL,
                                 NULL,
                                 case_menu,
-                                tr_for_passed_case, etc, 0);
+                                tr_for_executed_case, etc, 0);
                         i++;
                         it = dl_list_next(it);
                 }
@@ -1261,11 +1260,10 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                                 NULL,
                                 NULL,
                                 case_menu,
-                                tr_for_aborted_case, etc, 0);
+                                tr_for_executed_case, etc, 0);
                         i++;
                         it = dl_list_next(it);
                 }
-
         } else if (result_type==TEST_RESULT_FAILED) {
                 /* User want to see failed test cases */
                 it = dl_list_head (failed_cases);
@@ -1537,53 +1535,55 @@ LOCAL int test_result_menu (void *p, ptr_to_fun on_left)
  */
 LOCAL void test_result_view (void *p)
 {
-        test_result_s  *tr = INITPTR;
         struct tm      *timeinfo = INITPTR;
         char            result[20];
         char            buffer_start_time[20];
         char            buffer_end_time[20];
-
         ExecutedTestCase *etc = INITPTR;
+
+        memset(buffer_start_time,0x0,20);
+        memset(buffer_end_time,0x0,20);
 
         if (p != INITPTR) {
                 etc = (ExecutedTestCase*) p;
 
                 if (etc != INITPTR) {
                         switch (etc->result_) {
-                        case TEST_RESULT_PASSED:
+                        case TP_PASSED:
                                 strcpy (result, "Passed");
                                 break;
-                        case TEST_RESULT_FAILED:
+                        case TP_FAILED:
                                 strcpy (result, "Failed");
                                 break;
-                        case TEST_RESULT_CRASHED:
+                        case TP_CRASHED:
                                 strcpy (result, "Crashed");
                                 break;
-                        case TEST_RESULT_ABORTED:
+                        case TP_NC:
                                 strcpy (result, "Aborted");
                                 break;
-                        case TEST_RESULT_TIMEOUT:
+                        case TP_TIMEOUTED:
                                 strcpy (result, "Timeout");
                                 break;
                         default:
                                 strcpy (result, "Unknown");
                                 break;
                         }
-#if 0
+
                         /* change times to more readible form */
-                        timeinfo = localtime ((time_t *) & (tr->start_time_));
+                        timeinfo = localtime ((time_t *) & (etc->starttime_));
+
                         strftime (buffer_start_time, 20, "%I:%M:%S %p",
                                   timeinfo);
 
-                        if (tr->end_time_ != 0) {
+                        if (etc->endtime_ != 0) {
                                 timeinfo = localtime ((time_t *)
-                                                      & (tr->end_time_));
+                                                      & (etc->endtime_));
                                 strftime (buffer_end_time, 20,
                                           "%I:%M:%S %p", timeinfo);
-                        } else
+                        } else {
                                 strcpy (buffer_end_time, "");
+                        }
 
-#endif
                         /* print test results to screen */
                         mvwprintw (menu_window, 2, 0,
                                    "Result info: %s", result);
