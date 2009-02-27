@@ -62,6 +62,7 @@ typedef struct  {
         void (*case_paused) (long test_run_id);
         void (*case_resumed) (long test_run_id);
         void (*module_prints) (long test_run_id, char *message);
+        void (*test_data) (const char *modules, const char *files);
 } eapiIn_t;
 
 /** Callbacks to functions from engine called by plugin */
@@ -75,6 +76,7 @@ typedef struct {
         void (*fatal_error) (char *what, char *error_string);
         void (*min_open) ();
         void (*min_close) ();
+        void (*query_test_data) (int flag);
 } eapiOut_t;
 
 /* ----------------------------------------------------------------------------

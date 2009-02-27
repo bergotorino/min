@@ -32,6 +32,7 @@
 #include <min_logger.h>
 #include <data_api.h>
 #include <min_engine_api.h>
+#include <dirent.h>
 
 /* ----------------------------------------------------------------------------
  * GLOBAL VARIABLES
@@ -243,6 +244,73 @@ LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid)
 
 }
 
+LOCAL void eapi_query_test_data (uint flag)
+{
+        char *modules = INITPTR;
+        char *tmpmodules = INITPTR;
+        char *files = INITPTR;
+
+        int i = 0;
+        int currlength = 0;
+        int tmplen = 0;
+        DLListIterator dl_item = DLListNULLIterator;
+        char *dir;
+        char *ptr;
+        char *test_module;
+        int n = 0;
+        struct dirent **namelist;
+
+        if (flag&1) {
+                /* get modules */
+
+                dl_item = dl_list_head (ec_settings.search_dirs);
+                while (dl_item != INITPTR) {
+                        /* get data from list iterator */
+                        dir = (char *)dl_list_data (dl_item);
+
+                        /* return the number of directory entries */
+                        n = scandir (dir, &namelist, 0, alphasort);
+
+                        /* add .so files to test sets list */
+                        while (n--) {
+                                ptr = strrchr (namelist[n]->d_name, '.');
+                                if ((ptr != NULL) && (strcmp (ptr, ".so") == 0)) {
+
+                                        tmplen = strlen (namelist[n]->d_name);
+                                        if (modules==INITPTR) {
+                                                modules = NEW2(char,tmplen+2);
+                                                memset(modules,0x0,tmplen+2);
+                                                test_module = &modules[currlength];
+                                        } else {
+                                                tmpmodules = modules;
+                                                modules = NEW2(char,tmplen+currlength+2);
+                                                memset(modules,0x0,tmplen+currlength+2);
+                                                memset(modules,tmpmodules,currlength);
+                                        }
+
+                                        strncpy (test_module,namelist[n]->d_name,tmplen);
+                                        currlength = currlength + tmplen + 1;
+
+                                        i++;
+                                }
+                                free (namelist[n]);
+                        }
+                        free (namelist);
+
+                        /* get next item */
+                        dl_item = dl_list_next (dl_item);
+                }
+
+                n = i;
+                i = 0;
+        }
+
+        if (flag&2) {
+                /* get case files */
+        }
+}
+
+/* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 
 void eapi_init (eapiIn_t *inp, eapiOut_t *out)
@@ -258,7 +326,7 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
         out->fatal_error = eapi_error;
 	out->min_close = eapi_close;
 	out->min_open = eapi_open;
-
+        out->query_test_data = eapi_query_test_data;
 }
 
 

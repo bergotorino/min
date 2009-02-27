@@ -447,7 +447,7 @@ LOCAL void free_cbs (callback_s * cb)
  */
 LOCAL void add_test_module_menu (void)
 {
-        if (get_test_modules () != -1)
+        //if (get_test_modules () != -1)
                 /* Show new menu */
                 update_menu (cb_add_test_module_menu,
                              "Add test module menu", 0, 
