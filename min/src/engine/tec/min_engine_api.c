@@ -74,14 +74,14 @@ extern pthread_mutex_t tec_mutex_;
 /* ----------------------------------------------------------------------------
  * LOCAL FUNCTION PROTOTYPES
  */
-/** Searches for test case by pid from the given list
+/** Searches for test case by runid from the given list
  *  @param list_handle pointer to linked list of test case data
- *  @param pid search key
+ *  @param runid search key
  *  @return pointer to test case data item,
  *          or returns INITPTR if operation failed.  
  *
  */
-LOCAL DLListIterator tc_find_by_pid (DLList * list_handle, long tm_pid);
+LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid);
 
 /* -------------------------------------------------------------------------
  * FORWARD DECLARATIONS
@@ -181,7 +181,7 @@ LOCAL void eapi_pause_case (long test_run_id)
 {
 	DLListIterator it;
 
-	it = tc_find_by_pid (selected_cases, test_run_id);
+	it = tc_find_by_runid (selected_cases, test_run_id);
 	if (it != INITPTR)
 		ec_pause_test_case (it);
 }
@@ -192,7 +192,7 @@ LOCAL void eapi_resume_case (long test_run_id)
 {
 	DLListIterator it;
 
-	it = tc_find_by_pid (selected_cases, test_run_id);
+	it = tc_find_by_runid (selected_cases, test_run_id);
 	if (it != INITPTR)
 		ec_resume_test_case (it);
 
@@ -225,20 +225,17 @@ LOCAL void eapi_close (char *what, char *msg)
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL DLListIterator tc_find_by_pid (DLList * list_handle, long tm_pid)
+LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid)
 {
 	test_case_s    *tc;
-	test_module_info_s *tm;
         DLListIterator  it;
 
         
         for (it = dl_list_head (list_handle); it != INITPTR;
              it = dl_list_next(it)) {
 		tc = (test_case_s *)dl_list_data (it);
-		tm = (test_module_info_s *)dl_list_data (tc->tm_data_item_);
-		if (tm->process_id_ == tm_pid) {
-                        return it;
-                }
+		if (tc->tc_run_id_ == runid)
+			return it;
         }
 
         

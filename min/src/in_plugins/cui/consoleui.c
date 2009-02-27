@@ -536,19 +536,27 @@ LOCAL void pl_case_started (unsigned moduleid,
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_paused (long testrunid)
 {
-
-        cui_refresh_view();
+	ExecutedTestCase *etc;
+	
+	etc = get_executed_tcase_with_runid (testrunid);
+	if (etc != INITPTR) {
+		etc->status_ = TCASE_STATUS_PAUSED;
+	}
+	
 }
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_resumed (long testrunid)
 {
-
-        cui_refresh_view();
+	ExecutedTestCase *etc;
+	
+	etc = get_executed_tcase_with_runid (testrunid);
+	if (etc != INITPTR) {
+		etc->status_ = TCASE_STATUS_ONGOING;
+	}
 }
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_msg_print (long testrunid, char *message)
 {
-        /* display print message */
 	ExecutedTestCase *etc;
 	
 	etc = get_executed_tcase_with_runid (testrunid);
@@ -556,7 +564,6 @@ LOCAL void pl_msg_print (long testrunid, char *message)
 		dl_list_add (etc->printlist_, tx_create (message));
 	}
 
-        cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_new_module (char *modulename, unsigned moduleid)
