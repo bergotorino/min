@@ -101,6 +101,7 @@ typedef struct {
         int result_;
         Text *resultdesc_;
         CUICaseData *case_;
+	DLList *printlist_;
 } ExecutedTestCase;
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */

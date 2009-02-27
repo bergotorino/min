@@ -1606,7 +1606,7 @@ LOCAL void test_result_view (void *p)
 LOCAL void pause_resume_abort_menu (void *p)
 {
         DLListItem     *dl_item_tc = INITPTR;
-        test_case_s    *tc = INITPTR;
+        ExecutedTestCase *tc = INITPTR;
         int             quit = 0;
         static void    *s_p = INITPTR;
 
@@ -1617,7 +1617,7 @@ LOCAL void pause_resume_abort_menu (void *p)
         if (s_p != INITPTR) {
                 dl_item_tc = (DLListItem *) s_p;
                 if (dl_item_tc != INITPTR && dl_item_tc != NULL) {
-                        tc = (test_case_s *) dl_list_data (dl_item_tc);
+                        tc = (ExecutedTestCase *) dl_list_data (dl_item_tc);
                         if (tc == INITPTR || tc == NULL)
                                 quit = 1;
                 } else
@@ -1690,11 +1690,14 @@ LOCAL void pause_resume_abort_menu (void *p)
                         /* last menu item should be NULL one */
                         null_cbs (&cb_pause_resume_abort_menu[3]);
 
-                        if (tc->title_ != INITPTR && tc->title_ != NULL) {
-                                strcpy (title, tc->title_);
+                        if (tc->case_->casetitle_ != INITPTR 
+			    && tc->case_->casetitle_ != NULL) {
+                                strcpy (title, 
+					tx_share_buf (tc->case_->casetitle_));
                                 /* Show new menu */
                                 update_menu (cb_pause_resume_abort_menu,
-                                             tc->title_, 1, NULL);
+                                             tx_share_buf 
+					     (tc->case_->casetitle_), 1, NULL);
                         } else
                                 /* Show new menu */
                                 update_menu (cb_pause_resume_abort_menu,

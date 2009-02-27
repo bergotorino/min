@@ -154,7 +154,7 @@ LOCAL void pl_case_paused (long testrunid);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_resumed (long testrunid);
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_msg_print (unsigned moduleid, unsigned caseid, char *message);
+LOCAL void pl_msg_print (long testrunid, char *message);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_new_module (char *modulename, unsigned moduleid);
 /* ------------------------------------------------------------------------- */
@@ -511,6 +511,7 @@ LOCAL void pl_case_started (unsigned moduleid,
         tmp->result_ = -1;
         tmp->resultdesc_ = INITPTR;
         tmp->runid_ = testrunid;
+	tmp->printlist_ = dl_list_create();
 
         begin = dl_list_head (case_list_);
         do {
@@ -545,9 +546,15 @@ LOCAL void pl_case_resumed (long testrunid)
         cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_msg_print (unsigned moduleid, unsigned caseid, char *message)
+LOCAL void pl_msg_print (long testrunid, char *message)
 {
         /* display print message */
+	ExecutedTestCase *etc;
+	
+	etc = get_executed_tcase_with_runid (testrunid);
+	if (etc != INIPTR) {
+		dl_list_add (etc->print_list_, tx_create (message));
+	}
 
         cui_refresh_view();
 }

@@ -1594,6 +1594,9 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
         }
         //dl_list_add_at (work_list, ( void* ) print_msg, it);
         dl_list_add (work_list, (void *)print_msg);
+	if (in->module_prints)
+		in->module_prints (tc_get_run_id (work_case_item),
+				   print_msg)
 #ifndef MIN_EXTIF
 #ifndef MIN_UNIT_TEST
         //cui_refresh_view ();
