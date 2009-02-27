@@ -111,18 +111,17 @@ typedef struct {
 
 gboolean min_object_min_add_test_module(MinObject *obj, gchar *modulepatch);
 gboolean min_object_min_add_test_case_file(MinObject *obj,
-                                        gint moduleid,
-                                        gchar *testcasefile);
+					   gint moduleid,
+					   gchar *testcasefile);
 gboolean min_object_min_start_case(MinObject *obj,
-                                gint moduleid,
-                                gint caseid);
+				   gint moduleid,
+				   gint caseid);
 gboolean min_object_min_pause_case(MinObject *obj,
-                                long testrunid);
+				   long testrunid);
 gboolean min_object_min_resume_case(MinObject *obj,
-                                long testrunid);
+				    long testrunid);
 gboolean min_object_min_abort_case(MinObject *obj,
-                                unsigned moduleid,
-                                unsigned caseid);
+				   long testrunid);
 G_DEFINE_TYPE(MinObject, min_object, G_TYPE_OBJECT);
 
 #include "min_dbus_plugin.h"
@@ -137,9 +136,9 @@ static void min_object_class_init (MinObjectClass *klass);
 static void handle_error (const char* msg,const char* reason,gboolean fatal);
 /* ------------------------------------------------------------------------- */
 static void requestStatusHandler (DBusGProxy *proxy,
-                                guint result,
-                                const char *message, 
-                                gpointer userData);
+				  guint result,
+				  const char *message, 
+				  gpointer userData);
 /* ------------------------------------------------------------------------- */
 static void pl_case_result (unsigned moduleid, unsigned caseid, char *desc);
 /* ------------------------------------------------------------------------- */
@@ -483,12 +482,11 @@ gboolean min_object_min_resume_case(MinObject *obj,
 }
 /* ------------------------------------------------------------------------- */
 gboolean min_object_min_abort_case(MinObject *obj,
-                                unsigned moduleid,
-                                unsigned caseid)
+                                  long testrunid)
 {
         /* Calls callback from MIN */
         if (min_clbk.abort_case) {
-                min_clbk.abort_case (moduleid,caseid);
+                min_clbk.abort_case (testrunid);
                 return TRUE;
         }
         return FALSE;

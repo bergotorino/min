@@ -1739,7 +1739,10 @@ LOCAL void invert_select_tcs_selection ()
  */
 LOCAL void pause_tc (void *p)
 {
-        //ec_pause_test_case ((DLListIterator) p);
+        DLListIterator it = (DLListIterator)p;
+        ExecutedTestCase *e = (ExecutedTestCase *)dl_list_data(it);
+
+        if (min_clbk_.pause_case) min_clbk_.pause_case(e->runid_);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1748,7 +1751,10 @@ LOCAL void pause_tc (void *p)
  */
 LOCAL void resume_tc (void *p)
 {
-        //ec_resume_test_case ((DLListIterator) p);
+        DLListIterator it = (DLListIterator)p;
+        ExecutedTestCase *e = (ExecutedTestCase *)dl_list_data(it);
+
+        if (min_clbk_.resume_case) min_clbk_.resume_case(e->runid_);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1757,7 +1763,11 @@ LOCAL void resume_tc (void *p)
  */
 LOCAL void abort_tc (void *p)
 {
-        //ec_abort_test_case ((DLListIterator) p);
+        DLListIterator it = (DLListIterator)p;
+        ExecutedTestCase *e = (ExecutedTestCase *)dl_list_data(it);
+
+        if (min_clbk_.abort_case) min_clbk_.abort_case(e->runid_);
+
 }
 
 /* ------------------------------------------------------------------------- */

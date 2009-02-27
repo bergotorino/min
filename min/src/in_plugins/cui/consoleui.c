@@ -585,7 +585,7 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 
         ccd = NEW(CUICaseData);
         ccd->moduleid_ = moduleid;
-        ccd->caseid_   = caseid;
+        ccd->caseid_  = caseid;
         ccd->casetitle_ = tx_create(casetitle);
         dl_list_add (case_list_,(void*)ccd);
 
