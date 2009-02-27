@@ -2794,7 +2794,6 @@ int ec_run_cases_par (DLList * work_cases_list)
 {
         DLListIterator  work_case_item = dl_list_head (work_cases_list);
         DLListIterator  exec_case = DLListNULLIterator;
-        int             group_id = random ();   /* generate unique group id */
 
         if (work_case_item == DLListNULLIterator) {
                 MIN_WARN ("Invalid list of test cases passed !!");
@@ -2804,7 +2803,7 @@ int ec_run_cases_par (DLList * work_cases_list)
 
         /*"select" all cases in received list */
         while (work_case_item != DLListNULLIterator) {
-                exec_case = ec_select_case (work_case_item, group_id);
+                exec_case = ec_select_case (work_case_item, 0);
                 ec_exec_case (exec_case);
                 work_case_item = dl_list_next (work_case_item);
         }

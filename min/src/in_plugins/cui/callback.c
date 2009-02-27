@@ -1749,7 +1749,8 @@ LOCAL void start_one_tc (void *p)
         DLListIterator it = (DLListIterator)p;
         CUICaseData *c = (CUICaseData*)dl_list_data(it);
         if (min_clbk_.start_case) min_clbk_.start_case(c->moduleid_,
-                                                        c->caseid_);
+						       c->caseid_,
+						       0);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1757,10 +1758,21 @@ LOCAL void start_one_tc (void *p)
  */
 LOCAL void start_cases_sequentially (void *p)
 {
+	CUICaseData *c;
+	DLListIterator it;
+	static unsigned groupid = 0;
+	
+	groupid ++;
         get_selected_cases ();
-        //ec_run_cases_seq (user_selected_cases);
-
-
+	for (it = dl_list_head (user_selected_cases); it != INITPTR;
+	     it = dl_list_next (it)) {
+		c  = (CUICaseData*)dl_list_data(it);
+		if (min_clbk_.start_case) min_clbk_.start_case (c->moduleid_,
+							        c->caseid_,
+								groupid);
+	}
+	dl_list_free (&user_selected_cases);
+	user_selected_cases = dl_list_create();
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1776,8 +1788,11 @@ LOCAL void start_cases_parallel (void *p)
 	     it = dl_list_next (it)) {
 		c  = (CUICaseData*)dl_list_data(it);
 		if (min_clbk_.start_case) min_clbk_.start_case (c->moduleid_,
-							        c->caseid_);
+							        c->caseid_,
+								0);
 	}
+	dl_list_free (&user_selected_cases);
+	user_selected_cases = dl_list_create();
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1801,6 +1816,7 @@ LOCAL void get_selected_cases ()
                         dl_list_add (user_selected_cases, cb->ptr_data);
                 }
         }
+
 }
 
 /* ------------------------------------------------------------------------- */

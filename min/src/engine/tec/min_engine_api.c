@@ -139,10 +139,11 @@ LOCAL void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_start_test_case (unsigned module_id, unsigned case_id)
+LOCAL void eapi_start_test_case (unsigned module_id, unsigned case_id, 
+				 unsigned groupid)
 {
-        int             result = 0;
-	DLListIterator mod_it, case_it;
+        int             result = 0, run = 1, stat;
+	DLListIterator mod_it, case_it, case_it2;
         test_module_info_s *module;
 	
         pthread_mutex_lock (&tec_mutex_);
@@ -159,19 +160,28 @@ LOCAL void eapi_start_test_case (unsigned module_id, unsigned case_id)
 		return;
 	}
 
-	/*add to selected cases list */
-        case_it = ec_select_case (case_it, 0);
-
-	if (case_it == INITPTR) {
-		MIN_WARN ("No case by id %d found", case_id);
-		return;
+	/* if we have a groupid, check if there already is an ongoing case
+	 * with the id */
+	if (groupid != 0) {
+		for (case_it2 = dl_list_head (selected_cases);
+		     case_it2 != INITPTR;
+		     case_it2 = dl_list_next (case_it2)) {
+			if (tc_get_group_id (case_it2) == groupid) {
+				stat = tc_get_status (case_it2); 
+				if (stat == TEST_CASE_ONGOING || 
+				    stat == TEST_CASE_PAUSED) {
+					run = 0;
+					break;
+				}
+				
+			}
+		}
 	}
+	pthread_mutex_unlock (&tec_mutex_);
+	case_it = ec_select_case (case_it, groupid);
 
-	/*add to selected cases list */
-        //case_it = ec_select_case (case_it, 0);
-
-        pthread_mutex_unlock (&tec_mutex_);
-        result = ec_exec_case (case_it);
+	if (run)
+		result = ec_exec_case (case_it);
 
         return;
 }

@@ -452,7 +452,7 @@ gboolean min_object_min_start_case(MinObject *obj,
 {
         /* Calls callback from MIN */
         if (min_clbk.start_case) {
-                min_clbk.start_case (moduleid,caseid);
+                min_clbk.start_case (moduleid,caseid,0);
                 return TRUE;
         }
         return FALSE;

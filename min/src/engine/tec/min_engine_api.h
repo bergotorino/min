@@ -69,7 +69,8 @@ typedef struct  {
 typedef struct {
         void (*add_test_module) (char *modulepath);
         void (*add_test_case_file) (unsigned moduleid, char *testcasefile);
-        void (*start_case) (unsigned moduleid, unsigned caseid);
+        void (*start_case) (unsigned moduleid, unsigned caseid, 
+			    unsigned groupid);
         void (*pause_case) (long test_run_id);
         void (*resume_case) (long test_run_id);
         void (*abort_case) (long test_run_id);
