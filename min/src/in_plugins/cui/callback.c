@@ -1916,51 +1916,23 @@ LOCAL void view_output (void *p)
  */
 LOCAL void view_output_for_ongoing_cases (void *p)
 {
-        DLListItem     *dl_item_tc = INITPTR;
-        DLListItem     *dl_item_tr = INITPTR;
         DLListItem     *dl_item_po = INITPTR;
-        DLList         *dl_list_tr = INITPTR;
-        test_result_s  *tr = INITPTR;
-        test_case_s    *tc = INITPTR;
-        int             n = 0;
-        test_result_printout_s *printout = INITPTR;
-
-        /* check pointers */
-        if (p != INITPTR) {
-                dl_item_tc = (DLListItem *) p;
-                if (dl_item_tc != INITPTR && dl_item_tc != NULL) {
-                        dl_list_tr = tc_get_tr_list (dl_item_tc);
-                        if (dl_list_tr != INITPTR && dl_list_tr != NULL) {
-                                dl_item_tr = dl_list_head (dl_list_tr);
-                                tr = (test_result_s *)
-                                    dl_list_data (dl_item_tr);
-                                tc = (test_case_s *)
-                                    dl_list_data (dl_item_tc);
-                        } else
-                                return;
-                } else
-                        return;
-        } else
-                return;
+        ExecutedTestCase       *tc = INITPTR;
+        int                      n = 0;
+        Text           *printout   = INITPTR;
 
         /* free memory allocated for callback structure */
         free_cbs (cb_view_output_menu);
 
-        /* count number of printouts */
-        dl_item_tr = dl_list_head (dl_list_tr);
-        while (dl_item_tr != INITPTR) {
-                tr = (test_result_s *) dl_list_data (dl_item_tr);
-                if (tr->result_type_ == TEST_RESULT_NOT_RUN) {
-                        dl_item_po = dl_list_head (tr->printouts_list_);
-                        while (dl_item_po != INITPTR && dl_item_po != NULL) {
-                                n++;
-                                dl_item_po = dl_list_next (dl_item_po);
-                        }
-                }
-                dl_item_tr = dl_list_next (dl_item_tr);
-        }
+        if (p != INITPTR && p != NULL) {
+                tc = (ExecutedTestCase *) dl_list_data (p);
+        } else
+                return;
 
-        if (n > 0) {
+        /* get number of printouts */
+        n = dl_list_size (tc->printlist_);
+
+        if (n > 0 && tc->status_ != TCASE_STATUS_FINNISHED) {
                 cb_view_output_menu = (callback_s *)
                     calloc (n + 1, sizeof (callback_s));
                 if (cb_view_output_menu == NULL)
@@ -1968,39 +1940,25 @@ LOCAL void view_output_for_ongoing_cases (void *p)
                 n = 0;
 
                 /* get head of the test result list */
-                dl_item_tr = dl_list_head (dl_list_tr);
-                while (dl_item_tr != INITPTR) {
+                dl_item_po = dl_list_head (tc->printlist_);
+                while (dl_item_po != INITPTR) {
                         /* get test result */
-                        tr = (test_result_s *) dl_list_data (dl_item_tr);
-                        if (tr->result_type_ == TEST_RESULT_NOT_RUN) {
-                                /* get head of prinouts list */
-                                dl_item_po =
-                                    dl_list_head (tr->printouts_list_);
+                        printout = (Text *) dl_list_data (dl_item_po);
+			
+			set_cbs (&cb_view_output_menu[n],
+				 tx_share_buf (printout) ? 
+				 tx_share_buf (printout) : "<null>",
+				 NULL,
+				 NULL,
+				 back_to_control_menu,
+				 NULL, NULL, 0);
+			
+			n++;
 
-                                /* iterate through list of printouts */
-                                while (dl_item_po != INITPTR &&
-                                       dl_item_po != NULL) {
-
-                                        printout = (test_result_printout_s *)
-                                            dl_list_data (dl_item_po);
-
-                                        set_cbs (&cb_view_output_menu[n],
-                                                 printout->printout_,
-                                                 NULL,
-                                                 NULL,
-                                                 back_to_control_menu,
-                                                 NULL, NULL, 0);
-
-                                        n++;
-
-                                        /* move to next printout item */
-                                        dl_item_po =
-                                            dl_list_next (dl_item_po);
-                                }
-                        }
-                        /* move to next test result */
-                        dl_item_tr = dl_list_next (dl_item_tr);
-                }
+			/* move to next printout item */
+			dl_item_po =
+				dl_list_next (dl_item_po);
+		}
         } else {
                 cb_view_output_menu =
                     (callback_s *) calloc (2, sizeof (callback_s));
@@ -2019,7 +1977,8 @@ LOCAL void view_output_for_ongoing_cases (void *p)
         null_cbs (&cb_view_output_menu[n]);
 
         /* Show new menu */
-        update_menu (cb_view_output_menu, tc->title_, 1, NULL);
+        update_menu (cb_view_output_menu, tx_share_buf (tc->case_->casetitle_),
+		     1, NULL);
 }
 
 /* ------------------------------------------------------------------------- */
