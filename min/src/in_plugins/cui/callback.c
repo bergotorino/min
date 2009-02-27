@@ -1483,8 +1483,6 @@ LOCAL void tr_for_aborted_case (void *p)
 LOCAL int test_result_menu (void *p, ptr_to_fun on_left)
 {
         DLListItem     *dl_item_tc = INITPTR;
-        test_result_s  *tr = INITPTR;
-        test_case_s    *tc = INITPTR;
         static void    *s_p = INITPTR;
         static ptr_to_fun s_on_left = INITPTR;
 
@@ -1509,7 +1507,7 @@ LOCAL int test_result_menu (void *p, ptr_to_fun on_left)
         /* allocate memory for menu callback structure */
         cb_test_result_menu = NEW2(callback_s,2);
         if (!cb_test_result_menu) return -1;
-        memset (&cb_test_result_menu,0x0,2);
+        memset (cb_test_result_menu,0x0,2*sizeof(callback_s));
 
         /* set the view items */
         set_cbs (&cb_test_result_menu[0],
