@@ -1850,34 +1850,19 @@ LOCAL void view_output (void *p)
 {
         DLListItem     *dl_item_tc = INITPTR;
         DLListItem     *dl_item_po = INITPTR;
-        test_result_s  *tr = INITPTR;
-        test_case_s    *tc = INITPTR;
-        test_result_printout_s *printout = INITPTR;
+        ExecutedTestCase   *tc = INITPTR;
+        Text *printout = INITPTR;
         int             n = 0;
 
         if (p != INITPTR && p != NULL) {
-                tr = (test_result_s *) p;
-                if (tr != INITPTR && tr != NULL) {
-                        dl_item_tc = tr->tc_data_item_;
-                        if (dl_item_tc != INITPTR && dl_item_tc != NULL)
-                                tc = (test_case_s *)
-                                    dl_list_data (dl_item_tc);
-                        else
-                                return;
-                } else
-                        return;
+                tc = (ExecutedTestCase *) p;
         } else
                 return;
-
         /* free memory allocated for callback structure */
         free_cbs (cb_view_output_menu);
 
         /* get number of printouts */
-        dl_item_po = dl_list_head (tr->printouts_list_);
-        while (dl_item_po != INITPTR && dl_item_po != NULL) {
-                n++;
-                dl_item_po = dl_list_next (dl_item_po);
-        }
+        n = dl_list_size (tc->printlist_);
 
         if (n > 0) {
                 /* allocate memory for menu callback structure */
@@ -1886,17 +1871,17 @@ LOCAL void view_output (void *p)
                 if (cb_view_output_menu == NULL)
                         return;
 
-                dl_item_po = dl_list_head (tr->printouts_list_);
+                dl_item_po = dl_list_head (tc->printlist_);
                 n = 0;
 
                 /* iterate through printouts */
                 while (dl_item_po != INITPTR && dl_item_po != NULL) {
-                        printout = (test_result_printout_s *)
-                            dl_list_data (dl_item_po);
+                        printout = (Text *) dl_list_data (dl_item_po);
 
                         /* add printout to menu */
                         set_cbs (&cb_view_output_menu[n],
-                                 printout->printout_ ? printout->printout_ : "<null>",
+                                 tx_share_buf (printout) ? 
+				 tx_share_buf (printout) : "<null>",
                                  NULL, NULL, back_to_tr_menu, NULL, NULL, 0);
 
                         n++;
@@ -1921,7 +1906,8 @@ LOCAL void view_output (void *p)
         null_cbs (&cb_view_output_menu[n]);
 
         /* Show new menu */
-        update_menu (cb_view_output_menu, tc->title_, 1, NULL);
+        update_menu (cb_view_output_menu, tx_share_buf (tc->case_->casetitle_),
+							1, NULL);
 }
 
 /* ------------------------------------------------------------------------- */

@@ -552,8 +552,8 @@ LOCAL void pl_msg_print (long testrunid, char *message)
 	ExecutedTestCase *etc;
 	
 	etc = get_executed_tcase_with_runid (testrunid);
-	if (etc != INIPTR) {
-		dl_list_add (etc->print_list_, tx_create (message));
+	if (etc != INITPTR) {
+		dl_list_add (etc->printlist_, tx_create (message));
 	}
 
         cui_refresh_view();
