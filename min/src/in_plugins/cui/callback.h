@@ -84,7 +84,6 @@ typedef struct {
         Text *modulename_;
 } CUIModuleData;
 
-
 typedef struct {
         unsigned moduleid_;
         unsigned caseid_;

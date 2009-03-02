@@ -498,7 +498,7 @@ LOCAL void pl_case_started (unsigned moduleid,
         DLListIterator it = DLListNULLIterator;
         DLListIterator begin = DLListNULLIterator;
 
-	MIN_DEBUG ("run id = %ld", testrunid);
+	MIN_DEBUG ("run id = %ld caseid %d", testrunid, caseid);
 
         /* Case has been started, add it to the executed cases list and set
            its status to ongoing.

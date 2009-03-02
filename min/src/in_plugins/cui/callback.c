@@ -37,6 +37,7 @@
 #include <data_api.h>
 #include <dirent.h>
 #include <min_common.h>
+#include <min_parser.h>
 #include <min_plugin_interface.h>
 
 /* ------------------------------------------------------------------------- */
@@ -91,6 +92,8 @@ LOCAL void      quit_program (void);
 LOCAL void      load_test_set_list (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      load_test_set (void *p);
+/* ------------------------------------------------------------------------- */
+LOCAL char     *create_path ();
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 /** main menu structure */
@@ -222,6 +225,8 @@ LOCAL focus_pos_s       start_new_case_menu_focus = { 0,0 };
 LOCAL focus_pos_s       run_multiple_tests_menu_focus = { 0,0 };
 LOCAL focus_pos_s       add_tcs_to_test_set_menu_focus = { 0,0 };
 LOCAL focus_pos_s       load_test_set_menu_focus = { 0,0 };
+
+LOCAL unsigned groupid = 0;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
@@ -1094,6 +1099,24 @@ LOCAL int _find_case_by_status (const void *a, const void *b)
         else return -1;
 }
 /* ------------------------------------------------------------------------- */
+LOCAL int _find_mod_by_id (const void *a, const void *b)
+{
+        CUIModuleData *tmp1 = (CUIModuleData*)a;
+        int *tmp2 = (int*)b;
+
+        if (tmp1->moduleid_ ==(*tmp2)) return 0;
+        else return -1;
+}
+/* ------------------------------------------------------------------------- */
+LOCAL int _find_mod_by_name (const void *a, const void *b)
+{
+        CUIModuleData *tmp1 = (CUIModuleData*)a;
+
+	return strcmp (tx_share_buf (tmp1->modulename_), (const char *)b); 
+}
+
+
+/* ------------------------------------------------------------------------- */
 /** Gets specific test results
  *  @param cb pointer to menu callback structure
  *  @param result_type test result type to fetch
@@ -1745,7 +1768,6 @@ LOCAL void abort_tc (void *p)
  */
 LOCAL void start_one_tc (void *p)
 {
-        //ec_exec_test_case ((DLListIterator) p);
         DLListIterator it = (DLListIterator)p;
         CUICaseData *c = (CUICaseData*)dl_list_data(it);
         if (min_clbk_.start_case) min_clbk_.start_case(c->moduleid_,
@@ -1760,7 +1782,6 @@ LOCAL void start_cases_sequentially (void *p)
 {
 	CUICaseData *c;
 	DLListIterator it;
-	static unsigned groupid = 0;
 	
 	groupid ++;
         get_selected_cases ();
@@ -1993,7 +2014,7 @@ LOCAL void test_set_menu ()
 LOCAL int create_test_set_menu ()
 {
         DLListItem     *dl_item_tc = INITPTR;
-        test_case_s    *tc = INITPTR;
+        CUICaseData    *tc = INITPTR;
         int             n = 0;
         int             i = 0;
 
@@ -2052,12 +2073,12 @@ LOCAL int create_test_set_menu ()
 
                 while (dl_item_tc != INITPTR) {
                         /* get test_case_s from iterator */
-                        tc = (test_case_s *) dl_list_data (dl_item_tc);
+                        tc = (CUICaseData *) dl_list_data (dl_item_tc);
 
-                        if (tc != INITPTR && tc->title_ != NULL) {
+                        if (tc != INITPTR && tc->casetitle_ != NULL) {
                                 /* fill callback structure */
                                 set_cbs (&cb_test_set_menu[i],
-                                         tc->title_,
+                                         tx_share_buf (tc->casetitle_),
                                          NULL, NULL, test_set_main_menu, NULL,
                                          NULL, 1);
 
@@ -2124,8 +2145,18 @@ LOCAL int create_test_set_menu ()
  */
 LOCAL void start_test_set_sequentially ()
 {
-        //if (ec_run_set_seq (test_set) == 0)
-                popup_window ("Start sequential test set execution", 1);
+	CUICaseData *c;
+	DLListIterator it;
+	
+	groupid ++;
+	for (it = dl_list_head (test_set); it != INITPTR;
+	     it = dl_list_next (it)) {
+		c  = (CUICaseData*)dl_list_data(it);
+		if (min_clbk_.start_case) min_clbk_.start_case (c->moduleid_,
+							        c->caseid_,
+								groupid);
+	}
+	popup_window ("Start sequential test set execution", 1);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -2133,8 +2164,18 @@ LOCAL void start_test_set_sequentially ()
  */
 LOCAL void start_test_set_parallel ()
 {
-        //if (ec_run_set_par (test_set) == 0)
-                popup_window ("Start parallel test set execution", 1);
+	CUICaseData *c;
+	DLListIterator it;
+
+	for (it = dl_list_head (test_set); it != INITPTR;
+	     it = dl_list_next (it)) {
+		c  = (CUICaseData*)dl_list_data(it);
+		if (min_clbk_.start_case) min_clbk_.start_case (c->moduleid_,
+							        c->caseid_,
+								0);
+	}
+	
+	popup_window ("Start parallel test set execution", 1);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -2162,6 +2203,83 @@ LOCAL void empty_test_set ()
         }
 }
 
+LOCAL int set_write_file (DLList * cases_list, char *filename)
+{
+
+
+        DLListIterator  case_it;
+        DLListIterator  module_it;
+        FILE           *set_file;
+	CUICaseData    *tc;
+	CUIModuleData  *mod;
+   
+        /*create string for filename - current
+           dfate and hour */
+        char           *name = strstr (filename, "200");
+
+        MIN_DEBUG ("%d cases in set", dl_list_size (cases_list));
+        MIN_DEBUG ("filename : %s", filename);
+
+        set_file = fopen (filename, "w");
+        fprintf (set_file, "[TestSetStart]\n");
+        fprintf (set_file, "TestSetName=%s\n", name);
+
+        case_it = dl_list_head (cases_list);
+        /*write data to file */
+        while (case_it != DLListNULLIterator) {
+                fprintf (set_file, "[TestSetCaseStart]\n");
+		tc = (CUICaseData *) dl_list_data (case_it);
+                module_it = dl_list_find (dl_list_head (available_modules),
+					  dl_list_tail (available_modules),
+					  _find_mod_by_id,
+					  &tc->moduleid_);
+                if (module_it==DLListNULLIterator) break;
+
+		mod = (CUIModuleData*)dl_list_data (module_it);
+
+                fprintf (set_file, "ModuleName=%s\n", 
+			 tx_share_buf (mod->modulename_));
+                fprintf (set_file, "Title=%s\n", 
+			 tx_share_buf (tc->casetitle_));
+                fprintf (set_file, "[TestSetCaseEnd]\n");
+                case_it = dl_list_next (case_it);
+        }
+
+        fprintf (set_file, "[TestSetEnd]\n");
+        fclose (set_file);
+
+        return 1;
+}
+
+LOCAL char *create_path ()
+{
+        int             p_lenghth;
+        char           *work_path, *c_dir;
+        char            name[23], hour[6];
+        time_t          now;
+        struct tm      *info_now;
+
+        c_dir = getenv ("HOME");
+        now = time (NULL);
+        info_now = localtime (&now);
+
+        /*create string for filename - current
+           date and hour */
+        sprintf (hour, "%d:%d", info_now->tm_hour, info_now->tm_min);
+        sprintf (name, "%d-%d-%d", info_now->tm_year + 1900,
+                 info_now->tm_mon + 1, info_now->tm_mday);
+        strcat (name, "_");
+        strcat (name, hour);
+        p_lenghth = strlen (c_dir) + strlen (name) + 13;
+        work_path = NEW2 (char, p_lenghth);
+        sprintf (work_path, "%s", c_dir);
+        strcat (work_path, "/.min/");
+        strcat (work_path, name);
+        strcat (work_path, ".set");
+
+        return work_path;
+}
+
 /* ------------------------------------------------------------------------- */
 /** Saves test set
  */
@@ -2172,8 +2290,8 @@ LOCAL void save_test_set ()
         char           *string = INITPTR;
         int             length = 0;
 
-        //filename = create_path ();
-        // ec_set_write_file (test_set, filename);
+        filename = create_path ();
+        set_write_file (test_set, filename);
 
         length = strlen (str) + strlen (filename) + 1;
         string = NEW2 (char, length);
@@ -2182,6 +2300,106 @@ LOCAL void save_test_set ()
 
         popup_window (string, -1);
         DELETE (string);
+}
+
+LOCAL CUICaseData *setgetcase (char *module, char *title)
+{
+        DLListIterator  work_module_item = dl_list_head (available_modules);
+        DLListIterator  work_case_item = DLListNULLIterator;
+        char            module_fname[MaxFileName];
+        char            case_title[MaxTestCaseName];
+
+        while (work_module_item != DLListNULLIterator) {
+                tm_get_module_filename (work_module_item, module_fname);
+                if (strcmp (module_fname, module) == 0)
+                        break;
+                work_module_item = dl_list_next (work_module_item);
+        }
+        if (work_module_item == DLListNULLIterator)
+                return INITPTR;
+        work_case_item = dl_list_head (tm_get_tclist (work_module_item));
+        while (work_case_item != DLListNULLIterator) {
+                tc_get_title (work_case_item, case_title);
+                if (strcmp (case_title, title) == 0)
+                        break;
+                work_case_item = dl_list_next (work_case_item);
+        }
+
+        if (work_case_item == DLListNULLIterator)
+                return INITPTR;
+        else
+                return ((test_case_s *) dl_list_data (work_case_item));
+}
+
+/* ------------------------------------------------------------------------- */
+/** Reads test set
+ */
+void set_read (DLList * set_cases_list, char *setname)
+{
+
+        char           *work_path;
+        char           *c_dir;
+        int             p_lenghth;
+        int             caseread = 1;
+        int             mod_result = 1;
+        int             title_result = 1;
+        CUICaseData    *tc = INITPTR;
+        MinParser     *set_file;
+        MinSectionParser *set_section_p;
+        MinSectionParser *set_case_p;
+        char           *module_name_;
+        char           *case_title_;
+
+        MIN_DEBUG ("set name : %s", setname);
+        c_dir = getenv ("HOME");
+        /*build filename and path to open set file */
+        p_lenghth = strlen (c_dir) + strlen (setname) + 9;
+        work_path = NEW2 (char, p_lenghth);
+        sprintf (work_path, "%s", c_dir);
+        strcat (work_path, "/.min/");
+
+        set_file = mp_create (work_path, setname, ENoComments);
+
+        if (set_file == INITPTR) {
+
+                MIN_WARN ("Could not open set file %s%s", work_path,
+			  setname);
+                return;
+        }
+        DELETE (work_path);
+
+        set_section_p = mp_section (set_file, "", "", 1);
+
+        set_case_p = mp_section (set_file,
+                                 "[TestSetCaseStart]",
+                                 "[TestSetCaseEnd]", caseread);
+
+        while (set_case_p != INITPTR) {
+
+                mod_result = mmp_get_line (set_case_p,
+                                           "ModuleName=", &module_name_,
+                                           ESNoTag);
+
+                title_result = mmp_get_line (set_case_p,
+                                             "Title=", &case_title_, ESNoTag);
+
+                if ((module_name_ != INITPTR) && (case_title_ != INITPTR)) {
+
+                        tc = setgetcase (module_name_, case_title_);
+                        tc_add (set_cases_list, tc);
+
+                        DELETE (module_name_);
+                        DELETE (case_title_);
+                }
+
+                mmp_destroy (&set_case_p);
+                caseread++;
+                set_case_p = mp_section (set_file,
+                                         "[TestSetCaseStart]",
+                                         "[TestSetCaseEnd]", caseread);
+        }
+
+        mp_destroy (&set_file);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -2195,7 +2413,7 @@ LOCAL void load_test_set (void *p)
 
         filename = (char *)dl_list_data ((DLListIterator) p);
 
-        // ec_set_read (test_set, filename);
+        set_read (test_set, filename);
 }
 
 /* ------------------------------------------------------------------------- */
