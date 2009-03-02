@@ -71,8 +71,7 @@ DLList *case_list_ = INITPTR;
 DLList *executed_case_list_ = INITPTR;
 /* List of modules */
 DLList  *available_modules = INITPTR;
-
-DLList *found_module_files = INITPTR;
+/* List of test case files selected for added module */
 DLList *found_tcase_files = INITPTR;
 
 /* ------------------------------------------------------------------------- */
@@ -578,16 +577,33 @@ LOCAL void pl_msg_print (long testrunid, char *message)
 LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 {
 	CUIModuleData *cmd = INITPTR;
+        DLListIterator it = DLListNULLIterator;
+        char *casefile = INITPTR;
 
 	if (available_modules == INITPTR) available_modules = dl_list_create();
 	
 	MIN_DEBUG ("modulename = %s, moduleid %d", modulename, moduleid);
 
-	/* add new module to  list */
+	/* add new module to list */
         cmd = NEW(CUIModuleData);
         cmd->moduleid_ = moduleid;
         cmd->modulename_ = tx_create(modulename);
         dl_list_add (available_modules, (void*)cmd);
+
+        /* Module added by add module so we can add test case files for it */
+        if (found_tcase_files!=INITPTR) {
+                it = dl_list_tail(found_tcase_files);
+                while (it!=DLListNULLIterator) {
+                        casefile = (char*)dl_list_data(it);
+                        MIN_DEBUG ("moduleid = %d, casefile = %s",moduleid,casefile);
+                        min_clbk_.add_test_case_file (moduleid,casefile);
+                        dl_list_remove_it(it);
+                        it = dl_list_tail(found_tcase_files);
+                }
+                dl_list_free(&found_tcase_files);
+                popup_window ("Module added", 1);
+                return 1;
+        }
 
         /* update the screen */
         cui_refresh_view();

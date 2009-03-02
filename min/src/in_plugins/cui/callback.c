@@ -50,6 +50,7 @@ extern eapiOut_t min_clbk_;     /*  */
 extern DLList *case_list_;
 extern DLList *executed_case_list_;      /* */
 extern DLList *available_modules;
+extern DLList *found_tcase_files;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
@@ -488,10 +489,11 @@ LOCAL void save_module_name (void *p)
  */
 LOCAL void add_module (void *p)
 {
-        DLList         *conf_list = dl_list_create ();
         int             i = 0;
         ITEM          **items = NULL;
         callback_s     *cb = INITPTR;
+
+        found_tcase_files = dl_list_create();
 
         items = menu_items (my_menu);
 
@@ -502,13 +504,12 @@ LOCAL void add_module (void *p)
                         /* get user data attached to menu item */
                         cb = (callback_s *) item_userptr (items[i]);
                         /* add test case file to linked list */
-                        dl_list_add (conf_list, cb->ptr_data);
+                        dl_list_add (found_tcase_files, cb->ptr_data);
                 }
         }
 
-        //if (ec_add_module (module_name, conf_list, 0) == 0) {
-                popup_window ("Module added", 1);
-		//}
+//        popup_window ("Adding module", 1);
+        min_clbk_.add_test_module (module_name);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -641,6 +642,8 @@ LOCAL int get_test_case_files (void)
 
         /* last menu item should be NULL one */
         null_cbs (&cb_add_test_case_files_menu[howmany]);
+
+        return 0;
 }
 
 /* ------------------------------------------------------------------------- */
