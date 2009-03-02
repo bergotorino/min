@@ -337,50 +337,51 @@ int main (int argc, char *argv[], char *envp[])
                 exit (0);
         }
 
-        pluginhandle = dlopen ("/usr/lib/min/min_cui.so", RTLD_NOW);
-        if (!pluginhandle) {
-                printf ("Error opening plugin %s\n", dlerror());
-                exit (-1);
-        }
-        plugin_attach = dlsym (pluginhandle, "pl_attach_plugin");
-        plugin_open = dlsym (pluginhandle, "pl_open_plugin");
-        in = &in_str;
-        out = &out_str;
-        eapi_init (in, out);
-        plugin_attach (&in, out);
-//        retval = pthread_create (&plugin_thread, NULL, plugin_open,
-//                                 (void *)tmp);
-	if (no_cui_flag)
+	if (no_cui_flag) {
+		in = &in_str;
+
 		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
 
-
-        if (add_command_line_modules (modulelist))
-                exit (1);
-        
-        while (no_cui_flag && cont_flag == 0) {
-                cont_flag = 1;
-                usleep (500000);
-                work_module_item = dl_list_head (instantiated_modules);
-                while (work_module_item != DLListNULLIterator) {
-                        status = tm_get_status (work_module_item);
-                        if (status != TEST_MODULE_READY)
-                                cont_flag = 0;
-                        work_module_item = dl_list_next (work_module_item);
-                }
-                //printf ("Test case gathering...%d \n", cont_flag);
-        }
-
-        if (no_cui_flag) {
-                retval = ext_if_exec ();
-        } else {
+		if ( add_command_line_modules (modulelist))
+			exit (1);
+		while (cont_flag == 0) {
+			cont_flag = 1;
+			usleep (500000);
+			work_module_item = dl_list_head (instantiated_modules);
+			while (work_module_item != DLListNULLIterator) {
+				status = tm_get_status (work_module_item);
+				if (status != TEST_MODULE_READY)
+					cont_flag = 0;
+				work_module_item = 
+					dl_list_next (work_module_item);
+			}
+		}
+		retval = ext_if_exec ();
+	} else {
+		pluginhandle = dlopen ("/usr/lib/min/min_cui.so", RTLD_NOW);
+		if (!pluginhandle) {
+			printf ("Error opening plugin %s\n", dlerror());
+			exit (-1);
+		}
+		plugin_attach = dlsym (pluginhandle, "pl_attach_plugin");
+		plugin_open = dlsym (pluginhandle, "pl_open_plugin");
+		in = &in_str;
+		out = &out_str;
+		eapi_init (in, out);
+		plugin_attach (&in, out);
+		
                 retval = pthread_create (&plugin_thread, NULL, plugin_open,
 					 &tmp);
 		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
+		
+		if (add_command_line_modules (modulelist))
+			exit (1);
 		pthread_join (plugin_thread, &tmp);
         }
 
 
         dl_list_free (&modulelist);
+
         return retval;
 }
 
