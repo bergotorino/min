@@ -254,7 +254,9 @@ LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid)
 
 }
 
-LOCAL void eapi_query_test_data (uint flag)
+/* ------------------------------------------------------------------------- */
+
+LOCAL char* get_test_modules()
 {
         char *modules = INITPTR;
         char *tmpmodules = INITPTR;
@@ -270,56 +272,179 @@ LOCAL void eapi_query_test_data (uint flag)
         int n = 0;
         struct dirent **namelist;
 
-        if (flag&1) {
-                /* get modules */
+        dl_item = dl_list_head (ec_settings.search_dirs);
+        while (dl_item != INITPTR) {
+                /* get data from list iterator */
+                dir = (char *)dl_list_data (dl_item);
 
-                dl_item = dl_list_head (ec_settings.search_dirs);
-                while (dl_item != INITPTR) {
-                        /* get data from list iterator */
-                        dir = (char *)dl_list_data (dl_item);
+                /* return the number of directory entries */
+                n = scandir (dir, &namelist, 0, alphasort);
 
-                        /* return the number of directory entries */
-                        n = scandir (dir, &namelist, 0, alphasort);
+                /* add .so files to test sets list */
+                while (n--) {
+                        ptr = strrchr (namelist[n]->d_name, '.');
+                        if ((ptr != NULL) && (strcmp (ptr, ".so") == 0)) {
 
-                        /* add .so files to test sets list */
-                        while (n--) {
-                                ptr = strrchr (namelist[n]->d_name, '.');
-                                if ((ptr != NULL) && (strcmp (ptr, ".so") == 0)) {
+                                tmplen = strlen (namelist[n]->d_name);
+                                if (modules==INITPTR) {
+                                        modules = NEW2(char,tmplen+2);
+                                        memset(modules,'\0',tmplen+2);
+                                        test_module = &modules[currlength];
+                                } else {
+                                        tmpmodules = modules;
+                                        modules = NEW2(char,tmplen+currlength+2);
+                                        memset(modules,'\0',tmplen+currlength+2);
+                                        memcpy(modules,tmpmodules,currlength);
+                                        free(tmpmodules);
+                                        test_module = &modules[currlength];
+                                }
 
+                                strncpy (test_module,namelist[n]->d_name,tmplen);
+                                currlength = currlength + tmplen + 1;
+
+                                i++;
+                        }
+                        free (namelist[n]);
+                }
+                free (namelist);
+
+                /* get next item */
+                dl_item = dl_list_next (dl_item);
+        }
+}
+
+/* ------------------------------------------------------------------------- */
+
+LOCAL char* get_test_case_files()
+{
+        char *files = INITPTR;
+        char *tmpfiles = INITPTR;
+        char *case_file = INITPTR;
+        TSBool addcasefile = ESTrue;
+        char *dir = INITPTR;
+        struct dirent **namelist;
+        FILE *shell_pipe = INITPTR;
+        char *shell_io = INITPTR;
+        int tmplen = 0;
+        int currlength = 0;
+
+        DLListItem     *dl_item = INITPTR;
+        int             i = 0;
+        int             n = 0;
+
+        dl_item = dl_list_head (ec_settings.search_dirs);
+        while (dl_item != INITPTR) {
+                /* get data from list iterator */
+                dir = (char *)dl_list_data (dl_item);
+
+                /* return the number of directory entries */
+                n = scandir (dir, &namelist, 0, alphasort);
+
+                /* add files to test sets list */
+                while (n--) {
+                        /* only normal files, not dots (. and ..) 
+			 * and basic filter for non-case-files */
+                        if ((strcmp (namelist[n]->d_name, ".") != 0) && 
+                                (strcmp (namelist[n]->d_name, "..") != 0) &&
+		                (strncmp (namelist[n]->d_name + 
+		                strlen(namelist[n]->d_name) - 3
+			        , ".la", 3) != 0) &&
+			        (strncmp (namelist[n]->d_name +
+			        strlen(namelist[n]->d_name) - 1
+			        , "~", 1) !=0 ))
+                        {
+			    
+                                addcasefile=ESTrue; /* restore flag value */
+
+			        shell_io = malloc (sizeof(char) *
+				        (strlen ( "which file 2>/dev/null" ) +1) );
+			        strcpy(shell_io, "which file 2>/dev/null");
+			        if ((shell_pipe=popen(shell_io, "r")) != NULL ) {
+			                free(shell_io);
+        				shell_io = malloc (sizeof(char) * 1);
+	        			*shell_io = (char)fgetc(shell_pipe);
+		        		pclose(shell_pipe);
+			        	if (strncmp (shell_io, "/", 1) == 0) {
+			    	                free(shell_io);
+			    	                shell_io = malloc (sizeof(char) *
+					        (strlen (namelist[n]->d_name) +
+				                strlen (dir) +
+				                strlen ("file -i -b ") +
+				                2 +
+				                strlen (" 2>/dev/null")));
+			                        strcpy (shell_io, "file -i -b ");
+                                                strcat (shell_io, dir );
+			                        strcat (shell_io, "/" );
+			                        strcat (shell_io, namelist[n]->d_name );
+			                        strcat (shell_io, " 2>/dev/null" );
+                                                if ((shell_pipe = popen (shell_io , "r"))
+                                                        != NULL) {
+                                                        free (shell_io);
+                                                        shell_io = malloc (sizeof(char) * 5);
+                                                        fgets (shell_io, 5, shell_pipe);
+                                                        *(shell_io+4)=0x00;
+                                                        if (strcmp(shell_io, "text" ) != 0) {
+                                                                /* don't add file if not text*/
+                                                                addcasefile=ESFalse;
+                                                        }
+                                                        pclose (shell_pipe);
+                                                }
+				        } 
+			        } 
+
+			        /* add file to the list if it's not marked to omit
+			         * by previous checks */
+			        if(addcasefile==ESTrue){
                                         tmplen = strlen (namelist[n]->d_name);
-                                        if (modules==INITPTR) {
-                                                modules = NEW2(char,tmplen+2);
-                                                memset(modules,0x0,tmplen+2);
-                                                test_module = &modules[currlength];
+                                        if (files==INITPTR) {
+                                                files = NEW2(char,tmplen+2);
+                                                memset(files,'\0',tmplen+2);
+                                                case_file = &files[currlength];
                                         } else {
-                                                tmpmodules = modules;
-                                                modules = NEW2(char,tmplen+currlength+2);
-                                                memset(modules,0x0,tmplen+currlength+2);
-                                                memset(modules,tmpmodules,currlength);
+                                                tmpfiles = files;
+                                                files = NEW2(char,tmplen+currlength+2);
+                                                memset(files,'\0',tmplen+currlength+2);
+                                                memcpy(files,tmpfiles,currlength);
+                                                free(tmpfiles);
+                                                case_file = &files[currlength];
                                         }
 
-                                        strncpy (test_module,namelist[n]->d_name,tmplen);
+                                        strncpy (case_file,namelist[n]->d_name,tmplen);
                                         currlength = currlength + tmplen + 1;
 
-                                        i++;
-                                }
-                                free (namelist[n]);
+			                i++;
+			        }
+
+	                        free (shell_io);			
                         }
-                        free (namelist);
-
-                        /* get next item */
-                        dl_item = dl_list_next (dl_item);
+                        free (namelist[n]);
                 }
+                free (namelist);
 
-                n = i;
-                i = 0;
+                /* get next item */
+                dl_item = dl_list_next (dl_item);
+        }
+
+        return files;
+}
+
+/* ------------------------------------------------------------------------- */
+
+LOCAL void eapi_query_test_data (uint flag)
+{
+        char *modules = INITPTR;
+        char *files = INITPTR;
+
+        if (flag&1) {
+                /* get modules */
+                modules = get_test_modules();
         }
 
         if (flag&2) {
                 /* get case files */
+                files = get_test_case_files();
         }
 }
-
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 
@@ -328,15 +453,15 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
         in = inp;
 
         modules = dl_list_create();        
-        out->add_test_module = eapi_add_test_module;
+        out->add_test_module    = eapi_add_test_module;
         out->add_test_case_file = eapi_add_test_case_file;
-        out->start_case = eapi_start_test_case;
-	out->pause_case = eapi_pause_case;
-	out->resume_case = eapi_resume_case;
-        out->fatal_error = eapi_error;
-	out->min_close = eapi_close;
-	out->min_open = eapi_open;
-        out->query_test_data = eapi_query_test_data;
+        out->start_case         = eapi_start_test_case;
+	out->pause_case         = eapi_pause_case;
+	out->resume_case        = eapi_resume_case;
+        out->fatal_error        = eapi_error;
+	out->min_close          = eapi_close;
+	out->min_open           = eapi_open;
+        out->query_test_data    = eapi_query_test_data;
 }
 
 
