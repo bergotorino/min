@@ -611,7 +611,7 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_no_module (char *modulename)
 {
-        
+        MIN_WARN ("Module %s has not been loaded",modulename);        
         cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
@@ -621,6 +621,9 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 
         /* add new case to some list */
         if (case_list_==INITPTR) case_list_ = dl_list_create();
+
+        MIN_DEBUG ("moduleid = %d, caseid = %d, casetitle = %s",
+                moduleid,caseid,casetitle);
 
         ccd = NEW(CUICaseData);
         ccd->moduleid_ = moduleid;

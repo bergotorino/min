@@ -133,7 +133,6 @@ LOCAL void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
                 ec_add_module (modinfo->module_filename_, 
                                modinfo->cfg_filename_list_,
                                modinfo->module_id_);
-                
         } 
 }
 

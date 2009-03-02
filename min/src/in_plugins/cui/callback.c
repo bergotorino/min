@@ -508,7 +508,6 @@ LOCAL void add_module (void *p)
                 }
         }
 
-//        popup_window ("Adding module", 1);
         min_clbk_.add_test_module (module_name);
 }
 
@@ -522,6 +521,7 @@ LOCAL int get_test_modules (void)
         char *c = INITPTR;
         int i = 0;
         int howmany = 0;
+        Text *tx = INITPTR;
 
         /* free memory allocated for callback structure */
         free_cbs (cb_add_test_module_menu);
@@ -552,9 +552,11 @@ LOCAL int get_test_modules (void)
                 while (*(c+1) != '\0') {
                         if ((*c)=='\0') c++;
                         i = strlen(c);
+                        tx = tx_create(c);
                         set_cbs (&cb_add_test_module_menu[howmany],
-                                c,NULL,add_test_case_files_menu,
-                                module_menu, save_module_name, c, 0);
+                                tx_get_buf(tx),NULL,add_test_case_files_menu,
+                                module_menu, save_module_name, tx_get_buf(tx), 0);
+                        tx_destroy(&tx);
                         c+=(i);
                         howmany++;
                 }
@@ -586,6 +588,7 @@ LOCAL int get_test_case_files (void)
         int i = 0;
         int howmany = 0;
         char *c = INITPTR;
+        Text *tx = INITPTR;
 
         /* free memory allocated for callback structure */
         free_cbs (cb_add_test_case_files_menu);
@@ -621,10 +624,11 @@ LOCAL int get_test_case_files (void)
                 while (*(c+1) != '\0') {
                         if ((*c)=='\0') c++;
                         i = strlen(c);
+                        tx = tx_create(c);
                         set_cbs (&cb_add_test_case_files_menu[howmany],
-                                 c,NULL,toggle_menu_item,
+                                 tx_get_buf(tx),NULL,toggle_menu_item,
                                  add_test_module_menu,
-                                 NULL, c, 1);
+                                 NULL, tx_get_buf(tx), 1);
                         c+=(i);
                         howmany++;
                 }
