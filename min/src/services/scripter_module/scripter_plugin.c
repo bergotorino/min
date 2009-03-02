@@ -990,9 +990,6 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                         goto EXIT;
                 }
                 retval = ENOERR;
-                if (interf_objs == INITPTR) {
-                        interf_objs = dl_list_create ();
-                }
 
                 tmp = NEW2 (char, strlen (name) + 1);
                 sprintf (tmp, "%s", name);
@@ -1761,6 +1758,9 @@ char           *validate_test_case (MinSectionParser * testcase)
                         continue;
                         break;
                 case EKeywordInterference:
+			if (interf_objs == INITPTR) {
+				interf_objs = dl_list_create ();
+			}
                         check_result =
 				check_interference_line (line, line_number,
 							 interf_objs);
