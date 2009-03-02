@@ -124,14 +124,14 @@ START_TEST(test_dllist_add_item_at_2)
         a[4]    = 5;
         a[5]    = 5; 
         
-        for( i = 0 ; i < 3 ; i++ ) {
+        for( i = 0 ; i < 6 ; i++ ) {
                 retval = dl_list_add(l,&a[i]);
                 fail_unless(retval != -1,"Adding failed.");
         }
 
         i = 5;
-        retval = dl_list_count (dl_list_begin(l),
-                                dl_list_end(l),
+        retval = dl_list_count (dl_list_head(l),
+                                dl_list_tail(l),
                                 equal,
                                 &i);
         fail_unless( retval==4,
@@ -657,21 +657,21 @@ START_TEST(test_dllist_count)
         a[4]    = 5;
         a[5]    = 5; 
         
-        for( i = 0 ; i < 3 ; i++ ) {
+        for( i = 0 ; i < 6 ; i++ ) {
                 retval = dl_list_add(l,&a[i]);
                 fail_unless(retval != -1,"Adding failed.");
         }
 
         i = 5;
-        retval = dl_list_count (dl_list_begin(l),
-                                dl_list_end(l),
+        retval = dl_list_count (dl_list_head(l),
+                                dl_list_tail(l),
                                 equal,
                                 &i);
         fail_unless( retval==4,
                "Count does nto work, invalid result. Expected %d, got %d",
                 4,retval);
 
-        dl_list_destroy(&l); 
+        dl_list_free(&l); 
                                 
 }
 END_TEST
