@@ -32,10 +32,9 @@
 
 #include <callback.h>
 #include <consoleui.h>
-#include <data_api.h>
 #include <dllist.h>
-#include <data_api.h>
 #include <dirent.h>
+#include <data_api.h>
 #include <min_common.h>
 #include <min_parser.h>
 #include <min_plugin_interface.h>
@@ -1027,7 +1026,7 @@ LOCAL int get_ongoing_cases ()
                         if (etc->status_ != TCASE_STATUS_ONGOING &&
                             etc->status_ != TCASE_STATUS_PAUSED)
                                 continue;
-                        /* get test_case_s from linked list iterator */
+                        /* get from linked list iterator */
                         etc = dl_list_data (dl_item_tc);
                         if (etc == INITPTR || etc->case_->casetitle_ == NULL)
                                 continue;
@@ -2072,7 +2071,7 @@ LOCAL int create_test_set_menu ()
                 dl_item_tc = dl_list_head (test_set);
 
                 while (dl_item_tc != INITPTR) {
-                        /* get test_case_s from iterator */
+                        /* get CUICaseData from iterator */
                         tc = (CUICaseData *) dl_list_data (dl_item_tc);
 
                         if (tc != INITPTR && tc->casetitle_ != NULL) {
@@ -2304,31 +2303,31 @@ LOCAL void save_test_set ()
 
 LOCAL CUICaseData *setgetcase (char *module, char *title)
 {
-        DLListIterator  work_module_item = dl_list_head (available_modules);
-        DLListIterator  work_case_item = DLListNULLIterator;
+        DLListIterator  module_it = dl_list_head (available_modules);
+        DLListIterator  case_it = DLListNULLIterator;
         char            module_fname[MaxFileName];
         char            case_title[MaxTestCaseName];
+	CUIModuleData  *mod;
+	CUICaseData    *c;
 
-        while (work_module_item != DLListNULLIterator) {
-                tm_get_module_filename (work_module_item, module_fname);
-                if (strcmp (module_fname, module) == 0)
-                        break;
-                work_module_item = dl_list_next (work_module_item);
-        }
-        if (work_module_item == DLListNULLIterator)
-                return INITPTR;
-        work_case_item = dl_list_head (tm_get_tclist (work_module_item));
-        while (work_case_item != DLListNULLIterator) {
-                tc_get_title (work_case_item, case_title);
-                if (strcmp (case_title, title) == 0)
-                        break;
-                work_case_item = dl_list_next (work_case_item);
-        }
+	module_it = dl_list_find (dl_list_head (available_modules),
+				  dl_list_tail (available_modules),
+				  _find_mod_by_name,
+				  module);
+	if (module_it == INITPTR)
+		return INITPTR;
 
-        if (work_case_item == DLListNULLIterator)
-                return INITPTR;
-        else
-                return ((test_case_s *) dl_list_data (work_case_item));
+	mod = dl_list_data (module_it);
+	
+	for (case_it = dl_list_head (case_list_); case_it != INITPTR;
+	     case_it = dl_list_next (case_it)) {
+		c = dl_list_data (case_it);
+		if (c->moduleid_ ==  mod->moduleid_ &&
+		    !strcmp (title, tx_share_buf (c->casetitle_)))
+			return c;
+	}
+	
+	return INITPTR;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -2344,7 +2343,7 @@ void set_read (DLList * set_cases_list, char *setname)
         int             mod_result = 1;
         int             title_result = 1;
         CUICaseData    *tc = INITPTR;
-        MinParser     *set_file;
+        MinParser      *set_file;
         MinSectionParser *set_section_p;
         MinSectionParser *set_case_p;
         char           *module_name_;
@@ -2386,7 +2385,7 @@ void set_read (DLList * set_cases_list, char *setname)
                 if ((module_name_ != INITPTR) && (case_title_ != INITPTR)) {
 
                         tc = setgetcase (module_name_, case_title_);
-                        tc_add (set_cases_list, tc);
+                        dl_list_add (set_cases_list, tc);
 
                         DELETE (module_name_);
                         DELETE (case_title_);
@@ -2437,7 +2436,7 @@ LOCAL int add_tcs_to_test_set ()
         DLListItem     *dl_item_tm = INITPTR;
         DLListItem     *dl_item_tc = INITPTR;
         DLList         *dl_list_tc = INITPTR;
-        test_case_s    *tc = INITPTR;
+        CUICaseData    *tc = INITPTR;
         int             n = 0;
         int             i = 0;
 
@@ -2445,24 +2444,7 @@ LOCAL int add_tcs_to_test_set ()
         free_cbs (cb_add_tcs_to_test_set_menu);
 
         /* count the number of all test cases */
-        if (available_modules != INITPTR && available_modules != NULL) {
-                /* get head of linked list including available modules */
-                dl_item_tm = dl_list_head (available_modules);
-
-                while (dl_item_tm != INITPTR) {
-                        /* get test case list of current test module */
-                        dl_list_tc = tm_get_tclist (dl_item_tm);
-
-                        if (dl_list_tc != NULL && dl_list_tc != INITPTR) {
-                                i = dl_list_size (dl_list_tc);
-                                if (i != -1)
-                                        n += i;
-                        }
-                        /* get next module */
-                        dl_item_tm = dl_list_next (dl_item_tm);
-                }
-        }
-        i = 0;
+	n = dl_list_size (case_list_);
 
         if (n > 0) {
                 /* allocate memory for n+1+2 items */
@@ -2485,32 +2467,22 @@ LOCAL int add_tcs_to_test_set ()
                          test_set_menu, NULL, NULL, 0);
                 i++;
 
-                /* process linked list including available modules */
-                for (dl_item_tm = dl_list_head (available_modules);
-                     dl_item_tm != INITPTR;
-                     dl_item_tm = dl_list_next (dl_item_tm)) {
-                        /* get test case list of current test module */
-                        dl_list_tc = tm_get_tclist (dl_item_tm);
+                /* process linked list of all cases */
+                for (dl_item_tc = dl_list_head (case_list_);
+                     dl_item_tc != INITPTR;
+                     dl_item_tc = dl_list_next (dl_item_tc)) {
+			/* get CUICaseData from iterator */
+			tc = (CUICaseData *)
+				dl_list_data (dl_item_tc);
 
-                        if (dl_list_tc == INITPTR || dl_list_tc == NULL)
-                                continue;
-                        /* get head of test cases linked list */
-                        for (dl_item_tc = dl_list_head (dl_list_tc);
-                             dl_item_tc != INITPTR;
-                             dl_item_tc = dl_list_next (dl_item_tc)) {
-                                /* get test_case_s from iterator */
-                                tc = (test_case_s *)
-                                    dl_list_data (dl_item_tc);
-
-                                if (tc == INITPTR || tc->title_ == NULL)
-                                        continue;
-                                /* fill callback structure */
-                                set_cbs (&cb_add_tcs_to_test_set_menu[i],
-                                         tc->title_, NULL,
-                                         toggle_menu_item,
-                                         test_set_menu, NULL, tc, 1);
-                                i++;
-                        }
+			if (tc == INITPTR || tc->casetitle_ == NULL)
+				continue;
+			/* fill callback structure */
+			set_cbs (&cb_add_tcs_to_test_set_menu[i],
+				 tx_share_buf (tc->casetitle_), NULL,
+				 toggle_menu_item,
+				 test_set_menu, NULL, tc, 1);
+			i++;
                 }
         } else {
                 /* allocate memory for empty menu */
@@ -2572,7 +2544,7 @@ LOCAL void remove_tcs_from_test_set_menu ()
 LOCAL int remove_tcs_from_test_set ()
 {
         DLListItem     *dl_item_tc = INITPTR;
-        test_case_s    *tc = INITPTR;
+        CUICaseData    *tc = INITPTR;
         int             n = 0;
         int             i = 0;
 
@@ -2607,13 +2579,13 @@ LOCAL int remove_tcs_from_test_set ()
                 dl_item_tc = dl_list_head (test_set);
 
                 while (dl_item_tc != INITPTR) {
-                        /* get test_case_s from iterator */
-                        tc = (test_case_s *) dl_list_data (dl_item_tc);
+                        /* get CUICaseData from iterator */
+                        tc = (CUICaseData *) dl_list_data (dl_item_tc);
 
-                        if (tc != INITPTR && tc->title_ != NULL) {
+                        if (tc != INITPTR && tc->casetitle_ != NULL) {
                                 /* fill callback structure */
                                 set_cbs (&cb_remove_tcs_from_test_set_menu[i],
-                                         tc->title_,
+                                         tx_share_buf(tc->casetitle_),
                                          NULL,
                                          toggle_menu_item,
                                          test_set_menu, NULL, tc, 1);
@@ -2789,7 +2761,7 @@ LOCAL void remove_cases_from_test_set (void *p)
         int             i = 0;
         ITEM          **items = NULL;
         callback_s     *cb = INITPTR;
-        test_case_s    *tc = INITPTR;
+        CUICaseData    *tc = INITPTR;
 
         items = menu_items (my_menu);
 
@@ -2799,7 +2771,7 @@ LOCAL void remove_cases_from_test_set (void *p)
                 if (item_value (items[i]) == TRUE) {
                         /* get user data attached to menu item */
                         cb = (callback_s *) item_userptr (items[i]);
-                        tc = (test_case_s *) cb->ptr_data;
+                        tc = (CUICaseData *) cb->ptr_data;
                         /* find selected 
                          * test case in test set list and remove it */
                         dl_list_remove_it (dl_list_find
@@ -2822,12 +2794,12 @@ LOCAL void remove_cases_from_test_set (void *p)
 LOCAL int compare_items (const void *data1, const void *data2)
 {
         int             result = -2;
-        test_case_s    *tc1 = INITPTR;
-        test_case_s    *tc2 = INITPTR;
+        CUICaseData    *tc1 = INITPTR;
+	CUICaseData    *tc2 = INITPTR;
 
         if ((data1 != INITPTR) && (data2 != INITPTR)) {
-                tc1 = (test_case_s *) data1;
-                tc2 = (test_case_s *) data2;
+                tc1 = (CUICaseData *) data1;
+                tc2 = (CUICaseData *) data2;
 
                 if (data1 > data2)
                         result = 1;
