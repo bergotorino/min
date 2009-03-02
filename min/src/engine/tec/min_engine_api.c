@@ -212,6 +212,18 @@ LOCAL void eapi_resume_case (long test_run_id)
 
 /* ------------------------------------------------------------------------- */
 
+LOCAL void eapi_abort_case (long test_run_id)
+{
+	DLListIterator it;
+
+	it = tc_find_by_runid (selected_cases, test_run_id);
+	if (it != INITPTR)
+		ec_abort_test_case (it);
+
+}
+
+/* ------------------------------------------------------------------------- */
+
 LOCAL void eapi_error (char *what, char *msg)
 {
         MIN_FATAL ("%s - %s",what,msg);
@@ -445,7 +457,9 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
         out->start_case         = eapi_start_test_case;
 	out->pause_case         = eapi_pause_case;
 	out->resume_case        = eapi_resume_case;
+	out->abort_case         = eapi_abort_case;
         out->fatal_error        = eapi_error;
+
 	out->min_close          = eapi_close;
 	out->min_open           = eapi_open;
         out->query_test_modules = eapi_query_test_modules;
