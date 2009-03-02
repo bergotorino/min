@@ -595,18 +595,19 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
                 it = dl_list_tail(found_tcase_files);
                 while (it!=DLListNULLIterator) {
                         casefile = (char*)dl_list_data(it);
-                        MIN_DEBUG ("moduleid = %d, casefile = %s",moduleid,casefile);
+                        MIN_DEBUG ("moduleid = %d, casefile = %s",
+				   moduleid,casefile);
                         min_clbk_.add_test_case_file (moduleid,casefile);
                         dl_list_remove_it(it);
                         it = dl_list_tail(found_tcase_files);
                 }
                 dl_list_free(&found_tcase_files);
-                popup_window ("Module added", 1);
-                return 1;
-        }
+		min_clbk_.add_test_case_file (moduleid,"\0");
+		popup_window ("Module added", 1);
 
-        /* update the screen */
-        cui_refresh_view();
+        }
+	return 1;
+
 }
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_no_module (char *modulename)

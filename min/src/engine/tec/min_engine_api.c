@@ -126,6 +126,8 @@ LOCAL void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
         if (*testcasefile != '\0') {
                 p =  NEW2 (char, strlen (testcasefile) + 1);
                 STRCPY (p, testcasefile, strlen (testcasefile) + 1);
+		if (modinfo->cfg_filename_list_ == INITPTR)
+		        modinfo->cfg_filename_list_ = dl_list_create();
                 dl_list_add (modinfo->cfg_filename_list_, p);
         } else {
                 /* we have all the test case files for the module,
