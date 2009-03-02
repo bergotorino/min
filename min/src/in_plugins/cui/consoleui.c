@@ -72,6 +72,9 @@ DLList *executed_case_list_ = INITPTR;
 /* List of modules */
 DLList  *available_modules = INITPTR;
 
+DLList *found_module_files = INITPTR;
+DLList *found_tcase_files = INITPTR;
+
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */

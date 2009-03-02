@@ -256,7 +256,7 @@ LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid)
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL char* get_test_modules()
+LOCAL void eapi_query_test_modules(char **modulelist)
 {
         char *modules = INITPTR;
         char *tmpmodules = INITPTR;
@@ -311,11 +311,13 @@ LOCAL char* get_test_modules()
                 /* get next item */
                 dl_item = dl_list_next (dl_item);
         }
+
+        *modulelist = modules;
 }
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL char* get_test_case_files()
+LOCAL void eapi_query_test_files(char **filelist)
 {
         char *files = INITPTR;
         char *tmpfiles = INITPTR;
@@ -425,27 +427,11 @@ LOCAL char* get_test_case_files()
                 dl_item = dl_list_next (dl_item);
         }
 
-        return files;
+        *filelist = files;
 }
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_query_test_data (uint flag)
-{
-        char *modules = INITPTR;
-        char *files = INITPTR;
-
-        if (flag&1) {
-                /* get modules */
-                modules = get_test_modules();
-        }
-
-        if (flag&2) {
-                /* get case files */
-                files = get_test_case_files();
-        }
-}
-/* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 
 void eapi_init (eapiIn_t *inp, eapiOut_t *out)
@@ -461,7 +447,8 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
         out->fatal_error        = eapi_error;
 	out->min_close          = eapi_close;
 	out->min_open           = eapi_open;
-        out->query_test_data    = eapi_query_test_data;
+        out->query_test_modules = eapi_query_test_modules;
+        out->query_test_files   = eapi_query_test_files;
 }
 
 

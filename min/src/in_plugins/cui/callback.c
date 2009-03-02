@@ -475,14 +475,12 @@ LOCAL void add_test_case_files_menu (void)
  */
 LOCAL void save_module_name (void *p)
 {
-        char           *text = INITPTR;
-
-        text = (char *)dl_list_data ((DLListIterator) p);
-        if (text != INITPTR) {
-                STRCPY (module_name, text, MaxFileName);
-                /* get rid of .so extension */
-                module_name[strlen (module_name) - 3] = '\0';
-        }
+        char *text = INITPTR;
+        text = (char *)p;
+        STRCPY (module_name, text, MaxFileName);
+        /* get rid of .so extension */
+        module_name[strlen (module_name) - 3] = '\0';
+        free(p);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -519,15 +517,60 @@ LOCAL void add_module (void *p)
  */
 LOCAL int get_test_modules (void)
 {
-        int             i = 0;
+        char *modules = INITPTR;
+        char *c = INITPTR;
+        int i = 0;
+        int howmany = 0;
 
         /* free memory allocated for callback structure */
-//        free_cbs (cb_add_test_module_menu);
+        free_cbs (cb_add_test_module_menu);
 
-        min_clbk_.query_test_data(1);
+        min_clbk_.query_test_modules(&modules);
+
+        if (modules!=INITPTR) {
+
+                /* Count number of items */
+                c = &modules[0];
+                while (*c != '\0') {
+                        howmany++;
+                        c += strlen(c);
+                        c++;
+                }
+        }
+
+        if (howmany>0) {
+                /* Allocate memory for menu */
+                cb_add_test_module_menu = NEW2(callback_s,howmany+1);
+                if (cb_add_test_module_menu==NULL) return -1;
+                memset(cb_add_test_module_menu,0x0,
+                        sizeof(callback_s)*(howmany+1));
+                i = 0;
+                howmany = 0;
+                /* Create menu */
+                c = &modules[i];
+                while (*(c+1) != '\0') {
+                        if ((*c)=='\0') c++;
+                        i = strlen(c);
+                        set_cbs (&cb_add_test_module_menu[howmany],
+                                c,NULL,add_test_case_files_menu,
+                                module_menu, save_module_name, c, 0);
+                        c+=(i);
+                        howmany++;
+                }
+        } else {
+                /* Allocate memory for empty menu */
+                cb_add_test_module_menu = NEW2(callback_s,2);
+                if (cb_add_test_module_menu==NULL) return -1;
+                memset(cb_add_test_module_menu,0x0,sizeof(callback_s)*2);
+
+                set_cbs (&cb_add_test_module_menu[howmany],
+                        "",NULL,add_test_case_files_menu,
+                        module_menu, NULL, NULL, 0);
+                howmany++;
+        }
 
         /* last menu item should be NULL one */
-//        null_cbs (&cb_add_test_module_menu[i]);
+        null_cbs (&cb_add_test_module_menu[howmany]);
 
         return 0;
 }
@@ -538,155 +581,66 @@ LOCAL int get_test_modules (void)
  */
 LOCAL int get_test_case_files (void)
 {
-        DLListItem     *dl_item = INITPTR;
-        int             i = 0;
+        char *files = INITPTR;
+        int i = 0;
+        int howmany = 0;
+        char *c = INITPTR;
 
         /* free memory allocated for callback structure */
         free_cbs (cb_add_test_case_files_menu);
 
-        /* remove items from current test sets list */
-        if (dl_list_size (test_case_files) != -1) {
-                dl_item = dl_list_head (test_case_files);
-                while (dl_item != INITPTR) {
-                        free ((char *)dl_list_data (dl_item));
-                        dl_list_remove_it (dl_item);
-                        dl_item = dl_list_head (test_case_files);
+        min_clbk_.query_test_files(&files);
+
+        if (files!=INITPTR) {
+                /* Count number of items */
+                c = &files[0];
+                while (*c != '\0') {
+                        howmany++;
+                        c += strlen(c);
+                        c++;
                 }
         }
-#if 0
-        dl_item = dl_list_head (ec_settings.search_dirs);
-        while (dl_item != INITPTR) {
-                /* get data from list iterator */
-                dir = (char *)dl_list_data (dl_item);
 
-                /* return the number of directory entries */
-                n = scandir (dir, &namelist, 0, alphasort);
-
-                /* add files to test sets list */
-                while (n--) {
-                        /* only normal files, not dots (. and ..) 
-			 * and basic filter for non-case-files */
-                    if ((strcmp (namelist[n]->d_name, ".") != 0) &&
-                        (strcmp (namelist[n]->d_name, "..") != 0) &&
-		        (strncmp (namelist[n]->d_name + 
-		            strlen(namelist[n]->d_name) - 3
-			    , ".la", 3) != 0) &&
-			(strncmp (namelist[n]->d_name +
-			    strlen(namelist[n]->d_name) - 1
-			    , "~", 1) !=0 )) {
-			    
-			    addcasefile=ESTrue; /* restore flag value */
-
-			    shell_io = malloc (sizeof(char) *
-				(strlen ( "which file 2>/dev/null" ) +1) );
-			    strcpy(shell_io, "which file 2>/dev/null");
-			    if ((shell_pipe=popen(shell_io, "r")) != NULL ) {
-			        free(shell_io);
-				shell_io = malloc (sizeof(char) * 1);
-				*shell_io = (char)fgetc(shell_pipe);
-				pclose(shell_pipe);
-				if (strncmp (shell_io, "/", 1) == 0){
-			    	    free(shell_io);
-			    	    shell_io = malloc (sizeof(char) *
-					(strlen (namelist[n]->d_name) +
-				         strlen (dir) +
-				         strlen ("file -i -b ") +
-				         2 +
-				         strlen (" 2>/dev/null")));
-			            strcpy (shell_io, "file -i -b ");
-			            strcat (shell_io, dir );
-			            strcat (shell_io, "/" );
-			            strcat (shell_io, namelist[n]->d_name );
-			            strcat (shell_io, " 2>/dev/null" );
-			            if ((shell_pipe = popen (shell_io , "r"))
-						    != NULL) {
-				        free (shell_io);
-				        shell_io = malloc (sizeof(char) * 5);
-				        fgets (shell_io, 5, shell_pipe);
-				        *(shell_io+4)=0x00;
-				        if (strcmp(shell_io, "text" ) != 0) {
-					    /* don't add file if not text*/
-                                            addcasefile=ESFalse;
-				        }
-				        pclose (shell_pipe);
-			            }
-				} 
-			    } 
-
-			    /* add file to the list if it's not marked to omit
-			     * by previous checks */
-			    if(addcasefile==ESTrue){
-			            tc_file = (char *)
-                               	        malloc (sizeof (char) *
-                               	        (strlen (namelist[n]->d_name) +
-                               	        1));
-                                    strcpy (tc_file,
-				        namelist[n]->d_name);
-                                    dl_list_add (test_case_files,
-                               	        (void *)tc_file);
-			            i++;
-			    }
-
-	                    free (shell_io);			
-                    }
-                    free (namelist[n]);
-                }
-                free (namelist);
-
-                /* get next item */
-                dl_item = dl_list_next (dl_item);
-        }
-
-        n = i;
-        i = 0;
-
-        if (n > 0) {
+        if (howmany>0) {
                 /* allocate memory for n+1 items */
-                cb_add_test_case_files_menu =
-                    (callback_s *) calloc (n + 2, sizeof (callback_s));
-
-                if (cb_add_test_case_files_menu == NULL)
-                        return -1;
-
-                set_cbs (&cb_add_test_case_files_menu[i],
+                cb_add_test_case_files_menu = NEW2(callback_s,howmany+2);
+                if (cb_add_test_case_files_menu == NULL) return -1;
+                memset(cb_add_test_case_files_menu,0x0,
+                        sizeof(callback_s)*(howmany+2));
+                i = 0;
+                howmany = 0;
+                set_cbs (&cb_add_test_case_files_menu[howmany],
                          "Add selected test case file(s)",
                          NULL,
                          module_menu,
                          add_test_module_menu, add_module, NULL, 0);
-                i++;
-
-                /* get head of test sets list */
-                dl_item = dl_list_head (test_case_files);
-
-                while (dl_item != INITPTR) {
-                        set_cbs (&cb_add_test_case_files_menu[i],
-                                 (char *)dl_list_data (dl_item),
-                                 NULL,
-                                 toggle_menu_item,
+                howmany++;
+                /* Create menu */
+                c = &files[i];
+                while (*(c+1) != '\0') {
+                        if ((*c)=='\0') c++;
+                        i = strlen(c);
+                        set_cbs (&cb_add_test_case_files_menu[howmany],
+                                 c,NULL,toggle_menu_item,
                                  add_test_module_menu,
-                                 NULL, (char *)dl_list_data (dl_item), 1);
-                        i++;
-
-                        /* next item in list */
-                        dl_item = dl_list_next (dl_item);
+                                 NULL, c, 1);
+                        c+=(i);
+                        howmany++;
                 }
         } else {
-                /* allocate memory for empty menu */
-                cb_add_test_case_files_menu =
-                    (callback_s *) calloc (2, sizeof (callback_s));
+                /* Allocate memory for empty menu */
+                cb_add_test_case_files_menu = NEW2(callback_s,2);
+                if (cb_add_test_case_files_menu==NULL) return -1;
+                memset(cb_add_test_case_files_menu,0x0,sizeof(callback_s)*2);
 
-                if (cb_add_test_case_files_menu == NULL)
-                        return -1;
-
-                set_cbs (&cb_add_test_case_files_menu[i],
-                         "", NULL, NULL, add_test_module_menu, NULL, NULL, 0);
-                i++;
+                set_cbs (&cb_add_test_case_files_menu[howmany],
+                        "",NULL, NULL, add_test_module_menu,
+                        NULL, NULL, 0);
+                howmany++;
         }
-#endif
-        /* last menu item should be NULL one */
-        null_cbs (&cb_add_test_case_files_menu[i]);
 
-        return 0;
+        /* last menu item should be NULL one */
+        null_cbs (&cb_add_test_case_files_menu[howmany]);
 }
 
 /* ------------------------------------------------------------------------- */
