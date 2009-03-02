@@ -141,8 +141,8 @@ int ext_if_exec ()
                 sleep (1);
 
         }
+        log_summary_stdout ();
 	ec_cleanup();
-        log_summary ();
         return 0;
 }
 

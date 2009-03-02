@@ -371,8 +371,7 @@ int main (int argc, char *argv[], char *envp[])
         }
 
         if (no_cui_flag) {
-                ext_if_exec ();
-                retval = log_summary_stdout ();
+                retval = ext_if_exec ();
         } else {
                 retval = pthread_create (&plugin_thread, NULL, plugin_open,
 					 &tmp);
