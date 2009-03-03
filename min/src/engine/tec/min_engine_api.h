@@ -62,6 +62,8 @@ typedef struct  {
         void (*case_paused) (long test_run_id);
         void (*case_resumed) (long test_run_id);
         void (*module_prints) (long test_run_id, char *message);
+        void (*test_modules) (char* modules);
+        void (*test_files) (char* modules);
 } eapiIn_t;
 
 /** Callbacks to functions from engine called by plugin */

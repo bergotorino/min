@@ -7,60 +7,102 @@
         <interface name="org.maemo.MIN">
                 <!-- Methods -->
                 <method name="min_add_test_module">
-                        <arg type="s" name="modulepath" direction="in"/>
+                        <arg type="s" name="modulepath"         direction="in"/>
                 </method>
                 <method name="min_add_test_case_file">
-                        <arg type="u" name="moduleid" direction="in"/>
-                        <arg type="s" name="testcasefile" direction="in"/>
+                        <arg type="u" name="moduleid"           direction="in"/>
+                        <arg type="s" name="testcasefile"       direction="in"/>
                 </method>
                 <method name="min_start_case">
-                        <arg type="u" name="moduleid" direction="in"/>
-                        <arg type="u" name="caseid" direction="in"/>
+                        <arg type="u" name="moduleid"           direction="in"/>
+                        <arg type="u" name="caseid"             direction="in"/>
+                        <arg type="u" name="groupid"            direction="in"/>
                 </method>
 
                 <method name="min_pause_case">
-                        <arg type="t" name="testrunid"/>
+                        <arg type="t" name="testrunid"          direction="in"/>
                 </method>
 
                 <method name="min_resume_case">
-                        <arg type="t" name="testrunid"/>
+                        <arg type="t" name="testrunid"          direction="in"/>
                 </method>
 
                 <method name="min_abort_case">
-                        <arg type="u" name="moduleid"/>
-                        <arg type="u" name="caseid"/>
+                        <arg type="t" name="testrunid"          direction="in"/>
+                </method>
+
+                <method name="min_query_test_modules">
+
+                </method>
+
+                <method name="min_query_test_files">
+
                 </method>
 
                 <!-- Signals -->
-                <signal name="min_add_test_module_result">
+                <!-- Result for min_query_test_modules -->
+                <signal name="min_test_modules">
+                        <arg type="s" name="modules"/>
+                </signal>
+
+                <!-- Result for min_query_test_files -->
+                <signal name="min_test_files">
+                        <arg type="s" name="files"/>
+                </signal>
+
+                <!-- new_module: add_test_module success result -->
+                <signal name="min_new_module">
                         <arg type="s" name="modulename"/>
                         <arg type="u" name="moduleid"/>
                 </signal>
 
+                <!-- no_module: add_test_module failure result -->
+                <signal name="min_no_module">
+                        <arg type="s" name="modulename"/>
+                </signal>
+
+                <!-- obtained when all test cases has been fetched from module: module ready to work -->
+                <signal name="min_module_ready">
+                        <arg type="u" name="moduleid"/>
+                </signal>
+
+                <!-- new_case -->
                 <signal name="min_new_test_case">
                         <arg type="u" name="moduleid"/>
                         <arg type="u" name="caseid"/>
                         <arg type="s" name="casetitle"/>
                 </signal>
 
+                <!-- case_started -->
                 <signal name="min_case_started">
                         <arg type="u" name="moduleid"/>
                         <arg type="u" name="caseid"/>
                         <arg type="t" name="testrunid"/>
                 </signal>
 
+                <!-- case_paused -->
                 <signal name="min_case_paused">
                         <arg type="t" name="testrunid"/>
                 </signal>
 
+                <!-- case_resumed -->
                 <signal name="min_case_resumed">
                         <arg type="t" name="testrunid"/>
                 </signal>
 
+                <!-- case_result -->
                 <signal name="min_case_result">
                         <arg type="t" name="testrunid"/>
                         <arg type="i" name="result"/>
                         <arg type="s" name="desc"/>
+                        <arg type="t" name="starttime"/>
+                        <arg type="t" name="endttime"/>
+                </signal>
+
+                <!-- module_prints -->
+                <signal name="min_case_msg">
+                        <arg type="t" name="testrunid"/>
+                        <arg type="s" name="message"/>
                 </signal>
         </interface>
 </node>

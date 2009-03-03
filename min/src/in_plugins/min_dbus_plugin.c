@@ -91,12 +91,17 @@ eapiOut_t min_clbk;
 /* MODULE DATA STRUCTURES */
 /* ------------------------------------------------------------------------- */
 typedef enum {
-        E_SIGNAL_MODULE_ADDED,
-        E_SIGNAL_NEW_TEST_CASE,
+        E_SIGNAL_NEW_MODULE,
+        E_SIGNAL_NO_MODULE,
+        E_SIGNAL_MODULE_READY,
+        E_SIGNAL_NEW_CASE,
         E_SIGNAL_CASE_STARTED,
         E_SIGNAL_CASE_PAUSED,
         E_SIGNAL_CASE_RESUMED,
         E_SIGNAL_CASE_RESULT,
+        E_SIGNAL_MSG_PRINT,
+        E_SIGNAL_TEST_MODULES,
+        E_SIGNAL_TEST_FILES,
         E_SIGNAL_COUNT        
 } MinSignalId;
 
@@ -109,19 +114,26 @@ typedef struct {
         guint signals[E_SIGNAL_COUNT];
 } MinObjectClass;
 
+
+/* We need those forward declarations here */
+
 gboolean min_object_min_add_test_module(MinObject *obj, gchar *modulepatch);
 gboolean min_object_min_add_test_case_file(MinObject *obj,
 					   gint moduleid,
 					   gchar *testcasefile);
 gboolean min_object_min_start_case(MinObject *obj,
 				   gint moduleid,
-				   gint caseid);
+				   gint caseid,
+                                   gint groupid);
 gboolean min_object_min_pause_case(MinObject *obj,
 				   long testrunid);
 gboolean min_object_min_resume_case(MinObject *obj,
 				    long testrunid);
 gboolean min_object_min_abort_case(MinObject *obj,
 				   long testrunid);
+gboolean min_object_min_query_test_modules(MinObject *obj);
+gboolean min_object_min_query_test_files(MinObject *obj);
+
 G_DEFINE_TYPE(MinObject, min_object, G_TYPE_OBJECT);
 
 #include "min_dbus_plugin.h"
@@ -154,7 +166,7 @@ static void pl_case_paused (long testrunid);
 /* ------------------------------------------------------------------------- */
 static void pl_case_resumed (long testrunid);
 /* ------------------------------------------------------------------------- */
-static void pl_msg_print (unsigned moduleid, unsigned caseid, char *message);
+static void pl_msg_print (long testrunid, char *message);
 /* ------------------------------------------------------------------------- */
 static void pl_new_module (char *modulename, unsigned moduleid);
 /* ------------------------------------------------------------------------- */
@@ -176,59 +188,102 @@ static void min_object_init (MinObject *obj)
 static void min_object_class_init (MinObjectClass *klass)
 {
         /* Init our class object.*/
-        /* module_added */
-        klass->signals[0] = g_signal_new (SIGNAL_MODULE_ADDED,
+
+        /* 1. Register signals: */
+void (*case_result) (long test_run_id, int result, char *desc,
+                     long starttime, long endtime);
+void (*case_started) (unsigned module_id, unsigned case_id, 
+                      long test_run_id);
+void (*case_paused) (long test_run_id);
+void (*case_resumed) (long test_run_id);
+void (*module_prints) (long test_run_id, char *message);
+void (*test_modules) (char* modules);
+
+        /* new_module */
+        klass->signals[0] = g_signal_new (SIGNAL_NEW_MODULE,
                                         G_OBJECT_CLASS_TYPE(klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,NULL,NULL,
                                         g_cclosure_marshal_VOID__STRING,
                                         G_TYPE_NONE,2,G_TYPE_STRING,G_TYPE_UINT);
-        
-        /* new_test_case */
-        klass->signals[1] = g_signal_new (SIGNAL_NEW_TEST_CASE,
+        /* no_module */
+        klass->signals[1] = g_signal_new (SIGNAL_NO_MODULE,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,1,G_TYPE_STRING);
+        /* module_ready */
+        klass->signals[2] = g_signal_new (SIGNAL_MODULE_READY,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,1,G_TYPE_UINT);
+        /* new_case */
+        klass->signals[3] = g_signal_new (SIGNAL_NEW_TEST_CASE,
                                         G_OBJECT_CLASS_TYPE(klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,NULL,NULL,
                                         g_cclosure_marshal_VOID__STRING,
                                         G_TYPE_NONE,3,
                                         G_TYPE_UINT,G_TYPE_UINT,G_TYPE_STRING);
-
         /* case_started */
-        klass->signals[2] = g_signal_new (SIGNAL_CASE_STARTED,
+        klass->signals[4] = g_signal_new (SIGNAL_CASE_STARTED,
                                         G_OBJECT_CLASS_TYPE(klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,NULL,NULL,
                                         g_cclosure_marshal_VOID__STRING,
                                         G_TYPE_NONE,3,
                                         G_TYPE_UINT,G_TYPE_UINT,G_TYPE_LONG);
-
         /* case_paused */
-        klass->signals[3] = g_signal_new (SIGNAL_CASE_PAUSED,
+        klass->signals[5] = g_signal_new (SIGNAL_CASE_PAUSED,
                                         G_OBJECT_CLASS_TYPE(klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,NULL,NULL,
                                         g_cclosure_marshal_VOID__STRING,
                                         G_TYPE_NONE,1,
                                         G_TYPE_LONG);
-
         /* case_resumed */
-        klass->signals[4] = g_signal_new (SIGNAL_CASE_RESUMED,
+        klass->signals[6] = g_signal_new (SIGNAL_CASE_RESUMED,
                                         G_OBJECT_CLASS_TYPE(klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,NULL,NULL,
                                         g_cclosure_marshal_VOID__STRING,
                                         G_TYPE_NONE,1,
                                         G_TYPE_LONG);
-
         /* case_result */
-        klass->signals[5] = g_signal_new (SIGNAL_CASE_RESULT,
+        klass->signals[7] = g_signal_new (SIGNAL_CASE_RESULT,
                                         G_OBJECT_CLASS_TYPE(klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,NULL,NULL,
                                         g_cclosure_marshal_VOID__STRING,
                                         G_TYPE_NONE,3,
                                         G_TYPE_LONG,G_TYPE_INT,G_TYPE_STRING);
-                                        
+        /* msg_print */
+        klass->signals[8] = g_signal_new (SIGNAL_MSG_PRINT,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,2,
+                                        G_TYPE_LONG,G_TYPE_STRING);
+        /* test_modules */
+        klass->signals[9] = g_signal_new (SIGNAL_TEST_MODULES,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,1,
+                                        G_TYPE_STRING);
+        /* test_files */
+        klass->signals[10] = g_signal_new (SIGNAL_TEST_FILES,
+                                        G_OBJECT_CLASS_TYPE(klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,NULL,NULL,
+                                        g_cclosure_marshal_VOID__STRING,
+                                        G_TYPE_NONE,1,
+                                        G_TYPE_STRING);
 
         dbus_g_object_type_install_info (MIN_TYPE_OBJECT,
                                         &dbus_glib_min_object_object_info);
@@ -292,9 +347,15 @@ static void pl_case_resumed (long testrunid)
                         testrunid);
 }
 /* ------------------------------------------------------------------------- */
-static void pl_msg_print (unsigned moduleid, unsigned caseid, char *message)
+static void pl_msg_print (long testrunid, char *message)
 {
         /* emit signal */
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_MSG_PRINT],
+                        0,
+                        testrunid,message);
 
 }
 /* ------------------------------------------------------------------------- */
@@ -304,10 +365,9 @@ static void pl_new_module (char *modulename, unsigned moduleid)
         if (!global_obj) return;
         MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
         g_signal_emit (global_obj,
-                        klass->signals[E_SIGNAL_MODULE_ADDED],
+                        klass->signals[E_SIGNAL_NEW_MODULE],
                         0,
-                        modulename,
-                        moduleid);
+                        modulename,moduleid);
 }
 /* ------------------------------------------------------------------------- */
 static void pl_no_module (char *modulename)
@@ -316,16 +376,53 @@ static void pl_no_module (char *modulename)
         if (!global_obj) return;
         MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
         g_signal_emit (global_obj,
-                        klass->signals[E_SIGNAL_MODULE_ADDED],
+                        klass->signals[E_SIGNAL_NO_MODULE],
                         0,
-                        modulename,
-                        0);
+                        modulename);
 }
 /* -------------------------------------------------------------------------- */
 static void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 {
         /* emit signal */
-
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_NEW_CASE],
+                        0,
+                        moduleid,caseid,casetitle);
+}
+/* -------------------------------------------------------------------------- */
+static void pl_module_ready (unsigned moduleid)
+{
+        /* emit signal */
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_MODULE_READY],
+                        0,
+                        moduleid);
+}
+/* -------------------------------------------------------------------------- */
+static void pl_test_modules (char *modules)
+{
+        /* emit signal */
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_TEST_MODULES],
+                        0,
+                        modules);
+}
+/* -------------------------------------------------------------------------- */
+static void pl_test_files (char *files)
+{
+        /* emit signal */
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+                        klass->signals[E_SIGNAL_TEST_FILES],
+                        0,
+                        files);
 }
 /* -------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
@@ -335,13 +432,17 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         /* Binds the callbacks */
         memcpy (&min_clbk,in_callback,sizeof(eapiOut_t));
 
-        (*out_callback)->case_result              = pl_case_result;
-        (*out_callback)->case_started             = pl_case_started;
-        (*out_callback)->case_paused              = pl_case_paused;
-        (*out_callback)->case_resumed             = pl_case_resumed;
-        (*out_callback)->module_prints            = pl_msg_print;
-        (*out_callback)->new_module               = pl_new_module;
-        (*out_callback)->no_module                = pl_no_module;
+        (*out_callback)->case_result            = pl_case_result;
+        (*out_callback)->case_started           = pl_case_started;
+        (*out_callback)->case_paused            = pl_case_paused;
+        (*out_callback)->case_resumed           = pl_case_resumed;
+        (*out_callback)->module_prints          = pl_msg_print;
+        (*out_callback)->new_module             = pl_new_module;
+        (*out_callback)->no_module              = pl_no_module;
+        (*out_callback)->module_ready           = pl_module_ready;
+        (*out_callback)->new_case               = pl_new_case;
+        (*out_callback)->test_modules           = pl_test_modules;
+        (*out_callback)->test_files             = pl_test_files;
 }
 /* ------------------------------------------------------------------------- */
 void pl_open_plugin ()
@@ -448,7 +549,8 @@ gboolean min_object_min_add_test_case_file(MinObject *obj,
 /* ------------------------------------------------------------------------- */
 gboolean min_object_min_start_case(MinObject *obj,
                                 gint moduleid,
-                                gint caseid)
+                                gint caseid,
+                                gint groupid)
 {
         /* Calls callback from MIN */
         if (min_clbk.start_case) {
@@ -487,6 +589,26 @@ gboolean min_object_min_abort_case(MinObject *obj,
         /* Calls callback from MIN */
         if (min_clbk.abort_case) {
                 min_clbk.abort_case (testrunid);
+                return TRUE;
+        }
+        return FALSE;
+}
+/* ------------------------------------------------------------------------- */
+gboolean min_object_min_query_test_modules(MinObject *obj)
+{
+        /* Calls callback from MIN */
+        if (min_clbk.query_test_modules) {
+                min_clbk.query_test_modules ();
+                return TRUE;
+        }
+        return FALSE;
+}
+/* ------------------------------------------------------------------------- */
+gboolean min_object_min_query_test_files(MinObject *obj)
+{
+        /* Calls callback from MIN */
+        if (min_clbk.query_test_files) {
+                min_clbk.query_test_files ();
                 return TRUE;
         }
         return FALSE;
