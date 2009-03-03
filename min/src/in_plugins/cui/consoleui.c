@@ -647,7 +647,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         return;
 }
 /* ------------------------------------------------------------------------- */
-void pl_open_plugin ()
+void pl_open_plugin (void *arg)
 {
         cui_exec();
         return;

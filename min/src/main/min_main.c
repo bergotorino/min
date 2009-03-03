@@ -240,7 +240,7 @@ int main (int argc, char *argv[], char *envp[])
         pthread_t       plugin_thread;
         void *tmp;
         void (*plugin_attach) (eapiIn_t **out_callback, 
-                                eapiOut_t *in_callback);
+			       eapiOut_t *in_callback);
 
         void (*plugin_open) (void *arg);
         void *pluginhandle;
