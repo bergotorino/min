@@ -463,11 +463,11 @@ START_TEST(test_fo_create30)
 {
         TSChar*                  path = "/tmp/uuuu";
         TSChar*                  file = "testfile.txt";
-        MinLoggerFileOutput*   mnlo = INITPTR;
+        MinLoggerFileOutput*     mnlo = INITPTR;
 
         mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 0, 0, 0 );
         
-        fail_unless( mnlo->file_ == NULL
+        fail_unless( mnlo->file_ == INITPTR
                    , "file_ differs from expected: [%d]"
                    , mnlo->file_ );
 }
@@ -477,11 +477,11 @@ START_TEST(test_fo_create31)
 {
         TSChar*                  path = "/tmp/uuuu";
         TSChar*                  file = "testfile.txt";
-        MinLoggerFileOutput*   mnlo = INITPTR;
+        MinLoggerFileOutput*     mnlo = INITPTR;
 
         mnlo = fo_create( path, file, ESTxt, 1, 1, 1, 1, 1, 0, 0, 0 );
         
-        fail_unless( mnlo->isfileopen_ == ESTrue
+        fail_unless( mnlo->isfileopen_ == ESFalse
                    , "isfileopen_ differs from expected: [%d]"
                    , mnlo->isfileopen_ );
 }
