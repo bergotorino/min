@@ -739,6 +739,8 @@ LOCAL int get_tcs_for_start_new_case ()
         if (n > 0) {
                 /* allocate memory for n+1 items */
                 cb_start_new_case_menu = NEW2(callback_s,n+1);
+		memset (cb_start_new_case_menu, 0x0, 
+			(n+1)*sizeof (callback_s));
 
                 if (cb_start_new_case_menu == NULL) return -1;
 
