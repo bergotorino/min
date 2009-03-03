@@ -30,6 +30,7 @@
 #include <tec.h>
 #include <data_api.h>
 #include <mintfwif.h>
+#include <min_engine_api.h>
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -42,6 +43,7 @@
 /* EXTERNAL FUNCTION PROTOTYPES */
 
 extern char    *strcasestr (const char *haystack, const char *needle);
+extern eapiIn_t *in;
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
@@ -62,7 +64,7 @@ extern char    *strcasestr (const char *haystack, const char *needle);
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
-/* None */
+eapiIn_t in_str;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
@@ -94,6 +96,9 @@ int min_if_open (min_case_complete_func complete_cb,
         int             status;
         int             i = 0;
         DLListIterator  work_module_item = DLListNULLIterator;
+
+	/* this will null the plugin */
+	in = &in_str;
 
         ec_min_init (complete_cb, print_cb, extifsend_cb, envp, 1);
 
