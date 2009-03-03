@@ -145,10 +145,6 @@ LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
                         long starttime, long endtime);
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_report_case_status (unsigned moduleid,
-                                unsigned caseid,
-                                unsigned stat);
-/* ------------------------------------------------------------------------- */
 LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid);
@@ -475,15 +471,7 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
         cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_report_case_status (unsigned moduleid,
-				  unsigned caseid,
-				  unsigned stat)
-{
-
-        cui_refresh_view();
-}
-/* ------------------------------------------------------------------------- */
-LOCAL bool _find_case_by_id (const void *a, const void *b)
+LOCAL int _find_case_by_id (const void *a, const void *b)
 {
         CUICaseData * tmp1 = (CUICaseData*)a;
         unsigned * tmp2 = (unsigned*)b;
@@ -524,9 +512,9 @@ LOCAL void pl_case_started (unsigned moduleid,
         begin = dl_list_head (case_list_);
         do {
                 it = dl_list_find (begin,
-                                dl_list_tail (case_list_),
-                                _find_case_by_id,
-                                &caseid);
+				   dl_list_tail (case_list_),
+				   _find_case_by_id,
+				   (void *)&caseid);
                 if (it==DLListNULLIterator) break;
                 CUICaseData *ccd = (CUICaseData*)dl_list_data(it);
                 if (ccd == INITPTR) break;
@@ -606,7 +594,7 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 		popup_window ("Module added", 1);
 
         }
-	return 1;
+	return;
 
 }
 /* ------------------------------------------------------------------------- */

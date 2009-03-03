@@ -51,7 +51,7 @@
 /** Callbacks from plugin called by Engine */
 typedef struct  {
         void (*case_result) (long test_run_id, int result, char *desc,
-                        long starttime, long endtime);
+			     long starttime, long endtime);
         void (*new_module) (char *modulename, unsigned module_id);
         void (*no_module) (char *modulename);
         void (*module_ready) (unsigned module_id);
@@ -73,7 +73,7 @@ typedef struct {
         void (*pause_case) (long test_run_id);
         void (*resume_case) (long test_run_id);
         void (*abort_case) (long test_run_id);
-        void (*fatal_error) (char *what, char *error_string);
+        void (*fatal_error) (const char *what, const char *error_string);
         void (*min_open) ();
         void (*min_close) ();
         void (*query_test_modules) ();

@@ -224,7 +224,7 @@ LOCAL void eapi_abort_case (long test_run_id)
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_error (char *what, char *msg)
+LOCAL void eapi_error (const char *what, const char *msg)
 {
         MIN_FATAL ("%s - %s",what,msg);
 }
@@ -273,7 +273,6 @@ LOCAL void eapi_query_test_modules(char **modulelist)
 {
         char *modules = INITPTR;
         char *tmpmodules = INITPTR;
-        char *files = INITPTR;
 
         int i = 0;
         int currlength = 0;

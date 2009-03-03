@@ -965,6 +965,8 @@ LOCAL int get_ongoing_cases ()
         return 0;
 }
 /* ------------------------------------------------------------------------- */
+#if 0
+/* Not used ? */
 LOCAL int _find_case_by_result (const void *a, const void *b)
 {
         ExecutedTestCase *tmp1 = (ExecutedTestCase*)a;
@@ -973,6 +975,7 @@ LOCAL int _find_case_by_result (const void *a, const void *b)
         if (tmp1->result_==(*tmp2)) return 0;
         else return -1;
 }
+#endif
 /* ------------------------------------------------------------------------- */
 LOCAL int _find_case_by_status (const void *a, const void *b)
 {
@@ -1356,7 +1359,6 @@ LOCAL void tr_for_aborted_case (void *p)
  */
 LOCAL int test_result_menu (void *p, ptr_to_fun on_left)
 {
-        DLListItem     *dl_item_tc = INITPTR;
         static void    *s_p = INITPTR;
         static ptr_to_fun s_on_left = INITPTR;
 
@@ -1746,7 +1748,6 @@ LOCAL void back_to_control_menu ()
  */
 LOCAL void view_output (void *p)
 {
-        DLListItem     *dl_item_tc = INITPTR;
         DLListItem     *dl_item_po = INITPTR;
         ExecutedTestCase   *tc = INITPTR;
         Text *printout = INITPTR;
@@ -2190,8 +2191,6 @@ LOCAL CUICaseData *setgetcase (char *module, char *title)
 {
         DLListIterator  module_it = dl_list_head (available_modules);
         DLListIterator  case_it = DLListNULLIterator;
-        char            module_fname[MaxFileName];
-        char            case_title[MaxTestCaseName];
 	CUIModuleData  *mod;
 	CUICaseData    *c;
 
@@ -2318,9 +2317,7 @@ LOCAL void add_tcs_to_test_set_menu ()
  */
 LOCAL int add_tcs_to_test_set ()
 {
-        DLListItem     *dl_item_tm = INITPTR;
         DLListItem     *dl_item_tc = INITPTR;
-        DLList         *dl_list_tc = INITPTR;
         CUICaseData    *tc = INITPTR;
         int             n = 0;
         int             i = 0;
