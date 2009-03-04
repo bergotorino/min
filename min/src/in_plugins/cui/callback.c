@@ -442,6 +442,7 @@ LOCAL void null_cbs (callback_s * cb)
 LOCAL void free_cbs (callback_s * cb)
 {
         if (cb != INITPTR && cb != NULL) {
+		null_cbs (cb);
                 free (cb);
                 cb = INITPTR;
         }
@@ -560,6 +561,7 @@ LOCAL int get_test_modules (void)
                         c+=(i);
                         howmany++;
                 }
+		DELETE (modules);
         } else {
                 /* Allocate memory for empty menu */
                 cb_add_test_module_menu = NEW2(callback_s,2);
@@ -587,7 +589,7 @@ LOCAL int get_test_case_files (void)
         char *files = INITPTR;
         int i = 0;
         int howmany = 0;
-        char *c = INITPTR;
+        char *c = INITPTR, *p;
         Text *tx = INITPTR;
 
         /* free memory allocated for callback structure */
@@ -625,13 +627,16 @@ LOCAL int get_test_case_files (void)
                         if ((*c)=='\0') c++;
                         i = strlen(c);
                         tx = tx_create(c);
+			p = tx_get_buf (tx);
                         set_cbs (&cb_add_test_case_files_menu[howmany],
-                                 tx_get_buf(tx),NULL,toggle_menu_item,
+                                 p,NULL,toggle_menu_item,
                                  add_test_module_menu,
-                                 NULL, tx_get_buf(tx), 1);
+                                 NULL, p, 1);
+			tx_destroy (&tx);
                         c+=(i);
                         howmany++;
                 }
+		DELETE (files);
         } else {
                 /* Allocate memory for empty menu */
                 cb_add_test_case_files_menu = NEW2(callback_s,2);
@@ -1226,6 +1231,9 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
  */
 LOCAL void module_menu ()
 {
+        /* free memory allocated for callback structure */
+        free_cbs (cb_module_menu);
+
         if (get_loaded_modules () != -1)
                 /* Show new menu */
                 update_menu (cb_module_menu, "Module menu", 0,
