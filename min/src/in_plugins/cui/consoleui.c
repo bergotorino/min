@@ -202,7 +202,8 @@ LOCAL void quit ()
         /* destroy menu windows and main window */
         delwin (menu_window);
         delwin (main_window);
-
+	/* free data from callbacks */
+	callbacks_cleanup();
         /* make cursor visible again */
         curs_set (1);
 

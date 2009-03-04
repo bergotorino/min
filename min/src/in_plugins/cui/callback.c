@@ -519,7 +519,7 @@ LOCAL void add_module (void *p)
 LOCAL int get_test_modules (void)
 {
         char *modules = INITPTR;
-        char *c = INITPTR;
+        char *c = INITPTR, *p;
         int i = 0;
         int howmany = 0;
         Text *tx = INITPTR;
@@ -554,9 +554,10 @@ LOCAL int get_test_modules (void)
                         if ((*c)=='\0') c++;
                         i = strlen(c);
                         tx = tx_create(c);
+			p = tx_get_buf (tx);
                         set_cbs (&cb_add_test_module_menu[howmany],
-                                tx_get_buf(tx),NULL,add_test_case_files_menu,
-                                module_menu, save_module_name, tx_get_buf(tx), 0);
+                                p,NULL,add_test_case_files_menu,
+                                module_menu, save_module_name, p, 0);
                         tx_destroy(&tx);
                         c+=(i);
                         howmany++;
@@ -2702,7 +2703,27 @@ LOCAL int compare_items (const void *data1, const void *data2)
 }
 
 /* ======================== FUNCTIONS ====================================== */
-/* None */
+void callbacks_cleanup ()
+{
+	free_cbs (cb_module_menu);
+	free_cbs (cb_start_new_case_menu);
+	free_cbs (cb_run_multiple_tests_menu);
+	free_cbs (cb_ongoing_cases_menu);
+	free_cbs (cb_executed_cases_menu);
+	free_cbs (cb_passed_cases_menu);
+	free_cbs (cb_failed_cases_menu);
+	free_cbs (cb_aborted_cases_menu);
+	free_cbs (cb_test_result_menu);
+	free_cbs (cb_pause_resume_abort_menu);
+	free_cbs (cb_view_output_menu);
+	free_cbs (cb_test_set_menu);
+	free_cbs (cb_add_tcs_to_test_set_menu);
+	free_cbs (cb_remove_tcs_from_test_set_menu);
+	free_cbs (cb_load_test_set_menu);
+	free_cbs (cb_add_test_module_menu);
+	free_cbs (cb_add_test_case_files_menu);
+}
+
 
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

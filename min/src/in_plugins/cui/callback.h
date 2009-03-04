@@ -106,7 +106,7 @@ typedef struct {
 } ExecutedTestCase;
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
-/* None */
+void callbacks_cleanup();
 
 /* ------------------------------------------------------------------------- */
 #endif                          /* CALLBACK_H */
