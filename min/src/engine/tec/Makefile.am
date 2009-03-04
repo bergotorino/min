@@ -7,7 +7,7 @@ libmintec_a_SOURCES = tec.c tec_events.c tec_set_handling.c min_engine_api.c
 libmintec_a_CFLAGS =  -DMIN_BIN_DIR='"$(bindir)"' \
 		       -DMIN_CONF_DIR='"$(sysconfdir)"'
 noinst_HEADERS =  tec_events.h 
-include_HEADERS = tec.h tec_rcp_handling.h
+include_HEADERS = tec.h tec_rcp_handling.h min_engine_api.h
 
 libmintec_a_LIBADD = $(top_builddir)/src/utils/libminutils.la \
 	              $(top_builddir)/src/engine/data_structures_api/libmindsa.la \
