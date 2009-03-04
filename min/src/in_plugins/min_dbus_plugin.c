@@ -147,16 +147,8 @@ static void min_object_class_init (MinObjectClass *klass);
 /* ------------------------------------------------------------------------- */
 static void handle_error (const char* msg,const char* reason,gboolean fatal);
 /* ------------------------------------------------------------------------- */
-static void requestStatusHandler (DBusGProxy *proxy,
-				  guint result,
-				  const char *message, 
-				  gpointer userData);
-/* ------------------------------------------------------------------------- */
-static void pl_case_result (unsigned moduleid, unsigned caseid, char *desc);
-/* ------------------------------------------------------------------------- */
-static void pl_report_case_status (unsigned moduleid,
-                                unsigned caseid,
-                                unsigned stat);
+static void pl_case_result (long testrunid, int result, char *desc,
+			     long starttime, long endtime);
 /* ------------------------------------------------------------------------- */
 static void pl_case_started (unsigned moduleid,
                         unsigned caseid,
@@ -190,14 +182,6 @@ static void min_object_class_init (MinObjectClass *klass)
         /* Init our class object.*/
 
         /* 1. Register signals: */
-void (*case_result) (long test_run_id, int result, char *desc,
-                     long starttime, long endtime);
-void (*case_started) (unsigned module_id, unsigned case_id, 
-                      long test_run_id);
-void (*case_paused) (long test_run_id);
-void (*case_resumed) (long test_run_id);
-void (*module_prints) (long test_run_id, char *message);
-void (*test_modules) (char* modules);
 
         /* new_module */
         klass->signals[0] = g_signal_new (SIGNAL_NEW_MODULE,
@@ -297,7 +281,8 @@ static void handle_error(const char* msg,const char* reason,gboolean fatal)
         }
 }
 /* -------------------------------------------------------------------------- */
-static void pl_case_result (unsigned moduleid, unsigned caseid, char *desc)
+static void pl_case_result (long testrunid, int result, char *desc,
+			     long starttime, long endtime)
 {
         /* emit signal */
         if (!global_obj) return;
@@ -305,9 +290,11 @@ static void pl_case_result (unsigned moduleid, unsigned caseid, char *desc)
         g_signal_emit (global_obj,
                         klass->signals[E_SIGNAL_CASE_RESULT],
                         0,
-                        moduleid,
-                        caseid,
-                        desc);
+                        testrunid,
+                        result,
+                        desc,
+                        starttime,
+                        endtime);
 }
 /* ------------------------------------------------------------------------- */
 static void pl_case_started (unsigned moduleid,
