@@ -1056,8 +1056,8 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                 } else if (etc->result_ == 1) {
                         /* failed */
                         dl_list_add(failed_cases,(void*)it);
-                } else if (etc->result_ == -2) {
-                        /* aborted/crashed */
+                } else if (etc->result_ == -2 || etc->result_ == 2) {
+                        /* aborted/crashed: -2 = crashed, 2 = NC */
                         dl_list_add(abocra_cases,(void*)it);
                 } else {
                         MIN_ERROR ("Case of result %d has not beed filtered",

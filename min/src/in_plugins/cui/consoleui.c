@@ -452,7 +452,7 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
                         long starttime, long endtime)
 {
 	ExecutedTestCase *etc;
-	MIN_DEBUG ("run id = %ld", testrunid);
+	MIN_DEBUG ("Finnished: run id = %ld with result: %d", testrunid, result);
 	etc = get_executed_tcase_with_runid (testrunid);
 	if (etc == INITPTR) {
 		MIN_ERROR ("No test found with run id %ld", testrunid);
