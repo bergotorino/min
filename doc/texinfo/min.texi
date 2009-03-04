@@ -27,9 +27,16 @@ END-INFO-DIR-ENTRY
 
 @ifinfo
 This file documents @value{application_full_name}
+
 Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+
 Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts and no Back-Cover Texts.  A copy of the license is included in the section entitled "GNU Free Documentation License".
 
+Online copy of this document (recent): @url{http://min.sourceforge.net/doc/min.html}
+
+Documentation download page: @url{https://garage.maemo.org/docman/?group_id=853}
+
+Project home page: @url{http://garage.maemo.org/projects/min/}
 @end ifinfo
 
 @titlepage
@@ -43,22 +50,44 @@ Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
 Document Version @value{document_version}
 @sp 2
 Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts and no Back-Cover Texts.  A copy of the license is included in the section entitled "GNU Free Documentation License".
+
+Online copy of this document (recent): @url{http://min.sourceforge.net/doc/min.html}
+
+Documentation download page: @url{https://garage.maemo.org/docman/?group_id=853}
+
+Project home page: @url{http://garage.maemo.org/projects/min/}
 @end titlepage
 
 @ifinfo
 @node Top, Document Version, (dir), (dir)
 @top General Introduction
 This file documents @value{application_full_name}
+
 Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+
 Document Version @value{document_version}
+
+Online copy of this document (recent): @url{http://min.sourceforge.net/doc/min.html}
+
+Documentation download page: @url{https://garage.maemo.org/docman/?group_id=853}
+
+Project home page: @url{http://garage.maemo.org/projects/min/}
 @end ifinfo
 
 @ifdocbook
 @node Top, Document Version, (dir), (dir)
 @top General Introduction
 This file documents @value{application_full_name}
+
 Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+
 Document Version @value{document_version}
+
+Online copy of this document (recent): @url{http://min.sourceforge.net/doc/min.html}
+
+Documentation download page: @url{https://garage.maemo.org/docman/?group_id=853}
+
+Project home page: @url{http://garage.maemo.org/projects/min/}
 @end ifdocbook
 
 @ifhtml
@@ -69,6 +98,12 @@ This page documents @value{application_full_name}
 Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
 
 Document Version @value{document_version}
+
+Online copy of this document (recent): @url{http://min.sourceforge.net/doc/min.html}
+
+Documentation download page: @url{https://garage.maemo.org/docman/?group_id=853}
+
+Project home page: @url{http://garage.maemo.org/projects/min/}
 @end ifhtml
 
 @ifplaintext
@@ -79,6 +114,12 @@ This file documents @value{application_full_name}
 Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
 
 Document Version @value{document_version}
+
+Online copy of this document (recent): http://min.sourceforge.net/doc/min.html
+
+Documentation download page: https://garage.maemo.org/docman/?group_id=853
+
+Project home page: http://garage.maemo.org/projects/min/
 @end ifplaintext
 
 @menu

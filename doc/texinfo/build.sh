@@ -34,6 +34,11 @@ case "$1" in
 	makeinfo --no-split --css-include=min.css --html min.texi
 	makeinfo --no-split --css-include=min.css --html min-reference.texi
 	;;
+	"all")
+	for comm in  'pdf' 'html' 'html-s' 'docbook' 'info' 'plaintext' ; do 
+		$0 $comm
+	done
+	;;
 	*)
 	echo "USAGE: $0 <format>"
 	echo "  Available formats:"
@@ -46,6 +51,7 @@ case "$1" in
 	echo "  html-s    - HTML multi-file documentation,"
 	echo "              splitted to nodes"
 	echo "  html      - HTML single-file documentation"
+	echo "  all       - every format mentioned above"
 	;;
 esac
 
