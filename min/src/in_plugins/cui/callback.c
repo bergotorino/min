@@ -441,8 +441,14 @@ LOCAL void null_cbs (callback_s * cb)
  */
 LOCAL void free_cbs (callback_s * cb)
 {
+	callback_s *p = cb;
+
+	while (p != INITPTR && p && p->choice != NULL) {
+		free (p->choice);
+		p++;
+	}
+
         if (cb != INITPTR && cb != NULL) {
-		null_cbs (cb);
                 free (cb);
                 cb = INITPTR;
         }
