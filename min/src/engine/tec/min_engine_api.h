@@ -50,35 +50,135 @@
 
 /** Callbacks from plugin called by Engine */
 typedef struct  {
-        void (*case_result) (long test_run_id, int result, char *desc,
-			     long starttime, long endtime);
+
+	/* --------------------------------------------------------------------
+	** MIN engine calls this for every new test module it instantiates.
+	** The module_id uniquelly identifies the test module.
+	*/
         void (*new_module) (char *modulename, unsigned module_id);
+
+	/* --------------------------------------------------------------------
+	** In case of error loading a module MIN engine calls this one.
+	*/
         void (*no_module) (char *modulename);
+
+	/* --------------------------------------------------------------------
+	** MIN engine calls this when all the test cases found from test module 
+	** identified by module_id are reported (with new_case())
+	*/
         void (*module_ready) (unsigned module_id);
+
+	/* --------------------------------------------------------------------
+	** Each test case found from test module. The module_id identifies the 
+	** test module, case_id is unique within the test module.
+	*/
         void (*new_case) (unsigned module_id, unsigned case_id, 
 			  char *casetitle);
+	/* --------------------------------------------------------------------
+	** MIN engine reports each started test case. The test_run_id 
+	** identifies the test run. The identifier is to be considred valid 
+	** while test case is running (ongoing/paused).   
+	*/
         void (*case_started) (unsigned module_id, unsigned case_id, 
 			      long test_run_id);
+
+	/* --------------------------------------------------------------------
+	** MIN engine reports that a test case identified with test_run_id has
+	** been paused.
+	*/
         void (*case_paused) (long test_run_id);
+
+	/* --------------------------------------------------------------------
+	** MIN engine reports that a test case identified with test_run_id has
+	** been resumed.
+	*/
         void (*case_resumed) (long test_run_id);
+
+	/* --------------------------------------------------------------------
+	** MIN engine reports test case result.
+	** Values for result as in TPResult (min_common.h)
+	*/
+        void (*case_result) (long test_run_id, int result, char *desc,
+			     long starttime, long endtime);
+
+       	/* --------------------------------------------------------------------
+	** Prints from test case (tm_printf()) are reported by this function. 
+	*/
         void (*module_prints) (long test_run_id, char *message);
+
+	/* --------------------------------------------------------------------
+	** Lists all *.so seen in the MIN engine search paths.
+	*/
         void (*test_modules) (char* modules);
+
+	/* --------------------------------------------------------------------
+	** Lists all text files seen in the MIN engine search paths.
+	*/
         void (*test_files) (char* modules);
 } eapiIn_t;
 
 /** Callbacks to functions from engine called by plugin */
 typedef struct {
+	/* --------------------------------------------------------------------
+	** Adds a new test module to MIN. Engine calls new_module() if the 
+	** adding is succesfull.
+	*/
         void (*add_test_module) (char *modulepath);
+
+	/* --------------------------------------------------------------------
+	** Adds a test case file to the test module identified by moduleid. 
+	** Note: This must be called at least once for every module added(
+	** with add_test_module()), with the testcasefile parameter as "\0". So
+	** that engine knows not to expect any more files. 
+	*/
         void (*add_test_case_file) (unsigned moduleid, char *testcasefile);
+
+	/* --------------------------------------------------------------------
+	** Signals engine to start executing test case with caseid from module 
+	** with moduleid. If the groupid is non-zero test case is started when
+	** there are no cases running with the same groupid. (sequential
+	** execution)
+	*/
         void (*start_case) (unsigned moduleid, unsigned caseid, 
 			    unsigned groupid);
+	/* --------------------------------------------------------------------
+	** Pause test case
+	*/
         void (*pause_case) (long test_run_id);
+
+	/* --------------------------------------------------------------------
+	** Resume test case
+	*/
         void (*resume_case) (long test_run_id);
+
+	/* --------------------------------------------------------------------
+	** Abort test case
+	*/
         void (*abort_case) (long test_run_id);
+
+	/* --------------------------------------------------------------------
+	** Reports fatal error to engine
+	*/
         void (*fatal_error) (const char *what, const char *error_string);
+
+	/* --------------------------------------------------------------------
+	** Open interface towars the MIN engine
+	*/
         void (*min_open) ();
+
+	/* --------------------------------------------------------------------
+	** Close the interface
+	*/
         void (*min_close) ();
+
+	/* --------------------------------------------------------------------
+	** Triggers sending a list of test modules ( test_modules() )
+	*/
         void (*query_test_modules) ();
+
+	/* --------------------------------------------------------------------
+	** Triggers sending a list of test files ( test_files() ) 
+	*/
         void (*query_test_files) ();
 } eapiOut_t;
 
