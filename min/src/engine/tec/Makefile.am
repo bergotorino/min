@@ -1,4 +1,9 @@
-INCLUDES = -I. -I../.. -I../../utils/dllist -I../../utils/ipc -I../../utils/logger -I../../utils/parser -I../../consoleui -I../data_structures_api -I../treport_log -I../../services/event_system -I../../services/scripter_module -I../../utils/text
+INCLUDES = 	-I. -I../.. -I../../utils/dllist \
+		-I../../utils/ipc -I../../utils/logger \
+		-I../../utils/parser -I../../in_plugins/cui \
+		-I../data_structures_api -I../treport_log \
+		-I../../services/event_system \
+		-I../../services/scripter_module -I../../utils/text
 METASOURCES = AUTO
 noinst_LIBRARIES = libmintec.a
 noinst_LTLIBRARIES = libmintecext.la 

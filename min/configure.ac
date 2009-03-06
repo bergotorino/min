@@ -24,7 +24,6 @@ AC_OUTPUT(\
 	Makefile \
         src/Makefile \
         src/main/Makefile \
-        src/consoleui/Makefile \
         src/ext_interface/Makefile \
         src/engine/Makefile \
         src/mintfwif/Makefile \
