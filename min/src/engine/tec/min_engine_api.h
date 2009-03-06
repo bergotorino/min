@@ -185,6 +185,9 @@ typedef struct {
 /* ----------------------------------------------------------------------------
  * FUNCTION PROTOTYPES
  */
+/** Initializes the Engine API - binds pointers to functions to callback
+ *  functions.
+ */
 void eapi_init (eapiIn_t *in, eapiOut_t *out);
 
 /* -------------------------------------------------------------------------*/
