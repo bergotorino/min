@@ -334,16 +334,14 @@ int             compare_id (const void *a, const void *b);
  */
 int             tm_printf (int priority, char *desc, char *format, ...);
 
-/** Gives the ability to print messages to the UI.
- *  @param priority message importance.
- *  @param desc short description.
+/** Prints error messages 
  *  @param format message format.
  *  @param ... format parameters.
  *  @return 0, or -1 in case of failure.
  *
  *  NOTE: see: man 2 printf
  */
-int             tm_send_event (int priority, char *desc, char *format, ...);
+int             tm_print_err (char *format, ...);
 
 /* ------------------------------------------------------------------------- */
 /** Logs the error produced by using one of TL macros.

@@ -1530,6 +1530,14 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
         work_module_item =
             tm_get_ptr_by_pid (instantiated_modules, message->sender_);
         print_msg = tr_create_printout (message->param_, message->message_);
+	
+	/* 
+	** Messages with descriction __error_console__ have a special handling
+	*/
+	if (!strcmp (message->desc_, "__error_console__")) {
+		if (in->error_report) in->error_report (message->message_);
+		goto EXIT;
+	}
 
         if (work_module_item == DLListNULLIterator) {
                 MIN_WARN ("Failed to fetch module data");

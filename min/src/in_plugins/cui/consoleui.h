@@ -52,6 +52,8 @@ DLList         *test_set;
 #define MENU_WIN_Y      2
 /** number of menu columns */
 #define MENU_COLUMNS    1
+/** Log window height */
+#define LOG_WIN_ROWS    6 
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */

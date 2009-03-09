@@ -51,7 +51,13 @@ extern DLList  *defines;
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */
-/* None */
+#define SCRIPTER_SYNTAX_ERROR(__errstr__) \
+do {									       \
+        MIN_ERROR ("Test case \"%s\": line %d: %s. ",                          \
+		   tc_title ? tc_title : "<null>", line_number, __errstr__ );  \
+        tm_print_err ("Test case \"%s\": line %d: %s. ",                       \
+		      tc_title ? tc_title : "<null>", line_number, __errstr__);\
+} while (0)
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
@@ -188,12 +194,13 @@ LOCAL int       check_interference_line (MinItemParser * line,
 /** Checks validity of line with "expect" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
 LOCAL int       check_expect_line (MinItemParser * line, DLList * varnames,
-                                   int line_number);
+                                   int line_number, char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "if" keyword 
  *  @param line [in] MinItemParser containing line.
@@ -209,7 +216,7 @@ LOCAL int       check_if_line (MinItemParser * line, int line_number);
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
 LOCAL int check_expect_line (MinItemParser * line, DLList * varnames,
-                             int line_number)
+                             int line_number, char *tc_title)
 {
         char           *varname = NULL;
         char           *workstring = NULL;
@@ -226,8 +233,8 @@ LOCAL int check_expect_line (MinItemParser * line, DLList * varnames,
                 it = dl_list_next (it);
         }
         if (it == DLListNULLIterator) {
-                MIN_ERROR ("Eexpect keyword syntax error in line %d "
-                            "- Expecting undeclared variable",line_number);
+                SCRIPTER_SYNTAX_ERROR ("Expect keyword syntax error - " 
+				       "Expecting undeclared variable");
                 retval = -1;
         }
         return retval;
@@ -1746,7 +1753,8 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordExpect:
 
                         check_result =
-                            check_expect_line (line, var_list, line_number);
+				check_expect_line (line, var_list, line_number,
+						   tc_title);
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {

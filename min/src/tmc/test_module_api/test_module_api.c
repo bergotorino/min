@@ -119,6 +119,38 @@ int tm_printf (int priority, char *desc, char *format, ...)
         return retval;
 }
 
+/* ------------------------------------------------------------------------- */
+int tm_print_err (char *format, ...)
+{
+        int             retval = -1;
+        int             mqid = -1;
+        va_list         ap;
+        MsgBuffer       buff;
+        char            tmp_msg[MaxUsrMessage];
+
+        if (strlen (format) > (MaxUsrMessage - 1))
+                format[MaxUsrMessage - 1] = '\0';
+
+        va_start (ap, format);
+	vsnprintf (tmp_msg, MaxUsrMessage, format, ap);
+
+        buff.receiver_ = getppid ();
+        buff.sender_ = getpid ();
+        buff.type_ = MSG_USR;
+        buff.param_ = 0;
+        STRCPY (buff.desc_, "__error_console__", MaxUsrMessage);
+        STRCPY (buff.message_, tmp_msg, MaxUsrMessage);
+
+        mqid = mq_open_queue ('a');
+
+        if (mqid != -1) {
+                retval = 0;
+                retval = mq_send_message (mqid, &buff);
+        }
+
+        va_end (ap);
+        return retval;
+}
 
 
 /* ------------------------------------------------------------------------- */

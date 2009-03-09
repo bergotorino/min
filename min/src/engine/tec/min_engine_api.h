@@ -115,6 +115,11 @@ typedef struct  {
 	** Lists all text files seen in the MIN engine search paths.
 	*/
         void (*test_files) (char* modules);
+
+	/* --------------------------------------------------------------------
+	** Engine reports fatal errors
+	*/
+        void (*error_report) (char* error);
 } eapiIn_t;
 
 /** Callbacks to functions from engine called by plugin */

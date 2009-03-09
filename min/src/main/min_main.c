@@ -261,8 +261,6 @@ int main (int argc, char *argv[], char *envp[])
 	oper_mode = no_cui_flag = help_flag = version_flag = cont_flag = 0;
         retval = exit_flag = 0;
         
-        display_license();
-        usleep (500000);
 
 	while (1) {
 		/* getopt_long stores the option index here. */
@@ -309,7 +307,11 @@ int main (int argc, char *argv[], char *envp[])
 			abort ();
              }
         }
-     
+
+	if (!no_cui_flag) {
+		display_license();
+	}
+
 	if (optind < argc) {
 		printf ("unknown options: ");
 		while (optind < argc)
@@ -372,8 +374,16 @@ int main (int argc, char *argv[], char *envp[])
 		
                 retval = pthread_create (&plugin_thread, NULL, plugin_open,
 					 &tmp);
+		if (in->error_report) {
+			in->error_report ("Contact: Antti Heimola, "
+					  "DG.MIN-Support@nokia.com");
+			in->error_report ("licensed under the Gnu General "
+					  "Public License version 2,");
+			in->error_report ("MIN Test Framework, © Nokia 2008,"
+					  " All rights reserved,");
+			
+		}
 		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
-		
 		if (add_command_line_modules (modulelist))
 			exit (1);
 		pthread_join (plugin_thread, &tmp);

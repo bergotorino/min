@@ -56,6 +56,8 @@ extern focus_pos_s main_menu_focus;
 /* GLOBAL VARIABLES */
 /** main window containing the border and title */
 WINDOW         *main_window = INITPTR;
+/** log window containing  */
+WINDOW         *log_window = INITPTR;
 /** window on which the user interacts with the menu */
 WINDOW         *menu_window = INITPTR;
 /** the menu itsef */
@@ -69,6 +71,8 @@ eapiOut_t       min_clbk_;
 /* List of cases */
 DLList *case_list_ = INITPTR;
 DLList *executed_case_list_ = INITPTR;
+DLList *error_list_ = INITPTR;
+
 /* List of modules */
 DLList  *available_modules = INITPTR;
 /* List of test case files selected for added module */
@@ -140,6 +144,8 @@ LOCAL void      restore_focus_pos (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      save_focus_pos (int index, int top_row);
 /* ------------------------------------------------------------------------- */
+LOCAL void      refresh_log_view (void);
+/* ------------------------------------------------------------------------- */
 LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
@@ -160,6 +166,8 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid);
 LOCAL void pl_no_module (char *modulename);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_error_report (char *error);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* ------------------------------------------------------------------------- */
@@ -307,7 +315,7 @@ LOCAL void create_main_window ()
         getmaxyx (stdscr, maxy, maxx);
 
         /* set up main window */
-        main_window = newwin (maxy, maxx, WIN_X, WIN_Y);
+        main_window = newwin (maxy - LOG_WIN_ROWS, maxx, WIN_X, WIN_Y);
 
         wclrscr (main_window);
         keypad (main_window, TRUE);
@@ -325,6 +333,29 @@ LOCAL void create_main_window ()
 }
 
 /* ------------------------------------------------------------------------- */
+/** Creates and displays log window
+ */
+LOCAL void create_log_window ()
+{
+        /* get dimensions of the entire screen */
+        getmaxyx (stdscr, maxy, maxx);
+
+        /* set up main window */
+        log_window = newwin (LOG_WIN_ROWS, maxx, maxy - LOG_WIN_ROWS, WIN_X);
+
+        wclrscr (log_window);
+        keypad (log_window, FALSE);
+
+        /* print a border around the log window */
+        box (log_window, 0, 0);
+
+        /* update screen contents */
+        touchwin (log_window);
+        wrefresh (log_window);
+}
+
+
+/* ------------------------------------------------------------------------- */
 /** Creates and displays menu
  *  @param cb pointer to menu callback structure
  *  @param string menu name
@@ -332,7 +363,7 @@ LOCAL void create_main_window ()
 LOCAL void create_menu (callback_s * cb, const char *string)
 {
         int             i = 0;
-        int             menu_win_height = maxy - MENU_WIN_Y - 1;
+        int             menu_win_height = maxy - MENU_WIN_Y - LOG_WIN_ROWS - 1;
         int             menu_win_width = maxx - MENU_WIN_X - 1;
 
         /* calculate number of menu choices */
@@ -389,6 +420,14 @@ LOCAL void init_main_window ()
 {
         create_main_window ();
         create_menu (cb_main_menu, "Main Menu");
+}
+
+/* ------------------------------------------------------------------------- */
+/** Initializes log window
+ */
+LOCAL void init_log_window ()
+{
+        create_log_window ();
 }
 
 /* ------------------------------------------------------------------------- */
@@ -624,6 +663,17 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
         /* update the screen */
         cui_refresh_view();
 }
+
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_error_report (char *error) {
+	Text *txt;
+	
+	txt = tx_create(error);
+	dl_list_add_at (error_list_, txt, 0);
+	refresh_log_view ();
+}
+
+
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* ------------------------------------------------------------------------- */
@@ -644,6 +694,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         (*out_callback)->no_module              = pl_no_module;
         (*out_callback)->module_ready           = NULL;
         (*out_callback)->new_case               = pl_new_case;
+        (*out_callback)->error_report           = pl_error_report;
 
         return;
 }
@@ -691,6 +742,7 @@ void cui_exec ()
 
         init_ncurses ();
         init_main_window ();
+	init_log_window ();
 
         /* create linked list for test cases */
         user_selected_cases = dl_list_create ();
@@ -706,6 +758,9 @@ void cui_exec ()
 
         /* create linked list for test set */
         test_set = dl_list_create ();
+
+        /* create linked list for test cases */
+        error_list_ = dl_list_create ();
 
         /* Acquire keystroke */
         while (continue_ && (key = wgetch (main_window))) {
@@ -812,6 +867,39 @@ void cui_refresh_view ()
                         touchwin (main_window);
                         wrefresh (main_window);
                 }
+
+        }
+
+        /* release cui mutex */
+        pthread_mutex_unlock (&CUI_MUTEX);
+}
+
+/* ------------------------------------------------------------------------- */
+/** Updates Log view
+ */
+void refresh_log_view ()
+{
+	DLListIterator it;
+	int i = 0;
+	Text *tx;
+        /* lock cui mutex */
+        pthread_mutex_lock (&CUI_MUTEX);
+	if (log_window != INITPTR) {
+		/* clear the log view */
+		wclrscr (log_window);
+
+		box (log_window, 0, 0);
+		for (it = dl_list_head (error_list_); it != INITPTR;
+		     it = dl_list_next (it)) {
+			i++;
+			if (i >= LOG_WIN_ROWS - 1)
+				break;
+			tx = dl_list_data (it);
+			mvwprintw (log_window, i, 1, "%s", tx_share_buf (tx));
+			
+		}
+		touchwin (log_window);
+		wrefresh (log_window);
         }
 
         /* release cui mutex */
