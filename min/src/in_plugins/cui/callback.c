@@ -29,6 +29,7 @@
 #include <stdlib.h>             /* for calloc() */
 #include <menu.h>               /* for ncurses  */
 #include <time.h>               /* for time stuff */
+#include <pthread.h>            /* for mutex */
 
 #include <callback.h>
 #include <consoleui.h>
@@ -51,6 +52,7 @@ extern DLList *case_list_;
 extern DLList *executed_case_list_;      /* */
 extern DLList *available_modules;
 extern DLList *found_tcase_files;
+extern DLList *error_list_;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
@@ -68,6 +70,8 @@ LOCAL void      main_menu (void);
 LOCAL void      case_menu (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      module_menu (void);
+/* ------------------------------------------------------------------------- */
+LOCAL void      log_menu (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      test_set_main_menu (void);
 /* ------------------------------------------------------------------------- */
@@ -95,12 +99,15 @@ LOCAL void      load_test_set (void *p);
 /* ------------------------------------------------------------------------- */
 LOCAL char     *create_path ();
 /* ------------------------------------------------------------------------- */
+LOCAL void      flush_log (void *p);
+/* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 /** main menu structure */
 callback_s      cb_main_menu[] = {
         {"Case menu", NULL, case_menu, NULL, NULL, NULL},
         {"Module menu", NULL, module_menu, NULL, NULL, NULL},
         {"Test set menu", NULL, test_set_main_menu, NULL, NULL, NULL},
+	{"Log menu", NULL, log_menu, NULL, NULL, NULL},
         {"Exit", NULL, quit_program, NULL, NULL, NULL},
         {NULL, NULL, NULL, NULL, NULL, NULL}
 };
@@ -202,6 +209,9 @@ LOCAL callback_s *cb_add_test_module_menu = INITPTR;
 /* add testcase files menu callback structure */
 LOCAL callback_s *cb_add_test_case_files_menu = INITPTR;
 
+/* log menu callback structure */
+LOCAL callback_s *cb_log_menu = INITPTR;
+
 /* test case title */
 LOCAL char      title[MaxTestCaseName] = { '\0' };
 
@@ -210,6 +220,7 @@ LOCAL char      module_name[MaxFileName + 1];
 
 /* focus position information for different menus */
 LOCAL focus_pos_s       case_menu_focus = { 0,0 };
+LOCAL focus_pos_s       log_menu_focus = { 0,0 };
 LOCAL focus_pos_s       test_set_main_menu_focus = { 0,0 };
 LOCAL focus_pos_s       add_test_module_menu_focus = { 0,0 };
 LOCAL focus_pos_s       ongoing_cases_menu_focus = { 0,0 };
@@ -252,6 +263,8 @@ LOCAL void      start_cases_parallel (void *p);
 LOCAL void      get_selected_cases (void);
 /* ------------------------------------------------------------------------- */
 LOCAL int       get_loaded_modules (void);
+/* ------------------------------------------------------------------------- */
+LOCAL int       get_log_messages (void);
 /* ------------------------------------------------------------------------- */
 LOCAL int       get_tcs_for_start_new_case (void);
 /* ------------------------------------------------------------------------- */
@@ -366,6 +379,17 @@ LOCAL void case_menu ()
         /* Show new menu */
         update_menu (cb_case_menu, "Case menu", 0, &case_menu_focus);
 }
+
+/* ------------------------------------------------------------------------- */
+/** Shows log menu
+ */
+LOCAL void log_menu ()
+{
+        if (get_log_messages () != -1)
+                /* Show new menu */
+		update_menu (cb_log_menu, "Log menu", 1, &log_menu_focus);
+}
+
 
 /* ------------------------------------------------------------------------- */
 /** Shows test set menu
@@ -562,8 +586,8 @@ LOCAL int get_test_modules (void)
                         tx = tx_create(c);
 			p = tx_get_buf (tx);
                         set_cbs (&cb_add_test_module_menu[howmany],
-                                p,NULL,add_test_case_files_menu,
-                                module_menu, save_module_name, p, 0);
+				 p,NULL,add_test_case_files_menu,
+				 module_menu, save_module_name, p, 0);
                         tx_destroy(&tx);
                         c+=(i);
                         howmany++;
@@ -583,6 +607,64 @@ LOCAL int get_test_modules (void)
 
         /* last menu item should be NULL one */
         null_cbs (&cb_add_test_module_menu[howmany]);
+
+        return 0;
+}
+
+/* ------------------------------------------------------------------------- */
+/** Load log messages into callback structure
+ *  @return 0 in case of success, returns -1 in case of failure.
+ */
+LOCAL int get_log_messages (void)
+{
+        char *p;
+	DLListIterator it;
+        int howmany = 0, maxy, maxx;
+        Text *tx = INITPTR;
+	
+	getmaxyx (menu_window, maxy, maxx);
+
+        /* free memory allocated for callback structure */
+        free_cbs (cb_log_menu);
+
+	howmany = dl_list_size (error_list_);
+        if (howmany > 0) {
+                /* Allocate and clear memory for menu */
+                cb_log_menu = NEW2 (callback_s, howmany + 2);
+                memset (cb_log_menu, 0x0,
+                        sizeof (callback_s) * (howmany + 2));
+		howmany = 0;
+                set_cbs (&cb_log_menu[howmany],
+                         "Flush log",
+                         NULL,
+                         log_menu,
+                         main_menu, flush_log, NULL, 0);
+                howmany++;
+                if (cb_log_menu == NULL) return -1;
+                /* Create menu */
+		for (it = dl_list_tail (error_list_); it != INITPTR;
+		     it = dl_list_prev (it)) {
+			tx = dl_list_data (it);
+			p = tx_get_buf (tx);
+                        set_cbs (&cb_log_menu [howmany],
+				 p, NULL, log_menu,
+				 main_menu, NULL, it, 1);
+                        howmany ++;
+                }
+        } else {
+                /* Allocate memory for empty menu */
+                cb_log_menu = NEW2(callback_s,2);
+                if (cb_log_menu == NULL) return -1;
+                memset (cb_log_menu, 0x0, sizeof (callback_s) * 2);
+
+                set_cbs (&cb_log_menu [howmany],
+			 "", NULL, log_menu,
+			 main_menu, NULL, NULL, 0);
+                howmany++;
+        }
+
+        /* last menu item should be NULL one */
+        null_cbs (&cb_log_menu [howmany]);
 
         return 0;
 }
@@ -684,6 +766,7 @@ LOCAL int get_loaded_modules ()
                 /* allocate memory for n+1 items */
                 cb_module_menu =
                     (callback_s *) calloc (n + 2, sizeof (callback_s));
+		memset (cb_module_menu, 0x0, (n + 2) * sizeof (callback_s));
 
                 if (cb_module_menu == NULL)
                         return -1;
@@ -703,7 +786,7 @@ LOCAL int get_loaded_modules ()
 			    tx_share_buf (tmi->modulename_) != NULL) {
                                 /* fill menu structure with item data */
                                 set_cbs (&cb_module_menu[i],
-                                         tx_share_buf (tmi->modulename_),
+                                         tx_get_buf (tmi->modulename_),
                                          NULL, NULL, main_menu, NULL, NULL,
                                          1);
                                 i++;
@@ -765,8 +848,8 @@ LOCAL int get_tcs_for_start_new_case ()
                         }
                         /* fill callback structure with data */
                         set_cbs (&cb_start_new_case_menu[i],
-                                tx_share_buf(tc->casetitle_),
-                                NULL,case_menu, case_menu,start_one_tc,
+                                tx_get_buf (tc->casetitle_),
+                                NULL,case_menu, case_menu, start_one_tc,
                                 dl_item_tc, 0);
                         i++;
                         dl_item_tc = dl_list_next(dl_item_tc);
@@ -808,7 +891,8 @@ LOCAL int get_tcs_for_run_multiple_tests ()
                 /* allocate memory for n+1 items */
                 cb_run_multiple_tests_menu =
                     (callback_s *) calloc (n + 1 + 4, sizeof (callback_s));
-
+		memset (cb_run_multiple_tests_menu, 0x0, (n + 1 + 4) *
+			sizeof (callback_s));
                 if (cb_run_multiple_tests_menu == NULL)
                         return -1;
 
@@ -843,7 +927,7 @@ LOCAL int get_tcs_for_run_multiple_tests ()
 				continue;
 			/* fill callback structure */
 			set_cbs (&cb_run_multiple_tests_menu[i],
-				 tx_share_buf (tc->casetitle_), NULL,
+				 tx_get_buf (tc->casetitle_), NULL,
 				 toggle_menu_item,
 				 case_menu, NULL, tc, 1);
 			i++;
@@ -911,7 +995,8 @@ LOCAL int get_ongoing_cases ()
                 /* allocate memory for n+1 items */
                 cb_ongoing_cases_menu =
                     (callback_s *) calloc (n + 1, sizeof (callback_s));
-
+		memset (cb_ongoing_cases_menu, 0x0, (n + 1) *
+			sizeof (callback_s));
                 if (cb_ongoing_cases_menu == NULL)
                         return -1;
 
@@ -933,7 +1018,7 @@ LOCAL int get_ongoing_cases ()
                         case TCASE_STATUS_ONGOING:
                                 /* fill callback structure with data */
                                 set_cbs (&cb_ongoing_cases_menu [i], 
-					 tx_share_buf (etc->case_->casetitle_),
+					 tx_get_buf (etc->case_->casetitle_),
                                          "(ongoing)", NULL,
                                          case_menu,
                                          pause_resume_abort_menu,
@@ -944,7 +1029,7 @@ LOCAL int get_ongoing_cases ()
                         case TCASE_STATUS_PAUSED:
                                 /* fill callback structure with data */
                                 set_cbs (&cb_ongoing_cases_menu [i], 
-					 tx_share_buf (etc->case_->casetitle_),
+					 tx_get_buf (etc->case_->casetitle_),
                                          "(paused)", NULL,
                                          case_menu,
                                          pause_resume_abort_menu,
@@ -1121,7 +1206,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                         begin = (DLListIterator)dl_list_data(it);
                         etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
-                                tx_share_buf(etc->case_->casetitle_),
+                                tx_get_buf(etc->case_->casetitle_),
                                 NULL,
                                 NULL,
                                 case_menu,
@@ -1134,7 +1219,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                         begin = (DLListIterator)dl_list_data(it);
                         etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
-                                tx_share_buf(etc->case_->casetitle_),
+                                tx_get_buf(etc->case_->casetitle_),
                                 NULL,
                                 NULL,
                                 case_menu,
@@ -1147,7 +1232,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                         begin = (DLListIterator)dl_list_data(it);
                         etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
-                                tx_share_buf(etc->case_->casetitle_),
+                                tx_get_buf(etc->case_->casetitle_),
                                 NULL,
                                 NULL,
                                 case_menu,
@@ -1162,7 +1247,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                         begin = (DLListIterator)dl_list_data(it);
                         etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
-                                tx_share_buf(etc->case_->casetitle_),
+                                tx_get_buf(etc->case_->casetitle_),
                                 NULL,
                                 NULL,
                                 case_menu,
@@ -1177,7 +1262,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                         begin = (DLListIterator)dl_list_data(it);
                         etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
-                                tx_share_buf(etc->case_->casetitle_),
+                                tx_get_buf(etc->case_->casetitle_),
                                 NULL,
                                 NULL,
                                 case_menu,
@@ -1193,7 +1278,7 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
                         begin = (DLListIterator)dl_list_data(it);
                         etc = (ExecutedTestCase*)dl_list_data(begin);
                         set_cbs (&(*cb)[i],
-                                tx_share_buf(etc->case_->casetitle_),
+                                tx_get_buf(etc->case_->casetitle_),
                                 NULL,
                                 NULL,
                                 case_menu,
@@ -1238,8 +1323,6 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
  */
 LOCAL void module_menu ()
 {
-        /* free memory allocated for callback structure */
-        free_cbs (cb_module_menu);
 
         if (get_loaded_modules () != -1)
                 /* Show new menu */
@@ -1411,7 +1494,7 @@ LOCAL int test_result_menu (void *p, ptr_to_fun on_left)
         /* add title to menu */
         if (ccd->casetitle_!=INITPTR) {
                 update_menu (cb_test_result_menu,
-			     tx_share_buf(ccd->casetitle_),
+			     tx_get_buf(ccd->casetitle_),
 			     1,
 			     NULL);
         } else update_menu (cb_test_result_menu, "", 1, NULL);
@@ -1482,7 +1565,7 @@ LOCAL void test_result_view (void *p)
                                    "Result info: %s", result);
                         mvwprintw (menu_window, 3, 0,
                                    "Result descr: %s",
-                                   tx_share_buf(etc->resultdesc_));
+                                   tx_share_buf (etc->resultdesc_));
                         mvwprintw (menu_window, 4, 0, "Started: %s",
                                    buffer_start_time);
                         mvwprintw (menu_window, 5, 0, "Completed: %s",
@@ -1795,7 +1878,7 @@ LOCAL void view_output (void *p)
                         /* add printout to menu */
                         set_cbs (&cb_view_output_menu[n],
                                  tx_share_buf (printout) ? 
-				 tx_share_buf (printout) : "<null>",
+				 tx_get_buf (printout) : "<null>",
                                  NULL, NULL, back_to_tr_menu, NULL, NULL, 0);
 
                         n++;
@@ -1821,7 +1904,7 @@ LOCAL void view_output (void *p)
 
         /* Show new menu */
         update_menu (cb_view_output_menu, tx_share_buf (tc->case_->casetitle_),
-							1, NULL);
+		     1, NULL);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -1861,7 +1944,7 @@ LOCAL void view_output_for_ongoing_cases (void *p)
 			
 			set_cbs (&cb_view_output_menu[n],
 				 tx_share_buf (printout) ? 
-				 tx_share_buf (printout) : "<null>",
+				 tx_get_buf (printout) : "<null>",
 				 NULL,
 				 NULL,
 				 back_to_control_menu,
@@ -2376,7 +2459,7 @@ LOCAL int add_tcs_to_test_set ()
 				continue;
 			/* fill callback structure */
 			set_cbs (&cb_add_tcs_to_test_set_menu[i],
-				 tx_share_buf (tc->casetitle_), NULL,
+				 tx_get_buf (tc->casetitle_), NULL,
 				 toggle_menu_item,
 				 test_set_menu, NULL, tc, 1);
 			i++;
@@ -2482,7 +2565,7 @@ LOCAL int remove_tcs_from_test_set ()
                         if (tc != INITPTR && tc->casetitle_ != NULL) {
                                 /* fill callback structure */
                                 set_cbs (&cb_remove_tcs_from_test_set_menu[i],
-                                         tx_share_buf(tc->casetitle_),
+                                         tx_get_buf(tc->casetitle_),
                                          NULL,
                                          toggle_menu_item,
                                          test_set_menu, NULL, tc, 1);
@@ -2706,6 +2789,24 @@ LOCAL int compare_items (const void *data1, const void *data2)
                         result = -1;
         }
         return result;
+}
+
+LOCAL void flush_log (void *p)
+{
+	DLListIterator it, next_it;
+	Text *tx;
+
+	for (it = dl_list_head (error_list_); it != INITPTR; 
+	     it = next_it) {
+		next_it = dl_list_next (it);
+		tx = dl_list_data (it);
+		dl_list_remove_it (it);
+		tx_destroy (&tx);
+	}
+
+	cui_refresh_log_view ();
+
+	return;
 }
 
 /* ======================== FUNCTIONS ====================================== */

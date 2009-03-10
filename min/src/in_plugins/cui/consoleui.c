@@ -77,7 +77,6 @@ DLList *error_list_ = INITPTR;
 DLList  *available_modules = INITPTR;
 /* List of test case files selected for added module */
 DLList *found_tcase_files = INITPTR;
-
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -104,15 +103,14 @@ LOCAL ptr_to_fun func = INITPTR;
 LOCAL ptr_to_fun2 func2 = INITPTR;
 /* parameter to data to pass func2 */
 LOCAL void     *data = INITPTR;
-/* consoleui specific mutex to protect data */
-LOCAL pthread_mutex_t CUI_MUTEX = PTHREAD_MUTEX_INITIALIZER;
 /* height of the main window */
 LOCAL int       maxy = 0;
 /* width of the main window */
 LOCAL int       maxx = 0;
 /* current menu's focus position */
 LOCAL focus_pos_s       *focus_pos = &main_menu_focus;
-
+/* consoleui specific mutex to protect data */
+LOCAL pthread_mutex_t CUI_MUTEX = PTHREAD_MUTEX_INITIALIZER;
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
 /* None */
@@ -132,7 +130,7 @@ LOCAL void      wCenterTitle (WINDOW * pwin, const char *title);
 /* ------------------------------------------------------------------------- */
 LOCAL void      init_main_window (void);
 /* ------------------------------------------------------------------------- */
-LOCAL void      create_main_window (void);
+LOCAL void      create_main_window (int ysize, int xsize);
 /* ------------------------------------------------------------------------- */
 LOCAL void      delete_menu (void);
 /* ------------------------------------------------------------------------- */
@@ -143,8 +141,6 @@ LOCAL void      wclreoln (WINDOW * pwin, int y, int x);
 LOCAL void      restore_focus_pos (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      save_focus_pos (int index, int top_row);
-/* ------------------------------------------------------------------------- */
-LOCAL void      refresh_log_view (void);
 /* ------------------------------------------------------------------------- */
 LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
 /* ------------------------------------------------------------------------- */
@@ -309,13 +305,11 @@ LOCAL void delete_menu ()
 /* ------------------------------------------------------------------------- */
 /** Creates and displays main window
  */
-LOCAL void create_main_window ()
+LOCAL void create_main_window (int ysize, int xsize)
 {
-        /* get dimensions of the entire screen */
-        getmaxyx (stdscr, maxy, maxx);
 
         /* set up main window */
-        main_window = newwin (maxy - LOG_WIN_ROWS, maxx, WIN_X, WIN_Y);
+        main_window = newwin (ysize, xsize, WIN_X, WIN_Y);
 
         wclrscr (main_window);
         keypad (main_window, TRUE);
@@ -418,16 +412,15 @@ LOCAL void create_menu (callback_s * cb, const char *string)
  */
 LOCAL void init_main_window ()
 {
-        create_main_window ();
+        /* get dimensions of the entire screen */
+        getmaxyx (stdscr, maxy, maxx);
+	if (maxy > LOG_WIN_ENABLE_LIMIT) {
+		create_main_window (maxy - LOG_WIN_ROWS, maxx);
+		create_log_window ();
+	}
+	else
+		create_main_window (maxy, maxx);
         create_menu (cb_main_menu, "Main Menu");
-}
-
-/* ------------------------------------------------------------------------- */
-/** Initializes log window
- */
-LOCAL void init_log_window ()
-{
-        create_log_window ();
 }
 
 /* ------------------------------------------------------------------------- */
@@ -669,8 +662,8 @@ LOCAL void pl_error_report (char *error) {
 	Text *txt;
 	
 	txt = tx_create(error);
-	dl_list_add_at (error_list_, txt, 0);
-	refresh_log_view ();
+	dl_list_add (error_list_, txt);
+	cui_refresh_log_view ();
 }
 
 
@@ -742,7 +735,6 @@ void cui_exec ()
 
         init_ncurses ();
         init_main_window ();
-	init_log_window ();
 
         /* create linked list for test cases */
         user_selected_cases = dl_list_create ();
@@ -874,37 +866,6 @@ void cui_refresh_view ()
         pthread_mutex_unlock (&CUI_MUTEX);
 }
 
-/* ------------------------------------------------------------------------- */
-/** Updates Log view
- */
-void refresh_log_view ()
-{
-	DLListIterator it;
-	int i = 0;
-	Text *tx;
-        /* lock cui mutex */
-        pthread_mutex_lock (&CUI_MUTEX);
-	if (log_window != INITPTR) {
-		/* clear the log view */
-		wclrscr (log_window);
-
-		box (log_window, 0, 0);
-		for (it = dl_list_head (error_list_); it != INITPTR;
-		     it = dl_list_next (it)) {
-			i++;
-			if (i >= LOG_WIN_ROWS - 1)
-				break;
-			tx = dl_list_data (it);
-			mvwprintw (log_window, i, 1, "%s", tx_share_buf (tx));
-			
-		}
-		touchwin (log_window);
-		wrefresh (log_window);
-        }
-
-        /* release cui mutex */
-        pthread_mutex_unlock (&CUI_MUTEX);
-}
 
 /* ------------------------------------------------------------------------- */
 /** Creates and shows popup window for showing information to user
@@ -960,6 +921,38 @@ void popup_window (char *string, int time)
         delwin (small_win);
         touchwin (main_window);
         wrefresh (main_window);
+
+}
+
+/* ------------------------------------------------------------------------- */
+/** Updates Log view
+ */
+void cui_refresh_log_view ()
+{
+	DLListIterator it;
+	int i = 0, maxy, maxx;
+	Text *tx;
+
+	if (log_window != INITPTR) {
+		/* clear the log view */
+		getmaxyx (log_window, maxy, maxx);
+		wclrscr (log_window);
+
+		box (log_window, 0, 0);
+		for (it = dl_list_tail (error_list_); it != INITPTR;
+		     it = dl_list_prev (it)) {
+			i++;
+			if (i >= LOG_WIN_ROWS - 1)
+				break;
+			tx = dl_list_data (it);
+			mvwaddnstr (log_window, i, 1,  tx_share_buf (tx),
+				    maxx - 2);
+			
+		}
+		touchwin (log_window);
+		wrefresh (log_window);
+        }
+
 }
 
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */

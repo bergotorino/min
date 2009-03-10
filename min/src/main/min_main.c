@@ -379,7 +379,7 @@ int main (int argc, char *argv[], char *envp[])
 					  "DG.MIN-Support@nokia.com");
 			in->error_report ("licensed under the Gnu General "
 					  "Public License version 2,");
-			in->error_report ("MIN Test Framework, © Nokia 2008,"
+			in->error_report ("MIN Test Framework, (c) Nokia 2008,"
 					  " All rights reserved,");
 			
 		}

@@ -54,6 +54,8 @@ DLList         *test_set;
 #define MENU_COLUMNS    1
 /** Log window height */
 #define LOG_WIN_ROWS    6 
+/** Log window is created only if we have big enough screen */
+#define LOG_WIN_ENABLE_LIMIT  15 
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */
@@ -79,6 +81,8 @@ void            update_menu (callback_s * cb, char *string, int update,
 void            cui_exec (void);
 /* ------------------------------------------------------------------------- */
 void            cui_refresh_view (void);
+/* ------------------------------------------------------------------------- */
+void            cui_refresh_log_view (void);
 /* ------------------------------------------------------------------------- */
 void            popup_window (char *string, int time);
 
