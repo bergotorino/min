@@ -51,12 +51,35 @@ extern DLList  *defines;
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */
-#define SCRIPTER_SYNTAX_ERROR(__errstr__) \
-do {									       \
-        MIN_ERROR ("Test case \"%s\": line %d: %s. ",                          \
-		   tc_title ? tc_title : "<null>", line_number, __errstr__ );  \
-        tm_print_err ("Test case \"%s\": line %d: %s. ",                       \
-		      tc_title ? tc_title : "<null>", line_number, __errstr__);\
+#define SCRIPTER_SYNTAX_ERROR(__keyword__,__errstr__)\
+do {\
+        MIN_ERROR ("Test case \"%s\": line %d: %s keyword syntax error - %s.",\
+		   tc_title ? tc_title : "<null>", line_number, __keyword__, \
+		   __errstr__ );\
+        tm_print_err ("Test case \"%s\": line %d:"\
+		      " %s keyword syntax error - %s.",			\
+		      tc_title ? tc_title : "<null>", line_number, __keyword__,\
+		      __errstr__);\
+} while (0)
+
+#define SCRIPTER_SYNTAX_ERROR_ARG(__keyword__,__errstr__,__arg__)	\
+do {\
+	MIN_ERROR ("Test case \"%s\": line %d: %s keyword syntax error - "\
+		   "%s:%s",tc_title ? tc_title : "<null>", line_number,	\
+		   __keyword__,__errstr__, __arg__);			\
+	tm_print_err ("Test case \"%s\": line %d: %s keyword syntax error - " \
+		      "%s:%s", tc_title ? tc_title : "<null>", line_number, \
+		      __keyword__, __errstr__, __arg__);		\
+} while (0)
+
+#define SCRIPTER_ERROR(__errstr__,__arg__)\
+do {\
+	MIN_ERROR ("Test case \"%s\": line %d: error - "		\
+		   "%s %s", tc_title ? tc_title : "<null>", line_number,\
+		   __errstr__, __arg__);				\
+	tm_print_err ("Test case \"%s\": line %d: error - "	\
+		      "%s %s", tc_title ? tc_title : "<null>", line_number, \
+		      __errstr__, __arg__);				\
 } while (0)
 
 /* ------------------------------------------------------------------------- */
@@ -91,105 +114,125 @@ LOCAL void      interpreter_handle_keyword (TScripterKeyword keyword,
  * @param line - min item parser containing line. Assume that 
  * mip_get_line was executed once to extract first keyword
  * @param line_number - line number for debug messages
+ * @param tc_title - title of validated test case
  * @return 0 if line is valid*/
-LOCAL int       check_run_line (MinItemParser * line, int line_number);
+LOCAL int       check_run_line (MinItemParser * line, int line_number, 
+				char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validitye of line with "pause" keyword
  * @param line - min item parser containing line. Assume that 
  * mip_get_line was executed once to extract first keyword
  * @param line_number - line number for debug messages
+ * @param tc_title - title of validated test case
  * @return 0 if line is valid*/
-LOCAL int       check_pause_line (MinItemParser * line, int line_number);
+LOCAL int       check_pause_line (MinItemParser * line, int line_number,
+				  char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "loop" keyword
  * @param line - min item parser containing line. Assume that 
  * mip_get_line was executed once to extract first keyword
  * @param line_number - line number for debug messages
+ * @param tc_title - title of validated test case
  * @return 0 if line is valid*/
-LOCAL int       check_loop_line (MinItemParser * line, int line_number);
+LOCAL int       check_loop_line (MinItemParser * line, int line_number,
+				 char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "allocate" keyword
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @param slaves [in] list of slaves
+ *  @param tc_title - title of validated test case
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
 LOCAL int       check_allocate_line (MinItemParser * line, int line_number,
-				     DLList * slaves);
+				     DLList * slaves, char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "free" keyword
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @param slaves [in] list of slaves
+ *  @param tc_title - title of validated test case
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
 LOCAL int       check_free_line (MinItemParser * line, int line_number,
-				 DLList * slaves);
+				 DLList * slaves, char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "remote" keyword
  *  @param line [in] MinItemParser containing line.
  *  @param variables [in] list of variables
  *  @param line_number - line number for debug messages
  *  @param slaves [in] list of slaves
+ *  @param tc_title - title of validated test case
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
 LOCAL int       check_remote_line (MinItemParser * line, DLList * variables,
-                                   int line_number, DLList * slaves);
+                                   int line_number, DLList * slaves, 
+				   char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "allownextresult" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
 LOCAL int       check_allownextresult_line (MinItemParser * line,
-                                            int line_number);
+                                            int line_number,
+					    char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "complete" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
-LOCAL int       check_complete_line (MinItemParser * line, int line_number);
+LOCAL int       check_complete_line (MinItemParser * line, int line_number,
+				     char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "timeout" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
-LOCAL int       check_timeout_line (MinItemParser * line, int line_number);
+LOCAL int       check_timeout_line (MinItemParser * line, int line_number,
+				    char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "sleep" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
-LOCAL int       check_sleep_line (MinItemParser * line, int line_number);
+LOCAL int       check_sleep_line (MinItemParser * line, int line_number,
+				  char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "testinterference" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @param interf_objs list of interference objects
+ *  @param tc_title - title of validated test case
  *  @return ENOERR if line is valid, -1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
 LOCAL int       check_interference_line (MinItemParser * line,
                                          int line_number,
-					 DLList * interf_objs);
+					 DLList * interf_objs,
+					 char * tc_title);
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "expect" keyword 
  *  @param line [in] MinItemParser containing line.
@@ -205,9 +248,11 @@ LOCAL int       check_expect_line (MinItemParser * line, DLList * varnames,
 /** Checks validity of line with "if" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
  *  @return ENOERR if line is valid, -1 otherwise. 
  */
-LOCAL int       check_if_line (MinItemParser * line, int line_number);
+LOCAL int       check_if_line (MinItemParser * line, int line_number, 
+			       char * tc_title);
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -233,7 +278,7 @@ LOCAL int check_expect_line (MinItemParser * line, DLList * varnames,
                 it = dl_list_next (it);
         }
         if (it == DLListNULLIterator) {
-                SCRIPTER_SYNTAX_ERROR ("Expect keyword syntax error - " 
+                SCRIPTER_SYNTAX_ERROR ("expect", 
 				       "Expecting undeclared variable");
                 retval = -1;
         }
@@ -467,7 +512,7 @@ LOCAL void interpreter_handle_keyword (TScripterKeyword keyword,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL int check_run_line (MinItemParser * line, int line_number)
+LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
 {
         char           *lib_name = NULL;
         char           *cfg_name = NULL;
@@ -485,23 +530,15 @@ LOCAL int check_run_line (MinItemParser * line, int line_number)
 
         opresult = mip_get_next_string (line, &lib_name);
         if (opresult != 0) {
-                MIN_ERROR ("run keyword syntax error, line: %d -"
-                            "test module is not defined",line_number);
+                SCRIPTER_SYNTAX_ERROR ("run",
+				       "test module is not defined");
                 goto EXIT;
         }
 
         opresult = mip_get_next_string (line, &cfg_name);
         if (opresult != 0) {
-                MIN_ERROR ("run keyword syntax error, line: %d -"
-                            "test case cfg file is not defined",line_number);
-                goto EXIT;
-        }
-
-        opresult = mip_get_int (line, "", &case_id);
-        if (case_id < 0) {
-                opresult = -1;
-                MIN_ERROR ("run keyword syntax error, line: %d -"
-                            "test case id is not defined",line_number);
+                SCRIPTER_SYNTAX_ERROR ("run",
+				       "test case id is not defined");
                 goto EXIT;
         }
 
@@ -520,24 +557,23 @@ LOCAL int check_run_line (MinItemParser * line, int line_number)
         dll_handle = tl_open_tc (f_path);
         if (dll_handle == INITPTR) {
                 opresult = -1;
-                MIN_ERROR ("run keyword syntax error, line: %d -"
-                            "library not opened",line_number,lib_name);
+                SCRIPTER_SYNTAX_ERROR_ARG ("run",
+					   "library not opened", lib_name);
                 goto EXIT;
         }
 
         run_case = (ptr2run) dlsym (dll_handle, "tm_run_test_case");
         if (run_case == NULL) {
-                MIN_ERROR ("run keyword syntax error, line: %d -"
-                            "run_case unresolved in %s, error: %s",
-                            line_number,lib_name,dlerror());
+                SCRIPTER_SYNTAX_ERROR_ARG ("run",
+					   "run_case() unresolved", dlerror());
                 opresult = -1;
                 goto EXIT;
         }
 
         get_cases = (ptr2case) dlsym (dll_handle, "tm_get_test_cases");
         if (get_cases == NULL) {
-                MIN_ERROR ("run keyword syntax error, line: %d -"
-                            "faulty test library %s,",line_number,lib_name);
+                SCRIPTER_SYNTAX_ERROR_ARG ("run",
+					   "get_cases() unresolved", dlerror);
                 dlclose (dll_handle);
                 goto EXIT;
         }
@@ -545,8 +581,9 @@ LOCAL int check_run_line (MinItemParser * line, int line_number)
         opresult = get_cases (cfg_name, &module_cases);
         if ((dl_list_size (module_cases) == 0) || (opresult != 0)) {
 
-                MIN_WARN ("Failed to get test cases from module %s",
-                           lib_name);
+                SCRIPTER_SYNTAX_ERROR_ARG ("run", "Failed to get test "
+					   "cases from module",
+					   lib_name);
                 dlclose (dll_handle);
                 goto EXIT;
         }
@@ -554,9 +591,8 @@ LOCAL int check_run_line (MinItemParser * line, int line_number)
                 if ((dl_list_size (module_cases) + 1) >= case_id) {
                         opresult = 0;
                 } else {
-                        MIN_ERROR ("run keyword syntax error, line: %d "
-                                    ". Test case id out of range.", 
-                                   line_number);
+                        SCRIPTER_SYNTAX_ERROR ("run", 
+					       "Test case id out of range.");
                         opresult = -1;
                 }
                 goto EXIT;
@@ -575,9 +611,9 @@ LOCAL int check_run_line (MinItemParser * line, int line_number)
                         /* whole list has been searched, case with matching
                            title was not found */
                         opresult = -1;
-                        MIN_ERROR ("run keyword syntax error in line %d"
-                                    ". Case with matching title not found.",
-                                    line_number);
+                        SCRIPTER_SYNTAX_ERROR ("run",
+					       "case with matching title not"
+					       " found.");
                         goto EXIT;
                 }
         }
@@ -602,15 +638,16 @@ LOCAL int check_run_line (MinItemParser * line, int line_number)
 }
 
 /*------------------------------------------------------------------------- */
-LOCAL int check_pause_line (MinItemParser * line, int line_number)
+LOCAL int check_pause_line (MinItemParser * line, int line_number, 
+			    char *tc_title)
 {
         char           *string = INITPTR;
         int             result = -1;
 
         result = mip_get_next_string (line, &string);
         if (result != 0) {
-                MIN_ERROR ("pause keyword syntax error in line %d"
-                            ". Test id is not defined.",line_number);
+                SCRIPTER_SYNTAX_ERROR ("pause",
+				       "test id is not defined");
                 return -1;
         }
         DELETE (string);
@@ -618,7 +655,8 @@ LOCAL int check_pause_line (MinItemParser * line, int line_number)
 }
 
 /*------------------------------------------------------------------------- */
-LOCAL int check_loop_line (MinItemParser * line, int line_number)
+LOCAL int check_loop_line (MinItemParser * line, int line_number, 
+			   char * tc_title)
 {
         int             param1 = 0;
         char           *opt_msec = NULL;
@@ -627,9 +665,9 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number)
         /*check value of int after "loop" */
         result = mip_get_int (line, "", &param1);
         if (result != 0) {
-                MIN_ERROR ("loop keyword syntax error in line %d"
-                            ". Number of iterations/time is not defined.",
-                            line_number);
+                SCRIPTER_SYNTAX_ERROR ("loop",
+				       "number of iterations/time is "
+				       "not defined");
                 return (-1);
         }
 
@@ -639,9 +677,9 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number)
                 if (strcmp (opt_msec, "msec") == 0) {
                         return 0;
                 } else {
-                        MIN_ERROR ("loop keyword syntax error in line %d"
-                                    ". Wrong keyword in loop statement.",
-                                    line_number);
+                        SCRIPTER_SYNTAX_ERROR ("loop",
+					       "wrong keyword in loop "
+					       "statement");
                         return (-1);
                 }
         }
@@ -650,7 +688,7 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number)
 
 /*------------------------------------------------------------------------- */
 LOCAL int check_allocate_line (MinItemParser * line, int line_number,
-			       DLList * slaves)
+			       DLList * slaves, char * tc_title)
 {
         int             retval = ENOERR;
         int             result = 0;
@@ -660,14 +698,14 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number,
         /* Check syntax: allocate <slave type> <slave name> */
         result = mip_get_next_string (line, &token);
         if (result != ENOERR) {
-                MIN_ERROR ("allocate keyword syntax error in line %d"
-                            ". Slave type is not defined.",line_number);
+                SCRIPTER_SYNTAX_ERROR ("allocate",
+				       "slave type is not defined");
                 retval = -1;
                 goto EXIT;
         }
         if (strcmp (token, "phone") != 0) {
-                MIN_ERROR ("allocate keyword syntax error in line %d"
-                            ". Slave type differs from phone.",line_number);
+                SCRIPTER_SYNTAX_ERROR ("allocate",
+				       "slave type differs from phone");
                 DELETE (token);
                 retval = -1;
                 goto EXIT;
@@ -675,8 +713,8 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number,
         DELETE (token);
         result = mip_get_next_string (line, &token);
         if (result != ENOERR) {
-                MIN_ERROR ("allocate keyword syntax error in line %d"
-                            ". Slave name is not defined.",line_number);
+		SCRIPTER_SYNTAX_ERROR ("allocate",
+				       "slave name is not defined");
                 retval = -1;
                 goto EXIT;
         }
@@ -686,9 +724,9 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number,
                            , dl_list_tail (slaves)
                            , look4slave, (const void *)token);
         if (it != DLListNULLIterator) {
-                MIN_ERROR ("allocate keyword syntax error in line %d"
-                            ". Slave with selected name already exists.",
-                            line_number);
+                SCRIPTER_SYNTAX_ERROR ("allocate",
+				       "slave with selected name "
+				       "already exists");
                 retval = -1;
                 DELETE (token);
                 goto EXIT;
@@ -702,7 +740,7 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number,
 
 /*------------------------------------------------------------------------- */
 LOCAL int check_free_line (MinItemParser * line, int line_number,
-			   DLList *slaves)
+			   DLList *slaves, char * tc_title)
 {
         int             retval = ENOERR;
         int             result = 0;
@@ -714,8 +752,8 @@ LOCAL int check_free_line (MinItemParser * line, int line_number,
         if (result != ENOERR) {
                 retval = -1;
                 DELETE (token);
-                MIN_ERROR ("free keyword syntax error in line %d"
-                            ". Slave name is not defined.",line_number);
+                SCRIPTER_SYNTAX_ERROR ("free",
+				       "slave name is not defined");
                 goto EXIT;
         }
 
@@ -726,8 +764,8 @@ LOCAL int check_free_line (MinItemParser * line, int line_number,
         if (it == DLListNULLIterator) {
                 retval = -1;
                 DELETE (token);
-                MIN_ERROR ("free keyword syntax error in line %d"
-                            ". Slave not allocated.",line_number);
+                SCRIPTER_SYNTAX_ERROR ("free",
+				       "slave not allocated");
                 goto EXIT;
         }
         DELETE (token);
@@ -742,7 +780,7 @@ LOCAL int check_free_line (MinItemParser * line, int line_number,
 
 /*------------------------------------------------------------------------- */
 LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
-                             int line_number, DLList * slaves)
+                             int line_number, DLList * slaves, char * tc_title)
 {
         int             retval = ENOERR;
         int             result = 0;
@@ -756,8 +794,8 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
         if (result != ENOERR) {
                 retval = -1;
                 DELETE (token);
-                MIN_ERROR ("remote keyword syntax error in line %d"
-                            ". Slave name is not defined.",line_number);
+                SCRIPTER_SYNTAX_ERROR ("remote",
+				       "slave name is not defined");
                 goto EXIT;
         }
         /* Check if slave of this name was already allocated. */
@@ -767,8 +805,8 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
         if (it == DLListNULLIterator) {
                 retval = -1;
                 DELETE (token);
-                MIN_ERROR ("remote keyword syntax error in line "
-                            ". Slave not allocated.",line_number);
+                SCRIPTER_SYNTAX_ERROR ("remote",
+				       "slave not allocated");
                 goto EXIT;
         }
         DELETE (token);
@@ -778,8 +816,8 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
         if (result != ENOERR) {
                 retval = -1;
                 DELETE (token);
-                MIN_ERROR ("remote keyword syntax error in line %d"
-                            ". Remote command is not defined",line_number);
+                SCRIPTER_SYNTAX_ERROR ("remote",
+				       "remote command is not defined");
                 goto EXIT;
         }
 
@@ -788,10 +826,9 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
         case EKeywordSendreceive:
                 mip_get_next_string (line, &arg);
                 if (strchr (arg, '=') == NULL) {
-                        MIN_ERROR ("remote keyword syntax error in line %d"
-                                    ". Wrong argument for remote sendreceive"
-                                    " (no \"=\").",
-                                    line_number);
+                        SCRIPTER_SYNTAX_ERROR("remote",
+					      "wrong argument for remote "
+					      "sendreceive (no \"=\")");
                         retval = -1;
                 } else
                         retval = 0;
@@ -804,9 +841,8 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
                                    , dl_list_tail (variables)
                                    , look4slave, (const void *)arg);
                 if (it == DLListNULLIterator) {
-                        MIN_ERROR ("remote keyword syntax error in line %d. "
-                                   "Remote expect for unknown var.",
-                                   line_number);
+                        SCRIPTER_SYNTAX_ERROR ("remote",
+					       "remote expect for unknown var");
                         retval = -1;
                 } else
                         retval = 0;
@@ -821,7 +857,8 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
 }
 
 /*------------------------------------------------------------------------- */
-LOCAL int check_allownextresult_line (MinItemParser * line, int line_number)
+LOCAL int check_allownextresult_line (MinItemParser * line, int line_number,
+				      char * tc_title)
 {
         int             retval = ENOERR;
         int             tmp = 0;
@@ -835,8 +872,8 @@ LOCAL int check_allownextresult_line (MinItemParser * line, int line_number)
         retval = mip_get_next_int (line, &tmp);
 
         if (retval != ENOERR) {
-                MIN_ERROR ("allownextresult keyword syntax error in line %d"
-                           ". Result code is not defined.", line_number);
+                SCRIPTER_SYNTAX_ERROR ("allownextresult",
+				       "result code is not defined");
                 retval = -1;
                 goto EXIT;
         }
@@ -845,7 +882,8 @@ LOCAL int check_allownextresult_line (MinItemParser * line, int line_number)
 }
 
 /*------------------------------------------------------------------------- */
-LOCAL int check_complete_line (MinItemParser * line, int line_number)
+LOCAL int check_complete_line (MinItemParser * line, int line_number, 
+			       char * tc_title)
 {
         int             retval = ENOERR;
         char           *token = INITPTR;
@@ -860,8 +898,8 @@ LOCAL int check_complete_line (MinItemParser * line, int line_number)
 
         /* Check syntax */
         if (retval != ENOERR) {
-                MIN_ERROR ("complete keyword syntax error in line %d"
-                            ". Testid is not defined.",line_number);
+                SCRIPTER_SYNTAX_ERROR ("complete",
+				       "testid is not defined");
                 retval = -1;
                 goto EXIT;
         }
@@ -872,7 +910,8 @@ LOCAL int check_complete_line (MinItemParser * line, int line_number)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL int check_timeout_line (MinItemParser * line, int line_number)
+LOCAL int check_timeout_line (MinItemParser * line, int line_number,
+			      char * tc_title)
 {
         int             retval = ENOERR;
         int             tmp = 0;
@@ -887,14 +926,14 @@ LOCAL int check_timeout_line (MinItemParser * line, int line_number)
 
         /* Check syntax */
         if (retval != ENOERR) {
-                MIN_ERROR ("timeout keyword syntax error in line %d"
-                            ". Timeout interval is not defined.", line_number);
+                SCRIPTER_SYNTAX_ERROR ("timeout",
+				       "timeout interval is not defined");
                 retval = -1;
                 goto EXIT;
         }
         if (tmp < 1) {
-                MIN_ERROR ("timeout keyword syntax error in line %d"
-                            ". Invalid interval value.", line_number);
+                SCRIPTER_SYNTAX_ERROR ("timeout",
+				       "invalid interval value");
                 retval = -1;
                 goto EXIT;
         }
@@ -905,7 +944,7 @@ LOCAL int check_timeout_line (MinItemParser * line, int line_number)
 
 /* ------------------------------------------------------------------------- */
 LOCAL int check_interference_line (MinItemParser * line, int line_number,
-				   DLList * interf_objs)
+				   DLList * interf_objs, char * tc_title)
 {
         int             retval = ENOERR;
         char           *name = INITPTR;
@@ -928,9 +967,8 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
         if ((access ("/usr/bin/cpuload", X_OK) != 0) ||
             (access ("/usr/bin/memload", X_OK) != 0) ||
             (access ("/usr/bin/ioload", X_OK))) {
-                MIN_ERROR ("Testinterference  error in line %d"
-                            ". Check if sp-stress is installed properly.",
-                            line_number);
+                SCRIPTER_SYNTAX_ERROR ("testinterference", "check if sp-stress"
+				       " is installed properly");
                 retval = -1;
                 goto EXIT;
         }
@@ -938,8 +976,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
 
         /* check syntax */
         if (retval != ENOERR) {
-                MIN_WARN ("Testinterference keyword syntax error in line %d",
-                          line_number);
+                SCRIPTER_SYNTAX_ERROR ("testinterference","name missing");
                 retval = -1;
                 goto EXIT;
         }
@@ -947,8 +984,8 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
         retval = mip_get_next_string (line, &command);
 
         if (retval != ENOERR) {
-                MIN_WARN ("Testinterference keyword syntax error in line %d",
-                           ". Command not specified",line_number);
+                SCRIPTER_SYNTAX_ERROR ("testinterference",
+				       "command not specified");
                 retval = -1;
                 goto EXIT;
         }
@@ -956,43 +993,40 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
 
                 retval = mip_get_next_string (line, &type);
                 if (retval != ENOERR) {
-                        MIN_WARN ("Testinterference keyword syntax error in "
-                                  "line %d. Type not specified", line_number);
+			SCRIPTER_SYNTAX_ERROR ("testinterference",
+					       "type not specified");
                         retval = -1;
                         goto EXIT;
                 }
                 if ((strcmp (type, "cpuload") != 0) &&
                     (strcmp (type, "memload") != 0) &&
                     (strcmp (type, "ioload") != 0)) {
-                        MIN_WARN ("Testinterference keyword syntax error in "
-                                  "line %d. Type not specified correctly",
-                                  line_number);
+                        SCRIPTER_SYNTAX_ERROR ("testinterference",
+					       "type not specified correctly");
                         retval = -1;
                         goto EXIT;
                 }
                 retval = mip_get_next_int (line, &value);
 
                 if (retval != ENOERR) {
-                        MIN_WARN ("Testinterference keyword syntax error in "
-                                  "line %d. Value not specified", line_number);
+                        SCRIPTER_SYNTAX_ERROR ("testinterference",
+					       "value not specified");
                         retval = -1;
                         goto EXIT;
                 }
                 retval = mip_get_next_int (line, &idle_time);
 
                 if (retval != ENOERR) {
-                        MIN_WARN ("Testinterference keyword syntax error in "
-                                  "line %d. Idle time not specified",
-                                  line_number);
+                        SCRIPTER_SYNTAX_ERROR ("testinterference",
+					       "idle time not specified");
                         retval = -1;
                         goto EXIT;
                 }
                 retval = mip_get_next_int (line, &busy_time);
 
                 if (retval != ENOERR) {
-                        MIN_WARN ("Testinterference keyword syntax error in "
-                                  "line %d. Busy time not specified",
-                                  line_number);
+			SCRIPTER_SYNTAX_ERROR ("testinterference",
+					       "busy time not specified");
                         retval = -1;
                         goto EXIT;
                 }
@@ -1004,10 +1038,9 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
         } else if (strcasecmp (command, "stop") == 0) {
                 if (interf_objs == INITPTR) {
                         retval = -1;
-                        MIN_WARN ("Testinterference keyword syntax error "
-                                  "in line %d. No interferences started at "
-                                  "this point",
-                                  line_number);
+                        SCRIPTER_SYNTAX_ERROR ("testinterference",
+					       "mo interferences started at "
+					       "this point");
                         goto EXIT;
                 }
 
@@ -1020,10 +1053,9 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                 }
                 if (work_inter == DLListNULLIterator) {
                         retval = -1;
-                        MIN_WARN ("Testinterference keyword syntax error in "
-                                  "line %d. No such interference started at "
-                                  "this point",
-                                  line_number);
+                        SCRIPTER_SYNTAX_ERROR ("testinterference",
+					       "no such interference started "
+					       "at this point");
                         goto EXIT;
                 } else {
                         tmp = (char *)dl_list_data (work_inter);
@@ -1035,8 +1067,8 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                 goto EXIT;
         } else {
                 retval = -1;
-                MIN_WARN ("Testinterference keyword syntax error in line %d. "
-                          "Wrong command name", line_number);
+                SCRIPTER_SYNTAX_ERROR ("testinterference",
+				       "wrong command name");
                 goto EXIT;
         }
 
@@ -1052,7 +1084,8 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL int check_sleep_line (MinItemParser * line, int line_number)
+LOCAL int check_sleep_line (MinItemParser * line, int line_number, 
+			    char * tc_title)
 {
         int             retval = ENOERR;
         int             tmp = 0;
@@ -1067,14 +1100,14 @@ LOCAL int check_sleep_line (MinItemParser * line, int line_number)
 
         /* check syntax */
         if (retval != ENOERR) {
-                MIN_ERROR ("sleep keyword syntax error in line %d"
-                            ". Sleep interval is not defined", line_number);
+                SCRIPTER_SYNTAX_ERROR ("sleep",
+				       "sleep interval is not defined");
                 retval = -1;
                 goto EXIT;
         }
         if (tmp < 1) {
-                MIN_ERROR ("sleep keyword syntax error in line %d"
-                           ". Invalid interval value", line_number);
+                SCRIPTER_SYNTAX_ERROR ("sleep",
+				       "invalid interval value");
                 retval = -1;
                 goto EXIT;
         }
@@ -1083,7 +1116,7 @@ LOCAL int check_sleep_line (MinItemParser * line, int line_number)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL int check_if_line (MinItemParser * line, int line_number)
+LOCAL int check_if_line (MinItemParser * line, int line_number, char * tc_title)
 {
         int retval;
         char *token = INITPTR;
@@ -1096,8 +1129,8 @@ LOCAL int check_if_line (MinItemParser * line, int line_number)
 
         retval = mip_get_next_string (line, &token);
         if (retval != ENOERR) {
-                MIN_ERROR ("if keyword syntax error in line %d. "
-                           "No if condition specified", line_number);
+                SCRIPTER_SYNTAX_ERROR ("if",
+				       "no if condition specified");
         }
         DELETE (token);
 
@@ -1115,8 +1148,8 @@ TSBool validate_define (MinSectionParser * define)
         char           *str1 = INITPTR;
         char           *str2 = INITPTR;
         int             pom = 0;
-        unsigned int    lineno = 1;
-
+        unsigned int    line_number = 1;
+	char *tc_title = "Define Section";
         if (define == INITPTR) {
                 retval = ESFalse;
                 goto EXIT;
@@ -1132,8 +1165,8 @@ TSBool validate_define (MinSectionParser * define)
                  * that are separated by space */
                 pom = mip_get_string (line, "", &str1);
                 if (pom != ENOERR) {
-                        MIN_ERROR ("Syntax error on line %d of Define section"
-                                    " - idenifier was expected", lineno);
+                        SCRIPTER_SYNTAX_ERROR ("define section",
+					       "identifier was expected");
                         retval = ESFalse;
                         mip_destroy (&line);
                         goto EXIT;
@@ -1149,8 +1182,8 @@ TSBool validate_define (MinSectionParser * define)
                         DELETE (str1);
                         DELETE (str2);
                 } else {
-                        MIN_ERROR ("Syntax error on line %d of Define section"
-                                    " - definition value was expected", lineno);
+                        SCRIPTER_SYNTAX_ERROR ("define section ",
+					       "definition value was expected");
                         retval = ESFalse;
                         mip_destroy (&line);
                         goto EXIT;
@@ -1159,14 +1192,13 @@ TSBool validate_define (MinSectionParser * define)
                 pom = mip_get_next_string (line, &str1);
                 if (pom == ENOERR) {
                         DELETE (str1);
-                        MIN_ERROR
-                            ("Syntax warning on line %d of Define section"
-                             " unexpected literal", lineno);
+			MIN_ERROR ("Syntax warning on line %d of Define section"
+				   " unexpected literal", line_number);
                 }
 
                 mip_destroy (&line);
                 line = mmp_get_next_item_line (define);
-                lineno++;
+                line_number ++;
         }
 
       EXIT:
@@ -1227,6 +1259,7 @@ char           *validate_test_case (MinSectionParser * testcase)
         int             nest_level = 0;
         char            nesting [255];
         TSBool          in_loop;
+	int             errors = 0;
 
         /* allocate place for allocated slaves. */
         slaves = dl_list_create ();
@@ -1252,12 +1285,10 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordTitle:
                         len = strlen (line->item_skip_and_mark_pos_);
                         if (len == 0) {
-                                MIN_ERROR ("title keyword syntax error in line"
-                                           " %d. Test case title is not "
-                                           "defined",
-                                            line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("title",
+						       "Test case "
+						       "title is not defined");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         tc_title = NEW2 (char, len + 1);
@@ -1270,12 +1301,10 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordCreate:
                         /*class and dll names are writen to assoc_ lists */
                         if (mip_get_next_string (line, &libname) != 0) {
-                                MIN_ERROR ("createx keyword syntax error in "
-                                           "line %d. Library name is not "
-                                           "defined.",
-                                           line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("createx",
+						       "library name "
+						       "is not defined");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1284,11 +1313,10 @@ char           *validate_test_case (MinSectionParser * testcase)
                         DELETE (libname);
                         dl_list_add (assoc_lnames, (void *)ass_lname);
                         if (mip_get_next_string (line, &classname) != 0) {
-                                MIN_ERROR ("createx keyword syntax error in "
-                                           "line %d. Class name is not "
-                                           "defined.", line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("createx",
+						       "class name is"
+						       " not defined");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         ass_cname = NEW2 (char, strlen (classname) + 1);
@@ -1319,12 +1347,9 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordDelete:
                         if ( mip_get_next_string(line,&classname) != 0 ){
-                                MIN_ERROR ("delete keyword syntax error in "
-                                           "line %d. No classname to delete "
-                                           "specified.",
-                                           line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("delete", "no classname"
+						       "to delete specified");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         check_result = -1;      /*indicate if class was 
@@ -1343,11 +1368,9 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 }
                         }
                         if (check_result !=0 ){
-                                MIN_ERROR ("delete keyword syntax error in "
-                                           "line %d. Classname not created.", 
-                                           line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("delete", 
+						       "classname not created");
+				errors ++;
                                 DELETE (classname);
                                 goto EXIT_VALIDATE;
                         }
@@ -1372,10 +1395,10 @@ char           *validate_test_case (MinSectionParser * testcase)
                         continue;
                         break;
                 case EKeywordPause:
-                        check_result = check_pause_line (line, line_number);
+                        check_result = check_pause_line (line, line_number,
+							 tc_title);
                         if (check_result != 0) {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         mip_destroy (&line);
@@ -1383,13 +1406,13 @@ char           *validate_test_case (MinSectionParser * testcase)
                         continue;
                         break;
                 case EKeywordLoop:
-                        check_result = check_loop_line (line, line_number);
+                        check_result = check_loop_line (line, line_number,
+							tc_title);
                         if (check_result == 0) {
                                 nest_level++;
                                 nesting [nest_level] = LOOP;
                         } else {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         mip_destroy (&line);
@@ -1398,10 +1421,8 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordEndloop:
                         if (nest_level <= 0 || nesting [nest_level] != LOOP) {
-                                MIN_ERROR ("Syntax error in line %d. "
-                                           "Unexpected endloop.", line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("endloop","unexpected");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         nest_level--;
@@ -1420,10 +1441,9 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 loopcounter --;
                         }
                         if (in_loop == ESFalse) {
-                                MIN_ERROR ("Syntax error in line %d. "
-                                           "No loop to break!.", line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("breakloop",
+						       "no loop to break");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         mip_destroy (&line);
@@ -1433,11 +1453,10 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordRequest:
                         check_result = mip_get_next_string (line, &callname);
                         if (check_result != 0) {
-                                MIN_ERROR ("request keyword syntax error in "
-                                           "line %d. Event name is not "
-                                           "defined.",line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("request",
+						       "event name is not "
+						       "defined");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1451,11 +1470,10 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordRelease:
                         check_result = mip_get_next_string (line, &callname);
                         if (check_result != 0) {
-                                MIN_ERROR ("release keyword syntax error in "
-                                           "line %d. Event name is not "
-                                           "defined.", line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("release",
+						       "event name is not "
+						       "defined");
+				errors++;
                                 DELETE (callname);
                                 goto EXIT_VALIDATE;
                         }
@@ -1467,21 +1485,19 @@ char           *validate_test_case (MinSectionParser * testcase)
                 case EKeywordWait:
                         check_result = mip_get_next_string (line, &callname);
                         if (check_result != 0) {
-                                MIN_ERROR ("wait keyword syntax error in "
-                                           "line %d. Event name is "
-                                           "not defined.", line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("wait",
+						       "event name is "
+						       "not defined");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
 
                         call_item = dl_list_head (requested_events);
                         if (call_item == DLListNULLIterator) {
-                                MIN_ERROR ("wait keyword syntax error in line"
-                                           " %d. Wait for not requested event.",
-                                           line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("wait",
+						       "eait for not "
+						       "requested event");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         while (call_item != DLListNULLIterator) {
@@ -1491,12 +1507,11 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 }
                                 call_item = dl_list_next (call_item);
                                 if (call_item == DLListNULLIterator) {
-                                        MIN_ERROR ("wait keyword syntax error "
-                                                   "in line %d. Wait for not "
-                                                   "requested event.",
-                                                   line_number);
-                                        DELETE (tc_title);
-                                        tc_title = NULL;
+                                        SCRIPTER_SYNTAX_ERROR ("wait",
+							       "wait for not "
+							       "requested event"
+							       );
+					errors ++;
                                         goto EXIT_VALIDATE;
 
                                 }
@@ -1525,21 +1540,19 @@ char           *validate_test_case (MinSectionParser * testcase)
                         }
 
                         if (ass_lname == NULL) {
-                                MIN_ERROR ("syntax error in line %d. Call for "
-                                           "method of non existing class.",
-                                           line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("<method call>",
+						       "call for method of "
+						       "non existing class");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         };
 
                         mip_get_next_string (line, &callname);
                         if (callname == NULL) {
-                                MIN_ERROR ("syntax error in line %d"
-                                           ". Method name is not defined.", 
-                                           line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("<method call>",
+						       "method name is not"
+						       " defined");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         symb_callname = NEW2 (char, strlen (callname) + 1);
@@ -1562,23 +1575,22 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 library_item = dl_list_next (library_item);
                         }
                         if (lib_already_found == 0) {
-                                MIN_ERROR ("Syntax error in line %d"
-                                            ". Selected library was not found.",
-                                            line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("<method call>",
+						       "Selected library "
+						       "was not found");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         mip_destroy (&line);
                         line = mmp_get_next_item_line (testcase);
                         break;
                 case EKeywordRun:
-                        check_result = check_run_line (line, line_number);
+                        check_result = check_run_line (line, line_number, 
+						       tc_title);
                         mip_destroy (&line);
 
                         if (check_result != 0) {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1605,12 +1617,12 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordAllocate:
                         check_result =
-				check_allocate_line (line, line_number, slaves);
+				check_allocate_line (line, line_number, slaves,
+						     tc_title);
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1619,12 +1631,11 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordFree:
                         check_result = check_free_line (line, line_number, 
-							slaves);
+							slaves, tc_title);
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1635,12 +1646,11 @@ char           *validate_test_case (MinSectionParser * testcase)
 
                         check_result =
 				check_remote_line (line, var_list, line_number,
-						   slaves);
+						   slaves, tc_title);
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1649,11 +1659,11 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordAllowNextResult:
                         check_result =
-                            check_allownextresult_line (line, line_number);
+				check_allownextresult_line (line, line_number,
+							    tc_title);
                         mip_destroy (&line);
                         if (check_result != ENOERR) {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1662,14 +1672,13 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordComplete:
                         check_result =
-                            check_complete_line (line, line_number);
+				check_complete_line (line, line_number, 
+						     tc_title);
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
-
                         }
 
                         line = mmp_get_next_item_line (testcase);
@@ -1684,12 +1693,12 @@ char           *validate_test_case (MinSectionParser * testcase)
                         continue;
                         break;
                 case EKeywordTimeout:
-                        check_result = check_timeout_line (line, line_number);
+                        check_result = check_timeout_line (line, line_number,
+							   tc_title);
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1697,12 +1706,12 @@ char           *validate_test_case (MinSectionParser * testcase)
                         continue;
                         break;
                 case EKeywordSleep:
-                        check_result = check_sleep_line (line, line_number);
+                        check_result = check_sleep_line (line, line_number,
+							 tc_title);
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
 
@@ -1720,12 +1729,11 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 mip_destroy (&line);
                                 DELETE (varname);
                         } else {
-                                MIN_ERROR ("var keyword syntax error in line %d"
-                                            ". Variable name not specified.",
-                                            line_number);
+                                SCRIPTER_SYNTAX_ERROR ("var",
+						       "variable name not "
+						       "specified");
                                 mip_destroy (&line);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         line = mmp_get_next_item_line (testcase);
@@ -1736,13 +1744,13 @@ char           *validate_test_case (MinSectionParser * testcase)
                         mip_get_next_string (line, &varname);
                         if ((varname != NULL) && (varname != INITPTR)) {
                                 if (strchr (varname, '=') == NULL) {
-                                        MIN_ERROR ("sendrecive keyword syntax "
-                                                   "error in line %d. "
-                                                   "Argument has faulty syntax "
-                                                   "(no '=' character).", 
-                                                   line_number);
+                                        SCRIPTER_SYNTAX_ERROR ("sendrecive",
+							       "Argument has "
+							       "faulty syntax "
+							       "(no '=' "
+							       "character)");
                                         mip_destroy (&line);
-                                        tc_title = NULL;
+					errors ++;
                                         goto EXIT_VALIDATE;
                                 }
                         }
@@ -1758,8 +1766,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         mip_destroy (&line);
 
                         if (check_result != ENOERR) {
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         line = mmp_get_next_item_line (testcase);
@@ -1771,24 +1778,24 @@ char           *validate_test_case (MinSectionParser * testcase)
 			}
                         check_result =
 				check_interference_line (line, line_number,
-							 interf_objs);
+							 interf_objs,
+							 tc_title);
                         if (check_result != ENOERR) {
                                 MIN_ERROR ("Test Interference Fault");
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         line = mmp_get_next_item_line (testcase);
                         continue;
                         break;
                 case EKeywordIf:
-                        check_result = check_if_line (line, line_number);
+                        check_result = check_if_line (line, line_number,
+						      tc_title);
                         if (check_result != ENOERR) {
-                                MIN_ERROR ("Syntax error in line %d. "
-                                           "Invalid if statetment", 
+				MIN_ERROR ("Syntax error in line %d. "
+                                           "Invalid if statement", 
                                            line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         nest_level++;
@@ -1799,10 +1806,9 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordElse:
                         if (nesting [nest_level] != IF) {
-                                MIN_ERROR ("Syntax error in line %d. "
-                                           "Unexpected else.", line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("else",
+						       "unexpected else");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         mip_destroy (&line);
@@ -1811,10 +1817,9 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 case EKeywordEndif:
                         if (nest_level <= 0 || nesting [nest_level] != IF) {
-                                MIN_ERROR ("Syntax error in line %d. "
-                                           "Unexpected endif.", line_number);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_SYNTAX_ERROR ("endif",
+						       "unexpected");
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         nest_level--;
@@ -1823,16 +1828,14 @@ char           *validate_test_case (MinSectionParser * testcase)
                         continue;
                         break;
                 case EKeywordUnknown:
-                        MIN_ERROR ("Syntax error in line %d"
-                                    ". Unknown keyword [%s]", line_number, 
-                                   token);
+                        SCRIPTER_SYNTAX_ERROR_ARG ("<unknown>",
+						   "[%s]", token);
                         mip_destroy (&line);
                         line = mmp_get_next_item_line (testcase);
                         break;
                 default:
-                        MIN_ERROR ("Syntax error in line %d"
-                                    ". Unknown keyword [%s]", line_number,
-                                   token);
+                        SCRIPTER_SYNTAX_ERROR_ARG ("<unknown>",
+						   "[%s]", token);
                         mip_destroy (&line);
                         line = mmp_get_next_item_line (testcase);
                         continue;
@@ -1844,10 +1847,9 @@ char           *validate_test_case (MinSectionParser * testcase)
 
         /* check if script's loop counter is 0, otherwise fail syntax check */
         if (nest_level != 0) {
-                DELETE (tc_title);
-                tc_title = NULL;
-                MIN_ERROR ("Syntax error: missing %s", 
-                           nesting [nest_level] == IF ? "endif" : "endloop");
+		errors ++;
+                SCRIPTER_SYNTAX_ERROR (nesting [nest_level] == IF ? "endif"
+				       : "endloop", "missing");
                 goto EXIT_VALIDATE;
         }
 
@@ -1862,8 +1864,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                         dl_list_remove_it (var_item);
                         var_item = dl_list_head (interf_objs);
                 }
-                DELETE (tc_title);
-                tc_title = NULL;
+		errors ++;
                 goto EXIT_VALIDATE;
         }
         /*ok, finished fetching symbols from script, now let's validate them */
@@ -1889,11 +1890,10 @@ char           *validate_test_case (MinSectionParser * testcase)
                         }
                         dll_handle = tl_open_tc (libpath);
                         if (dll_handle == INITPTR) {
-                                MIN_ERROR ("Unable to load "
-                                            "test library %s: %s\n",
-                                            library->DLL_name_, dlerror ());
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_ERROR ("Unable to load "
+						"test library",
+						libpath);
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         test_class = NEW (TestClassDetails);
@@ -1907,21 +1907,19 @@ char           *validate_test_case (MinSectionParser * testcase)
                             (ptr2casetc) dlsym (dll_handle,
                                                 "ts_get_test_cases");
                         if (test_class->casetc_ == NULL) {
-                                MIN_ERROR ("get cases unresolved "
-                                            "in Test Library %s: %s",
-                                            test_class->classname_, dlerror ());
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_ERROR ("tm_get_cases() unresolved "
+						"in Test Library",
+						dlerror ());
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         test_class->runtc_ =
                             (ptr2runtc) dlsym (dll_handle, "ts_run_method");
                         if (test_class->runtc_ == NULL) {
-                                MIN_ERROR ("run case unresolved "
-                                            "in Test Library %s: %s",
-                                            test_class->classname_, dlerror ());
-                                DELETE (tc_title);
-                                tc_title = NULL;
+                                SCRIPTER_ERROR ("tm_run_case() unresolved "
+						"in Test Library",
+						dlerror ());
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         dl_list_add (testclasses, (void *)test_class);
@@ -1933,8 +1931,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                                 MIN_WARN ("Could not get list of "
                                            "functions from %s",
                                            test_class->classname_);
-                                DELETE (tc_title);
-                                tc_title = NULL;
+				errors ++;
                                 goto EXIT_VALIDATE;
                         }
                         call_item = dl_list_head (library->symbol_list_);
@@ -1948,14 +1945,12 @@ char           *validate_test_case (MinSectionParser * testcase)
                                                 break;
                                         tc_item = dl_list_next (tc_item);
                                         if (tc_item == DLListNULLIterator) {
-                                                MIN_ERROR
-                                                    ("Symbol %s not found "
-                                                     "in %s",
-                                                     callname,
-                                                     library->DLL_name_);
+                                                SCRIPTER_ERROR
+                                                    ("Symbol not found "
+                                                     "in class",
+                                                     callname);
                                                 dlclose (dll_handle);
-                                                DELETE (tc_title);
-                                                tc_title = NULL;
+						errors ++;
                                                 goto EXIT_VALIDATE;
                                         }
 
@@ -2005,10 +2000,9 @@ char           *validate_test_case (MinSectionParser * testcase)
         call_item = dl_list_head (assoc_cnames);
         while (call_item != DLListNULLIterator) {
                 callname = (char *)dl_list_data (call_item);
-                if (tc_title != INITPTR)
-                        MIN_ERROR ("Validation error: testclass %s not "
-                                   "deleted in testcase %s",
-                                   callname, tc_title);
+		SCRIPTER_ERROR ("Validation error: testclass not "
+				"deleted:",
+				callname);
                 free (callname);
                 dl_list_remove_it (call_item);
                 call_item = dl_list_head (assoc_cnames);
@@ -2018,8 +2012,7 @@ char           *validate_test_case (MinSectionParser * testcase)
                 /*list not empty, so not all classes
                    were "deleted" */
                 if (tc_title != INITPTR) {
-                        DELETE (tc_title);
-                        tc_title = NULL;
+			errors ++;
                 }
         }
 
@@ -2056,7 +2049,11 @@ char           *validate_test_case (MinSectionParser * testcase)
                 var_item = dl_list_head (var_list);
         }
         dl_list_free (&var_list);
-
+	
+	if (errors) {
+		DELETE (tc_title);
+		tc_title = NULL;
+	}
 
         return tc_title;
 }

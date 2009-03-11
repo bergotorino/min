@@ -99,23 +99,26 @@ LOCAL void* tl_load_lib( const char *libname )
         }
 
         /* Get paths from settings system. */
-        shmid = sm_create('a',sizeof(struct logger_settings_t));
-        shmaddr = sm_attach(shmid);
-        tmp = shmaddr+sizeof(struct logger_settings_t);
-        plen = strlen(tmp);
-        path = NEW2(char,plen+1);
-        sm_read( tmp, path, plen+1);
-        sm_detach(shmaddr);
+        shmid = sm_create ('a', sizeof (struct logger_settings_t));
+        shmaddr = sm_attach (shmid);
+        tmp = shmaddr + sizeof (struct logger_settings_t);
+        plen = strlen (tmp);
+        path = NEW2 (char, plen + 2);
+	memset (path, 0x0, plen + 2);
+        sm_read (tmp, path, plen);
+        sm_detach (shmaddr);
         /* Try each path to load library. */ 
+	path [plen] = '\0';
         c = &path[0];
         c2 = c;
-        fullpath = tx_create("");
+        fullpath = tx_create ("");
         do {
-                c = strchr(c2,':');
-                if(c==NULL) {
-                        if(strlen(c2)!=0) { c = &path[plen]; }
+                c = strchr (c2,':');
+                if( c == NULL) {
+                        if (strlen (c2) != 0) { c = &path [plen]; }
                         else { c = INITPTR; break; }
                 } else { *c='\0'; }
+
                 if( *(c-1) == '/' ) {
                         tx_c_append(fullpath,c2);
                         tx_c_append(fullpath,libname);
@@ -129,7 +132,7 @@ LOCAL void* tl_load_lib( const char *libname )
                 c=c+1;
                 c2=c;
                 retval = dlopen(tx_share_buf(fullpath),RTLD_LOCAL|RTLD_LAZY);
-                if(retval==NULL) {
+                if(retval == NULL) {
                         MIN_NOTICE ("Library [%s] not opened because: %s"
                                    ,tx_share_buf(fullpath),dlerror());
                         tx_c_copy(fullpath,"");
@@ -141,11 +144,11 @@ LOCAL void* tl_load_lib( const char *libname )
                 }
         } while(c!=INITPTR);
         tx_destroy(&fullpath);
-        DELETE(path);
         if(retval==INITPTR) {
                 MIN_WARN ("There is no valid library [%s] under paths: [%s]"
                            ,libname,path);
         }
+        DELETE(path);
         return retval;
 }
 /* ------------------------------------------------------------------------- */

@@ -85,7 +85,8 @@ void            cui_refresh_view (void);
 void            cui_refresh_log_view (void);
 /* ------------------------------------------------------------------------- */
 void            popup_window (char *string, int time);
-
+/* ------------------------------------------------------------------------- */
+void            side_scroll_line (char *line, int indent);
 /* ------------------------------------------------------------------------- */
 #endif                          /* CONSOLEUI_H */
 /* End of file */

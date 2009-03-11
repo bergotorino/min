@@ -132,6 +132,7 @@ void gu_init_tmc (TMC_t * tmc, int argc, char *argv[])
         }
 
         if (tl_open (&tmc->lib_loader_, argv[1])) {
+                tm_print_err ("Library could not be loaded %s",argv[1]);
                 MIN_ERROR ("Library could not be loaded %s",argv[1]);
                 goto NOT_OK;
         }

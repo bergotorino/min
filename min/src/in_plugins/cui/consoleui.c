@@ -50,7 +50,7 @@ extern focus_pos_s main_menu_focus;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
-/* None */
+
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
@@ -124,8 +124,6 @@ LOCAL void      init_ncurses (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      quit (void);
 /* ------------------------------------------------------------------------- */
-LOCAL void      wclrscr (WINDOW * pwin);
-/* ------------------------------------------------------------------------- */
 LOCAL void      wCenterTitle (WINDOW * pwin, const char *title);
 /* ------------------------------------------------------------------------- */
 LOCAL void      init_main_window (void);
@@ -164,6 +162,11 @@ LOCAL void pl_no_module (char *modulename);
 LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_error_report (char *error);
+/* ------------------------------------------------------------------------- */
+LOCAL void cui_clear_line (WINDOW * pwin, int y);
+/* ------------------------------------------------------------------------- */
+LOCAL void cui_clear_win (WINDOW * pwin);
+
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* ------------------------------------------------------------------------- */
@@ -219,25 +222,6 @@ LOCAL void quit ()
         endwin ();
 }
 
-/* ------------------------------------------------------------------------- */
-/** Clears the specified window
- *  @param pwin pointer to window
- */
-LOCAL void wclrscr (WINDOW * pwin)
-{
-        int             y = 0;
-        int             x = 0;
-        int             maxy = 0;
-        int             maxx = 0;
-
-        /* get dimensions of the window */
-        getmaxyx (pwin, maxy, maxx);
-
-        for (y = 0; y < maxy; y++)
-                for (x = 0; x < maxx; x++)
-                        /* write single character to window */
-                        mvwaddch (pwin, y, x, ' ');
-}
 
 /* ------------------------------------------------------------------------- */
 /** Erases the current line from the cursor to the end of the line in the 
@@ -311,7 +295,7 @@ LOCAL void create_main_window (int ysize, int xsize)
         /* set up main window */
         main_window = newwin (ysize, xsize, WIN_X, WIN_Y);
 
-        wclrscr (main_window);
+        cui_clear_win (main_window);
         keypad (main_window, TRUE);
 
         /* print a border around the main window and print a title */
@@ -337,7 +321,7 @@ LOCAL void create_log_window ()
         /* set up main window */
         log_window = newwin (LOG_WIN_ROWS, maxx, maxy - LOG_WIN_ROWS, WIN_X);
 
-        wclrscr (log_window);
+        cui_clear_win (log_window);
         keypad (log_window, FALSE);
 
         /* print a border around the log window */
@@ -380,7 +364,7 @@ LOCAL void create_menu (callback_s * cb, const char *string)
                               menu_win_width, MENU_WIN_Y, MENU_WIN_X);
 
         /* clears menu window */
-        wclrscr (menu_window);
+        cui_clear_win (menu_window);
 
         /* associate these windows with the menu */
         set_menu_win (my_menu, main_window);
@@ -666,6 +650,31 @@ LOCAL void pl_error_report (char *error) {
 	cui_refresh_log_view ();
 }
 
+/* ------------------------------------------------------------------------- */
+/** Clears one line of the specified window
+ *  @param y vertical position of line to clear
+ *  @param pwin pointer to window
+ */
+LOCAL void cui_clear_line (WINDOW * pwin, int y)
+{
+        int             x = 0;
+	for (x = 0; x < getmaxx (pwin); x++)
+		mvwaddch (pwin, y, x, ' ');
+}
+
+/* ------------------------------------------------------------------------- */
+/** Clears the specified window
+ *  @param pwin pointer to window
+ */
+LOCAL void cui_clear_win (WINDOW * pwin)
+{
+        int             y = 0;
+        int             maxy = 0;
+
+        for (y = 0; y < getmaxy (pwin); y++)
+		cui_clear_line (pwin, y);
+}
+
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -899,7 +908,7 @@ void popup_window (char *string, int time)
 
         /* create and display the small window */
         small_win = newwin (height, width, y, x);
-        wclrscr (small_win);
+        cui_clear_win (small_win);
         box (small_win, 0, 0);
         wCenterTitle (small_win, "Info");
         mvwaddstr (small_win, 1, 2, string);
@@ -936,7 +945,7 @@ void cui_refresh_log_view ()
 	if (log_window != INITPTR) {
 		/* clear the log view */
 		getmaxyx (log_window, maxy, maxx);
-		wclrscr (log_window);
+		cui_clear_win (log_window);
 
 		box (log_window, 0, 0);
 		for (it = dl_list_tail (error_list_); it != INITPTR;
@@ -954,6 +963,41 @@ void cui_refresh_log_view ()
         }
 
 }
+
+/* ------------------------------------------------------------------------- */
+/** Horizontally scrolls 1 line, in case it does not fit to window.
+ * @param line the data to be displayed
+ * @param indent indentation 
+ */
+void side_scroll_line (char *line, int indent)
+{
+	int  maxx, x, y;
+	WINDOW  *scroll_win;
+	char *p;
+
+	getyx (main_window, y, x);
+	maxx = getmaxx (menu_window);
+	scroll_win = newwin (1, maxx, y , x);
+	cui_clear_win (scroll_win);
+	p = line;
+	do {
+		mvwaddnstr (scroll_win, 0, indent,  p,
+			    maxx - indent);
+		touchwin (scroll_win);
+		wrefresh (scroll_win);
+		halfdelay (1);
+		if (wgetch (scroll_win) != ERR)
+			break;
+		p ++;
+	} while (strlen (p) >= maxx - indent);
+	cbreak ();
+	wgetch (scroll_win);
+        delwin (scroll_win);
+        touchwin (main_window);
+        wrefresh (main_window);
+}
+
+/* ------------------------------------------------------------------------- */
 
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

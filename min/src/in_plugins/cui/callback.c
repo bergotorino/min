@@ -46,6 +46,8 @@ extern bool     continue_;      /* flag indicating whether to continue prog  */
 extern MENU    *my_menu;        /* menu itself */
 extern WINDOW  *main_window;    /* main window */
 extern WINDOW  *menu_window;    /* window including menu */
+extern WINDOW  *log_window;     /* log window */
+
 extern eapiIn_t out_clbk_;      /*  */
 extern eapiOut_t min_clbk_;     /*  */
 extern DLList *case_list_;
@@ -100,6 +102,8 @@ LOCAL void      load_test_set (void *p);
 LOCAL char     *create_path ();
 /* ------------------------------------------------------------------------- */
 LOCAL void      flush_log (void *p);
+/* ------------------------------------------------------------------------- */
+LOCAL void      side_scroll_log_item (void *p);
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 /** main menu structure */
@@ -619,10 +623,9 @@ LOCAL int get_log_messages (void)
 {
         char *p;
 	DLListIterator it;
-        int howmany = 0, maxy, maxx;
+        int howmany = 0;
         Text *tx = INITPTR;
 	
-	getmaxyx (menu_window, maxy, maxx);
 
         /* free memory allocated for callback structure */
         free_cbs (cb_log_menu);
@@ -648,7 +651,7 @@ LOCAL int get_log_messages (void)
 			p = tx_get_buf (tx);
                         set_cbs (&cb_log_menu [howmany],
 				 p, NULL, log_menu,
-				 main_menu, NULL, it, 1);
+				 main_menu, side_scroll_log_item, it, 1);
                         howmany ++;
                 }
         } else {
@@ -2765,12 +2768,12 @@ LOCAL void remove_cases_from_test_set (void *p)
 
 /* ------------------------------------------------------------------------- */
 /** Local comparison function for same test case searching.
-    This function is used with DLLIST function dl_list_find().
+ *  This function is used with DLLIST function dl_list_find().
  *  @param data1 is data from the list
  *  @param data2 value provided by the user.
  *  @return 0 when elements are equal, 1 when first is greater than second,
  *          -1 otherwise.
-*/
+ */
 LOCAL int compare_items (const void *data1, const void *data2)
 {
         int             result = -2;
@@ -2791,6 +2794,9 @@ LOCAL int compare_items (const void *data1, const void *data2)
         return result;
 }
 
+/* ------------------------------------------------------------------------- */
+/** Clears all log entries 
+ */
 LOCAL void flush_log (void *p)
 {
 	DLListIterator it, next_it;
@@ -2806,6 +2812,18 @@ LOCAL void flush_log (void *p)
 
 	cui_refresh_log_view ();
 
+	return;
+}
+
+/** Scrolls a log item horizontally, in case it does not fit the window
+ */
+LOCAL void side_scroll_log_item (void *p)
+{
+	Text *tx;
+
+	tx = dl_list_data ((DLListIterator)p);
+	side_scroll_line (tx_share_buf (tx), 3);
+	
 	return;
 }
 
