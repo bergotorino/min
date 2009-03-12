@@ -242,8 +242,9 @@ static void min_object_class_init (MinObjectClass *klass)
                                         G_SIGNAL_RUN_LAST,
                                         0,NULL,NULL,
                                         g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,3,
-                                        G_TYPE_LONG,G_TYPE_INT,G_TYPE_STRING);
+                                        G_TYPE_NONE,5,
+                                        G_TYPE_LONG,G_TYPE_INT,G_TYPE_STRING,
+                                        G_TYPE_LONG,G_TYPE_LONG);
         /* msg_print */
         klass->signals[8] = g_signal_new (SIGNAL_MSG_PRINT,
                                         G_OBJECT_CLASS_TYPE(klass),
