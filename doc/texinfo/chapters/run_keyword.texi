@@ -5,7 +5,7 @@ The @code{run} keyword is used to start a specified test case. It has several ma
 @item testmodule
 The test module name.
 @item configfile
-The test case configuration file.
+The test case configuration file. If does not contain path but only filename then $HOME/.min path is used.
 @item Test case number
 The test case number to be executed from configfile.
 
