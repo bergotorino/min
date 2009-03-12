@@ -2163,6 +2163,9 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
         char           *c = INITPTR;
         unsigned int    section_number = 1;
         char           *test_case_name = INITPTR, *tmp;
+        Text *homemindir = INITPTR;
+        char *dir = INITPTR;
+        char *file = INITPTR;
        
         /* 0) First call initializes global list of libraries and ptrs
          *    to api functions from them. Deallocating of this list is
@@ -2215,14 +2218,23 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
         STRCPY (cfg_file_backup, cfg_file, strlen (cfg_file) + 1);
 
         c = strrchr (cfg_file_backup, '/');
-        if (c == NULL)
-                c = cfg_file_backup;
-        else {
+        if (c == NULL) {
+                c = getenv("HOME");
+                if (c) {
+                        homemindir = tx_create("");
+                        tx_c_append (homemindir,c);
+                        tx_c_append (homemindir,"/.min");
+                        dir = tx_share_buf(homemindir);
+                        file = cfg_file_backup;
+                } else c = cfg_file_backup;
+        } else {
                 *c = '\0';
                 c++;
+                dir = cfg_file_backup;
+                file = c;
         }
 
-        sp = mp_create (cfg_file_backup, c, ENoComments);
+        sp = mp_create (dir, file, ENoComments);
 
         if (sp == INITPTR) {
 		tmp = NEW2 (char, strlen (cfg_file_backup) + strlen (c) + 
@@ -2283,6 +2295,7 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
                 msp = mp_section (sp, "[Test]", "[Endtest]", section_number);
         }
 
+        tx_destroy(&homemindir);
         mp_destroy (&sp);
         DELETE (cfg_file_backup);
         MIN_INFO ("Number of cases %d", dl_list_size (*cases));
