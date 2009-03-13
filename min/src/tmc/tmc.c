@@ -27,6 +27,7 @@
 /* INCLUDE FILES */
 #include "tmc.h"
 #include "tmc_msghnd.h"
+#include "test_module_api.h"
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */

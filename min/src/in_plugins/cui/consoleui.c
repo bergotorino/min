@@ -202,7 +202,7 @@ LOCAL void init_ncurses ()
 LOCAL void quit ()
 {
         int             i = 0;
-	void           *tmp;
+	void           *tmp = NULL;
 
 	popup_window ("Exiting MIN...", 1);
 
