@@ -1536,12 +1536,14 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
 	*/
 	if (!strcmp (message->desc_, "__error_console__")) {
 		if (in->error_report) in->error_report (message->message_);
+		tr_remove_printout (print_msg);
 		goto EXIT;
 	}
 
         if (work_module_item == DLListNULLIterator) {
                 MIN_WARN ("Failed to fetch module data");
 		result = -1;
+		tr_remove_printout (print_msg);
 		goto EXIT;
         }
 
@@ -1574,6 +1576,7 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
 
         if (work_case_item == DLListNULLIterator){
 		result = -1;
+		tr_remove_printout (print_msg);
 		goto EXIT;
 	}
 
@@ -1581,6 +1584,7 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
         if (work_list == INITPTR) {
                 MIN_WARN ("Fault in test data");
 		result = -1;
+		tr_remove_printout (print_msg);
 		goto EXIT;
         }
 

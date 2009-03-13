@@ -374,6 +374,7 @@ int main (int argc, char *argv[], char *envp[])
 		
                 retval = pthread_create (&plugin_thread, NULL, plugin_open,
 					 &tmp);
+		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
 		if (in->error_report) {
 			in->error_report ("Contact: Antti Heimola, "
 					  "DG.MIN-Support@nokia.com");
@@ -383,7 +384,6 @@ int main (int argc, char *argv[], char *envp[])
 					  " All rights reserved,");
 			
 		}
-		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
 		if (add_command_line_modules (modulelist))
 			exit (1);
 		pthread_join (plugin_thread, &tmp);

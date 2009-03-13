@@ -41,8 +41,6 @@
 /* EXTERNAL DATA STRUCTURES */
 extern callback_s cb_main_menu[];       /* main menu structure */
 extern DLList  *test_set_files;
-extern DLList  *test_modules;
-extern DLList  *test_case_files;
 extern focus_pos_s main_menu_focus;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
@@ -68,9 +66,11 @@ bool            continue_ = true;
 eapiIn_t        out_clbk_;
 eapiOut_t       min_clbk_;
 
-/* List of cases */
+/* List available of cases */
 DLList *case_list_ = INITPTR;
+/* List executed cases */
 DLList *executed_case_list_ = INITPTR;
+/* List of error prints */
 DLList *error_list_ = INITPTR;
 
 /* List of modules */
@@ -166,6 +166,13 @@ LOCAL void pl_error_report (char *error);
 LOCAL void cui_clear_line (WINDOW * pwin, int y);
 /* ------------------------------------------------------------------------- */
 LOCAL void cui_clear_win (WINDOW * pwin);
+/* ------------------------------------------------------------------------- */
+LOCAL void free_executed_case (void *p);
+/* ------------------------------------------------------------------------- */
+LOCAL void free_etc_print (void *p);
+/* ------------------------------------------------------------------------- */
+LOCAL void free_case (void *);
+/* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -195,7 +202,8 @@ LOCAL void init_ncurses ()
 LOCAL void quit ()
 {
         int             i = 0;
-	
+	void           *tmp;
+
 	popup_window ("Exiting MIN...", 1);
 
         if (min_clbk_.min_close) min_clbk_.min_close ();
@@ -209,8 +217,21 @@ LOCAL void quit ()
         /* destroy menu windows and main window */
         delwin (menu_window);
         delwin (main_window);
+	/* free the log entries */
+	flush_log (tmp);
 	/* free data from callbacks */
-	callbacks_cleanup();
+	callbacks_cleanup ();
+	/* free the list of executed test cases */
+	dl_list_foreach (dl_list_head (executed_case_list_), 
+			 dl_list_tail (executed_case_list_),
+			 free_executed_case);
+	dl_list_free (&executed_case_list_);
+	/* free the list of available cases */
+	dl_list_foreach (dl_list_head (case_list_), 
+			 dl_list_tail (case_list_),
+			 free_case);
+	dl_list_free (&case_list_);
+
         /* make cursor visible again */
         curs_set (1);
 
@@ -669,12 +690,50 @@ LOCAL void cui_clear_line (WINDOW * pwin, int y)
 LOCAL void cui_clear_win (WINDOW * pwin)
 {
         int             y = 0;
-        int             maxy = 0;
 
         for (y = 0; y < getmaxy (pwin); y++)
 		cui_clear_line (pwin, y);
 }
+/* ------------------------------------------------------------------------- */
+/** Frees the data on print list
+ *  @param p pointer to Txt
+ */
+LOCAL void free_etc_print (void *p)
+{
+	Text *tx;
+	tx = (Text *)p;
+	tx_destroy (&tx);
+}
 
+/* ------------------------------------------------------------------------- */
+/** Frees the data of ExecutedTestCase
+ *  @param p pointer to ExecutedTestCase 
+ */
+LOCAL void free_executed_case (void *p)
+{
+	ExecutedTestCase *etc;
+
+	etc = (ExecutedTestCase *)p;
+	tx_destroy (&etc->resultdesc_);
+	dl_list_foreach (dl_list_head (etc->printlist_), 
+			 dl_list_tail (etc->printlist_),
+			 free_etc_print);
+	dl_list_free (&etc->printlist_);
+	DELETE (etc);
+}
+
+/* ------------------------------------------------------------------------- */
+/** Frees the CUICaseData
+ *  @param p pointer to CUICaseData
+ */
+LOCAL void free_case (void *p)
+{
+	CUICaseData *tc;
+
+	tc = (CUICaseData *)p;
+	tx_destroy (&tc->casetitle_);
+	DELETE (tc);
+}
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -750,12 +809,6 @@ void cui_exec ()
 
         /* create linked list for test set files */
         test_set_files = dl_list_create ();
-
-        /* create linked list for test modules */
-        test_modules = dl_list_create ();
-
-        /* create linked list for testcase files */
-        test_case_files = dl_list_create ();
 
         /* create linked list for test set */
         test_set = dl_list_create ();
