@@ -1,0 +1,231 @@
+MIN DBus interface allows external clients to interact with MIN through DBus subsystem. All functionalities that are available in MIN are in through DBus thus one can implement a fully functional MIN client interface in one of the programming or scripting language which has DBus bindings, for example: Python.
+MIN exposes methods that can be called by external clients as well as it uses signals to communicate back with the external client.
+Exposed methods:
+
+@itemize @bullet
+@item @code{min_add_test_module}
+@item @code{min_add_test_case_file}
+@item @code{min_start_case}
+@item @code{min_pause_case}
+@item @code{min_resume_case}
+@item @code{min_abort_case}
+@item @code{min_query_test_modules}
+@item @code{min_query_test_files}
+@end itemize
+
+@table @code
+@item min_add_test_module (const char *path)
+Adds module to the MIN on the runtime. Added module is specified by a path.
+As a result new_module or no module signal is emitted.
+@table @code
+@item const char *path
+Full path to the module that is going to be added.
+@end table
+@end table
+
+@table @code
+@item min_add_test_case_file (unsigned int moduleid, const char *testcasefile)
+Loads test case file for the specified test module.
+@table @code
+@item unsigned int moduleid.
+Id of the module to which test case file will be added.
+@item const char *testcasefile
+Name of the test case file to be loaded.
+@end table
+@end table
+
+@table @code
+@item min_start_case (unsigned int moduleid, unsigned int caseid, unsigned int groupid)
+Starts test case indicated by caseid, from test module specified by modulename. Last parameter is used is sequential case execution, and indicates the group case belongs to. It is up to external client to use this value but it is not required, it is safe to put 0 here.
+As a result case_started signal is emitted.
+@table @code
+@item unsigned int moduleid
+Indicates the test module
+@item unsigned int caseidid
+Specifies the test case in the module
+@item unsigned int groupid
+Indicates the group the test case belongs to.
+@end table
+@end table
+
+@table @code
+@item min_pause_case (long testrunid)
+Pauses already running case.
+As a result case_paused signal is emitted.
+@table @code
+@item long testrunid
+Indicates the ongoing case to be paused.
+@end table
+@end table
+
+@table @code
+@item min_resume_case (long testrunid)
+Resumes already paused case.
+As a result case_resumed signal is emitted.
+@table @code
+@item long testrunid
+Indicates the paused case to be resumed.
+@end table
+@end table
+
+@table @code
+@item min_abort_case (long testrunid)
+Aborts ongoing or paused case.
+As a result case_result signal is emitted.
+@table @code
+@item long testrunid
+Indicates test case to be aborted.
+@end table
+@end table
+
+@table @code
+@item min_query_test_modules
+Orders MIN to provide list of available test modules that can be added.
+As a result min_test_modules signal is emitted
+@end table
+
+@table @code
+@item min_query_test_files
+Orders MIN to provide list of available test case files that can be loaded.
+As a result min_test_files signal is emitted
+@end table
+
+Exposed signals:
+
+@itemize @bullet
+@item @code{min_test_modules}
+@item @code{min_test_files}
+@item @code{min_add_test_case_file}
+@item @code{min_start_case}
+@item @code{min_pause_case}
+@item @code{min_resume_case}
+@item @code{min_abort_case}
+@item @code{min_query_test_modules}
+@item @code{min_query_test_files}
+@end itemize
+
+
+@table @code
+@item min_test_modules (const char *modules)
+Emited when client uses min_query_test_modules functionality. Carries list of modules which are available for loading.
+@table @code
+@item const char *modules
+String which contains paths to modules. Each entry is delimited by NULL-Byte, end of string contains double null byte: entry\0entry\0entry\0\0
+@end table
+@end table
+
+@table @code
+@item min_test_files (const char *files)
+Emited when client uses min_query_test_files functionality. Carries list of files which are available for loading.
+@table @code
+@item const char *files
+String which contains paths to files. Each entry is delimited by NULL-Byte, end of string contains double null byte: entry\0entry\0entry\0\0
+@end table
+@end table
+
+@table @code
+@item min_new_module (const char *modulename, unsigned int moduleid)
+Emitted when min_add_test_module has finished with success.
+@table @code
+@item const char *modulename
+The path to the module which has been added (client passes it to min_add_test_module)
+@item unisgned int moduleid
+The id number for added module given by MIN. In all future communication with MIN this id should be used to reference this module.
+@end table
+@end table
+
+@table @code
+@item min_no_module (const char *modulename)
+Emitted when min_add_test_module ends with failure.
+@table @code
+@item const char *modulename
+The path to the module which has been added (client passes it to min_add_test_module)
+@end table
+@end table
+
+@table @code
+@item min_module_ready (unsigned int moduleid)
+Emitted when all test cases for the given module has been enumerated end delivered to the client (min_new_test_case signal)
+@table @code
+@item unsigned int moduleid
+The id of the module which is a subject of this message.
+@end table
+@end table
+
+@table @code
+@item min_new_test_case (unsigned int moduleid, unsigned int caseid, const char *casetitle)
+Emitted when test module has been added (min_add_test_module and min_add_test_case_file has been executed). Carries information abour single case availabie in a given module, client recieves as many of those signals as the number of test cases in the module. End of transmission is indicated by module_ready signal.
+@table @code
+@item unsigned int moduleid
+The id of the module to which the test case belongs to.
+@item unsigned int caseid
+The unique id of the test case within test module.
+@item const char *casetitle
+The title fo the test case.
+@end table
+@end table
+
+@table @code
+@item min_case_started (unsigned int mosuleid, unsigned int caseid, long testrunid)
+Emitted when test case execution has been started by call to min_start_case.
+@table @code
+@item unsigned int moduleid
+The id of the module to which the test case belongs to.
+@item unsigned int caseid
+The unique id of the test case which has been executed.
+@item long testrunid
+The id of the test run in which the test case has been executed.
+@end table
+@end table
+
+@table @code
+@item min_case_paused (long testrunid)
+Emitted as a confirmation that test case has been paused.
+@table @code
+@item long testrunid
+Indicates the id of a test run which has been paused.
+@end table
+@end table
+
+@table @code
+@item min_case_resumed (long testrunid)
+Emitted as a confirmation that test case has been resumed.
+@table @code
+@item long testrunid
+Indicates the id of a test run which has been resumed.
+@end table
+@end table
+
+@table @code
+@item min_case_result (long testrund, int result, const char *desc, long startime, long endtime)
+Enitted after the test case has been finished, or starting of test case has been unsuccessfull.
+@table @code
+@item long testrunid
+Indicates the test run id that has finished and transmits it's result.
+@item int result
+The test case result:
+- test case crashed: -2
+- test case timeouted: -1
+- test case passed: 0
+- test case failed: 1
+- test case aborted: 2
+@item const char *desc
+Test result description.
+@item long starttime
+Start time of the test case, unix timestamp.
+@item long endtime
+End time of the test case, unix timestamp.
+@end table
+@end table
+
+@table @code
+@item min_case_msg (long testrunid, const char *message
+Forwards user message from test process to the UI level so that it can be visible by the end user.
+@table @code
+@item long testrunid
+The id of the test run which prints
+@item const char *message
+Message to be printed.
+@end table
+@end table
+
