@@ -54,6 +54,7 @@ typedef struct {
         char            module_name_[128];
         DLList         *test_case_list_;
 	unsigned        module_id_;
+	int             module_ready_;
 } internal_module_info;
 
 
@@ -150,15 +151,28 @@ int min_if_open (min_case_complete_func complete_cb,
 		 char *envp[])
 {
 	int module_count;
-	ec_min_init (complete_cb, print_cb, extifsend_cb, envp, 1);
+	MIN_DEBUG (">>");
+
+	if (tfwif_modules_ == INITPTR)
+		tfwif_modules_ = dl_list_create();
+
 	in = &in_str;
 	eapi_init (in, &min_clbk_);
 	pl_attach_plugin (&in, &min_clbk_);
+	ec_min_init (complete_cb, print_cb, extifsend_cb, envp, 1);
 
 	module_count = min_clbk_.min_open();
 	while (module_count > ready_module_count_) {
 		usleep (50000);
 	}
+
+	if ((engine_ini != NULL) && (strlen (engine_ini) != 0)) {
+                ec_read_settings (engine_ini);
+
+        }
+
+	
+	MIN_DEBUG ("<<");
 	
 	return 0;
 }
@@ -279,6 +293,7 @@ int min_if_get_cases (module_info ** modules_arg)
         module_info    *modules = NULL;
 	internal_module_info *mi;
 	min_case *mc;
+	MIN_DEBUG (">>");
 
         extif_list_size = dl_list_size(tfwif_modules_);
         modules = NEW2 (module_info, extif_list_size);
@@ -290,23 +305,24 @@ int min_if_get_cases (module_info ** modules_arg)
 		
 		STRCPY (modules[i].module_name_, mi->module_name_, 128);
 		     
-		     cases_count = dl_list_size (mi->test_case_list_);
-		     modules[i].num_test_cases_ = cases_count;
-		     modules[i].test_cases_ = NEW2 (min_case, cases_count);
-		     j = 0;
-		     for (case_it = dl_list_head (mi->test_case_list_);
-			  case_it != DLListNULLIterator;
-			  case_it = dl_list_next (case_it)) {
-			     mc = dl_list_data (case_it);
-			     modules[i].test_cases_[j] = *mc;
-			     j++;
+		cases_count = dl_list_size (mi->test_case_list_);
+		modules[i].num_test_cases_ = cases_count;
+		modules[i].test_cases_ = NEW2 (min_case, cases_count);
+		j = 0;
+		for (case_it = dl_list_head (mi->test_case_list_);
+		     case_it != DLListNULLIterator;
+		     case_it = dl_list_next (case_it)) {
+			mc = dl_list_data (case_it);
+			modules[i].test_cases_[j] = *mc;
+			j++;
 		     }
-		     i ++;
+		i ++;
         }
         *modules_arg = modules;
         MIN_WARN ("Number of cases = %d, modules: %x", extif_list_size,
 		  modules);
-
+	MIN_DEBUG ("<<");
+	
         return extif_list_size;
 }
 
@@ -346,54 +362,30 @@ int min_if_resume_case (unsigned int runtime_id)
 /* ------------------------------------------------------------------------- */
 int min_if_module_add (char *module_name, char *conf_name)
 {
-        int             result = 0;
-        DLList         *conf_list = INITPTR;
+	internal_module_info *mi = INITPTR;
+	MIN_DEBUG (">>");
 
-        TSChar         *tcf_name;
-        TSChar         *mod_name;
-        int             cont_flag = 0;
-        int             i = 0;
-        int             old_number_of_modules = 0;
-        /*diff between old and new number of instantiated modules
-           indicates if new module was successfully added */
-        DLListIterator  work_module_item = DLListNULLIterator;
-        test_module_status_t status;
+	if (!min_clbk_.add_test_module (module_name))
+		return 0;
+	while (mi == INITPTR) {
+		usleep (10000);
 
-        MIN_DEBUG ("arg: modulename=%s : configuration_file=%s", 
-                    module_name, conf_name);
+		mi = dl_list_find (dl_list_head (tfwif_modules_),
+				   dl_list_tail (tfwif_modules_),
+				   _find_mod_by_name,
+				   (const void *)&module_name);
+	}
+	if (conf_name && 
+	    !min_clbk_.add_test_case_file (mi->module_id_, conf_name))
+		return 1;
+	min_clbk_.add_test_case_file (mi->module_id_, "");
 
-        old_number_of_modules = dl_list_size (instantiated_modules);
-        conf_list = dl_list_create ();
-        if (conf_name != NULL) {
-                tcf_name = NEW2 (char, strlen (conf_name) + 1);
-                sprintf (tcf_name, "%s", conf_name);
-                dl_list_add (conf_list, (void *)tcf_name);
-        }
-        mod_name = NEW2 (TSChar, strlen (module_name) + 1);
-        sprintf (mod_name, "%s", module_name);
-        result = ec_add_module (mod_name, conf_list, 0);
-        if (result == 0) {
-                while (cont_flag == 0) {
-                        usleep (500000);
-                        i++;
-                        work_module_item =
-                            dl_list_head (instantiated_modules);
-                        cont_flag = 1;
-                        while (work_module_item != DLListNULLIterator) {
-                                status = tm_get_status (work_module_item);
-                                if (status == TEST_MODULE_READY)
-                                        cont_flag = cont_flag | 1;
-                                else
-                                        cont_flag = 0;
-                                work_module_item =
-                                    dl_list_next (work_module_item);
-                        }
-                        if (i > 20)
-                                break;
-                }
-        }
-        DELETE (mod_name);
-        return result;
+	while (!mi->module_ready_)
+		usleep (10000);
+
+	MIN_DEBUG ("<<");
+	
+	return 1;
 }
 
 
@@ -435,12 +427,14 @@ void pl_detach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
 
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
                         long starttime, long endtime){
+	MIN_DEBUG (">>");
 	return;
 };
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid){
+	MIN_DEBUG (">>");
 	if(tfwif_test_runs_==INITPTR){
 		tfwif_test_runs_=dl_list_create();
 	}
@@ -459,6 +453,8 @@ LOCAL void pl_case_started (unsigned moduleid,
 };
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_paused (long testrunid){
+	MIN_DEBUG (">>");
+
 	DLListIterator	*test_run_item = DLListNULLIterator;
 	test_run_item = dl_list_head(tfwif_test_runs_);
 	internal_test_run_info *tri = INITPTR;
@@ -474,26 +470,48 @@ LOCAL void pl_case_paused (long testrunid){
 };
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_resumed (long testrunid){
+	MIN_DEBUG (">>");
+
 	return;
 };
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_msg_print (long testrunid, char *message){
+	MIN_DEBUG (">>");
+
 	printf ("test module message: %s\n", message);
+
 	return;
 };
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_new_module (char *modulename, unsigned moduleid){
 	internal_module_info *mi;
+	MIN_DEBUG (">>");
+
 	mi = NEW (internal_module_info);
 	STRCPY(mi->module_name_, modulename, 128);
         mi->test_case_list_ = dl_list_create();
 	mi->module_id_ = moduleid;
+	mi->module_ready_ = 0;
 	dl_list_add (tfwif_modules_, mi);
+	MIN_DEBUG ("<<");
+
 	return;
 };
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_module_ready ( unsigned moduleid){
+	internal_module_info *mi;
 	ready_module_count_ ++;
+	MIN_DEBUG (">>");
+
+	mi = dl_list_find (dl_list_head (tfwif_modules_),
+			   dl_list_tail (tfwif_modules_),
+			   _find_mod_by_id,
+			   (const void *)&moduleid);
+	if (mi == INITPTR)
+		return;
+	mi->module_ready_ = 1;
+	MIN_DEBUG ("<<");
+
 	return;
 };
 /* ------------------------------------------------------------------------- */
@@ -505,6 +523,7 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 {
 	internal_module_info *mi;
 	min_case *mc;
+	MIN_DEBUG (">>");
 
 	mi = dl_list_find (dl_list_head (tfwif_modules_),
 			   dl_list_tail (tfwif_modules_),
@@ -518,6 +537,8 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 	STRCPY (mc->case_name_, casetitle, 256);
 
 	dl_list_add (mi->test_case_list_, mc);
+	MIN_DEBUG ("<<");
+
 	return;
 };
 
