@@ -31,6 +31,8 @@
 #include <data_api.h>
 #include <mintfwif.h>
 #include <min_engine_api.h>
+#include <tmc_common.h>
+//#include <dllist.h>
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -63,6 +65,10 @@ typedef struct {
         unsigned int    module_id_;
         /** Test run ID */
         unsigned int    test_run_id_;
+	/** Test run status */
+	MINTPStatus	status_;
+	/** Test run group ID */
+	unsigned int	group_id_;
 } internal_test_run_info;
 
 
@@ -70,6 +76,7 @@ typedef struct {
 /* GLOBAL VARIABLES */
 /* module list */
 DLList *tfwif_modules_ = INITPTR;
+DLList *tfwif_test_runs_ = INITPTR;
 /* number of ready modules */
 unsigned ready_module_count_ = 0;
 
@@ -147,7 +154,7 @@ int min_if_open (min_case_complete_func complete_cb,
 	in = &in_str;
 	eapi_init (in, &min_clbk_);
 	pl_attach_plugin (&in, &min_clbk_);
-	
+
 	module_count = min_clbk_.min_open();
 	while (module_count > ready_module_count_) {
 		usleep (50000);
@@ -434,10 +441,35 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid){
+	if(tfwif_test_runs_==INITPTR){
+		tfwif_test_runs_=dl_list_create();
+	}
+	internal_test_run_info *tri;
+
+	tri = NEW (internal_test_run_info);
+	tri->case_id_ = caseid;
+	tri->test_run_id_ = testrunid;
+	tri->module_id_ = moduleid;
+	tri->status_=TP_RUNNING;
+	tri->group_id_=0;
+
+	dl_list_add (tfwif_test_runs_, tri);
+
 	return;	
 };
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_paused (long testrunid){
+	DLListIterator	*test_run_item = DLListNULLIterator;
+	test_run_item = dl_list_head(tfwif_test_runs_);
+	internal_test_run_info *tri = INITPTR;
+	while(test_run_item!=DLListNULLIterator){
+		tri = dl_list_data (test_run_item);
+		if(tri->status_==TP_RUNNING){
+			tri->status_=TP_PAUSED;
+			break;
+		}
+	}
+
 	return;
 };
 /* ------------------------------------------------------------------------- */
