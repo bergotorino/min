@@ -444,7 +444,8 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
-			    long testrunid){
+			    long testrunid)
+{
 	MIN_DEBUG (">>");
 	if(tfwif_test_runs_==INITPTR){
 		tfwif_test_runs_=dl_list_create();
@@ -463,15 +464,18 @@ LOCAL void pl_case_started (unsigned moduleid,
 	return;	
 };
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_case_paused (long testrunid){
-	MIN_DEBUG (">>");
-
-	DLListIterator	*test_run_item = DLListNULLIterator;
-	test_run_item = dl_list_head(tfwif_test_runs_);
+LOCAL void pl_case_paused (long testrunid)
+{
 	internal_test_run_info *tri = INITPTR;
+	DLListIterator	*test_run_item = DLListNULLIterator;
+
+    MIN_DEBUG (">>");
+
+	test_run_item = dl_list_head(tfwif_test_runs_);
 	while(test_run_item!=DLListNULLIterator){
 		tri = dl_list_data (test_run_item);
-		if(tri->status_==TP_RUNNING){
+		if(tri->status_==TP_RUNNING &&
+           tri->test_run_id_==testrunid){
 			tri->status_=TP_PAUSED;
 			break;
 		}
@@ -480,13 +484,28 @@ LOCAL void pl_case_paused (long testrunid){
 	return;
 };
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_case_resumed (long testrunid){
-	MIN_DEBUG (">>");
+LOCAL void pl_case_resumed (long testrunid)
+{
+	internal_test_run_info *tri = INITPTR;
+	DLListIterator	*test_run_item = DLListNULLIterator;
+
+    MIN_DEBUG (">>");
+
+	test_run_item = dl_list_head(tfwif_test_runs_);
+	while(test_run_item!=DLListNULLIterator){
+		tri = dl_list_data (test_run_item);
+		if(tri->status_==TP_PAUSED &&
+           tri->test_run_id_==testrunid){
+			    tri->status_=TP_RUNNING;
+			    break;
+		}
+	}
 
 	return;
 };
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_msg_print (long testrunid, char *message){
+LOCAL void pl_msg_print (long testrunid, char *message)
+{
 	MIN_DEBUG (">>");
 
 	printf ("test module message: %s\n", message);
@@ -494,7 +513,8 @@ LOCAL void pl_msg_print (long testrunid, char *message){
 	return;
 };
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_new_module (char *modulename, unsigned moduleid){
+LOCAL void pl_new_module (char *modulename, unsigned moduleid)
+{
 	internal_module_info *mi;
 	MIN_DEBUG (">>");
 
@@ -513,7 +533,8 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid){
 	return;
 };
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_module_ready ( unsigned moduleid){
+LOCAL void pl_module_ready ( unsigned moduleid)
+{
 	internal_module_info *mi;
 	ready_module_count_ ++;
 	MIN_DEBUG (">>");
@@ -534,7 +555,8 @@ LOCAL void pl_module_ready ( unsigned moduleid){
 	return;
 };
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_no_module (char *modulename){
+LOCAL void pl_no_module (char *modulename)
+{
 	return;
 };
 /* ------------------------------------------------------------------------- */
@@ -566,7 +588,8 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 };
 
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_error_report (char *error){
+LOCAL void pl_error_report (char *error)
+{
 	printf ("%s\n", error);
 	return;
 };
