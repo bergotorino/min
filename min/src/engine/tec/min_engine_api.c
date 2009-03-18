@@ -145,7 +145,7 @@ LOCAL int eapi_add_test_case_file (unsigned module_id, char *testcasefile)
 /* ------------------------------------------------------------------------- */
 
 LOCAL int eapi_start_test_case (unsigned module_id, unsigned case_id, 
-				 unsigned groupid)
+				unsigned groupid)
 {
         int             result = 0, run = 1, stat;
 	DLListIterator mod_it, case_it, case_it2;

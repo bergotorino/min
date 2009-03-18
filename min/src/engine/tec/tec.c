@@ -2395,9 +2395,9 @@ err_exit:
  *                    1 - external controller interface.
  */
 void ec_min_init (min_case_complete_func completecallbk,
-                   min_case_print_func printcallbk,
-                   min_extif_message_cb_ extifsendcallbk,
-                   char *envp_[], int operation_mode)
+		  min_case_print_func printcallbk,
+		  min_extif_message_cb_ extifsendcallbk,
+		  char *envp_[], int operation_mode)
 {
         int             thread_creation_result;
         pthread_t       listener_thread;

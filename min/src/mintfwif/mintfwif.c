@@ -166,31 +166,16 @@ int min_if_message_received (char *message, int length)
 /* ------------------------------------------------------------------------- */
 int min_if_exec_case (char *module, unsigned int id)
 {
-        int             retval = -1;
-        DLListIterator  work_module_item = INITPTR;
-        DLListIterator  work_case_item = INITPTR;
-        char           *module_name = NEW2 (char, MaxFileName);
-	unsigned 	module_id;
+	internal_module_info *mi;
 
-        work_module_item = dl_list_head (instantiated_modules);
-        while (work_module_item != DLListNULLIterator) {
-                tm_get_module_filename (work_module_item, module_name);
-                if ((strcasestr (module, module_name) != NULL) ||
-                    (strcasestr (module_name, module) != NULL)) {
-			module_id=tm_get_module_id(work_module_item);
-                        work_case_item =
-                            dl_list_at (tm_get_tclist (work_module_item), id);
-                        break;
-                }
-                work_module_item = dl_list_next (work_module_item);
-        }
+	mi = dl_list_find (dl_list_head (tfwif_modules_),
+			   dl_list_tail (tfwif_modules_),
+			   _find_mod_by_name,
+			   (const void *)&module);
+	if (mi == INITPTR)
+		return 1;
 
-        retval = ec_exec_test_case (work_case_item);
-        if (retval == 0)
-                retval = dl_list_size (selected_cases) - 1;
-        DELETE (module_name);
-
-        return retval;
+	return min_clbk_.start_test_case (mi->module_id_, id, 0);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -439,8 +424,8 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 };
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_started (unsigned moduleid,
-                      unsigned caseid,
-                      long testrunid){
+			    unsigned caseid,
+			    long testrunid){
 	return;	
 };
 /* ------------------------------------------------------------------------- */
@@ -510,6 +495,14 @@ LOCAL int _find_mod_by_id (const void *a, const void *b)
 
         if (tmp1->module_id_ ==(*tmp2)) return 0;
         else return -1;
+}
+
+/* ------------------------------------------------------------------------- */
+LOCAL int _find_mod_by_name (const void *a, const void *b)
+{
+        internal_module_info *tmp1 = (internal_module_info*)a;
+
+	return strncmp (tmp1->module_name_), (const char *)b, 128); 
 }
 
 /*---------------------------------------------------------------------------*/
