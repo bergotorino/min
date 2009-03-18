@@ -43,7 +43,6 @@
 /* EXTERNAL FUNCTION PROTOTYPES */
 
 extern char    *strcasestr (const char *haystack, const char *needle);
-extern eapiIn_t *in;
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
@@ -52,6 +51,19 @@ extern eapiIn_t *in;
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
+/* List of cases */
+DLList *case_list_ = INITPTR;
+DLList *executed_case_list_ = INITPTR;
+DLList *error_list_ = INITPTR;
+
+/* List of modules */
+DLList  *available_modules = INITPTR;
+DLList  *test_modules = INITPTR;
+
+/* List of test case files selected for added module */
+DLList *found_tcase_files = INITPTR;
+DLList *test_case_files = INITPTR;
+
 
 
 /* ------------------------------------------------------------------------- */
@@ -64,7 +76,9 @@ extern eapiIn_t *in;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
-eapiIn_t in_str;
+
+eapiIn_t in_clbk_;
+eapiOut_t min_clbk_;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
@@ -72,6 +86,28 @@ eapiIn_t in_str;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* None */
+
+LOCAL void pl_case_result (long testrunid, int result, char *desc,
+		                        long starttime, long endtime);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_started (unsigned moduleid,
+	                    unsigned caseid,
+                            long testrunid);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_paused (long testrunid);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_resumed (long testrunid);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_msg_print (long testrunid, char *message);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_new_module (char *modulename, unsigned moduleid);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_no_module (char *modulename);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_error_report (char *error);
+
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -95,12 +131,17 @@ int min_if_open (min_case_complete_func complete_cb,
         int             cont_flag = 0;
         int             status;
         int             i = 0;
+	
         DLListIterator  work_module_item = DLListNULLIterator;
 
-	/* this will null the plugin */
-	in = &in_str;
+	/* create linked list for test cases */
+        user_selected_cases = dl_list_create ();
 
-        ec_min_init (complete_cb, print_cb, extifsend_cb, envp, 1);
+        /* create linked list for test modules */
+        test_modules = dl_list_create ();
+
+        /* create linked list for testcase files */
+        test_case_files = dl_list_create ();
 
         while (cont_flag == 0) {
                 usleep (500000);
@@ -129,7 +170,10 @@ int min_if_open (min_case_complete_func complete_cb,
 /* ------------------------------------------------------------------------- */
 int min_if_close ()
 {
-        ec_cleanup ();
+        if(min_clbk_.min_close)
+	{
+		min_clbk_.min_close();
+	}
 
         return 0;
 }
@@ -150,12 +194,14 @@ int min_if_exec_case (char *module, unsigned int id)
         DLListIterator  work_module_item = INITPTR;
         DLListIterator  work_case_item = INITPTR;
         char           *module_name = NEW2 (char, MaxFileName);
+	unsigned 	module_id;
 
         work_module_item = dl_list_head (instantiated_modules);
         while (work_module_item != DLListNULLIterator) {
                 tm_get_module_filename (work_module_item, module_name);
                 if ((strcasestr (module, module_name) != NULL) ||
                     (strcasestr (module_name, module) != NULL)) {
+			module_id=tm_get_module_id(work_module_item);
                         work_case_item =
                             dl_list_at (tm_get_tclist (work_module_item), id);
                         break;
@@ -373,6 +419,86 @@ int min_if_module_add (char *module_name, char *conf_name)
         DELETE (mod_name);
         return result;
 }
+
+
+void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
+{
+        /* Binds the callbacks */
+        memcpy (&min_clbk_,in_callback,sizeof(eapiOut_t));
+
+        (*out_callback)->case_result            = pl_case_result;
+        (*out_callback)->case_started           = pl_case_started;
+        (*out_callback)->case_paused            = pl_case_paused;
+        (*out_callback)->case_resumed           = pl_case_resumed;
+        (*out_callback)->module_prints          = pl_msg_print;
+        (*out_callback)->new_module             = pl_new_module;
+        (*out_callback)->no_module              = pl_no_module;
+        (*out_callback)->module_ready           = NULL;
+        (*out_callback)->new_case               = pl_new_case;
+        (*out_callback)->error_report           = pl_error_report;
+
+        return;
+}
+/* ------------------------------------------------------------------------- */
+void pl_open_plugin (void *arg)
+{
+        return;
+}
+/* ------------------------------------------------------------------------- */
+void pl_close_plugin ()
+{
+        return;
+}
+/* ------------------------------------------------------------------------- */
+void pl_detach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
+{
+        return;
+}
+/* ------------------------------------------------------------------------- */
+
+
+LOCAL void pl_case_result (long testrunid, int result, char *desc,
+                        long starttime, long endtime){
+	return;
+};
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_started (unsigned moduleid,
+                      unsigned caseid,
+                      long testrunid){
+	return;	
+};
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_paused (long testrunid){
+	return;
+};
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_resumed (long testrunid){
+	return;
+};
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_msg_print (long testrunid, char *message){
+	return;
+};
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_new_module (char *modulename, unsigned moduleid){
+	return;
+};
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_no_module (char *modulename){
+	return;
+};
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle){
+	return;
+};
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_error_report (char *error){
+	return;
+};
+
+
+
+
 
 /*---------------------------------------------------------------------------*/
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
