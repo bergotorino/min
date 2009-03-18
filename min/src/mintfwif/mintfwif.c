@@ -107,6 +107,8 @@ LOCAL void pl_error_report (char *error);
 /* ------------------------------------------------------------------------- */
 LOCAL int _find_mod_by_id (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
+LOCAL int _find_mod_by_name (const void *a, const void *b);
+/* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback);
@@ -175,7 +177,7 @@ int min_if_exec_case (char *module, unsigned int id)
 	if (mi == INITPTR)
 		return 1;
 
-	return min_clbk_.start_test_case (mi->module_id_, id, 0);
+	return min_clbk_.start_case (mi->module_id_, id, 0);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -502,7 +504,7 @@ LOCAL int _find_mod_by_name (const void *a, const void *b)
 {
         internal_module_info *tmp1 = (internal_module_info*)a;
 
-	return strncmp (tmp1->module_name_), (const char *)b, 128); 
+	return strncmp (tmp1->module_name_, (const char *)b, 128); 
 }
 
 /*---------------------------------------------------------------------------*/

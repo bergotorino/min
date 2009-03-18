@@ -486,7 +486,6 @@ MIN_TESTDEFINE(test_dllist_find)
         int a[6];
         int retval = -1;
         int i = 0;
-        DLListIterator it = DLListNULLIterator;
         DLList* l = dl_list_create();
         MIN_ASSERT_NOT_EQUALS ( l, INITPTR);
         a[0]    = 5;
@@ -501,8 +500,8 @@ MIN_TESTDEFINE(test_dllist_find)
         }
 
         i = 5;
-        retval = dl_list_count (dl_list_begin(l),
-                                dl_list_end(l),
+        retval = dl_list_count (dl_list_head(l),
+                                dl_list_tail(l),
                                 equal,
                                 &i);
         MIN_ASSERT_EQUALS( retval, 4);
