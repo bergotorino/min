@@ -70,6 +70,16 @@ typedef struct {
         in module*/
         min_case      *test_cases_;
 } module_info;
+
+/** Structure for storage of executed test case data*/
+typedef struct {
+	/** Test Case ID */
+	unsigned int	case_id_;
+	/** Module ID */
+	unsigned int 	module_id_;
+	/** Test run ID */
+	unsigned int	test_run_id_;
+} test_run_info;
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
