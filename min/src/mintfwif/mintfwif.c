@@ -255,44 +255,39 @@ int min_if_get_cases (module_info ** modules_arg)
 {
 
         int             extif_list_size = 0;
-        int             mod_counter = 0;
-        int             case_counter = 0;
-        int             cases_count = 0;
-        DLListIterator  work_module_item = DLListNULLIterator;
-        DLListIterator  work_case_item = DLListNULLIterator;
-        char           *title_string = NEW2 (char, MaxFileName);
-
+        DLListIterator  mod_it = DLListNULLIterator;
+        DLListIterator  case_it = DLListNULLIterator;
+	int i = 0, j, cases_count;
         module_info    *modules = NULL;
+	internal_module_info *mi;
+	min_case *mc;
 
-        extif_list_size = dl_list_size (instantiated_modules);
+        extif_list_size = dl_list_size(tfwif_modules_);
         modules = NEW2 (module_info, extif_list_size);
-        for (mod_counter = 0; mod_counter < extif_list_size; mod_counter++) {
-                work_module_item =
-                    dl_list_at (instantiated_modules, mod_counter);
-                tm_get_module_filename (work_module_item, title_string);
-                STRCPY (modules[mod_counter].module_name_, title_string, 128);
-                cases_count = dl_list_size (tm_get_tclist (work_module_item));
-                modules[mod_counter].num_test_cases_ = cases_count;
-                modules[mod_counter].test_cases_ =
-                    NEW2 (min_case, cases_count);
-                /*write test cases data) */
-                for (case_counter = 0; case_counter < cases_count;
-                     case_counter++) {
-                        work_case_item =
-                            dl_list_at (tm_get_tclist (work_module_item),
-                                        case_counter);
-                        modules[mod_counter].test_cases_[case_counter].
-                            case_id_ = case_counter;
-                        tc_get_title (work_case_item, title_string);
-                        STRCPY (modules[mod_counter].
-                                test_cases_[case_counter].case_name_,
-                                title_string, 256);
-                }
+	
+	for (mod_it = dl_list_head (tfwif_modules_);
+	     mod_it != DLListNULLIterator;
+	     mod_it = dl_list_next (mod_it)) {
+		mi = dl_list_data (mod_it);
+		
+		STRCPY (modules[i].module_name_, mi->module_name_, 128);
+		     
+		     cases_count = dl_list_size (mi->test_case_list_);
+		     modules[i].num_test_cases_ = cases_count;
+		     modules[i].test_cases_ = NEW2 (min_case, cases_count);
+		     j = 0;
+		     for (case_it = dl_list_head (mi->test_case_list_);
+			  case_it != DLListNULLIterator;
+			  case_it = dl_list_next (case_it)) {
+			     mc = dl_list_data (case_it);
+			     modules[i].test_cases_[j] = *mc;
+			     j++;
+		     }
+		     i ++;
         }
-        DELETE (title_string);
         *modules_arg = modules;
         MIN_WARN ("Number of cases = %d, modules: %x", extif_list_size,
-                     modules);
+		  modules);
 
         return extif_list_size;
 }

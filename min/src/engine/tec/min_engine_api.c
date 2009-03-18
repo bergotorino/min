@@ -237,7 +237,7 @@ LOCAL int eapi_error (const char *what, const char *msg)
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL int eapi_open (char *what, char *msg)
+LOCAL int eapi_open ()
 {
         MIN_DEBUG ("Opening");
 	return ec_start_modules();
