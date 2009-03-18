@@ -43,21 +43,15 @@
 /* EXTERNAL FUNCTION PROTOTYPES */
 
 extern char    *strcasestr (const char *haystack, const char *needle);
-extern eapiIn_t *in;
+extern eapiIn_t in_str;
 
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
 typedef struct {
-        /** Module name - null terminated string */
         char            module_name_[128];
-        /** Number of test cases */
-        unsigned int    num_test_cases_;
-        /** Array of min_case structures - collection of test cases
-        in module*/
-        DLList *test_cases_;
-	/** module id */
-	unsigned module_id_;
+        DLList         *test_case_list_;
+	unsigned        module_id_;
 } internal_module_info;
 
 
@@ -66,7 +60,7 @@ typedef struct {
 /* module list */
 DLList *tfwif_modules_ = INITPTR;
 /* number of ready modules */
-unsigned ready_module_count_;
+unsigned ready_module_count_ = 0;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -80,7 +74,7 @@ unsigned ready_module_count_;
 /* LOCAL GLOBAL VARIABLES */
 
 eapiOut_t min_clbk_;
-
+eapiIn_t *in;
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
 /* None */
@@ -110,8 +104,9 @@ LOCAL void pl_no_module (char *modulename);
 LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_error_report (char *error);
-
-
+/* ------------------------------------------------------------------------- */
+LOCAL int _find_mod_by_id (const void *a, const void *b);
+/* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback);
@@ -126,6 +121,9 @@ int min_if_set_device_id (int device_id)
         return 0;
 }
 
+/* ------------------------------------------------------------------------- */
+
+
 int min_if_open (min_case_complete_func complete_cb,
 		 min_case_print_func print_cb,
 		 min_extif_message_cb_ extifsend_cb, char *engine_ini,
@@ -133,12 +131,13 @@ int min_if_open (min_case_complete_func complete_cb,
 {
 	int module_count;
 	ec_min_init (complete_cb, print_cb, extifsend_cb, envp, 1);
+	in = &in_str;
 	eapi_init (in, &min_clbk_);
 	pl_attach_plugin (&in, &min_clbk_);
 	
 	module_count = min_clbk_.min_open();
-	while (module_count < ready_module_count_) {
-		usleep (500000);
+	while (module_count > ready_module_count_) {
+		usleep (50000);
 	}
 	
 	return 0;
@@ -454,6 +453,7 @@ LOCAL void pl_case_resumed (long testrunid){
 };
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_msg_print (long testrunid, char *message){
+	printf ("test module message: %s\n", message);
 	return;
 };
 /* ------------------------------------------------------------------------- */
@@ -461,8 +461,7 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid){
 	internal_module_info *mi;
 	mi = NEW (internal_module_info);
 	STRCPY(mi->module_name_, modulename, 128);
-        mi->num_test_cases_ = 0;
-        mi->test_cases_ = dl_list_create();
+        mi->test_case_list_ = dl_list_create();
 	mi->module_id_ = moduleid;
 	dl_list_add (tfwif_modules_, mi);
 	return;
@@ -477,17 +476,41 @@ LOCAL void pl_no_module (char *modulename){
 	return;
 };
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle){
+LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
+{
+	internal_module_info *mi;
+	min_case *mc;
+
+	mi = dl_list_find (dl_list_head (tfwif_modules_),
+			   dl_list_tail (tfwif_modules_),
+			   _find_mod_by_id,
+			   (const void *)&moduleid);
+	if (mi == INITPTR)
+		return;
+
+	mc = NEW(min_case);
+	mc->case_id_ = caseid;
+	STRCPY (mc->case_name_, casetitle, 256);
+
+	dl_list_add (mi->test_case_list_, mc);
 	return;
 };
+
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_error_report (char *error){
+	printf ("%s\n", error);
 	return;
 };
 
+/* ------------------------------------------------------------------------- */
+LOCAL int _find_mod_by_id (const void *a, const void *b)
+{
+        internal_module_info *tmp1 = (internal_module_info*)a;
+        unsigned *tmp2 = (unsigned*)b;
 
-
-
+        if (tmp1->module_id_ ==(*tmp2)) return 0;
+        else return -1;
+}
 
 /*---------------------------------------------------------------------------*/
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */

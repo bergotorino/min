@@ -53,14 +53,14 @@ char          **envp;
 int             unit_test_result;
 #endif                          /*MINMIN_UNIT_TEST */
 struct logger_settings_t logger_settings;
-
+eapiIn_t in_str;
+eapiIn_t *in = &in_str;
 
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
  */
 extern DLList  *ms_assoc;
 extern DLList  *EXTIF_received_data;
-extern eapiIn_t *in;
 
 
 /* ---------------------------------------------------------------------------
@@ -1249,8 +1249,10 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 	if (in->case_result) in->case_result (tc_get_run_id (work_case_item), 
 					      message->param_, 
 					      message->message_,
-                                        tr_get_start_time(work_result_item),
-                                        tr_get_end_time(work_result_item));
+					      tr_get_start_time
+					      (work_result_item),
+					      tr_get_end_time
+					      (work_result_item));
 
 
         /* Now let's link created result item to original test case. 

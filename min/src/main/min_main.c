@@ -42,6 +42,8 @@
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
 extern char* optarg;
+extern eapiIn_t *in_str;
+
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 
@@ -60,7 +62,6 @@ eapiOut_t *out;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
-eapiIn_t in_str;
 eapiOut_t out_str;
 
 
