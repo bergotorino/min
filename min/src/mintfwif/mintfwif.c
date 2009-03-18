@@ -43,28 +43,30 @@
 /* EXTERNAL FUNCTION PROTOTYPES */
 
 extern char    *strcasestr (const char *haystack, const char *needle);
+extern eapiIn_t *in;
+
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
-/* None */
+typedef struct {
+        /** Module name - null terminated string */
+        char            module_name_[128];
+        /** Number of test cases */
+        unsigned int    num_test_cases_;
+        /** Array of min_case structures - collection of test cases
+        in module*/
+        DLList *test_cases_;
+	/** module id */
+	unsigned module_id_;
+} internal_module_info;
 
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-/* List of cases */
-DLList *case_list_ = INITPTR;
-DLList *executed_case_list_ = INITPTR;
-DLList *error_list_ = INITPTR;
-
-/* List of modules */
-DLList  *available_modules = INITPTR;
-DLList  *test_modules = INITPTR;
-
-/* List of test case files selected for added module */
-DLList *found_tcase_files = INITPTR;
-DLList *test_case_files = INITPTR;
-
-
+/* module list */
+DLList *tfwif_modules_ = INITPTR;
+/* number of ready modules */
+unsigned ready_module_count_;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -77,7 +79,6 @@ DLList *test_case_files = INITPTR;
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
 
-eapiIn_t in_clbk_;
 eapiOut_t min_clbk_;
 
 /* ------------------------------------------------------------------------- */
@@ -102,6 +103,8 @@ LOCAL void pl_msg_print (long testrunid, char *message);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_new_module (char *modulename, unsigned moduleid);
 /* ------------------------------------------------------------------------- */
+LOCAL void pl_module_ready (unsigned moduleid);
+/* ------------------------------------------------------------------------- */
 LOCAL void pl_no_module (char *modulename);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
@@ -111,7 +114,7 @@ LOCAL void pl_error_report (char *error);
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
-/* None */
+void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback);
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* None */
@@ -124,47 +127,21 @@ int min_if_set_device_id (int device_id)
 }
 
 int min_if_open (min_case_complete_func complete_cb,
-                  min_case_print_func print_cb,
-                  min_extif_message_cb_ extifsend_cb, char *engine_ini,
-                  char *envp[])
+		 min_case_print_func print_cb,
+		 min_extif_message_cb_ extifsend_cb, char *engine_ini,
+		 char *envp[])
 {
-        int             cont_flag = 0;
-        int             status;
-        int             i = 0;
+	int module_count;
+	ec_min_init (complete_cb, print_cb, extifsend_cb, envp, 1);
+	eapi_init (in, &min_clbk_);
+	pl_attach_plugin (&in, &min_clbk_);
 	
-        DLListIterator  work_module_item = DLListNULLIterator;
-
-	/* create linked list for test cases */
-        user_selected_cases = dl_list_create ();
-
-        /* create linked list for test modules */
-        test_modules = dl_list_create ();
-
-        /* create linked list for testcase files */
-        test_case_files = dl_list_create ();
-
-        while (cont_flag == 0) {
-                usleep (500000);
-                i++;
-                work_module_item = dl_list_head (instantiated_modules);
-                cont_flag = 1;
-                while (work_module_item != DLListNULLIterator) {
-                        status = tm_get_status (work_module_item);
-                        if (status == TEST_MODULE_READY)
-                                cont_flag = cont_flag | 1;
-                        else
-                                cont_flag = 0;
-                        work_module_item = dl_list_next (work_module_item);
-                }
-                if (i > 20)
-                        exit (1);
-        }
-
-        if ((engine_ini != NULL) && (strlen (engine_ini) != 0)) {
-                ec_read_settings (engine_ini);
-
-        }
-        return 0;
+	module_count = min_clbk_.min_open();
+	while (module_count < ready_module_count_) {
+		usleep (500000);
+	}
+	
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -424,20 +401,20 @@ int min_if_module_add (char *module_name, char *conf_name)
 void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
 {
         /* Binds the callbacks */
-        memcpy (&min_clbk_,in_callback,sizeof(eapiOut_t));
 
-        (*out_callback)->case_result            = pl_case_result;
-        (*out_callback)->case_started           = pl_case_started;
-        (*out_callback)->case_paused            = pl_case_paused;
-        (*out_callback)->case_resumed           = pl_case_resumed;
-        (*out_callback)->module_prints          = pl_msg_print;
-        (*out_callback)->new_module             = pl_new_module;
-        (*out_callback)->no_module              = pl_no_module;
-        (*out_callback)->module_ready           = NULL;
-        (*out_callback)->new_case               = pl_new_case;
-        (*out_callback)->error_report           = pl_error_report;
 
-        return;
+       (*out_callback)->case_result            = pl_case_result;
+       (*out_callback)->case_started           = pl_case_started;
+       (*out_callback)->case_paused            = pl_case_paused;
+       (*out_callback)->case_resumed           = pl_case_resumed;
+       (*out_callback)->module_prints          = pl_msg_print;
+       (*out_callback)->new_module             = pl_new_module;
+       (*out_callback)->no_module              = pl_no_module;
+       (*out_callback)->module_ready           = pl_module_ready;
+       (*out_callback)->new_case               = pl_new_case;
+       (*out_callback)->error_report           = pl_error_report;
+       
+       return;
 }
 /* ------------------------------------------------------------------------- */
 void pl_open_plugin (void *arg)
@@ -481,6 +458,18 @@ LOCAL void pl_msg_print (long testrunid, char *message){
 };
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_new_module (char *modulename, unsigned moduleid){
+	internal_module_info *mi;
+	mi = NEW (internal_module_info);
+	STRCPY(mi->module_name_, modulename, 128);
+        mi->num_test_cases_ = 0;
+        mi->test_cases_ = dl_list_create();
+	mi->module_id_ = moduleid;
+	dl_list_add (tfwif_modules_, mi);
+	return;
+};
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_module_ready ( unsigned moduleid){
+	ready_module_count_ ++;
 	return;
 };
 /* ------------------------------------------------------------------------- */
