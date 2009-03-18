@@ -55,6 +55,17 @@ typedef struct {
 } internal_module_info;
 
 
+/** Structure for storage of executed test case data*/
+typedef struct {
+        /** Test Case ID */
+        unsigned int    case_id_;
+        /** Module ID */
+        unsigned int    module_id_;
+        /** Test run ID */
+        unsigned int    test_run_id_;
+} internal_test_run_info;
+
+
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 /* module list */
