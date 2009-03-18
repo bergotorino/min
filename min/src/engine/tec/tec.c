@@ -1972,8 +1972,8 @@ LOCAL int ec_init_module_data (DLListItem * work_module_item)
 
 /** Function that instantializes all modules from available moduls list at
 * startup of the application.
-* @return: 0 if operation succeeded, -1 in case failure. Inability to start one
-* module is not a failure. */
+* @return: number of started modules
+*/
 int ec_start_modules ()
 {
 
@@ -2001,11 +2001,9 @@ int ec_start_modules ()
                         /* To be decided if additional handling of that 
 			 * fault is needed 
 			 */
+			result++;
                 }
 
-                else {
-                        result++;
-                }
                 work_list_item = dl_list_next (work_list_item);
 
                 if (work_list_item != DLListNULLIterator) {
@@ -2457,7 +2455,7 @@ void ec_min_init (min_case_complete_func completecallbk,
 
 
         /*start modules */
-        ec_start_modules ();
+        /* ec_start_modules (); */
         /* Listener thread creation */
         long            tmp = 0;
         thread_creation_result =

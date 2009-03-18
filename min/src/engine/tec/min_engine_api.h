@@ -127,64 +127,81 @@ typedef struct {
 	/* --------------------------------------------------------------------
 	** Adds a new test module to MIN. Engine calls new_module() if the 
 	** adding is succesfull.
+	** returns 0 if the async operation was started succesfully
+	**         1 in case of error
 	*/
-        void (*add_test_module) (char *modulepath);
+        int (*add_test_module) (char *modulepath);
 
 	/* --------------------------------------------------------------------
 	** Adds a test case file to the test module identified by moduleid. 
 	** Note: This must be called at least once for every module added(
 	** with add_test_module()), with the testcasefile parameter as "\0". So
 	** that engine knows not to expect any more files. 
+	** returns 0 if the async operation was started succesfully
+	**         1 in case of error
 	*/
-        void (*add_test_case_file) (unsigned moduleid, char *testcasefile);
+        int (*add_test_case_file) (unsigned moduleid, char *testcasefile);
 
 	/* --------------------------------------------------------------------
 	** Signals engine to start executing test case with caseid from module 
 	** with moduleid. If the groupid is non-zero test case is started when
 	** there are no cases running with the same groupid. (sequential
 	** execution)
+	** returns 0 if the async operation was started succesfully
+	**         1 in case of error
 	*/
-        void (*start_case) (unsigned moduleid, unsigned caseid, 
+        int (*start_case) (unsigned moduleid, unsigned caseid, 
 			    unsigned groupid);
 	/* --------------------------------------------------------------------
 	** Pause test case
+	** returns 0 if the async operation was started succesfully
+	**         1 in case of error
 	*/
-        void (*pause_case) (long test_run_id);
+        int (*pause_case) (long test_run_id);
 
 	/* --------------------------------------------------------------------
 	** Resume test case
+	** returns 0 if the async operation was started succesfully
+	**         1 in case of error
 	*/
-        void (*resume_case) (long test_run_id);
+        int (*resume_case) (long test_run_id);
 
 	/* --------------------------------------------------------------------
 	** Abort test case
+	** returns 0 if the async operation was started succesfully
+	**         1 in case of error
 	*/
-        void (*abort_case) (long test_run_id);
+        int (*abort_case) (long test_run_id);
 
 	/* --------------------------------------------------------------------
 	** Reports fatal error to engine
+	** returns 0 always
 	*/
-        void (*fatal_error) (const char *what, const char *error_string);
+        int (*fatal_error) (const char *what, const char *error_string);
 
 	/* --------------------------------------------------------------------
 	** Open interface towars the MIN engine
+	** returns number of available modules 
 	*/
-        void (*min_open) ();
+        int (*min_open) ();
 
 	/* --------------------------------------------------------------------
 	** Close the interface
+	** returns 0 on success 1 on error
 	*/
-        void (*min_close) ();
+        int (*min_close) ();
 
 	/* --------------------------------------------------------------------
 	** Triggers sending a list of test modules ( test_modules() )
+	** returns 0 on success 1 on error
 	*/
-        void (*query_test_modules) ();
+        int (*query_test_modules) ();
 
 	/* --------------------------------------------------------------------
 	** Triggers sending a list of test files ( test_files() ) 
+	** returns 0 on success 1 on error
 	*/
-        void (*query_test_files) ();
+        int (*query_test_files) ();
 } eapiOut_t;
 
 /* ----------------------------------------------------------------------------

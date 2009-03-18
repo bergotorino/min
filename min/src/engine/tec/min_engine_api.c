@@ -91,26 +91,28 @@ LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid);
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 
-LOCAL void eapi_add_test_module (char *modulepath)
+LOCAL int eapi_add_test_module (char *modulepath)
 {
         test_module_info_s *modinfo = INITPTR;
+	int ret = 1;
 
         modinfo = tm_create (modulepath, INITPTR, 0);
         if (tm_add (modules, modinfo) != INITPTR) {
                 if (in->new_module) {
                         in->new_module (modulepath, modinfo->module_id_);
                 }
+		ret = 0;
         } else {
                 MIN_WARN ("failed to add module");
                 if (in->no_module)  in->no_module (modulepath);
         }
                 
-        return;
+        return ret;
 }
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
+LOCAL int eapi_add_test_case_file (unsigned module_id, char *testcasefile)
 {
         DLListIterator it;
         test_module_info_s *modinfo;
@@ -120,7 +122,7 @@ LOCAL void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
 
         if (it == INITPTR) {
                 MIN_WARN ("No module with id %u found", module_id);
-                return;
+                return 1;
         }
         modinfo = dl_list_data (it);
         if (*testcasefile != '\0') {
@@ -132,15 +134,17 @@ LOCAL void eapi_add_test_case_file (unsigned module_id, char *testcasefile)
         } else {
                 /* we have all the test case files for the module,
                    so we can add the module into engine */
-                ec_add_module (modinfo->module_filename_, 
-                               modinfo->cfg_filename_list_,
-                               modinfo->module_id_);
+                if(!ec_add_module (modinfo->module_filename_, 
+				   modinfo->cfg_filename_list_,
+				   modinfo->module_id_))
+			return 1;
         } 
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_start_test_case (unsigned module_id, unsigned case_id, 
+LOCAL int eapi_start_test_case (unsigned module_id, unsigned case_id, 
 				 unsigned groupid)
 {
         int             result = 0, run = 1, stat;
@@ -152,13 +156,13 @@ LOCAL void eapi_start_test_case (unsigned module_id, unsigned case_id,
 	mod_it = tm_find_by_module_id (instantiated_modules, module_id);
 	if (mod_it == INITPTR) {
 		MIN_WARN ("No module by id %d found", module_id);
-		return;
+		return 1;
 	}
 	module = (test_module_info_s *)dl_list_data (mod_it);
 	case_it = tc_find_by_case_id (module->test_case_list_, case_id);
 	if (case_it == INITPTR) {
 		MIN_WARN ("No case by id %d found", case_id);
-		return;
+		return 1;
 	}
 
 	/* if we have a groupid, check if there already is an ongoing case
@@ -184,67 +188,70 @@ LOCAL void eapi_start_test_case (unsigned module_id, unsigned case_id,
 	if (run)
 		result = ec_exec_case (case_it);
 
-        return;
+        return result;
 }
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_pause_case (long test_run_id)
+LOCAL int eapi_pause_case (long test_run_id)
 {
 	DLListIterator it;
 
 	it = tc_find_by_runid (selected_cases, test_run_id);
 	if (it != INITPTR)
-		ec_pause_test_case (it);
+		return ec_pause_test_case (it);
+	return 1;
 }
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_resume_case (long test_run_id)
+LOCAL int eapi_resume_case (long test_run_id)
 {
 	DLListIterator it;
 
 	it = tc_find_by_runid (selected_cases, test_run_id);
 	if (it != INITPTR)
-		ec_resume_test_case (it);
-
+		return ec_resume_test_case (it);
+	return 1;
 }
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_abort_case (long test_run_id)
+LOCAL int eapi_abort_case (long test_run_id)
 {
 	DLListIterator it;
 
 	it = tc_find_by_runid (selected_cases, test_run_id);
 	if (it != INITPTR)
-		ec_abort_test_case (it);
-
+		return ec_abort_test_case (it);
+	return 1;
 }
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_error (const char *what, const char *msg)
+LOCAL int eapi_error (const char *what, const char *msg)
 {
         MIN_FATAL ("%s - %s",what,msg);
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_open (char *what, char *msg)
+LOCAL int eapi_open (char *what, char *msg)
 {
         MIN_DEBUG ("Opening");
-        MIN_DEBUG ("Open");
+	return ec_start_modules();
 }
 
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_close (char *what, char *msg)
+LOCAL int eapi_close (char *what, char *msg)
 {
         MIN_DEBUG ("Closing");
 	ec_cleanup();
         MIN_DEBUG ("Closed");
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -269,7 +276,7 @@ LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid)
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_query_test_modules(char **modulelist)
+LOCAL int eapi_query_test_modules(char **modulelist)
 {
         char *modules = INITPTR;
         char *tmpmodules = INITPTR;
@@ -325,11 +332,12 @@ LOCAL void eapi_query_test_modules(char **modulelist)
         }
 
         *modulelist = modules;
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
 
-LOCAL void eapi_query_test_files(char **filelist)
+LOCAL int eapi_query_test_files(char **filelist)
 {
         char *files = INITPTR;
         char *tmpfiles = INITPTR;
@@ -440,6 +448,7 @@ LOCAL void eapi_query_test_files(char **filelist)
         }
 
         *filelist = files;
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */

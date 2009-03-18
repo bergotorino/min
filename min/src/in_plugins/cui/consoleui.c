@@ -762,6 +762,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
 /* ------------------------------------------------------------------------- */
 void pl_open_plugin (void *arg)
 {
+        if (min_clbk_.min_open) min_clbk_.min_open ();
         cui_exec();
         return;
 }
@@ -800,6 +801,7 @@ void cui_exec ()
         int             key = 0;
         ITEM           *cur_item = INITPTR;
         callback_s     *p = INITPTR;
+
 
         init_ncurses ();
         init_main_window ();

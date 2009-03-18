@@ -343,7 +343,7 @@ int main (int argc, char *argv[], char *envp[])
 		in = &in_str;
 
 		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
-
+		ec_start_modules();
 		if ( add_command_line_modules (modulelist))
 			exit (1);
 		while (cont_flag == 0) {
@@ -371,10 +371,9 @@ int main (int argc, char *argv[], char *envp[])
 		out = &out_str;
 		eapi_init (in, out);
 		plugin_attach (&in, out);
-		
+		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
                 retval = pthread_create (&plugin_thread, NULL, plugin_open,
 					 &tmp);
-		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
 		if (in->error_report) {
 			in->error_report ("Contact: Antti Heimola, "
 					  "DG.MIN-Support@nokia.com");
