@@ -37,7 +37,7 @@
 /* EXTERNAL GLOBAL VARIABLES */
 extern DLList  *instantiated_modules;   /* list of running test modules */
 extern DLList  *selected_cases; /*list of test cases selected for execution */
-
+extern DLList  *available_modules;      /*list of available test modules */
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 /* None */

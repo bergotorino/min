@@ -55,7 +55,7 @@ int             unit_test_result;
 struct logger_settings_t logger_settings;
 eapiIn_t in_str;
 eapiIn_t *in = &in_str;
-
+DLList   *available_modules = INITPTR;   /*list of available test modules */
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
  */
@@ -2431,6 +2431,7 @@ void ec_min_init (min_case_complete_func completecallbk,
 
         min_log_open ("MIN", debug_lev);
 
+	MIN_DEBUG ("available_modules %x", available_modules);
         /* results = dl_list_create ( ); */
 #ifdef MIN_EXTIF
         ms_assoc = dl_list_create ();

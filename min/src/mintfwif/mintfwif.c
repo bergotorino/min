@@ -181,11 +181,9 @@ int min_if_open (min_case_complete_func complete_cb,
 /* ------------------------------------------------------------------------- */
 int min_if_close ()
 {
-        if(min_clbk_.min_close)
-	{
+	if(min_clbk_.min_close) {
 		min_clbk_.min_close();
 	}
-
         return 0;
 }
 
@@ -377,8 +375,8 @@ int min_if_module_add (char *module_name, char *conf_name)
 
 	MIN_DEBUG (">>");
 
-	if (!min_clbk_.add_test_module (module_name))
-		return 0;
+	if (min_clbk_.add_test_module (module_name))
+		return 1;
 	while (it == INITPTR) {
 
 		usleep (10000);
@@ -387,7 +385,7 @@ int min_if_module_add (char *module_name, char *conf_name)
 		it = dl_list_find (dl_list_head (tfwif_modules_),
 				   dl_list_tail (tfwif_modules_),
 				   _find_mod_by_name,
-				   (const void *)&module_name);
+				   (const void *)module_name);
 		pthread_mutex_unlock (&tfwif_mutex_);
 
 	}
@@ -403,7 +401,7 @@ int min_if_module_add (char *module_name, char *conf_name)
 
 	MIN_DEBUG ("<<");
 	
-	return 1;
+	return 0;
 }
 
 

@@ -87,7 +87,7 @@ typedef struct {
  * This chapter contains declaration of global variables that have to be 
  * available for entities other than test execution controller, e.g UI
  */
-DLList         *available_modules;      /*list of available test modules */
+
 DLList         *instantiated_modules;   /*list of running test modules */
 DLList         *selected_cases; /*list of test cases selected for execution */
 DLList         *results;        /*list of result structures for executed cases.
