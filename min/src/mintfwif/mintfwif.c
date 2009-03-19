@@ -32,7 +32,7 @@
 #include <mintfwif.h>
 #include <min_engine_api.h>
 #include <tmc_common.h>
-//#include <dllist.h>
+#include <dllist.h>
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -202,12 +202,13 @@ int min_if_exec_case (char *module, unsigned int id)
 
 	internal_module_info *mi;
 	DLListIterator it;
+	MIN_DEBUG (">>");
 
 	pthread_mutex_lock (&tfwif_mutex_);
 	it = dl_list_find (dl_list_head (tfwif_modules_),
 			   dl_list_tail (tfwif_modules_),
 			   _find_mod_by_name,
-			   (const void *)&module);
+			   (const void *)module);
 	pthread_mutex_unlock (&tfwif_mutex_);
 	if (it == INITPTR)
 		return 1;
