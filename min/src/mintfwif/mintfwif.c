@@ -127,6 +127,8 @@ LOCAL void pl_error_report (char *error);
 /* ------------------------------------------------------------------------- */
 LOCAL int _find_mod_by_id (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
+LOCAL int _find_testrun_by_id (const void *a, const void *b);
+/* ------------------------------------------------------------------------- */
 LOCAL int _find_mod_by_name (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -475,18 +477,21 @@ LOCAL void pl_case_paused (long testrunid)
 	internal_test_run_info *tri = INITPTR;
 	DLListIterator	*test_run_item = DLListNULLIterator;
 
-    MIN_DEBUG (">>");
+	MIN_DEBUG (">>");
 
-	test_run_item = dl_list_head(tfwif_test_runs_);
-	while(test_run_item!=DLListNULLIterator){
-		tri = dl_list_data (test_run_item);
-		if(tri->status_==TP_RUNNING &&
-           tri->test_run_id_==testrunid){
-			tri->status_=TP_PAUSED;
-			break;
-		}
+	pthread_mutex_lock (&tfwif_mutex_);
+	test_run_item = dl_list_find (dl_list_head (tfwif_test_runs_),
+			              dl_list_tail (tfwif_test_runs_),
+			              _find_testrun_by_id,
+	                              (const void *)&testrunid);
+	pthread_mutex_unlock (&tfwif_mutex_);
+
+	tri = dl_list_data (test_run_item);
+	if(tri->status_==TP_RUNNING &&
+       		tri->test_run_id_==testrunid){
+		tri->status_=TP_PAUSED;
 	}
-
+	MIN_DEBUG("<<");
 	return;
 };
 /* ------------------------------------------------------------------------- */
@@ -497,16 +502,19 @@ LOCAL void pl_case_resumed (long testrunid)
 
 	MIN_DEBUG (">>");
 
-	test_run_item = dl_list_head(tfwif_test_runs_);
-	while(test_run_item!=DLListNULLIterator){
-		tri = dl_list_data (test_run_item);
-		if(tri->status_==TP_PAUSED &&
-           tri->test_run_id_==testrunid){
-			    tri->status_=TP_RUNNING;
-			    break;
-		}
-	}
+	pthread_mutex_lock (&tfwif_mutex_);
+	test_run_item = dl_list_find (dl_list_head (tfwif_test_runs_),
+			              dl_list_tail (tfwif_test_runs_),
+			              _find_testrun_by_id,
+	                              (const void *)&testrunid);
+	pthread_mutex_unlock (&tfwif_mutex_);
 
+	tri = dl_list_data (test_run_item);
+	if(tri->status_==TP_PAUSED &&
+       		tri->test_run_id_==testrunid){
+		tri->status_=TP_RUNNING;
+	}
+	MIN_DEBUG("<<");
 	return;
 };
 /* ------------------------------------------------------------------------- */
@@ -625,6 +633,17 @@ LOCAL int _find_mod_by_name (const void *a, const void *b)
 }
 
 /*---------------------------------------------------------------------------*/
+LOCAL int _find_testrun_by_id (const void *a, const void *b)
+{
+        internal_test_run_info *trp1 = (internal_test_run_info*)a;
+        unsigned *tmp2 = (unsigned*)b;
+
+        if (trp1->test_run_id_ ==(*tmp2)) return 0;
+        else return -1;
+}
+
+/*---------------------------------------------------------------------------*/
+
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
 
