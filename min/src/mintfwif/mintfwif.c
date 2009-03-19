@@ -135,6 +135,7 @@ LOCAL int _find_testrun_by_id (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
 LOCAL int _find_mod_by_name (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
+LOCAL void _del_internal_mod_info (void *data);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback);
@@ -158,7 +159,6 @@ int min_if_open (min_case_complete_func complete_cb,
 		 char *envp[])
 {
 	int module_count;
-	MIN_DEBUG (">>");
 
         tfwif_callbacks.complete_callback_ = complete_cb;
         tfwif_callbacks.print_callback_ = print_cb;
@@ -182,9 +182,6 @@ int min_if_open (min_case_complete_func complete_cb,
 
         }
 
-	
-	MIN_DEBUG ("<<");
-	
 	return 0;
 }
 
@@ -194,6 +191,18 @@ int min_if_close ()
 	if(min_clbk_.min_close) {
 		min_clbk_.min_close();
 	}
+	/*
+	** Clear lists 
+	*/
+	dl_list_foreach (dl_list_head (tfwif_modules_),
+			 dl_list_tail (tfwif_modules_),
+			 _del_internal_mod_info);
+	dl_list_free (&tfwif_modules_);
+	dl_list_foreach (dl_list_head (tfwif_test_runs_),
+			 dl_list_tail (tfwif_test_runs_),
+			 free);
+	dl_list_free (&tfwif_test_runs_);
+
         return 0;
 }
 
@@ -217,7 +226,6 @@ int min_if_exec_case (char *module, unsigned int id)
 
 	DLListIterator it;
 	int cont = 1;
-	MIN_DEBUG (">>");
 
 	pthread_mutex_lock (&tfwif_mutex_);
 	it = dl_list_find (dl_list_head (tfwif_modules_),
@@ -261,7 +269,6 @@ int min_if_exec_case (char *module, unsigned int id)
 int min_if_cancel_case (unsigned int runtime_id)
 {
 	DLListIterator it;
-	MIN_DEBUG (">>");
 
 	pthread_mutex_lock (&tfwif_mutex_);
 	it = dl_list_find (dl_list_head (tfwif_test_runs_),
@@ -269,7 +276,7 @@ int min_if_cancel_case (unsigned int runtime_id)
 			   _find_testrun_by_id,
 			   runtime_id);
 	pthread_mutex_unlock (&tfwif_mutex_);
-	MIN_DEBUG("<<");
+
 	if (it == INITPTR)
 		return 1;
 
@@ -280,7 +287,7 @@ int min_if_cancel_case (unsigned int runtime_id)
 int min_if_pause_case (unsigned int runtime_id)
 {
 	DLListIterator it;
-	MIN_DEBUG (">>");
+
 
 	pthread_mutex_lock (&tfwif_mutex_);
 	it = dl_list_find (dl_list_head (tfwif_test_runs_),
@@ -288,7 +295,7 @@ int min_if_pause_case (unsigned int runtime_id)
 			   _find_testrun_by_id,
 			   runtime_id);
 	pthread_mutex_unlock (&tfwif_mutex_);
-	MIN_DEBUG("<<");
+
 	if (it == INITPTR)
 		return 1;
 
@@ -307,7 +314,6 @@ int min_if_get_cases (module_info ** modules_arg)
         module_info    *modules = NULL;
 	internal_module_info *mi;
 	min_case *mc;
-	MIN_DEBUG (">>");
 
         extif_list_size = dl_list_size(tfwif_modules_);
         modules = NEW2 (module_info, extif_list_size);
@@ -338,7 +344,6 @@ int min_if_get_cases (module_info ** modules_arg)
         *modules_arg = modules;
         MIN_WARN ("Number of cases = %d, modules: %x", extif_list_size,
 		  modules);
-	MIN_DEBUG ("<<");
 	
         return extif_list_size;
 }
@@ -348,7 +353,6 @@ int min_if_get_cases (module_info ** modules_arg)
 int min_if_resume_case (unsigned int runtime_id)
 {
 	DLListIterator it;
-	MIN_DEBUG (">>");
 
 	pthread_mutex_lock (&tfwif_mutex_);
 	it = dl_list_find (dl_list_head (tfwif_test_runs_),
@@ -356,7 +360,6 @@ int min_if_resume_case (unsigned int runtime_id)
 			   _find_testrun_by_id,
 			   runtime_id);
 	pthread_mutex_unlock (&tfwif_mutex_);
-	MIN_DEBUG("<<");
 	if (it == INITPTR)
 		return 1;
 
@@ -369,7 +372,6 @@ int min_if_module_add (char *module_name, char *conf_name)
 	DLListIterator it = INITPTR;
 	internal_module_info *mi;
 
-	MIN_DEBUG (">>");
 
 	if (min_clbk_.add_test_module (module_name))
 		return 1;
@@ -395,7 +397,6 @@ int min_if_module_add (char *module_name, char *conf_name)
 	while (!mi->module_ready_)
 		usleep (10000);
 
-	MIN_DEBUG ("<<");
 	
 	return 0;
 }
@@ -491,7 +492,6 @@ LOCAL void pl_case_paused (long testrunid)
 	internal_test_run_info *tri = INITPTR;
 	DLListIterator	test_run_item = DLListNULLIterator;
 
-	MIN_DEBUG (">>");
 
 	pthread_mutex_lock (&tfwif_mutex_);
 	test_run_item = dl_list_find (dl_list_head (tfwif_test_runs_),
@@ -505,7 +505,7 @@ LOCAL void pl_case_paused (long testrunid)
 	   tri->test_run_id_ == testrunid){
 		tri->status_ = TP_PAUSED;
 	}
-	MIN_DEBUG("<<");
+
 	return;
 };
 /* ------------------------------------------------------------------------- */
@@ -514,7 +514,7 @@ LOCAL void pl_case_resumed (long testrunid)
 	internal_test_run_info *tri = INITPTR;
 	DLListIterator	test_run_item = DLListNULLIterator;
 
-	MIN_DEBUG (">>");
+
 
 	pthread_mutex_lock (&tfwif_mutex_);
 	test_run_item = dl_list_find (dl_list_head (tfwif_test_runs_),
@@ -528,7 +528,7 @@ LOCAL void pl_case_resumed (long testrunid)
 	   tri->test_run_id_ == testrunid){
 		tri->status_ = TP_RUNNING;
 	}
-	MIN_DEBUG("<<");
+
 	return;
 };
 /* ------------------------------------------------------------------------- */
@@ -594,8 +594,6 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 	min_case *mc;
 	DLListIterator it;
 
-	MIN_DEBUG (">>");
-	
 	pthread_mutex_lock (&tfwif_mutex_);
 
 	it = dl_list_find (dl_list_head (tfwif_modules_),
@@ -611,8 +609,6 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 	STRCPY (mc->case_name_, casetitle, 256);
 	dl_list_add (mi->test_case_list_, mc);
 	pthread_mutex_unlock (&tfwif_mutex_);
-
-	MIN_DEBUG ("<<");
 
 	return;
 };
@@ -661,6 +657,15 @@ LOCAL int _find_testrun_by_id (const void *a, const void *b)
 }
 
 /*---------------------------------------------------------------------------*/
+LOCAL void _del_internal_mod_info (void *data)
+{
+        internal_module_info *mi = (internal_module_info*)data;
+	dl_list_foreach (dl_list_head (mi->test_case_list_),
+			 dl_list_tail (mi->test_case_list_),
+			 free);
+	dl_list_free (&mi->test_case_list_);
+	DELETE (mi);
+}
 
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
