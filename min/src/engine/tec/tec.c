@@ -830,7 +830,6 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         int             result = 0;
         int             it = 1; /*general purpose loop iterator */
 
-        int             orig_case_no = 0;       /*id for external controller */
         int             cont_flag = 1;
 
         work_module_item = dl_list_head (instantiated_modules);
@@ -953,12 +952,10 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         pthread_mutex_lock (&tec_mutex_);
 	
         work_case_item = dl_list_head (selected_cases);
-        orig_case_no = 0;
         while (work_case_item != DLListNULLIterator) {
                 if (tc_get_test_module_ptr (work_case_item) ==
                     temp_module_item)
                         break;
-                orig_case_no++;
                 work_case_item = dl_list_next (work_case_item);
         }
         pthread_mutex_unlock (&tec_mutex_);
@@ -1108,7 +1105,6 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         DLList         *work_result_list = INITPTR;
         DLListIterator  work_result_item = INITPTR;
         int             group_id;
-        int             orig_case_no;
         filename_t      orig_conf;
         filename_t      work_conf;
         test_result_s  *result;
@@ -1147,7 +1143,6 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 
 
         work_case_item = dl_list_head (selected_cases);
-        orig_case_no = 0;
         while (work_case_item != DLListNULLIterator) {
 
                 work_case = (test_case_s *) dl_list_data (work_case_item);
@@ -1159,7 +1154,6 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 			 * iterating through list 
 			 */
                         break;
-                orig_case_no++;
                 work_case_item = dl_list_next (work_case_item);
 
         }

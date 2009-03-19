@@ -105,7 +105,7 @@ eapiIn_t *in;
 /* None */
 
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
-		                        long starttime, long endtime);
+			   long starttime, long endtime);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_started (unsigned moduleid,
 	                    unsigned caseid,
@@ -213,7 +213,10 @@ int min_if_message_received (char *message, int length)
 int min_if_exec_case (char *module, unsigned int id)
 {
 	internal_module_info *mi;
+	internal_test_run_info *tri = INITPTR;
+
 	DLListIterator it;
+	int cont = 1;
 	MIN_DEBUG (">>");
 
 	pthread_mutex_lock (&tfwif_mutex_);
@@ -227,7 +230,31 @@ int min_if_exec_case (char *module, unsigned int id)
 
 	mi = dl_list_data (it);
 
-	return min_clbk_.start_case (mi->module_id_, id, 0);
+	if (!min_clbk_.start_case (mi->module_id_, id, 0)) {
+		while (cont) {
+			usleep (10000);
+			pthread_mutex_lock (&tfwif_mutex_);
+			for (it = dl_list_head (tfwif_test_runs_);
+			     it != INITPTR;
+			     it = dl_list_next (it)) {
+				tri = dl_list_data (it);
+				if (tri->module_id_ != mi->module_id_)
+					continue;
+				if (tri->status_ != TP_RUNNING)
+					continue;
+				if (tri->case_id_ != id)
+					continue;
+				/* we found the just started test case */
+				cont = 0;
+				break;
+				
+			}
+			pthread_mutex_unlock (&tfwif_mutex_);
+		}
+	} else
+		return -1;
+
+	return tri->test_run_id_;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -412,8 +439,28 @@ void pl_detach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
 
 
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
-                        long starttime, long endtime){
-	MIN_DEBUG (">>");
+			   long starttime, long endtime){
+
+	
+	internal_test_run_info *tri = INITPTR;
+	DLListIterator	test_run_item = DLListNULLIterator;
+
+	pthread_mutex_lock (&tfwif_mutex_);
+	test_run_item = dl_list_find (dl_list_head (tfwif_test_runs_),
+			              dl_list_tail (tfwif_test_runs_),
+			              _find_testrun_by_id,
+	                              (const void *)&testrunid);
+	pthread_mutex_unlock (&tfwif_mutex_);
+
+	if (test_run_item == DLListNULLIterator) {
+		MIN_WARN ("no matching test run info found testrun id = %d",
+			  testrunid);
+		return;
+	}
+	tri = dl_list_data (test_run_item);
+
+	tfwif_callbacks.complete_callback_ (tri->case_id_, 1, result, desc);
+
 	return;
 };
 /* ------------------------------------------------------------------------- */
@@ -421,11 +468,11 @@ LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid)
 {
-	MIN_DEBUG (">>");
+	internal_test_run_info *tri;
+
 	if(tfwif_test_runs_==INITPTR){
 		tfwif_test_runs_=dl_list_create();
 	}
-	internal_test_run_info *tri;
 
 	tri = NEW (internal_test_run_info);
 	tri->case_id_ = caseid;
@@ -487,9 +534,9 @@ LOCAL void pl_case_resumed (long testrunid)
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_msg_print (long testrunid, char *message)
 {
-	MIN_DEBUG (">>");
 
 	printf ("test module message: %s\n", message);
+        tfwif_callbacks.print_callback_ (testrunid, message);
 
 	return;
 };
@@ -497,7 +544,6 @@ LOCAL void pl_msg_print (long testrunid, char *message)
 LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 {
 	internal_module_info *mi;
-	MIN_DEBUG (">>");
 
 	mi = NEW (internal_module_info);
 	STRCPY(mi->module_name_, modulename, 128);
@@ -509,7 +555,6 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 	dl_list_add (tfwif_modules_, mi);
 	pthread_mutex_unlock (&tfwif_mutex_);
 
-	MIN_DEBUG ("<<");
 
 	return;
 };
@@ -519,7 +564,6 @@ LOCAL void pl_module_ready ( unsigned moduleid)
 	internal_module_info *mi;
 	DLListIterator it;
 	
-	MIN_DEBUG (">>");
 
 	pthread_mutex_lock (&tfwif_mutex_);
 
@@ -535,7 +579,6 @@ LOCAL void pl_module_ready ( unsigned moduleid)
 	ready_module_count_ ++;
 	mi = dl_list_data (it);
 	mi->module_ready_ = 1;
-	MIN_DEBUG ("<<");
 
 	return;
 };
