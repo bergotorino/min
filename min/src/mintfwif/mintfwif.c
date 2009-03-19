@@ -430,7 +430,7 @@ LOCAL void pl_case_started (unsigned moduleid,
 LOCAL void pl_case_paused (long testrunid)
 {
 	internal_test_run_info *tri = INITPTR;
-	DLListIterator	*test_run_item = DLListNULLIterator;
+	DLListIterator	test_run_item = DLListNULLIterator;
 
 	MIN_DEBUG (">>");
 
@@ -453,7 +453,7 @@ LOCAL void pl_case_paused (long testrunid)
 LOCAL void pl_case_resumed (long testrunid)
 {
 	internal_test_run_info *tri = INITPTR;
-	DLListIterator	*test_run_item = DLListNULLIterator;
+	DLListIterator	test_run_item = DLListNULLIterator;
 
 	MIN_DEBUG (">>");
 
