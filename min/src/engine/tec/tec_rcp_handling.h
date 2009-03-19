@@ -22,6 +22,8 @@
  *  @version    0.1
  *  @brief      This file contains header file for rcp handling
  */
+#ifndef TEC_RCP_HANDLING_H
+#define TEC_RCP_HANDLING_H
 
 /* ------------------------------------------------------------------------- */
 /* INCLUDES */
@@ -65,4 +67,5 @@ void            send_to_master (int tc_id, char *msg);
 
 DLList         *EXTIF_received_data;
 
+#endif
 /* End of file */

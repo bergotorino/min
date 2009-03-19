@@ -30,17 +30,16 @@
 /* INCLUDES */
 #include <unistd.h>
 #include <min_test_event_if.h>
+#include "scripter_keyword.h"
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */
-#ifdef MIN_EXTIF
 #define REM_E_STAT_ACTIVE 0
 #define REM_E_STAT_ERROR  1
 #define REM_E_STAT_SET    2
-#endif
 /* ------------------------------------------------------------------------- */
 /* DATA TYPES */
 
@@ -76,11 +75,8 @@ int             ind_event_handle_set (minTestEventParam_t * param,
                                       minEventSrc_t * event_src);
 /* ------------------------------------------------------------------------- */
 int             ind_event_handle_wait (minTestEventParam_t * param,
-                                       minEventSrc_t * event_src
-#ifdef MIN_EXTIF
-                                       , int *status
-#endif
-    );
+                                       minEventSrc_t * event_src, int *status
+				       );
 /* ------------------------------------------------------------------------- */
 int             ind_event_handle_request (minTestEventParam_t * param,
                                           minEventSrc_t * event_src);
@@ -95,11 +91,8 @@ int             state_event_handle_unset (minTestEventParam_t * param,
                                           minEventSrc_t * event_src);
 /* ------------------------------------------------------------------------- */
 int             state_event_handle_wait (minTestEventParam_t * param,
-                                         minEventSrc_t * event_src
-#ifdef MIN_EXTIF
-                                         , int *status
-#endif
-    );
+                                         minEventSrc_t * event_src,
+                                         int *status);
 /* ------------------------------------------------------------------------- */
 int             state_event_handle_release (minTestEventParam_t * param,
                                             minEventSrc_t * event_src);
@@ -107,13 +100,10 @@ int             state_event_handle_release (minTestEventParam_t * param,
 int             state_event_handle_request (minTestEventParam_t * param,
                                             minEventSrc_t * event_src);
 /* ------------------------------------------------------------------------- */
-#ifdef MIN_EXTIF
-#include "scripter_keyword.h"
 int             handle_remote_event (TScripterKeyword command,
                                      MinItemParser * parameters);
 int             handle_remote_event_request_resp (MinItemParser *
                                                   parameters);
-#endif                          /* MIN_EXTIF */
 #endif                          /* TEC_EVENTS_H */
 
 /* End of file */

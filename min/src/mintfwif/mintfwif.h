@@ -28,10 +28,11 @@
 
 /* ------------------------------------------------------------------------- */
 /* INCLUDES */
+#if 0
 #include <tec.h>
 #include <tec_rcp_handling.h>
 #include <min_common.h>
-
+#endif
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -42,11 +43,25 @@
 
 /* ------------------------------------------------------------------------- */
 /* DATA TYPES */
+/** Test case complete callback function */
+typedef void    (*min_case_complete_func) (int run_id, int execution_result,
+                                            int test_result, char *desc);
+/** Test case print callback function */
+typedef void    (*min_case_print_func) (int run_id, char *text);
+/** External controller message sending function */
+typedef void    (*min_extif_message_cb_) (char *message, int length);
+
+/** Container for callbacks */
+typedef struct {
+        min_case_complete_func complete_callback_;
+        min_case_print_func print_callback_;
+        min_extif_message_cb_ send_extif_msg_;
+} tfwif_callbacks_s;
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
-DLList         *user_selected_cases;
+/* DLList         *user_selected_cases; */
 
 /* ------------------------------------------------------------------------- */
 /* STRUCTURES */

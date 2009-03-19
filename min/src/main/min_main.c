@@ -343,7 +343,7 @@ int main (int argc, char *argv[], char *envp[])
 	if (no_cui_flag) {
 		in = &in_str;
 
-		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
+		ec_min_init (envp, oper_mode);
 		ec_start_modules();
 		if ( add_command_line_modules (modulelist))
 			exit (1);
@@ -372,7 +372,7 @@ int main (int argc, char *argv[], char *envp[])
 		out = &out_str;
 		eapi_init (in, out);
 		plugin_attach (&in, out);
-		ec_min_init (NULL, NULL, NULL, envp, oper_mode);
+		ec_min_init (envp, oper_mode);
                 retval = pthread_create (&plugin_thread, NULL, plugin_open,
 					 &tmp);
 		if (in->error_report) {

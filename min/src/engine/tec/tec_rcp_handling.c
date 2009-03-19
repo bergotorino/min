@@ -30,12 +30,15 @@
 #include <data_api.h>
 #include <string.h>
 #include <scripter_keyword.h>
-
-extern char    *strcasestr (__const char *__haystack, __const char *__needle);
+#include <mintfwif.h>
+#include <min_engine_api.h>
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
-/* None */
+#ifdef MIN_EXTIF
+extern tfwif_callbacks_s tfwif_callbacks;
+#endif 
+extern eapiIn_t *in;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
@@ -43,12 +46,15 @@ extern pthread_mutex_t tec_mutex_;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
+extern char    *strcasestr (__const char *__haystack, __const char *__needle);
+
 /* GLOBAL VARIABLES */
 /** List containing association data for master - slave system
 (slave_info structures)*/
 DLList         *ms_assoc;
-
+#ifdef MIN_EXTIF
 min_case_complete_func original_complete_callback;
+#endif
 TSBool          ok_to_break;    /*flag stating if it is ok to revert back to
                                  * normal external controller communication 
                                  * instead of slave mode */
@@ -169,7 +175,11 @@ LOCAL int extif_msg_handle_release (MinItemParser * extif_message)
         /*restore original "complete" callback if allowed, otherwise mark that 
            it's allowed */
         if (ok_to_break == ESTrue) {
-                extif_callbacks.complete_callback_ = original_complete_callback;
+#ifdef MIN_EXTIF
+                tfwif_callbacks.complete_callback_ = original_complete_callback;
+#else
+		;
+#endif
         } else
                 ok_to_break = ESTrue;
         send_to_master (0, "release 0");
@@ -910,11 +920,13 @@ LOCAL int extif_msg_handle_reserve (MinItemParser * extif_message)
         /*change "complete case" callback */
         pthread_mutex_lock (&tec_mutex_);
         ok_to_break = ESFalse;
-        original_complete_callback = extif_callbacks.complete_callback_;
-        MIN_DEBUG ("old callback = %x ", extif_callbacks.complete_callback_);
+#ifdef MIN_EXTIF
+        original_complete_callback = tfwif_callbacks.complete_callback_;
+        MIN_DEBUG ("old callback = %x ", tfwif_callbacks.complete_callback_);
         MIN_DEBUG ("master report = %x ", master_report);
-        extif_callbacks.complete_callback_ = master_report;
-        MIN_DEBUG ("new callback = %x ", extif_callbacks.complete_callback_);
+        tfwif_callbacks.complete_callback_ = master_report;
+        MIN_DEBUG ("new callback = %x ", tfwif_callbacks.complete_callback_);
+#endif
         pthread_mutex_unlock (&tec_mutex_);
         sprintf (rtype, "reserve 0");
         send_to_master (0, rtype);
@@ -938,7 +950,7 @@ void send_to_master (int tc_id, char *msg)
         hex = writehex (own_id, tc_id);
         sprintf (extif_msg, "response %s deadbeef %s", hex, msg);
         MIN_DEBUG ("SENDING TO EXTIF :%s", extif_msg);
-        extif_callbacks.send_extif_msg_ (extif_msg, strlen (extif_msg));
+        in->send_rcp (extif_msg, strlen (extif_msg));
         DELETE (hex);
         DELETE (extif_msg);
 }
@@ -993,7 +1005,7 @@ send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
                 break;
         }
         MIN_DEBUG ("SENDING TO EXTIF :%s", extif_message);
-        extif_callbacks.send_extif_msg_ (extif_message, strlen (extif_message));
+        in->send_rcp (extif_message, strlen (extif_message));
         DELETE (extif_message);
         DELETE (hex);
 }
@@ -1012,7 +1024,7 @@ int ec_msg_sndrcv_handler (MsgBuffer * message)
         hex = writehex (own_id, 0);
         sprintf (extif_message, "remote %s deadbeef sendreceive %s=%s",
                  hex, message->message_, message->desc_);
-        extif_callbacks.send_extif_msg_ (extif_message, strlen (extif_message));
+        in->send_rcp (extif_message, strlen (extif_message));
 
         DELETE (extif_message);
         DELETE (hex);
@@ -1198,13 +1210,20 @@ master_report (int run_id, int execution_result, int test_result, char *desc)
         extifmessage = NEW2 (char, 30);
         sprintf (extifmessage, "remote run ready result=%d", test_result);
         send_to_master (run_id + 1, extifmessage);
+#ifdef MIN_EXTIF
         original_complete_callback (run_id, execution_result, test_result,
                                     desc);
+#endif
+
         /*Revert to "normal" external controller communincation if 
 	 * it is allowed, otherwise mark that it's allowed to revert. */
         if (ok_to_break == ESTrue) {
+#ifdef MIN_EXTIF
                 MIN_DEBUG ("Restoring Callback");
-                extif_callbacks.complete_callback_ = original_complete_callback;
+                tfwif_callbacks.complete_callback_ = original_complete_callback;
+#else
+		;
+#endif
         } else
                 ok_to_break = ESTrue;
         DELETE (extifmessage);

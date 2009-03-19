@@ -38,19 +38,10 @@
 #include <min_common.h>
 #include <min_test_event_if.h>
 #include <min_parser.h>
-#ifdef MIN_EXTIF
 #include <tec_rcp_handling.h>
-#endif
 /* ----------------------------------------------------------------------------
  * CONSTANTS
  */
-/** Test case complete callback function */
-typedef void    (*min_case_complete_func) (int run_id, int execution_result,
-                                            int test_result, char *desc);
-/** Test case print callback function */
-typedef void    (*min_case_print_func) (int run_id, char *text);
-/** External controller message sending function */
-typedef void    (*min_extif_message_cb_) (char *message, int length);
 
 typedef struct {
         filename_t      tmc_app_path_;
@@ -61,13 +52,6 @@ typedef struct {
                                          * to destroy the segment 
                                          * during cleanup */
 } ec_settings_s;
-
-typedef struct {
-        min_case_complete_func complete_callback_;
-        min_case_print_func print_callback_;
-        min_extif_message_cb_ send_extif_msg_;
-} ec_callbacks_s;
-
 
 typedef struct {
         /** id of host that sent the data*/
@@ -97,7 +81,6 @@ char           *UiMessage;      /*Message text to be dispalyed on UI in
                                  * case of fault */
 int             mq_id;          /*message queue id */
 ec_settings_s   ec_settings;    /*structure containing global settings */
-ec_callbacks_s  extif_callbacks;
 int             own_id;
 /* ----------------------------------------------------------------------------
  * MACROS
@@ -116,10 +99,8 @@ int             own_id;
 /* ----------------------------------------------------------------------------
  * FUNCTION PROTOTYPES
  */
-void            ec_min_init (min_case_complete_func completecallbk,
-                              min_case_print_func printcallbk,
-                              min_extif_message_cb_ extifsendcallbk,
-                              char *envp_[], int operation_mode);
+void            ec_min_init (char *envp_[], int operation_mode);
+int             ec_start_modules ();
 DLListIterator  ec_select_case (DLListIterator work_case_item, int group_id);
 void            log_summary ();
 int             log_summary_stdout ();

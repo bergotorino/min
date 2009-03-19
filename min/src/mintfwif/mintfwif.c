@@ -48,6 +48,7 @@ extern char    *strcasestr (const char *haystack, const char *needle);
 extern eapiIn_t in_str;
 
 
+
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
 typedef struct {
@@ -81,6 +82,7 @@ DLList *tfwif_test_runs_ = INITPTR;
 /* number of ready modules */
 unsigned ready_module_count_ = 0;
 pthread_mutex_t tfwif_mutex_ = PTHREAD_MUTEX_INITIALIZER;
+tfwif_callbacks_s tfwif_callbacks;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -125,6 +127,8 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_error_report (char *error);
 /* ------------------------------------------------------------------------- */
+LOCAL void pl_send_rcp (char* message, int length);
+/* ------------------------------------------------------------------------- */
 LOCAL int _find_mod_by_id (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
 LOCAL int _find_testrun_by_id (const void *a, const void *b);
@@ -156,13 +160,17 @@ int min_if_open (min_case_complete_func complete_cb,
 	int module_count;
 	MIN_DEBUG (">>");
 
+        tfwif_callbacks.complete_callback_ = complete_cb;
+        tfwif_callbacks.print_callback_ = print_cb;
+        tfwif_callbacks.send_extif_msg_ = extifsend_cb;
+
 	if (tfwif_modules_ == INITPTR)
 		tfwif_modules_ = dl_list_create();
 
 	in = &in_str;
 	eapi_init (in, &min_clbk_);
 	pl_attach_plugin (&in, &min_clbk_);
-	ec_min_init (complete_cb, print_cb, extifsend_cb, envp, 1);
+	ec_min_init (envp, 1);
 
 	module_count = min_clbk_.min_open();
 	while (module_count > ready_module_count_) {
@@ -193,9 +201,12 @@ int min_if_close ()
 /* ------------------------------------------------------------------------- */
 int min_if_message_received (char *message, int length)
 {
-        int             result = tec_extif_message_received (message, length);
+	if(min_clbk_.receive_rcp) {
+		return min_clbk_.receive_rcp(message, length);
+	}
+	
 
-        return result;
+        return 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -378,6 +389,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
        (*out_callback)->module_ready           = pl_module_ready;
        (*out_callback)->new_case               = pl_new_case;
        (*out_callback)->error_report           = pl_error_report;
+       (*out_callback)->send_rcp               = pl_send_rcp;
        
        return;
 }
@@ -566,6 +578,14 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 LOCAL void pl_error_report (char *error)
 {
 	printf ("%s\n", error);
+	return;
+};
+
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_send_rcp (char* message, int length)
+{
+	tfwif_callbacks.send_extif_msg_ (message, length);
+
 	return;
 };
 

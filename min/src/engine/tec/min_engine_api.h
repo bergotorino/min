@@ -120,6 +120,12 @@ typedef struct  {
 	** Engine reports fatal errors
 	*/
         void (*error_report) (char* error);
+        
+	/* --------------------------------------------------------------------
+	** Send RCP
+	*/
+        void (*send_rcp) (char* message, int length);
+
 } eapiIn_t;
 
 /** Callbacks to functions from engine called by plugin */
@@ -202,6 +208,11 @@ typedef struct {
 	** returns 0 on success 1 on error
 	*/
         int (*query_test_files) ();
+	/* --------------------------------------------------------------------
+	** Send RCP messages towards the engine
+	** returns 0 on success 1 on error
+	*/
+	int (*receive_rcp) (char *message, int length);
 } eapiOut_t;
 
 /* ----------------------------------------------------------------------------

@@ -29,6 +29,7 @@
  */
 #include <dllist.h>
 #include <tec.h>
+#include <tec_rcp_handling.h>
 #include <min_logger.h>
 #include <data_api.h>
 #include <min_engine_api.h>
@@ -453,6 +454,13 @@ LOCAL int eapi_query_test_files(char **filelist)
 
 /* ------------------------------------------------------------------------- */
 
+LOCAL int eapi_receive_rcp (char *message, int length)
+{
+	return tec_extif_message_received (message, length);
+}
+
+/* ------------------------------------------------------------------------- */
+
 /* ======================== FUNCTIONS ====================================== */
 
 void eapi_init (eapiIn_t *inp, eapiOut_t *out)
@@ -472,6 +480,8 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 	out->min_open           = eapi_open;
         out->query_test_modules = eapi_query_test_modules;
         out->query_test_files   = eapi_query_test_files;
+	
+	out->receive_rcp        = eapi_receive_rcp;
 }
 
 

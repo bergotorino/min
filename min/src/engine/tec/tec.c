@@ -832,9 +832,6 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
 
         int             orig_case_no = 0;       /*id for external controller */
         int             cont_flag = 1;
-#ifdef MIN_EXTIF
-        char           *callback_report;
-#endif
 
         work_module_item = dl_list_head (instantiated_modules);
         tm_get_module_filename (temp_module_item, name);
@@ -976,17 +973,6 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         pthread_mutex_lock (&tec_mutex_);
         pthread_mutex_unlock (&tec_mutex_);
 	
-#ifndef MIN_EXTIF
-#ifndef MIN_UNIT_TEST
-        //cui_refresh_view ();
-#endif
-#endif
-#ifdef MIN_EXTIF
-        callback_report = NEW2 (char, strlen (message->desc_) + 1);
-        sprintf (callback_report, "%s", message->desc_);
-        extif_callbacks.complete_callback_ (orig_case_no, 1, message->param_,
-                                            callback_report);
-#endif
         ec_remove_module_temp (work_module_item);
         ec_check_next_in_group (group_id);
         result = 1;
@@ -1122,9 +1108,6 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         DLList         *work_result_list = INITPTR;
         DLListIterator  work_result_item = INITPTR;
         int             group_id;
-#ifdef MIN_EXTIF
-        char           *callback_report;
-#endif
         int             orig_case_no;
         filename_t      orig_conf;
         filename_t      work_conf;
@@ -1297,18 +1280,6 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 
         if (group_id != 0)
                 ec_check_next_in_group (group_id);
-#ifndef MIN_EXTIF
-#ifndef MIN_UNIT_TEST
-        //cui_refresh_view ();
-#endif
-#endif
-#ifdef MIN_EXTIF
-        callback_report = NEW2 (char, strlen (message->desc_) + 1);
-        sprintf (callback_report, "%s", message->desc_);
-        extif_callbacks.complete_callback_ (orig_case_no, 1, message->param_,
-                                            callback_report);
-        DELETE (callback_report);
-#endif
 EXIT:
         return fun_result;
 }
@@ -1414,9 +1385,7 @@ LOCAL int ec_msg_event_handler (MsgBuffer * message)
         minTestEventParam_t param;
         minEventSrc_t  esrc;
 	int result = 0;
-#ifdef MIN_EXTIF
-        int             status;
-#endif
+        int status;
 
         if (!event_system_up ()) {
                 MIN_WARN ("Event System is not initialized, can not handle "
@@ -1444,9 +1413,7 @@ LOCAL int ec_msg_event_handler (MsgBuffer * message)
                 case EWaitEvent:
                         MIN_DEBUG ("Indication Event: WAIT");
                         ind_event_handle_wait (&param, &esrc
-#ifdef MIN_EXTIF
                                                , &status
-#endif
                             );
                         break;
                 case ERelEvent:
@@ -1473,11 +1440,8 @@ LOCAL int ec_msg_event_handler (MsgBuffer * message)
                         break;
                 case EWaitEvent:
                         MIN_DEBUG ("State Event: WAIT");
-                        state_event_handle_wait (&param, &esrc
-#ifdef MIN_EXTIF
-                                                 , &status
-#endif
-                            );
+                        state_event_handle_wait (&param, &esrc,
+                                                 &status);
                         break;
                 case ERelEvent:
                         MIN_DEBUG ("State Event: RELEASE");
@@ -1616,14 +1580,6 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
 	if (in->module_prints)
 		in->module_prints (tc_get_run_id (work_case_item),
 				   message->message_);
-#ifndef MIN_EXTIF
-#ifndef MIN_UNIT_TEST
-        //cui_refresh_view ();
-#endif
-#endif
-#ifdef MIN_EXTIF
-        extif_callbacks.print_callback_ (case_id, message->message_);
-#endif
 EXIT:
         return result;
 }
@@ -2394,18 +2350,11 @@ err_exit:
  *         instance - 0 means console interface, 
  *                    1 - external controller interface.
  */
-void ec_min_init (min_case_complete_func completecallbk,
-		  min_case_print_func printcallbk,
-		  min_extif_message_cb_ extifsendcallbk,
-		  char *envp_[], int operation_mode)
+void ec_min_init (char *envp_[], int operation_mode)
 {
         int             thread_creation_result;
         pthread_t       listener_thread;
         unsigned int    debug_lev = 3;  
-
-        extif_callbacks.complete_callback_ = completecallbk;
-        extif_callbacks.print_callback_ = printcallbk;
-        extif_callbacks.send_extif_msg_ = extifsendcallbk;
 
         ec_settings.operation_mode_ = operation_mode;
 

@@ -198,7 +198,6 @@ LOCAL void      do_set_on_ind_reg (void *data);
 LOCAL void      registration_state_change (e_registration_t * ereg,
                                            event_reg_state_t next_state);
 
-#ifdef MIN_EXTIF
 /** Build and send remote event request response
  *  @param eventname name of the event
  *  @param status set, active, error
@@ -212,7 +211,6 @@ LOCAL void      remote_event_req_response (char *eventname, int status,
  *  @param status set, active, error
  */
 LOCAL void      remote_event_rel_response (char *eventname, int status);
-#endif                          /* MIN_EXTIF */
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
@@ -285,13 +283,11 @@ LOCAL void do_set_on_ind_reg (void *data)
 #ifndef MIN_UNIT_TEST
                 send_event_ind (&ereg->registrar_, EventStatOK);
 #endif
-#ifdef MIN_EXTIF
                 if (ereg->registrar_.remote)
                         remote_event_req_response (ereg->backp_->descr_.
                                                    event_name_,
                                                    REM_E_STAT_SET,
                                                    EIndication);
-#endif
                 registration_state_change (ereg, ereg_unset_registered);
                 break;
         case ereg_unset_registered:
@@ -316,12 +312,10 @@ LOCAL void do_set_on_state_reg (void *data)
 #ifndef MIN_UNIT_TEST
                 send_event_ind (&ereg->registrar_, EventStatOK);
 #endif
-#ifdef MIN_EXTIF
                 if (ereg->registrar_.remote)
                         remote_event_req_response (ereg->backp_->descr_.
                                                    event_name_,
                                                    REM_E_STAT_SET, EState);
-#endif
                 registration_state_change (ereg, ereg_set_registered);
                 break;
         case ereg_unset_registered:
@@ -558,11 +552,7 @@ ind_event_handle_set (minTestEventParam_t * param,
  */
 int
 ind_event_handle_wait (minTestEventParam_t * param,
-                       minEventSrc_t * event_src
-#ifdef MIN_EXTIF
-                       , int *status
-#endif
-    )
+                       minEventSrc_t * event_src, int *status)
 {
         min_event_t   *e;
         e_registration_t *ereg = INITPTR;
@@ -589,9 +579,7 @@ ind_event_handle_wait (minTestEventParam_t * param,
 #ifndef MIN_UNIT_TEST
                 send_event_ind (&ereg->registrar_, EventStatOK);
 #endif
-#ifdef  MIN_EXTIF
                 *status = REM_E_STAT_SET;
-#endif
                 registration_state_change (ereg, ereg_unset_registered);
                 break;
         case ereg_unset_registered:
@@ -788,11 +776,7 @@ state_event_handle_unset (minTestEventParam_t * param,
  */
 int
 state_event_handle_wait (minTestEventParam_t * param,
-                         minEventSrc_t * event_src
-#ifdef MIN_EXTIF
-                         , int *status
-#endif
-    )
+                         minEventSrc_t * event_src, int *status)
 {
         min_event_t   *e;
         e_registration_t *ereg;
@@ -826,9 +810,7 @@ state_event_handle_wait (minTestEventParam_t * param,
 #ifndef MIN_UNIT_TEST
                 send_event_ind (&ereg->registrar_, EventStatOK);
 #endif
-#ifdef MIN_EXTIF
                 *status = REM_E_STAT_SET;
-#endif
                 registration_state_change (ereg, ereg_set_registered);
                 break;
         case EState_UNSET:
@@ -931,7 +913,6 @@ state_event_handle_release (minTestEventParam_t * param,
         return 0;
 }
 
-#ifdef MIN_EXTIF
 LOCAL void
 remote_event_req_response (char *eventname, int status, TEventType_t etype)
 {
@@ -1153,7 +1134,6 @@ int handle_remote_event_request_resp (MinItemParser * parameters)
         DELETE (token3);
         return 0;
 }
-#endif                          /* MIN_EXTIF */
 
 
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
