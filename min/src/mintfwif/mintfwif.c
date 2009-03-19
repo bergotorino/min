@@ -458,7 +458,7 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 		return;
 	}
 	tri = dl_list_data (test_run_item);
-
+	tri->status_ = TP_ENDED;
 	tfwif_callbacks.complete_callback_ (tri->case_id_, 1, result, desc);
 
 	return;
@@ -478,7 +478,7 @@ LOCAL void pl_case_started (unsigned moduleid,
 	tri->case_id_ = caseid;
 	tri->test_run_id_ = testrunid;
 	tri->module_id_ = moduleid;
-	tri->status_=TP_RUNNING;
+	tri->status_ = TP_RUNNING;
 	tri->group_id_=0;
 
 	dl_list_add (tfwif_test_runs_, tri);
@@ -501,9 +501,9 @@ LOCAL void pl_case_paused (long testrunid)
 	pthread_mutex_unlock (&tfwif_mutex_);
 
 	tri = dl_list_data (test_run_item);
-	if(tri->status_==TP_RUNNING &&
-       		tri->test_run_id_==testrunid){
-		tri->status_=TP_PAUSED;
+	if(tri->status_ == TP_RUNNING &&
+	   tri->test_run_id_ == testrunid){
+		tri->status_ = TP_PAUSED;
 	}
 	MIN_DEBUG("<<");
 	return;
@@ -525,8 +525,8 @@ LOCAL void pl_case_resumed (long testrunid)
 
 	tri = dl_list_data (test_run_item);
 	if(tri->status_==TP_PAUSED &&
-       		tri->test_run_id_==testrunid){
-		tri->status_=TP_RUNNING;
+	   tri->test_run_id_ == testrunid){
+		tri->status_ = TP_RUNNING;
 	}
 	MIN_DEBUG("<<");
 	return;
