@@ -42,7 +42,7 @@ LOCAL void teardown (void)
 START_TEST(initialize)
 {
         unit_test_result = 0;
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
         sleep(1);
         //fail_unless(unit_test_result == 1,"message listener not started");
         fail_unless(((available_modules != INITPTR)||(instantiated_modules != INITPTR)||(selected_cases != INITPTR)),"failed to initialize data");
@@ -55,7 +55,7 @@ START_TEST(write_modules_list)
 	char* fname;
 	test_module_info_s* first_module;
         unit_test_result = 0;
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
         first_module = available_modules->head_->data_;
         fname = first_module->module_filename_;
         char* result = strstr(fname,"minDemoModule");
@@ -69,7 +69,7 @@ START_TEST(module_instantiation)
 {
         long mpid = 0;
 	    DLListIterator work_item;
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
         unit_test_result = ec_start_modules();
         work_item = dl_list_head(instantiated_modules);
         while (work_item != DLListNULLIterator)
@@ -84,7 +84,7 @@ END_TEST
 START_TEST(handle_message)
 {
         long addr;
-	ec_min_init(NULL,NULL,NULL,envp_,0);
+	ec_min_init(envp_,0);
         addr = getpid();
         mq_send_message2(mq_id,addr,MSG_OK,7,"test msg");
         sleep(2);
@@ -96,7 +96,7 @@ END_TEST
 START_TEST(handle_unexpected_message)
 {
 	long addr;
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
         addr = getpid();
         mq_send_message2(mq_id,addr,MSG_EXE,7,"test msg");
         sleep(2);
@@ -245,7 +245,7 @@ START_TEST(module_start)
 {
 	long pid_check;
 	DLListIterator work_item;
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
         ec_start_modules();
         work_item = dl_list_head(instantiated_modules);
         do {
@@ -379,11 +379,6 @@ START_TEST(msg_usr_handler_test)
         mq_close_queue(mq_id);
 }
 END_TEST
-
-
-
-
-
 
 START_TEST(pause_case_test)
 {
@@ -647,167 +642,12 @@ START_TEST(groupid_check)
 }
 END_TEST
 
-START_TEST(write_set_test)
-{
-        DLList* cfg_list = dl_list_create();
-        DLList* case_list = dl_list_create();
-        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list,0);
-        char* set_path;
-        DLListIterator work_module_item;
-        test_case_s* test_case_1;
-        test_case_s* test_case_2;
-        test_case_s* test_case_3;
-        available_modules = dl_list_create();
-        work_module_item = tm_add(available_modules,work_module);
-        tm_set_tclist(work_module_item,dl_list_create());
-        test_case_1 = tc_create(work_module_item,"somecfg","TestCase1");
-        test_case_2 = tc_create(work_module_item,"somecfg","TestCase2");
-        test_case_3 = tc_create(work_module_item,"somecfg","TestCase3");
-        tc_add(tm_get_tclist(work_module_item),test_case_1);
-        tc_add(tm_get_tclist(work_module_item),test_case_2);
-        tc_add(tm_get_tclist(work_module_item),test_case_3);
-        char* c_dir = getenv("HOME");
-        set_path = NEW2(char,strlen(c_dir) + 25);
-        sprintf(set_path,"%s/.min/check.set",c_dir);
-        remove(set_path);
-        ec_set_write_file(tm_get_tclist(work_module_item),set_path);
-        
-        FILE* set = fopen(set_path,"r");
-        fail_if(set == NULL,"File not written");
-        fclose(set);
-}
-END_TEST
 
-
-
-START_TEST(read_set_test)
-{
-        DLList* cfg_list = dl_list_create();
-        DLList* case_list = dl_list_create();
-        DLList* setcases = dl_list_create();
-        char* set_path;
-        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list,0);
-        DLListIterator work_module_item;
-        test_case_s* test_case_1;
-        test_case_s* test_case_2;
-        test_case_s* test_case_3;
-        available_modules = dl_list_create();
-        work_module_item = tm_add(available_modules,work_module);
-        tm_set_tclist(work_module_item,dl_list_create());
-        test_case_1 = tc_create(work_module_item,"somecfg","TestCase1");
-        test_case_2 = tc_create(work_module_item,"somecfg","TestCase2");
-        test_case_3 = tc_create(work_module_item,"somecfg","TestCase3");
-        tc_add(tm_get_tclist(work_module_item),test_case_1);
-        tc_add(tm_get_tclist(work_module_item),test_case_2);
-        tc_add(tm_get_tclist(work_module_item),test_case_3);
-        char* c_dir = getenv("HOME");
-        set_path = NEW2(char,strlen(c_dir) + 25);
-        sprintf(set_path,"%s/.min/",c_dir);
-        ec_set_read(setcases,"check.set");
-        fail_unless(dl_list_size(setcases) == 3,"Set cases list not filled");
-}
-END_TEST
-
-START_TEST(seq_set_exec)
-{
-        DLList* cfg_list = dl_list_create();
-        DLList* case_list = dl_list_create();
-        DLList* setcases = dl_list_create();
-        char* set_path;
-        MsgBuffer message;
-        long act_pid = getpid();
-        selected_cases = dl_list_create();
-        instantiated_modules = dl_list_create();
-        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list,0);
-        DLListIterator work_module_item;
-        test_case_s* test_case_1;
-        test_case_s* test_case_2;
-        test_case_s* test_case_3;
-        available_modules = dl_list_create();
-        work_module_item = tm_add(available_modules,work_module);
-        tm_set_tclist(work_module_item,dl_list_create());
-        test_case_1 = tc_create(work_module_item,"somecfg","TestCase1");
-        test_case_2 = tc_create(work_module_item,"somecfg","TestCase2");
-        test_case_3 = tc_create(work_module_item,"somecfg","TestCase3");
-        tc_add(tm_get_tclist(work_module_item),test_case_1);
-        tc_add(tm_get_tclist(work_module_item),test_case_2);
-        tc_add(tm_get_tclist(work_module_item),test_case_3);
-        tm_add(instantiated_modules,work_module);
-        tm_set_status(work_module_item,TEST_MODULE_READY);
-        tm_set_pid(work_module_item,act_pid);
-        tc_add(setcases,test_case_1);
-        tc_add(setcases,test_case_2);
-        tc_add(setcases,test_case_3);
-        
-        mq_id = mq_open_queue('q');
-        ec_run_set_seq(setcases);
-        usleep(20000);
-        if (mq_peek_message(mq_id,act_pid)){
-                mq_read_message(mq_id,act_pid,&message);
-                fail_unless(message.type_ == MSG_EXE,"Wrong message");
-                }
-        else {
-                fail_if(1 == 1,"Execution not started");
-        }
-        fail_unless(dl_list_size(selected_cases) == 3,"Cases not selected");
-        mq_close_queue(mq_id);
-}
-END_TEST
-
-START_TEST(par_set_exec)
-{
-        DLList* cfg_list = dl_list_create();
-        DLList* case_list = dl_list_create();
-        DLList* setcases = dl_list_create();
-        char* set_path;
-        int msg_count = 0;
-        MsgBuffer message;
-        long act_pid = getpid();
-        selected_cases = dl_list_create();
-        instantiated_modules = dl_list_create();
-        test_module_info_s* work_module = tm_create("dummy_mod",cfg_list,0);
-        DLListIterator work_module_item;
-        test_case_s* test_case_1;
-        test_case_s* test_case_2;
-        test_case_s* test_case_3;
-        available_modules = dl_list_create();
-        work_module_item = tm_add(available_modules,work_module);
-        tm_set_tclist(work_module_item,dl_list_create());
-        test_case_1 = tc_create(work_module_item,"somecfg","TestCase1");
-        test_case_2 = tc_create(work_module_item,"somecfg","TestCase2");
-        test_case_3 = tc_create(work_module_item,"somecfg","TestCase3");
-        tc_add(tm_get_tclist(work_module_item),test_case_1);
-        tc_add(tm_get_tclist(work_module_item),test_case_2);
-        tc_add(tm_get_tclist(work_module_item),test_case_3);
-        tm_add(instantiated_modules,work_module);
-        tm_set_status(work_module_item,TEST_MODULE_READY);
-        tm_set_pid(work_module_item,act_pid);
-        tc_add(setcases,test_case_1);
-        tc_add(setcases,test_case_2);
-        tc_add(setcases,test_case_3);
-        mq_id = mq_open_queue('q');
-        ec_run_set_seq(setcases);
-        usleep(20000);
-        if (mq_peek_message(mq_id,act_pid)){
-                mq_read_message(mq_id,act_pid,&message);
-                fail_unless(message.type_ == MSG_EXE,"Wrong message");
-                msg_count ++;
-                }
-        else {
-                fail_if(1 == 1,"Execution not started");
-        
-        }
-        
-        fail_unless(dl_list_size(selected_cases) == 3,"Cases not selected");
-        fail_unless(dl_list_size(setcases) == 3,"Argument list corrupted");
-        mq_close_queue(mq_id);
-}
-END_TEST
 START_TEST(add_module)
 {
         DLList* empty_list = dl_list_create();
         int result = 0;
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
         
         ec_add_module("minDemoModule",empty_list,0);
         usleep(5000);
@@ -820,7 +660,7 @@ START_TEST(add_module_full_path)
 {
         DLList* empty_list = dl_list_create();
         int result = 0;
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
         
         ec_add_module("/usr/lib/min/minDemoModule.so",empty_list,0);
         usleep(5000);
@@ -831,7 +671,7 @@ END_TEST
 
 START_TEST(test_sigsegv)
 {
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
 	raise (SIGSEGV);
 	sleep (1);
 }
@@ -839,7 +679,7 @@ END_TEST
 
 START_TEST(test_sigquit)
 {
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
 	raise (SIGQUIT);
 	sleep (1);
 
@@ -848,7 +688,7 @@ END_TEST
 
 START_TEST(test_sigterm)
 {
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
 	raise (SIGTERM);
 	sleep (1);
 }
@@ -856,7 +696,7 @@ END_TEST
 
 START_TEST(test_sigkill)
 {
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
 	raise (SIGKILL);
 	sleep (1);
 }
@@ -864,7 +704,7 @@ END_TEST
 
 START_TEST(test_sigchld)
 {
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
 	raise (SIGCHLD);
 	sleep (1);
 }
@@ -873,7 +713,7 @@ END_TEST
 
 START_TEST(test_sigbus)
 {
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
 	raise (SIGBUS);
 	sleep (1);
 }
@@ -881,7 +721,7 @@ END_TEST
 
 START_TEST(test_sigint)
 {
-        ec_min_init(NULL,NULL,NULL,envp_,0);
+        ec_min_init(envp_,0);
 	raise (SIGINT);
 	sleep (1);
 }
@@ -920,11 +760,6 @@ Suite* tec_suite()
         tcase_add_test(tc_core,sequence_exe);
         tcase_add_test(tc_core,case_selection);
         tcase_add_test(tc_core,groupid_check);
-        tcase_add_test(tc_core,write_set_test);
-        tcase_add_test(tc_core,read_set_test);
-        tcase_add_test(tc_core,seq_set_exec);
-        tcase_add_test(tc_core,par_set_exec);
-        tcase_add_test(tc_core,add_module);
         tcase_add_test(tc_core,add_module_full_path);
         suite_add_tcase (s, tc_core);
         return s;

@@ -81,7 +81,7 @@ extern DLList  *available_modules;      /*list of available test modules */
 
 int ext_if_exec ()
 {
-        int             cont_flag = 1;
+        int             cont_flag = 1, retval = -1;
         DLListIterator  work_module_item = INITPTR;
         DLListIterator  work_case_item = INITPTR;
         DLList         *work_cases_list = INITPTR;
@@ -141,9 +141,9 @@ int ext_if_exec ()
                 sleep (1);
 
         }
-        log_summary_stdout ();
+        retval = log_summary_stdout ();
 	ec_cleanup();
-        return 0;
+        return retval;
 }
 
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */

@@ -50,7 +50,7 @@
 /* STRUCTURES */
 static char **envp_;
 DLList* extif_messages;
-
+extern DLList *available_modules;
 
 
 /* ------------------------------------------------------------------------- */
@@ -529,61 +529,6 @@ START_TEST ( run_two_cases_seq )
 }
 END_TEST
 
-START_TEST ( write_set )
-{
-        DLListIterator work_module_item = DLListNULLIterator;
-        DLList* work_list = INITPTR;
-        int cont_flag = 0;
-        int status;
-        FILE* result_f;
-        char* set_path;
-        char* c_dir = getenv("HOME");
-        ec_min_init(emptycallback1,emptycallback2,emptycallback3,envp_,0);
-        while( cont_flag == 0 ) {
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-        set_path = NEW2(char,strlen(c_dir) + 20);
-        sprintf(set_path,"%s/.min/integration.set",c_dir);
-        work_module_item = dl_list_head(instantiated_modules);
-        work_list = tm_get_tclist(work_module_item);
-        ec_set_write_file(work_list,set_path);
-        FILE* set = fopen(set_path,"r");
-        fail_if(set == NULL,"File not written");
-        fclose(set);
-        ec_cleanup();
-}
-END_TEST
-
-START_TEST ( read_set )
-{
-        DLListIterator work_module_item = DLListNULLIterator;
-        DLList* work_list = dl_list_create();
-        int cont_flag = 0;
-        int status;char* c_dir = getenv("HOME");
-        ec_min_init(emptycallback1,emptycallback2,emptycallback3,envp_,0);
-        while( cont_flag == 0 ) {
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-        ec_set_read(work_list,"integration.set");
-        fail_unless(dl_list_size(work_list) == 2,"Test set nod read");
-        ec_cleanup();
-}
-END_TEST
-
 START_TEST ( simple_master_case )
 {
         module_info* test_modules;
@@ -734,8 +679,6 @@ Suite* integration_suite()
         tcase_add_test ( tc_core , run_two_cases_par );
         tcase_add_test ( tc_core , run_two_cases_seq );
         tcase_add_test ( tc_core , close_min );
-        tcase_add_test ( tc_core , write_set );
-        tcase_add_test ( tc_core , read_set );
         tcase_add_test ( tc_core , run_2_cases_diff_modules );
         tcase_add_test ( tc_core , wait_state_event );
         tcase_add_test ( tc_core , wait_state_event_received );

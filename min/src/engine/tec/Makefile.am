@@ -19,7 +19,7 @@ libmintec_a_LIBADD = $(top_builddir)/src/utils/libminutils.la \
 	              $(top_builddir)/src/engine/data_structures_api/libmindsa.la \
 		      $(top_builddir)/src/engine/treport_log/libmintreport.la 
 
-libmintectest_a_SOURCES = tec.c tec_events.c  tec_rcp_handling.c tec.test tec_events.tests min_engine_api.c
+libmintectest_a_SOURCES = tec.c tec_events.c  tec_rcp_handling.c tec.test tec_events.tests min_engine_api.c ../../services/scripter_module/scripter_keyword.c
 libmintectest_a_CFLAGS = $(libmintec_a_CFLAGS) -DMIN_UNIT_TEST 
 libmintectest_a_LIBADD = $(libmintec_a_LIBADD)
 

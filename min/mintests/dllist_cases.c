@@ -481,34 +481,6 @@ MIN_TESTDEFINE (test_dllist_find)
         MIN_ASSERT_EQUALS (it, DLListNULLIterator);
 }
 /* ------------------------------------------------------------------------- */
-MIN_TESTDEFINE(test_dllist_find)
-{
-        int a[6];
-        int retval = -1;
-        int i = 0;
-        DLList* l = dl_list_create();
-        MIN_ASSERT_NOT_EQUALS ( l, INITPTR);
-        a[0]    = 5;
-        a[1]    = 7;
-        a[2]    = 5;
-        a[3]    = 98;
-        a[4]    = 5;
-        a[5]    = 5; 
-        
-        for( i = 0 ; i < 3 ; i++ ) {
-                retval = dl_list_add(l,&a[i]);
-        }
-
-        i = 5;
-        retval = dl_list_count (dl_list_head(l),
-                                dl_list_tail(l),
-                                equal,
-                                &i);
-        MIN_ASSERT_EQUALS( retval, 4);
-
-        dl_list_free(&l); 
-}
-/* ------------------------------------------------------------------------- */
 
 #endif
 /**

@@ -137,6 +137,7 @@ END_TEST
 START_TEST(test_ind_waiting)
 {
 	int ret;
+	int stat;
 
 	minEventSrc_t esrc;
 
@@ -147,11 +148,11 @@ START_TEST(test_ind_waiting)
 	fail_unless (ret == 0);
 
 	FILL_IND();
-	ret = ind_event_handle_wait (&ind_param, &esrc);
+	ret = ind_event_handle_wait (&ind_param, &esrc, &stat);
 	fail_unless (ret == 0);
 
 	FILL_IND();
-	ret = ind_event_handle_wait (&ind_param, &esrc);
+	ret = ind_event_handle_wait (&ind_param, &esrc, &stat);
 	fail_unless (ret == 1);
 
 }
@@ -282,7 +283,7 @@ END_TEST
 
 START_TEST (test_set_req_wait_rel_unset)
 {
-	int ret;
+	int ret, stat;
 	minEventSrc_t client, server;
 
 	client.remote = 0;
@@ -298,7 +299,7 @@ START_TEST (test_set_req_wait_rel_unset)
 	fail_unless (ret == 0);
 
         FILL_STA();
-	ret = state_event_handle_wait (&sta_param, &client);
+	ret = state_event_handle_wait (&sta_param, &client, &stat);
 	fail_unless (ret == 0);
 
         FILL_STA();
@@ -314,7 +315,7 @@ END_TEST
 
 START_TEST (test_req_wait_wait_set)
 {
-	int ret;
+	int ret, stat;
 	minEventSrc_t client, server;
 
 	client.remote = 0;
@@ -327,11 +328,11 @@ START_TEST (test_req_wait_wait_set)
 	fail_unless (ret == 0);
 
         FILL_STA();
-	ret = state_event_handle_wait (&sta_param, &client);
+	ret = state_event_handle_wait (&sta_param, &client, &stat);
 	fail_unless (ret == 0);
 
         FILL_STA();
-	ret = state_event_handle_wait (&sta_param, &client);
+	ret = state_event_handle_wait (&sta_param, &client, &stat);
 	fail_unless (ret == 1);
 	
         FILL_STA();
