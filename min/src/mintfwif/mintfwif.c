@@ -201,7 +201,6 @@ int min_if_message_received (char *message, int length)
 /* ------------------------------------------------------------------------- */
 int min_if_exec_case (char *module, unsigned int id)
 {
-
 	internal_module_info *mi;
 	DLListIterator it;
 	MIN_DEBUG (">>");
@@ -223,70 +222,39 @@ int min_if_exec_case (char *module, unsigned int id)
 /* ------------------------------------------------------------------------- */
 int min_if_cancel_case (unsigned int runtime_id)
 {
-        int             result = 0;
-        DLListIterator  work_case_item = INITPTR;
+	DLListIterator it;
+	MIN_DEBUG (">>");
 
-        work_case_item = dl_list_at (selected_cases, runtime_id);
+	pthread_mutex_lock (&tfwif_mutex_);
+	it = dl_list_find (dl_list_head (tfwif_test_runs_),
+			   dl_list_tail (tfwif_test_runs_),
+			   _find_testrun_by_id,
+			   runtime_id);
+	pthread_mutex_unlock (&tfwif_mutex_);
+	MIN_DEBUG("<<");
+	if (it == INITPTR)
+		return 1;
 
-        if (work_case_item != INITPTR)
-                result = ec_abort_test_case (work_case_item);
-        else
-                return -3;
-
-        /*translate result of ec_cancel_test_case
-           to return value */
-
-        switch (result) {
-        case (0):
-                return 0;
-        case (-1):
-                return -1;
-        case (-2):
-                return -1;
-        default:
-                break;
-        }
-
-        return -4;
+	return min_clbk_.abort_case (runtime_id);
 }
 
 /* ------------------------------------------------------------------------- */
 int min_if_pause_case (unsigned int runtime_id)
 {
+	DLListIterator it;
+	MIN_DEBUG (">>");
 
+	pthread_mutex_lock (&tfwif_mutex_);
+	it = dl_list_find (dl_list_head (tfwif_test_runs_),
+			   dl_list_tail (tfwif_test_runs_),
+			   _find_testrun_by_id,
+			   runtime_id);
+	pthread_mutex_unlock (&tfwif_mutex_);
+	MIN_DEBUG("<<");
+	if (it == INITPTR)
+		return 1;
 
-        DLListIterator  work_case_item = DLListNULLIterator;
-        int             result = 0;
-
-        work_case_item = dl_list_at (selected_cases, runtime_id);
-
-        /* work case could not be fetched from the list, invalid arg. passed */
-        if (work_case_item == DLListNULLIterator) {
-                MIN_WARN ("wrong_argument");
-                MIN_WARN ("there is %d selected cases",
-                             dl_list_size (selected_cases));
-                return -3;
-
-        }
-
-        result = ec_pause_test_case (work_case_item);
-
-        /*translate result of ec_pause_test_case
-           to return value */
-
-        switch (result) {
-        case (0):
-                return 0;
-        case (-2):
-                return -1;
-        case (-3):
-                return -2;
-        default:
-                break;
-
-        }
-
-        return -4;
+	return min_clbk_.pause_case (runtime_id);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -341,33 +309,20 @@ int min_if_get_cases (module_info ** modules_arg)
 
 int min_if_resume_case (unsigned int runtime_id)
 {
-        DLListIterator  work_case_item = DLListNULLIterator;
-        int             result = 0;
+	DLListIterator it;
+	MIN_DEBUG (">>");
 
-        work_case_item = dl_list_at (selected_cases, runtime_id);
-        /*work case could not be fetched from the list, invalid arg. passsed */
-        if (work_case_item == DLListNULLIterator) {
-                MIN_WARN ("wrong_argument");
-                MIN_WARN ("there is %d selected cases",
-                           dl_list_size (selected_cases));
-                return -3;
+	pthread_mutex_lock (&tfwif_mutex_);
+	it = dl_list_find (dl_list_head (tfwif_test_runs_),
+			   dl_list_tail (tfwif_test_runs_),
+			   _find_testrun_by_id,
+			   runtime_id);
+	pthread_mutex_unlock (&tfwif_mutex_);
+	MIN_DEBUG("<<");
+	if (it == INITPTR)
+		return 1;
 
-        }
-
-        result = ec_resume_test_case (work_case_item);
-
-        switch (result) {
-        case (0):
-                return 0;
-        case (-2):
-                return -1;
-        case (-3):
-                return -2;
-        default:
-                break;
-        }
-
-        return -4;
+	return min_clbk_.resume_case (runtime_id);
 }
 
 /* ------------------------------------------------------------------------- */
