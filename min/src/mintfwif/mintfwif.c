@@ -202,6 +202,8 @@ int min_if_close ()
 			 dl_list_tail (tfwif_test_runs_),
 			 free);
 	dl_list_free (&tfwif_test_runs_);
+	
+	usleep (500000);
 
         return 0;
 }
@@ -274,7 +276,7 @@ int min_if_cancel_case (unsigned int runtime_id)
 	it = dl_list_find (dl_list_head (tfwif_test_runs_),
 			   dl_list_tail (tfwif_test_runs_),
 			   _find_testrun_by_id,
-			   runtime_id);
+			   (const void *)&runtime_id);
 	pthread_mutex_unlock (&tfwif_mutex_);
 
 	if (it == INITPTR)
@@ -293,7 +295,7 @@ int min_if_pause_case (unsigned int runtime_id)
 	it = dl_list_find (dl_list_head (tfwif_test_runs_),
 			   dl_list_tail (tfwif_test_runs_),
 			   _find_testrun_by_id,
-			   runtime_id);
+			   (const void *)&runtime_id);
 	pthread_mutex_unlock (&tfwif_mutex_);
 
 	if (it == INITPTR)
@@ -358,7 +360,7 @@ int min_if_resume_case (unsigned int runtime_id)
 	it = dl_list_find (dl_list_head (tfwif_test_runs_),
 			   dl_list_tail (tfwif_test_runs_),
 			   _find_testrun_by_id,
-			   runtime_id);
+			   (const void *)&runtime_id);
 	pthread_mutex_unlock (&tfwif_mutex_);
 	if (it == INITPTR)
 		return 1;
