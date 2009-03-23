@@ -989,21 +989,25 @@ LOCAL int ec_msg_ok_handler (MsgBuffer * message)
         int             result = -1;
         long            sender = message->sender_;
         int             work_module_status;
+	int             retry_count;
         DLListIterator  work_module =
             tm_get_ptr_by_pid (instantiated_modules, sender);
         MsgBuffer       message_gtc;
 
         /*Possible error handling will be inserted here */
-
-        if (work_module == DLListNULLIterator) {
+	retry_count = 0;
+        while (work_module == DLListNULLIterator) {
 
                 MIN_WARN ("Could not fetch module data, pid = %d", sender);
-                work_module = dl_list_head (instantiated_modules);
-
-                while (work_module != DLListNULLIterator) {
-                        work_module = dl_list_next (work_module);
-                }
-                return result;
+		/*
+		** Synchronization issue try again a few times
+		*/
+		usleep (100000);
+		work_module =
+			tm_get_ptr_by_pid (instantiated_modules, sender);
+		retry_count++;
+		if (retry_count > 10)
+			return result;
         }
 
         work_module_status = tm_get_status (work_module);
