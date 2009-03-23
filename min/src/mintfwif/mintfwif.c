@@ -320,7 +320,7 @@ int min_if_get_cases (module_info ** modules_arg)
 
         extif_list_size = dl_list_size(tfwif_modules_);
         modules = NEW2 (module_info, extif_list_size);
-
+	
 	pthread_mutex_lock (&tfwif_mutex_);
 	for (mod_it = dl_list_head (tfwif_modules_);
 	     mod_it != DLListNULLIterator;
@@ -375,9 +375,12 @@ int min_if_module_add (char *module_name, char *conf_name)
 	DLListIterator it = INITPTR;
 	internal_module_info *mi;
 
-
-	if (min_clbk_.add_test_module (module_name))
+	MIN_DEBUG ("MODULE:%s, CONFIG:%s", module_name, 
+		   conf_name != NULL ? conf_name : "<null>");
+	if (min_clbk_.add_test_module (module_name)) {
+		MIN_WARN ("Returning error");
 		return 1;
+	}
 	while (it == INITPTR) {
 
 		usleep (10000);
@@ -393,14 +396,26 @@ int min_if_module_add (char *module_name, char *conf_name)
 
 	mi = dl_list_data (it);
 	if (conf_name && 
-	    !min_clbk_.add_test_case_file (mi->module_id_, conf_name))
+	    min_clbk_.add_test_case_file (mi->module_id_, conf_name)) {
+		MIN_WARN ("returning error");
 		return 1;
+	}
 	min_clbk_.add_test_case_file (mi->module_id_, "");
 
 	while (!mi->module_ready_)
 		usleep (10000);
 
-	
+	if (dl_list_size (mi->test_case_list_) == 0) {
+		/*
+		** Module added succesfully, but does not contain any cases,
+		** we can remove it now.
+		*/
+		pthread_mutex_lock (&tfwif_mutex_);
+		dl_list_remove_it (it);
+		_del_internal_mod_info (mi);
+		pthread_mutex_unlock (&tfwif_mutex_);
+	}
+
 	return 0;
 }
 

@@ -45,7 +45,7 @@
 /* DATA TYPES */
 /** Test case complete callback function */
 typedef void    (*min_case_complete_func) (int run_id, int execution_result,
-                                            int test_result, char *desc);
+					   int test_result, char *desc);
 /** Test case print callback function */
 typedef void    (*min_case_print_func) (int run_id, char *text);
 /** External controller message sending function */

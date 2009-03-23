@@ -1316,11 +1316,16 @@ LOCAL int ec_msg_tcd_handler (MsgBuffer * message)
 				 * and can be removed - at least in current 
 				 * design 
 				 */
+				if (in->module_ready) 
+					in->module_ready 
+						(tm_get_module_id 
+						 (work_module_item));
                                 address = tm_get_pid (work_module_item);
                                 mq_send_message2 (mq_id, address, MSG_END, 0,
                                                   "Shut down !");
-                                waitpid (address, NULL, 0);
                                 tm_remove (work_module_item);
+                                waitpid (address, NULL, 0);
+
 				result = 0;
 				goto EXIT;
                                 break;

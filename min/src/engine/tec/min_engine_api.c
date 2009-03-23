@@ -135,9 +135,9 @@ LOCAL int eapi_add_test_case_file (unsigned module_id, char *testcasefile)
         } else {
                 /* we have all the test case files for the module,
                    so we can add the module into engine */
-                if(!ec_add_module (modinfo->module_filename_, 
-				   modinfo->cfg_filename_list_,
-				   modinfo->module_id_))
+                if(ec_add_module (modinfo->module_filename_, 
+				  modinfo->cfg_filename_list_,
+				  modinfo->module_id_))
 			return 1;
         } 
 	return 0;
