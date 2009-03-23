@@ -264,6 +264,7 @@ int min_if_exec_case (char *module, unsigned int id)
 	} else
 		return -1;
 
+	MIN_DEBUG("test started with runid=%d", tri->test_run_id_);
 	return tri->test_run_id_;
 }
 
@@ -462,7 +463,9 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 	}
 	tri = dl_list_data (test_run_item);
 	tri->status_ = TP_ENDED;
-	tfwif_callbacks.complete_callback_ (tri->case_id_, 1, result, desc);
+	usleep(500000);
+	tfwif_callbacks.complete_callback_ (tri->test_run_id_, 1, result, desc);
+
 
 	return;
 };
