@@ -1,4 +1,4 @@
-INCLUDES =  -I. -I../utils/lib_loader/ -I.. -I../utils/logger -I../utils/dllist -I../utils/ipc -I../utils/text -I../services/event_system
+INCLUDES =  -I. -I./test_module_api -I../utils/lib_loader/ -I.. -I../utils/logger -I../utils/dllist -I../utils/ipc -I../utils/text -I../services/event_system
 METASOURCES = AUTO
 bin_PROGRAMS = tmc
 noinst_LTLIBRARIES = libtmc_utils.la
