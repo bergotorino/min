@@ -31,12 +31,21 @@
                         <arg type="t" name="testrunid"          direction="in"/>
                 </method>
 
-                <method name="min_query_test_modules">
+                <method name="min_fatal_error">
+                       <arg type="s" name="what"                direction="in"/>
+                       <arg type="s" name="errorstring"         direction="in"/>
+                </method>
 
+                <method name="min_open">
+                </method>
+
+                <method name="min_close">
+                </method>
+
+                <method name="min_query_test_modules">
                 </method>
 
                 <method name="min_query_test_files">
-
                 </method>
 
                 <!-- Signals -->

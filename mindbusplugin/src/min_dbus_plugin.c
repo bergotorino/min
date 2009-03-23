@@ -131,6 +131,11 @@ gboolean min_object_min_resume_case(MinObject *obj,
 				    long testrunid);
 gboolean min_object_min_abort_case(MinObject *obj,
 				   long testrunid);
+gboolean min_object_min_fatal_error(MinObject *obj,
+                                        const char *what,
+                                        const char *errorstring); 
+gboolean min_object_min_open(MinObject *obj);
+gboolean min_object_min_close(MinObject *obj);
 gboolean min_object_min_query_test_modules(MinObject *obj);
 gboolean min_object_min_query_test_files(MinObject *obj);
 
@@ -577,6 +582,38 @@ gboolean min_object_min_abort_case(MinObject *obj,
         /* Calls callback from MIN */
         if (min_clbk.abort_case) {
                 min_clbk.abort_case (testrunid);
+                return TRUE;
+        }
+        return FALSE;
+}
+/* ------------------------------------------------------------------------- */
+gboolean min_object_min_fatal_error(MinObject *obj,
+                                        const char *what,
+                                        const char *errorstring)
+{
+        /* Calls callback from MIN */
+        if (min_clbk.fatal_error) {
+                min_clbk.fatal_error(what,errorstring);
+                return TRUE;
+        }
+        return FALSE;
+}
+/* ------------------------------------------------------------------------- */
+gboolean min_object_min_open(MinObject *obj)
+{
+        /* Calls callback from MIN */
+        if (min_clbk.min_open) {
+                min_clbk.min_open();
+                return TRUE;
+        }
+        return FALSE;
+}
+/* ------------------------------------------------------------------------- */
+gboolean min_object_min_close(MinObject *obj)
+{
+        /* Calls callback from MIN */
+        if (min_clbk.min_close) {
+                min_clbk.min_close();
                 return TRUE;
         }
         return FALSE;
