@@ -176,7 +176,7 @@ int min_if_open (min_case_complete_func complete_cb,
 	while (module_count > ready_module_count_) {
 		usleep (50000);
 	}
-
+	usleep (500000);
 	if ((engine_ini != NULL) && (strlen (engine_ini) != 0)) {
                 ec_read_settings (engine_ini);
 
@@ -202,7 +202,8 @@ int min_if_close ()
 			 dl_list_tail (tfwif_test_runs_),
 			 free);
 	dl_list_free (&tfwif_test_runs_);
-	
+
+	ready_module_count_ = 0;
 	usleep (500000);
 
         return 0;
@@ -228,13 +229,13 @@ int min_if_exec_case (char *module, unsigned int id)
 
 	DLListIterator it;
 	int cont = 1;
-
 	pthread_mutex_lock (&tfwif_mutex_);
 	it = dl_list_find (dl_list_head (tfwif_modules_),
 			   dl_list_tail (tfwif_modules_),
 			   _find_mod_by_name,
 			   (const void *)module);
 	pthread_mutex_unlock (&tfwif_mutex_);
+
 	if (it == INITPTR)
 		return 1;
 
@@ -260,6 +261,7 @@ int min_if_exec_case (char *module, unsigned int id)
 				
 			}
 			pthread_mutex_unlock (&tfwif_mutex_);
+
 		}
 	} else
 		return -1;
@@ -272,6 +274,7 @@ int min_if_exec_case (char *module, unsigned int id)
 int min_if_cancel_case (unsigned int runtime_id)
 {
 	DLListIterator it;
+
 
 	pthread_mutex_lock (&tfwif_mutex_);
 	it = dl_list_find (dl_list_head (tfwif_test_runs_),
@@ -290,7 +293,6 @@ int min_if_cancel_case (unsigned int runtime_id)
 int min_if_pause_case (unsigned int runtime_id)
 {
 	DLListIterator it;
-
 
 	pthread_mutex_lock (&tfwif_mutex_);
 	it = dl_list_find (dl_list_head (tfwif_test_runs_),
@@ -320,7 +322,7 @@ int min_if_get_cases (module_info ** modules_arg)
 
         extif_list_size = dl_list_size(tfwif_modules_);
         modules = NEW2 (module_info, extif_list_size);
-	
+				
 	pthread_mutex_lock (&tfwif_mutex_);
 	for (mod_it = dl_list_head (tfwif_modules_);
 	     mod_it != DLListNULLIterator;
@@ -363,6 +365,7 @@ int min_if_resume_case (unsigned int runtime_id)
 			   _find_testrun_by_id,
 			   (const void *)&runtime_id);
 	pthread_mutex_unlock (&tfwif_mutex_);
+			
 	if (it == INITPTR)
 		return 1;
 
@@ -383,7 +386,7 @@ int min_if_module_add (char *module_name, char *conf_name)
 	}
 	while (it == INITPTR) {
 
-		usleep (10000);
+		usleep (500000);
 
 		pthread_mutex_lock (&tfwif_mutex_);
 		it = dl_list_find (dl_list_head (tfwif_modules_),
@@ -414,6 +417,7 @@ int min_if_module_add (char *module_name, char *conf_name)
 		dl_list_remove_it (it);
 		_del_internal_mod_info (mi);
 		pthread_mutex_unlock (&tfwif_mutex_);
+
 	}
 
 	return 0;
@@ -478,7 +482,6 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 	}
 	tri = dl_list_data (test_run_item);
 	tri->status_ = TP_ENDED;
-	usleep(500000);
 	tfwif_callbacks.complete_callback_ (tri->test_run_id_, 1, result, desc);
 
 
@@ -535,7 +538,6 @@ LOCAL void pl_case_resumed (long testrunid)
 	DLListIterator	test_run_item = DLListNULLIterator;
 
 
-
 	pthread_mutex_lock (&tfwif_mutex_);
 	test_run_item = dl_list_find (dl_list_head (tfwif_test_runs_),
 			              dl_list_tail (tfwif_test_runs_),
@@ -564,7 +566,7 @@ LOCAL void pl_msg_print (long testrunid, char *message)
 LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 {
 	internal_module_info *mi;
-
+	
 	mi = NEW (internal_module_info);
 	STRCPY(mi->module_name_, modulename, 128);
         mi->test_case_list_ = dl_list_create();
@@ -576,6 +578,7 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 	pthread_mutex_unlock (&tfwif_mutex_);
 
 
+
 	return;
 };
 /* ------------------------------------------------------------------------- */
@@ -584,7 +587,6 @@ LOCAL void pl_module_ready ( unsigned moduleid)
 	internal_module_info *mi;
 	DLListIterator it;
 	
-
 	pthread_mutex_lock (&tfwif_mutex_);
 
 	it = dl_list_find (dl_list_head (tfwif_modules_),
@@ -592,7 +594,6 @@ LOCAL void pl_module_ready ( unsigned moduleid)
 			   _find_mod_by_id,
 			   (const void *)&moduleid);
 	pthread_mutex_unlock (&tfwif_mutex_);
-
 	if (it == INITPTR)
 		return;
 
@@ -621,8 +622,11 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 			   _find_mod_by_id,
 			   (const void *)&moduleid);
 
-	if (it == INITPTR)
+	if (it == INITPTR) {
+		pthread_mutex_unlock (&tfwif_mutex_);
+		MIN_WARN ("NO MODULE FOUND WITH ID %s",moduleid);
 		return;
+	}
 	mi = dl_list_data (it);
 	mc = NEW(min_case);
 	mc->case_id_ = caseid;
