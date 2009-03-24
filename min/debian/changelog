@@ -1,3 +1,12 @@
+min (2009w13) unstable; urgency=low
+  * Fifth MIN Release
+  * Fixed: run keyword in scripter does not accept full path, only filename
+  * Added: error log to console ui
+  * Added: chapter about DBus interface to the documentation
+  * Added: return values to eapi towards the engine
+
+ -- Konrad Marek Zapalowicz <ext-konrad.zapalowicz@nokia.com>  Tue,   24 March 2009 10:48:12 +0100
+
 min (2009w10) unstable; urgency=low
   * Fourth MIN Release
   * Fixed: Scripter run keywords mixes up remote commands
