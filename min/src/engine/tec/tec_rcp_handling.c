@@ -462,7 +462,12 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
         } else {
                 MIN_WARN ("test case file %s not found", temp_string);
         }
+#ifdef MIN_EXTIF
+	min_if_module_add (module, !strcmp (casefile, "dummy.cfg") ?
+			   "" : temp_string);
+#else
         ec_add_module (module, conf_list, 0);
+#endif
         /*wait for module to return testcases */
 MODULE_PRESENT:
         while (cont_flag == 0) {
@@ -946,6 +951,9 @@ void send_to_master (int tc_id, char *msg)
         char           *extif_msg;
         char           *hex;
 
+	if (tc_id != 0) {
+	      tc_id = dl_list_size (selected_cases);
+	}
         extif_msg = NEW2 (char, 28 + strlen (msg));
         hex = writehex (own_id, tc_id);
         sprintf (extif_msg, "response %s deadbeef %s", hex, msg);
