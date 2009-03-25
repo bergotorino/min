@@ -376,6 +376,7 @@ int main (int argc, char *argv[], char *envp[])
                 retval = pthread_create (&plugin_thread, NULL, (void *)plugin_open,
 					 &tmp);
 		if (in->error_report) {
+			usleep (100000);
 			in->error_report ("Contact: Antti Heimola, "
 					  "DG.MIN-Support@nokia.com");
 			in->error_report ("licensed under the Gnu General "
