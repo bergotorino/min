@@ -1001,6 +1001,7 @@ send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
         hex = writehex (slave_id, tc_id);
         switch (command) {
         case EAllocateSlave:
+		sleep (1);
                 sprintf (extif_message, "reserve deadbeef %s %s", hex, message);
                 break;
         case EFreeSlave:
