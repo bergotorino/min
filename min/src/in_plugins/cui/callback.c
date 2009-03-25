@@ -611,7 +611,6 @@ LOCAL int get_test_modules (void)
  */
 LOCAL int get_log_messages (void)
 {
-        char *p;
 	DLListIterator it;
         int howmany = 0;
         Text *tx = INITPTR;

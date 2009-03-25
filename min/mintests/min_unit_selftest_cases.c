@@ -20,7 +20,7 @@
  * GLOBAL VARIABLES SECTION
  */
 #ifdef TEST_VAR_DECLARATIONS
-int             uno, one, two, dos;
+int             uno = 0, one = 0, two = 0, dos = 0;
 void           *null_ptr, *ptr, *ptrsame, *ptrnotsame;
 #endif                          /* TEST_VAR_DECLARATIONS */
 /**

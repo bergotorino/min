@@ -42,7 +42,7 @@
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
 extern char* optarg;
-extern eapiIn_t *in_str;
+extern eapiIn_t in_str;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
@@ -373,7 +373,7 @@ int main (int argc, char *argv[], char *envp[])
 		eapi_init (in, out);
 		plugin_attach (&in, out);
 		ec_min_init (envp, oper_mode);
-                retval = pthread_create (&plugin_thread, NULL, plugin_open,
+                retval = pthread_create (&plugin_thread, NULL, (void *)plugin_open,
 					 &tmp);
 		if (in->error_report) {
 			in->error_report ("Contact: Antti Heimola, "
