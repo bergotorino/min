@@ -256,7 +256,7 @@ Project home page: http://garage.maemo.org/projects/min/
 * Using test interference in scripted test cases: Using test interference in scripted test cases.
 * Compiling C++ test modules: Compiling C++ test modules.
 * Enabling C++ in MINUnit or HardCoded test module: Enabling C++ in MINUnit or HardCoded test module.
-* MIN DBus interface
+* MIN DBus interface: MIN DBus interface.
 * GNU Free Documentation License: GNU Free Documentation License.
 @end menu
 
@@ -1014,17 +1014,16 @@ Project home page: http://garage.maemo.org/projects/min/
 * Enabling C++ in MINUnit or HardCoded test module: Enabling C++ in MINUnit or HardCoded test module.
 @end menu
 
-@node Enabling C++ in MINUnit or HardCoded test module, GNU Free Documentation License, Compiling C++ test modules, Compiling C++ test modules
+@node Enabling C++ in MINUnit or HardCoded test module, MIN DBus interface, Compiling C++ test modules, Compiling C++ test modules
 @section Enabling C++ in MINUnit or HardCoded test module
 @include chapters/Enabling_Cplusplus_in_MINUnit_or_HardCoded_test_module.texi
 
+@node MIN DBus interface, GNU Free Documentation License, Enabling C++ in MINUnit or HardCoded test module, Top
 @chapter MIN DBus interface
 @include chapters/MIN_DBus_interface.texi
 
-@c @node GNU Free Documentation License, None , Enabling C++ in MINUnit or HardCoded test module, Top
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
-
 @include chapters/GNU_Free_Documentation_License.texi
 
 
