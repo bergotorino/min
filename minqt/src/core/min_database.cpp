@@ -40,7 +40,7 @@ Min::Database::~Database()
 unsigned int Min::Database::insertDevice(unsigned int device_id)
 {
     QSqlQuery query;
-    query.prepare("INSERT INTO device VALUES (NULL, :devid);");
+    query.prepare("INSERT INTO device(device_id) VALUES (:devid);");
     query.bindValue(":devid", QVariant(device_id));
     if(query.exec()){
         return query.lastInsertId().toUInt();
@@ -56,7 +56,7 @@ unsigned int Min::Database::insertModule(unsigned int device_id,
                 QString module_name)
 {
     QSqlQuery query;
-    query.prepare("INSERT INTO module VALUES (NULL, :modid, :devid, :name);");
+    query.prepare("INSERT INTO module(module_id, device_id, module_name) VALUES (:modid, :devid, :name);");
     query.bindValue(":devid", QVariant(device_id));
     query.bindValue(":modid", QVariant(module_id));
     query.bindValue(":name", QVariant(module_name));
@@ -73,7 +73,7 @@ unsigned int Min::Database::insertTestCase(unsigned int module_id,
                 QString test_case_title)
 {
     QSqlQuery query;
-    query.prepare("INSERT INTO test_case VALUES (NULL, :caseid, :modid, :title);");
+    query.prepare("INSERT INTO test_case(test_case_id, module_id, test_case_title) VALUES (:caseid, :modid, :title);");
     query.bindValue(":caseid", QVariant(test_case_id));
     query.bindValue(":modid", QVariant(module_id));
     query.bindValue(":title", QVariant(test_case_title));
@@ -91,14 +91,32 @@ unsigned int Min::Database::insertTestRun(unsigned int test_case_id,
                 int status,
                 unsigned long start_time)
 {
-    //TODO: fill method
-
+    QSqlQuery query;
+    query.prepare("INSERT INTO test_run(test_run_pid, test_case_id, group_id, status, start_time)  VALUES (:runpid, :caseid, :groupid, :status, :starttime);");
+    query.bindValue(":caseid", QVariant(test_case_id));
+    query.bindValue(":runpid", QVariant(test_run_pid));
+    query.bindValue(":groupid", QVariant(group_id));
+    query.bindValue(":status", QVariant(status));
+    query.bindValue(":starttime", QVariant(start_time));
+    if(query.exec()){
+        return query.lastInsertId().toUInt();
+    }else{
+        return 0;
+    }
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::insertPrintout(unsigned int test_run_pid,
                 QString content)
 {
-    //TODO: fill method
+    QSqlQuery query;
+    query.prepare("INSERT INTO printout(test_run_id, content) VALUES (:runid, :content);");
+    query.bindValue(":runid", QVariant(test_run_pid));
+    query.bindValue(":content", QVariant(content));
+    if(query.exec()){
+        return query.lastInsertId().toUInt();
+    }else{
+        return 0;
+    }
 
 };
 // ----------------------------------------------------------------------------
@@ -219,7 +237,7 @@ bool initDatabase()
         query.exec("CREATE TABLE device (id INTEGER PRIMARY KEY, device_id int);");
         query.exec("CREATE TABLE module (id INTEGER PRIMARY KEY, module_id int, device_id int, module_name varchar);");
         query.exec("CREATE TABLE test_case (id INTEGER PRIMARY KEY, test_case_id int, module_id int, test_case_title varchar);");
-        query.exec("CREATE TABLE test_run (id INTEGER PRIMARY KEY, test_run_pid int, test_case_id int, group_id int, status int, start_time int, end_time int, result
+        query.exec("CREATE TABLE test_run (id INTEGER PRIMARY KEY, test_run_pid int, test_case_id int, group_id int, status int, start_time int, end_time int, result int, result_description varchar);");
         query.exec("CREATE TABLE printout (id INTEGER PRIMARY KEY, test_run_id int, content varchar);");
 
         /* Demo data */
