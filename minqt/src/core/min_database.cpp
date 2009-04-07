@@ -56,6 +56,7 @@ unsigned int Min::Database::insertModule(unsigned int device_id,
                 QString module_name)
 {
     QSqlQuery query;
+
     query.prepare("INSERT INTO module(module_id, device_id, module_name) VALUES (:modid, :devid, :name);");
     query.bindValue(":devid", QVariant(device_id));
     query.bindValue(":modid", QVariant(module_id));
@@ -169,54 +170,134 @@ bool Min::Database::updatePrintout(unsigned int id,
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getDeviceId(unsigned int device_id)
 {
-    //TODO: fill method
+    QSqlQuery query;
+    QVariant id=0;
+    query.prepare("SELECT id FROM device WHERE device_id=:devid;");
+    query.bindValue(":devid", QVariant(device_id));
+    if(query.exec()){
+        if(query.next()) {
+            id=query.value(0);
+        }
+
+    }
+    return id.toUInt();
+
 
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getModuleId(unsigned int device_id,
                 unsigned int module_id)
 {
-    //TODO: fill method
+    QSqlQuery query;
+    QVariant id=0;
+    query.prepare("SELECT id FROM module WHERE device_id=:devid AND module_id=:modid;");
+    query.bindValue(":devid", QVariant(device_id));
+    query.bindValue(":modid", QVariant(module_id));
+    if(query.exec()){
+        if(query.next()) {
+            id=query.value(0);
+        }
 
+    }
+    return id.toUInt();
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getModuleId(unsigned int device_id,
                 QString module_name)
 {
-    //TODO: fill method
+    QSqlQuery query;
+    QVariant id=0;
+    query.prepare("SELECT id FROM module WHERE device_id=:devid AND module_name=:modname;");
+    query.bindValue(":devid", QVariant(device_id));
+    query.bindValue(":modname", QVariant(module_name));
+    if(query.exec()){
+        if(query.next()) {
+            id=query.value(0);
+        }
+    }
+    return id.toUInt();
 
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getTestCaseId(unsigned int module_id,
                 unsigned int test_case_id)
 {
-    //TODO: fill method
+    QSqlQuery query;
+    QVariant id=0;
+    query.prepare("SELECT id FROM test_case WHERE module_id=:modid AND test_case_id=:caseid;");
+    query.bindValue(":modid", QVariant(module_id));
+    query.bindValue(":caseid", QVariant(test_case_id));
+    if(query.exec()){
+        if(query.next()) {
+            id=query.value(0);
+        }
+    }
+    return id.toUInt();
+
 
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getTestCaseId(unsigned int module_id,
                 QString test_case_name)
 {
-    //TODO: fill method
+    QSqlQuery query;
+    QVariant id=0;
+    query.prepare("SELECT id FROM test_case WHERE module_id=:modid AND test_case_name=:casename;");
+    query.bindValue(":modid", QVariant(module_id));
+    query.bindValue(":casename", QVariant(test_case_name));
+    if(query.exec()){
+        if(query.next()) {
+            id=query.value(0);
+        }
+    }
+    return id.toUInt();
 
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getTestRunId(unsigned int test_case_id,
                 test_run_pid)
 {
-    //TODO: fill method
+    QSqlQuery query;
+    QVariant id=0;
+    query.prepare("SELECT id FROM test_run WHERE test_case_id=:caseid AND test_run_pid=:runpid;");
+    query.bindValue(":runpid", QVariant(test_run_pid));
+    query.bindValue(":caseid", QVariant(test_case_id));
+    if(query.exec()){
+        if(query.next()) {
+            id=query.value(0);
+        }
+    }
+    return id.toUInt();
 
 };
 // ----------------------------------------------------------------------------
 QStringList Min::Database::getModules(unsigned int device_id)
 {
-    //TODO: fill method
+    QSqlQuery query;
+    QStringList retval;
+    query.prepare("SELECT module_name FROM module WHERE device_id=:devid;");
+    query.bindValue(":devid", QVariant(device_id));
+    if(query.exec()){
+        while(query.next()) {
+            retval.append(query.value(0));
+        }
+    }
+    return retval;
 
 };
 // ----------------------------------------------------------------------------
 QStringList Min::Database::getTestCases(unsigned int module_id)
 {
-    //TODO: fill method
+    QSqlQuery query;
+    QStringList retval;
+    query.prepare("SELECT test_case_name FROM module WHERE module_id=:modid;");
+    query.bindValue(":modid", QVariant(module_id));
+    if(query.exec()){
+        while(query.next()) {
+            retval.append(query.value(0));
+        }
+    }
+    return retval;
 
 };
 // ----------------------------------------------------------------------------
