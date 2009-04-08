@@ -21,6 +21,11 @@
 #define INCLUDED_MIN_DATABASE_HPP
 
 // System includes
+#include <QMessageBox>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QVariant>
 
 // -----------------------------------------------------------------------------
 /**
@@ -50,28 +55,12 @@ namespace Min
 			unsigned int insertPrintout(unsigned int test_run_pid,
 					QString content);
 
-			bool updateDevice(unsigned int id,
-					unsigned int new_device_id);
-			bool updateModule(unsigned int id,
-					unsigned int device_id,
-					unsigned int module_id,
-					QString module_name);
-			bool updateTestCase(unsigned int id,
-					unsigned int module_id,
-					unsigned int test_case_id,
-					QString test_case_title);
 			bool updateTestRun(unsigned int id,
-					unsigned int test_case_id,
-					unsigned int test_run_pid,
-					unsigned int group_id,
 					int status,
-					unsigned long start_time,
-					unsigned long end_time,
-					int result,
-					QString result_description);
-			bool updatePrintout(unsigned int id,
-					unsigned int test_run_id,
-					QString content);
+                                        unsigned long start_time=0,
+                                        unsigned long end_time=0,
+                                        int result=0,
+                                        QString result_description="");
 
 			unsigned int getDeviceId(unsigned int device_id);
 			unsigned int getModuleId(unsigned int device_id,
@@ -83,10 +72,10 @@ namespace Min
 			unsigned int getTestCaseId(unsigned int module_id,
 					QString test_case_name);
 			unsigned int getTestRunId(unsigned int test_case_id,
-					test_run_pid);
+                                        unsigned int test_run_pid);
 
 			QStringList getModules(unsigned int device_id);
-			QStringList getTestCases(unsigned int module_id);
+                        QStringList getTestCases(unsigned int module_id);
 
 		private:
 			bool initDatabase();
