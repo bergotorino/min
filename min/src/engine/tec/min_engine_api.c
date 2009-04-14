@@ -42,7 +42,7 @@ DLList *modules;
 //eapiIn_t *in;
 
 DLList *plugins = INITPTR;
-DLListIterator *it = DLListNULLIterator;
+DLListIterator it = DLListNULLIterator;
 
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES

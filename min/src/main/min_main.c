@@ -304,8 +304,9 @@ int main (int argc, char *argv[], char *envp[])
         char *c3 = INITPTR;
         unsigned int num_of_plugins = 0;
         Text *plugin = tx_create("cui");
-        FILE *fp = INITPTR;
+/*        FILE *fp = INITPTR;
         int ii=0;
+*/
 
         /* Detect if DBus plugin has been installed */
         /* To be included in the future when engine can
