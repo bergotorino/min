@@ -27,7 +27,9 @@
 
 /* ------------------------------------------------------------------------- */
 /* INCLUDES */
-/* None */
+#include <sys/socket.h>
+#include <netdb.h>
+#include <min_text.h>
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -51,8 +53,18 @@
 typedef struct {
         /** slave's device id*/
         int             slave_id_;
-        /** name of slave given in allocate command*/
-        char            slave_name_[128];
+
+	/** type information e.g. "phone" */
+	Text           *slave_name_;
+	
+	/** host address */
+	struct          hostent he_;
+	
+	/** reserved flag */
+	int             reserved_;
+	
+	/** socket for communicating with the slave */
+	int             fd_;
 } slave_info;
 
 
@@ -66,6 +78,15 @@ int             tec_extif_message_received (char *message, int length);
 void            send_to_master (int tc_id, char *msg);
 
 DLList         *EXTIF_received_data;
+
+void            rcp_handling_init ();
+ 
+void            rcp_handling_cleanup ();
+
+int             tec_add_ip_slave_to_pool (struct hostent *he, char *slavetype);
+
+int             tec_del_ip_slave_from_pool (struct hostent *he, 
+                                           char *slavetype);
 
 #endif
 /* End of file */

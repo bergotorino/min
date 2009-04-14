@@ -94,9 +94,15 @@ LOCAL void test_module_info(char *libname);
 /* ------------------------------------------------------------------------- */
 /** Adds the modules and configuration files given from commandline
  *  @param modulelist list of module and filenames 
- *  @return 0 - on success, 1 - on error (e.g. file not found 
+ *  @return 0 - on success, 1 - on error (e.g. file not found)
  */
 LOCAL int add_command_line_modules (DLList * modulelist);
+/* ------------------------------------------------------------------------- */
+/** Adds the IP slaves given from commandline through eapi to slave pool
+ *  @param slavelist list of hostnames or ip addresses
+ *  @return 0 - on success, 1 - on error 
+ */
+LOCAL int add_ip_slaves (DLList * slavelist);
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -234,6 +240,31 @@ LOCAL int add_command_line_modules (DLList * modulelist)
         return 0;
 }
 
+LOCAL int add_ip_slaves (DLList * slavelist)
+{
+ 
+       char *command, *p = NULL;
+        DLListIterator it;
+
+
+        for (it = dl_list_head (slavelist); it != DLListNULLIterator;
+             it = dl_list_next (it)) {
+                command = (char *)dl_list_data (it);
+                if (p = strrchr (command, ':')) {
+                        *p = '\0';
+                        p++;
+               }
+               if (out_str.register_slave (command, p ? p : "phone")) {
+                       fprintf (stderr, "slave \"%s\" registration failed!\n",
+                                command);
+                       return 1;
+               }
+        }
+
+        return 0;
+}
+
+
 LOCAL pthread_t load_plugin (const char *plugin_name)
 {
         void *pluginhandle = INITPTR;
@@ -296,7 +327,7 @@ int main (int argc, char *argv[], char *envp[])
                         help_flag,
                         version_flag,
                         retval;
-        DLList         *modulelist;
+        DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
         pthread_t       plugin_thread[10];
         void *tmp;
@@ -326,10 +357,12 @@ int main (int argc, char *argv[], char *envp[])
 			{"version", no_argument, &version_flag, 1},
 			{"info", required_argument, NULL, 'i'},
                         {"execute", required_argument, NULL, 'x'},
+			{"slave", required_argument, NULL, 's'},
                         {"plugin",required_argument, NULL,'p'},
 		};
 
         modulelist = dl_list_create();
+	slavelist = dl_list_create();
 	work_module_item = DLListNULLIterator;
 	oper_mode = no_cui_flag = help_flag = version_flag = cont_flag = 0;
         retval = exit_flag = 0;
@@ -339,7 +372,7 @@ int main (int argc, char *argv[], char *envp[])
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
      
-		c = getopt_long (argc, argv, "nchvi:x:",
+		c = getopt_long (argc, argv, "nchvi:x:s:",
 				 min_options, &option_index);
      
 		/* Detect the end of the options. */
@@ -379,6 +412,9 @@ int main (int argc, char *argv[], char *envp[])
                 case 'p':
                         tx_c_copy (plugin,optarg);
                         break;
+		case 's':
+			dl_list_add (slavelist, optarg);
+			break;
 		default:
 			abort ();
              }
@@ -421,10 +457,13 @@ int main (int argc, char *argv[], char *envp[])
 
 	if (no_cui_flag) {
 		in = &in_str;
+		out = &out_str;
+		eapi_init (in, out);
 
 		ec_start_modules();
-		if ( add_command_line_modules (modulelist))
-			exit (1);
+		if (add_command_line_modules (modulelist) ||
+		    add_ip_slaves (slavelist))
+			exit (-1);
 		while (cont_flag == 0) {
 			cont_flag = 1;
 			usleep (500000);
@@ -454,12 +493,13 @@ int main (int argc, char *argv[], char *envp[])
                 } while (c3!=NULL);
                 tx_destroy (&plugin);
 
-		if (add_command_line_modules (modulelist))
-			exit (1);
-
+		if (add_command_line_modules (modulelist) ||
+		    add_ip_slaves (slavelist))
+			exit (-1);
+		
 	        pthread_join (plugin_thread[0], &tmp);
         }
-
+	
         dl_list_free (&modulelist);
 
         return retval;

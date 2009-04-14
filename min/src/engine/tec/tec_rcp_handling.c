@@ -52,6 +52,7 @@ extern char    *strcasestr (__const char *__haystack, __const char *__needle);
 /** List containing association data for master - slave system
 (slave_info structures)*/
 DLList         *ms_assoc;
+DLList         *EXTIF_received_data;
 #ifdef MIN_EXTIF
 min_case_complete_func original_complete_callback;
 #endif
@@ -92,6 +93,8 @@ LOCAL int       handle_remote_cancel (MinItemParser * extif_message,
 LOCAL int       splithex (char *hex, int *dev_id, int *case_id);
 LOCAL int       handle_remote_sendreceive (MinItemParser * extif_message,
                                            int dev_id);
+LOCAL slave_info *find_slave_by_he (struct hostent *he, DLListIterator *itp);
+
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 void            master_report (int run_id, int execution_result,
@@ -160,7 +163,8 @@ LOCAL int get_id_from_slavename (char *slavename)
                         work_slave_entry =
                             (slave_info *) dl_list_data (work_slave_item);
                         if (strcasecmp
-                            (work_slave_entry->slave_name_, slavename) == 0) {
+                            (tx_share_buf (work_slave_entry->slave_name_),
+			     slavename) == 0) {
                                 retval = work_slave_entry->slave_id_;
                                 break;
                         }
@@ -786,14 +790,10 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                         slave_entry =
                             (slave_info *) dl_list_data (slave_entry_item);
                         MIN_DEBUG (" slave: %d, %s", slave_entry->slave_id_,
-                                    slave_entry->slave_name_);
+				   tx_share_buf (slave_entry->slave_name_));
                         if (slave_entry->slave_id_ == 0) {
-                                slave_name =
-                                    NEW2 (char,
-                                          strlen (slave_entry->slave_name_) +
-                                          1);
-                                sprintf (slave_name, "%s",
-                                         slave_entry->slave_name_);
+                                slave_name = tx_get_buf 
+					(slave_entry->slave_name_);
                                 break;
                         }
                         slave_entry_item = dl_list_next (slave_entry_item);
@@ -939,7 +939,65 @@ LOCAL int extif_msg_handle_reserve (MinItemParser * extif_message)
         return 0;
 }
 
+LOCAL slave_info *find_slave_by_he (struct hostent *he, DLListIterator *itp)
+{
+       DLListIterator it;
+       slave_info *ips;
+ 
+       *itp = INITPTR;
+
+       for (it = dl_list_head (ms_assoc); it != INITPTR;
+            it = dl_list_next (it)) {
+               ips = dl_list_data (it);
+               if (!memcmp (he, &ips->he_, sizeof (struct hostent)))  {
+                       *itp = it;
+                       return ips;
+               }
+       }
+       
+       return INITPTR;
+}
+
+/*---------------------------------------------------------------------------*/
+/** Function called to intitialize rcp handling
+ */
+void rcp_handling_init ()
+{
+       ms_assoc = dl_list_create();
+       EXTIF_received_data = dl_list_create();
+}
+/*---------------------------------------------------------------------------*/
+/** Clean up
+ */
+void rcp_handling_cleanup ()
+{
+        DLListIterator  work_slave_item;
+        DLListIterator  work_data_item;
+        received_data  *work_data_entry;
+
+        log_summary_stdout ();
+        work_slave_item = dl_list_head (ms_assoc);
+        while (work_slave_item != DLListNULLIterator) {
+                dl_list_remove_it (work_slave_item);
+                work_slave_item = dl_list_head (ms_assoc);
+        }
+        dl_list_free (&ms_assoc);
+
+        work_data_item = dl_list_head (EXTIF_received_data);
+        while (work_data_item != DLListNULLIterator) {
+                work_data_entry =
+                    (received_data *) dl_list_data (work_data_item);
+                DELETE (work_data_entry);
+                dl_list_remove_it (work_data_item);
+		work_data_item = dl_list_head (EXTIF_received_data);
+        }
+        dl_list_free (&EXTIF_received_data);
+
+}
+
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
+
+
 /** Function called to send external controller message to master device.
  * @param tc_id id of slave's test case
  * @param msg NULL-terminated string containing body of message 
@@ -965,10 +1023,10 @@ void send_to_master (int tc_id, char *msg)
 
 /*---------------------------------------------------------------------------*/
 /** Function called to send external controller message to master device.
- *  @param slave_name NULL-terminated string containing slave's name
+ * @param slave_name NULL-terminated string containing slave's name
  * @param tc_id id of slave's test case
  * @param msg NULL-terminated string containing body of message 
- * (everything following adresses)
+ *        (everything following adresses)
  */
 void
 send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
@@ -983,7 +1041,8 @@ send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
         slave_entry_item = dl_list_head (ms_assoc);
         while (slave_entry_item != DLListNULLIterator) {
                 slave_entry = (slave_info *) dl_list_data (slave_entry_item);
-                if (strcmp (slave_name, slave_entry->slave_name_) == 0) {
+                if (strcmp (slave_name, 
+			    tx_share_buf (slave_entry->slave_name_)) == 0) {
                         slave_id = slave_entry->slave_id_;
                         break;
                 }
@@ -1076,7 +1135,7 @@ int ec_msg_ms_handler (MsgBuffer * message)
                    TMC, so that we can forward IPC messages correctly */
                 own_id = message->sender_;
                 slave_entry = NEW (slave_info);
-                sprintf (slave_entry->slave_name_, "%s", message->message_);
+		slave_entry->slave_name_ = tx_create (message->message_);
                 slave_entry->slave_id_ = 0;
                 dl_list_add (ms_assoc, (void *)slave_entry);
                 sprintf (extifmessage, "phone");
@@ -1236,6 +1295,65 @@ master_report (int run_id, int execution_result, int test_result, char *desc)
         } else
                 ok_to_break = ESTrue;
         DELETE (extifmessage);
+}
+
+/* ------------------------------------------------------------------------- */
+/** Adds a new entry to pool of ip slaves
+ *  @param he host address information
+ *  @param slavetype type of the slave e.g. "phone"
+ *  @return 0 on success, 1 on error
+ */
+int tec_add_ip_slave_to_pool (struct hostent *he, char *slavetype)
+{
+       slave_info *slave;
+       DLListIterator it;
+       
+       if (find_slave_by_he (he, &it) != INITPTR) {
+               MIN_WARN ("Slave already registered");
+               return 1;
+       }
+       slave = NEW(slave_info);
+       slave->reserved_ = 0;
+       memcpy (&slave->he_, he, sizeof (struct hostent));
+       slave->slave_name_ = tx_create (slavetype);
+       slave->fd_ = -1;
+       
+       dl_list_add (ms_assoc, slave);
+
+       return 0;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/** Deletes entry from the pool of ip slaves
+ *  @param he host address information
+ *  @param slavetype type of the slave e.g. "phone"
+ *  @return 0 on success, 1 on error
+ */
+int tec_del_ip_slave_from_pool (struct hostent *he, char *slavetype)
+{
+       slave_info *slave;
+       DLListIterator it;
+
+       if (ms_assoc == INITPTR)
+               return 1;
+       
+       slave = find_slave_by_he (he, &it); 
+       if (slave == INITPTR) {
+               MIN_WARN ("slave not found");
+               return 1;
+       }
+       
+       dl_list_remove_it (it);
+       
+       if (slave->reserved_) {
+               MIN_WARN ("slave still reserved");
+       }
+
+       tx_destroy (&slave->slave_name_);
+       DELETE (slave);
+
+       return 0;
 }
 
 /* ================= TESTS FOR LOCAL FUNCTIONS ============================= */

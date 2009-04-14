@@ -33,7 +33,10 @@
 #include <min_logger.h>
 #include <data_api.h>
 #include <min_engine_api.h>
+
 #include <dirent.h>
+#include <netdb.h>
+#include <sys/socket.h>
 
 /* ----------------------------------------------------------------------------
  * GLOBAL VARIABLES
@@ -466,6 +469,24 @@ LOCAL int eapi_receive_rcp (char *message, int length)
 
 /* ------------------------------------------------------------------------- */
 
+LOCAL int eapi_register_slave (char *host, char *slavetype)
+{
+       struct hostent *he;
+
+       he = gethostbyname (host);
+       if (he == NULL) {
+               MIN_WARN ("failed to resolve host %s: %s",
+                         strerror (h_errno));
+               return 1;
+       }
+       
+
+       return tec_add_ip_slave_to_pool (he, slavetype ? slavetype : "phone");
+}
+
+/* ------------------------------------------------------------------------- */
+
+
 /* ======================== FUNCTIONS ====================================== */
 
 void eapi_init (eapiIn_t *inp, eapiOut_t *out)
@@ -486,7 +507,8 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 	out->min_open           = eapi_open;
         out->query_test_modules = eapi_query_test_modules;
         out->query_test_files   = eapi_query_test_files;
-	
+
+	out->register_slave     = eapi_register_slave;
 	out->receive_rcp        = eapi_receive_rcp;
 }
 

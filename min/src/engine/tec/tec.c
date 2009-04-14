@@ -59,9 +59,7 @@ DLList   *available_modules = INITPTR;   /*list of available test modules */
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
  */
-extern DLList  *ms_assoc;
-extern DLList  *EXTIF_received_data;
-
+/* None */
 
 /* ---------------------------------------------------------------------------
  * EXTERNAL FUNCTION PROTOTYPES
@@ -2423,10 +2421,6 @@ void ec_min_init (char *envp_[], int operation_mode)
 
 	MIN_DEBUG ("available_modules %x", available_modules);
         /* results = dl_list_create ( ); */
-#ifdef MIN_EXTIF
-        ms_assoc = dl_list_create ();
-        EXTIF_received_data = dl_list_create ();
-#endif
         if ((available_modules == INITPTR)
             || (instantiated_modules == INITPTR)
             || (selected_cases == INITPTR) || (results == INITPTR)) {
@@ -2445,6 +2439,7 @@ void ec_min_init (char *envp_[], int operation_mode)
                 exit (0);
         }
         event_system_init ();
+	rcp_handling_init ();
 
 
         /*start modules */
@@ -2568,13 +2563,13 @@ int ec_pause_test_case (DLListIterator work_case_item)
 
 
 /** Function called by UI to resume execution of previously paused case:
-* @param work_case_item pointer to dl_list_item containing selected test case
-* @return : result of operation: 0 if message was sent successfully, 
-*                               -1 in case of data or message queue error,
-*                               -2 if case was not paused, 
-*                               -3 if case is not running (not started or
-*                                  already finished).
-*/
+ * @param work_case_item pointer to dl_list_item containing selected test case
+ * @return : result of operation: 0 if message was sent successfully, 
+ *                               -1 in case of data or message queue error,
+ *                               -2 if case was not paused, 
+ *                               -3 if case is not running (not started or
+ *                                  already finished).
+ */
 int ec_resume_test_case (DLListIterator work_case_item)
 {
         DLListIterator  work_module_item;
@@ -2640,11 +2635,6 @@ int ec_abort_test_case (DLListIterator work_case_item)
 void ec_cleanup ()
 {
         long            address;
-#ifdef MIN_EXTIF
-        DLListIterator  work_slave_item;
-        DLListIterator  work_data_item;
-        received_data  *work_data_entry;
-#endif
         DLListIterator  work_module_item;
         DLListIterator  work_module_item2;
         DLListIterator  work_case_item;
@@ -2655,24 +2645,8 @@ void ec_cleanup ()
         event_system_cleanup ();
 #ifdef MIN_EXTIF
         log_summary_stdout ();
-        work_slave_item = dl_list_head (ms_assoc);
-        while (work_slave_item != DLListNULLIterator) {
-                dl_list_remove_it (work_slave_item);
-                work_slave_item = dl_list_head (ms_assoc);
-        }
-        dl_list_free (&ms_assoc);
-
-        work_data_item = dl_list_head (EXTIF_received_data);
-        while (work_data_item != DLListNULLIterator) {
-                work_data_entry =
-                    (received_data *) dl_list_data (work_data_item);
-                DELETE (work_data_entry);
-                dl_list_remove_it (work_data_item);
-                work_data_item = dl_list_head (EXTIF_received_data);
-        }
-        dl_list_free (&EXTIF_received_data);
-
 #endif
+	rcp_handling_cleanup ();
         work_module_item = dl_list_head (instantiated_modules);
 	/*shutdown all running tmcs and free list*/
         while (work_module_item != DLListNULLIterator) {

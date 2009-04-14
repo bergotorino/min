@@ -224,6 +224,12 @@ typedef struct {
 	** returns 0 on success 1 on error
 	*/
 	int (*receive_rcp) (char *message, int length);
+	/* --------------------------------------------------------------------
+	** Register slave device
+	**
+	** returns 0 on success 1 on error
+	*/
+	int (*register_slave) (char *host, char *slavetype);
 } eapiOut_t;
 
 /* ----------------------------------------------------------------------------
