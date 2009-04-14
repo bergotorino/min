@@ -1,3 +1,8 @@
+mindbusplugin (2009w16) unstable; urgency=low
+  * Third release - no changes since previous version.
+
+ -- Konrad Marek Zapalowicz <ext-konrad.zapalowicz@nokia.com>  Wed,    14 April 2009 13:50:17 +0100
+
 mindbusplugin (2009w13) unstable; urgency=low
   * Second release
   * Fixed: Wrong number of parameters to the case_result

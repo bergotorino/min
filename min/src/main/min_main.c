@@ -483,11 +483,11 @@ int main (int argc, char *argv[], char *envp[])
                 do {
                         c3 = strchr (c2,':');
                         if (c3!=NULL) (*c3) = '\0';
-                        plugin_thread[num_of_plugins] = load_plugin(c2);
+                        plugin_thread[0] = load_plugin(c2);
                         num_of_plugins++;
                         /* Multiple plugins not supported yet by engine.
                          * FIXME: remove in future following line. */
-                        if (num_of_plugins>0) break;
+                        break;
                         if (c3==NULL) break;
                         c2 = c3+1;
                 } while (c3!=NULL);

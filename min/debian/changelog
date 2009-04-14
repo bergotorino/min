@@ -1,3 +1,10 @@
+min (2009w16) unstable; urgency=low
+  * Sixth MIN Release
+  * Added: ip slave registration to MIN Engine API and a pool of slaves to Engine
+  * Added: usability changes to MIN
+
+ -- Konrad Marek Zapalowicz <ext-konrad.zapalowicz@nokia.com>  Tue,   14 April 2009 13:50:17 +0100
+
 min (2009w13) unstable; urgency=low
   * Fifth MIN Release
   * Fixed: run keyword in scripter does not accept full path, only filename
