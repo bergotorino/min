@@ -452,15 +452,15 @@ int main (int argc, char *argv[], char *envp[])
                 exit (0);
         }
 
-        /* Perform application start-up */
-        ec_min_init (envp, oper_mode);
+
 
 	if (no_cui_flag) {
-		in = &in_str;
-		out = &out_str;
-		eapi_init (in, out);
-
-		ec_start_modules();
+                in = &in_str;
+                out = &out_str;
+                eapi_init (in, out);
+                /* Perform application start-up */
+                ec_min_init (envp, oper_mode);
+                ec_start_modules();
 		if (add_command_line_modules (modulelist) ||
 		    add_ip_slaves (slavelist))
 			exit (-1);
@@ -492,6 +492,10 @@ int main (int argc, char *argv[], char *envp[])
                         c2 = c3+1;
                 } while (c3!=NULL);
                 tx_destroy (&plugin);
+
+                /* Perform application start-up */
+                ec_min_init (envp, oper_mode);
+                ec_start_modules();
 
 		if (add_command_line_modules (modulelist) ||
 		    add_ip_slaves (slavelist))

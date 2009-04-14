@@ -2121,11 +2121,12 @@ LOCAL void start_test_set_sequentially ()
 {
 	CUICaseData *c;
 	DLListIterator it;
-	
+
 	groupid ++;
 	for (it = dl_list_head (test_set); it != INITPTR;
 	     it = dl_list_next (it)) {
 		c  = (CUICaseData*)dl_list_data(it);
+                if (c==INITPTR) continue;
 		if (min_clbk_.start_case) min_clbk_.start_case (c->moduleid_,
 							        c->caseid_,
 								groupid);
