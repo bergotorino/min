@@ -132,6 +132,10 @@ LOCAL void display_help ()
                 "[:configuration_file:... ]\n\t\t\t"
                 "\tExecute test cases from test_module "
                 "(with configuration file(s))\n");
+        printf (" -p,  --plugin plugin"
+                "[:plugin2:... ]\n\t\t\t"
+                "\tLoad input plugin for MIN, by default cui plugin "
+                "is loaded\n");
         printf ("\nReport bugs to:\n");
         printf ("DG.MIN-Support@nokia.com\n");
 }
@@ -230,22 +234,88 @@ LOCAL int add_command_line_modules (DLList * modulelist)
         return 0;
 }
 
+LOCAL pthread_t load_plugin (const char *plugin_name)
+{
+        void *pluginhandle = INITPTR;
+        void (*pl_attach) (eapiIn_t **out_callback, 
+		           eapiOut_t *in_callback);
+        void (*pl_open) (void *arg);
+        pthread_t plugin_thread;
+        void *tmp = INITPTR;
+        int retval = 0;
+
+        /* Construct plugin name */
+        Text *plugin = tx_create("/usr/lib/min/min_");
+        tx_c_append(plugin,plugin_name);
+        tx_c_append(plugin,".so");
+
+        /* Load plugin and resolve functions from Plugin API */
+        pluginhandle = dlopen(tx_share_buf(plugin),RTLD_NOW);
+        if (!pluginhandle) {
+                printf ("Error opening plugin %s\n", dlerror());
+                exit (-1);
+        }
+        pl_attach = dlsym (pluginhandle, "pl_attach_plugin");
+        pl_open = dlsym (pluginhandle, "pl_open_plugin");
+        if (!pl_attach || !pl_open) {
+                printf ("Error opening plugin %s\n", dlerror());
+                exit (-1);
+        }
+
+        /* Initialize Eapi/Attach the plugin */
+        in  = &in_str;
+        out = &out_str;
+        pl_attach (&in, out);
+        eapi_init (in, out);
+        pl_attach (&in, out);
+
+        /* Run the plugin */
+        retval = pthread_create (&plugin_thread, NULL, (void *)pl_open,
+                                 &tmp);
+
+        /* In this fancy way we do display legal and contact information on
+         * consoleUI. */
+        if (in->error_report) {
+                usleep (100000);
+                in->error_report ("Contact: Antti Heimola, "
+                                  "DG.MIN-Support@nokia.com");
+                in->error_report ("licensed under the Gnu General "
+                                  "Public License version 2,");
+                in->error_report ("MIN Test Framework, (c) Nokia 2008,"
+                                  " All rights reserved,");
+        }
+
+        return plugin_thread;
+}
 
 /* ------------------------------------------------------------------------- */
 int main (int argc, char *argv[], char *envp[])
 {
         int             cont_flag, status, c, oper_mode, exit_flag;
-        int             no_cui_flag, help_flag, version_flag, retval;
+        int             no_cui_flag,
+                        help_flag,
+                        version_flag,
+                        retval;
         DLList         *modulelist;
         DLListIterator  work_module_item;
-        pthread_t       plugin_thread;
+        pthread_t       plugin_thread[10];
         void *tmp;
-        void (*plugin_attach) (eapiIn_t **out_callback, 
-			       eapiOut_t *in_callback);
+        char *c2 = INITPTR;
+        char *c3 = INITPTR;
+        unsigned int num_of_plugins = 0;
+        Text *plugin = tx_create("cui");
+        FILE *fp = INITPTR;
+        int ii=0;
 
-        void (*plugin_open) (void *arg);
-        void *pluginhandle;
-
+        /* Detect if DBus plugin has been installed */
+        /* To be included in the future when engine can
+         * hande multiple plugins.
+         * INFO: removed due to problems with exiting min
+        fp = fopen("/usr/lib/min/min_dbus.so","r");
+        if (fp) {
+                tx_c_prepend (plugin,"dbus:");
+                fclose (fp);
+        }*/
 
 	struct option min_options[] =
 		{
@@ -255,6 +325,7 @@ int main (int argc, char *argv[], char *envp[])
 			{"version", no_argument, &version_flag, 1},
 			{"info", required_argument, NULL, 'i'},
                         {"execute", required_argument, NULL, 'x'},
+                        {"plugin",required_argument, NULL,'p'},
 		};
 
         modulelist = dl_list_create();
@@ -262,7 +333,7 @@ int main (int argc, char *argv[], char *envp[])
 	oper_mode = no_cui_flag = help_flag = version_flag = cont_flag = 0;
         retval = exit_flag = 0;
         
-
+        /* Detect commandline arguments */
 	while (1) {
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
@@ -304,11 +375,15 @@ int main (int argc, char *argv[], char *envp[])
                         test_module_info (optarg);
                         exit_flag = 1;
                         break;
+                case 'p':
+                        tx_c_copy (plugin,optarg);
+                        break;
 		default:
 			abort ();
              }
         }
 
+        /* Handle options. */
 	if (!no_cui_flag) {
 		display_license();
 	}
@@ -340,10 +415,12 @@ int main (int argc, char *argv[], char *envp[])
                 exit (0);
         }
 
+        /* Perform application start-up */
+        ec_min_init (envp, oper_mode);
+
 	if (no_cui_flag) {
 		in = &in_str;
 
-		ec_min_init (envp, oper_mode);
 		ec_start_modules();
 		if ( add_command_line_modules (modulelist))
 			exit (1);
@@ -361,35 +438,26 @@ int main (int argc, char *argv[], char *envp[])
 		}
 		retval = ext_if_exec ();
 	} else {
-		pluginhandle = dlopen ("/usr/lib/min/min_cui.so", RTLD_NOW);
-		if (!pluginhandle) {
-			printf ("Error opening plugin %s\n", dlerror());
-			exit (-1);
-		}
-		plugin_attach = dlsym (pluginhandle, "pl_attach_plugin");
-		plugin_open = dlsym (pluginhandle, "pl_open_plugin");
-		in = &in_str;
-		out = &out_str;
-		eapi_init (in, out);
-		plugin_attach (&in, out);
-		ec_min_init (envp, oper_mode);
-                retval = pthread_create (&plugin_thread, NULL, (void *)plugin_open,
-					 &tmp);
-		if (in->error_report) {
-			usleep (100000);
-			in->error_report ("Contact: Antti Heimola, "
-					  "DG.MIN-Support@nokia.com");
-			in->error_report ("licensed under the Gnu General "
-					  "Public License version 2,");
-			in->error_report ("MIN Test Framework, (c) Nokia 2008,"
-					  " All rights reserved,");
-			
-		}
+
+                c2 = tx_get_buf(plugin);
+                do {
+                        c3 = strchr (c2,':');
+                        if (c3!=NULL) (*c3) = '\0';
+                        plugin_thread[num_of_plugins] = load_plugin(c2);
+                        num_of_plugins++;
+                        /* Multiple plugins not supported yet by engine.
+                         * FIXME: remove in future following line. */
+                        if (num_of_plugins>0) break;
+                        if (c3==NULL) break;
+                        c2 = c3+1;
+                } while (c3!=NULL);
+                tx_destroy (&plugin);
+
 		if (add_command_line_modules (modulelist))
 			exit (1);
-		pthread_join (plugin_thread, &tmp);
-        }
 
+	        pthread_join (plugin_thread[0], &tmp);
+        }
 
         dl_list_free (&modulelist);
 

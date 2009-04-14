@@ -38,6 +38,17 @@
 /* ----------------------------------------------------------------------------
  * MACROS
  */
+
+#define MINAPI_PLUGIN_CALL(fname,fcall) \
+        do { \
+                DLListIterator it = dl_list_head(get_plugin_list()); \
+                while (it!=DLListNULLIterator) { \
+                        if ( ((eapiIn_t*)dl_list_data(it))->fname ) { \
+                                ((eapiIn_t*)dl_list_data(it))->fcall; \
+                        } \
+                        it = dl_list_next(it); \
+                } \
+        } while(0);
 /* ----------------------------------------------------------------------------
  * DATA TYPES
  */
@@ -223,6 +234,11 @@ typedef struct {
  */
 void eapi_init (eapiIn_t *in, eapiOut_t *out);
 
+/** Gets pointer to the plugin list. Used by the MINAPI macro
+ */
+DLList* get_plugin_list();
+
+DLListIterator* get_it();
 /* -------------------------------------------------------------------------*/
 
 #endif                          /* MIN_ENGINE_API_H */

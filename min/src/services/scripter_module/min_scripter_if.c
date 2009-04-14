@@ -1970,6 +1970,9 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         MsgBuffer       input_buffer;
         ScriptVar      *var;
         ScriptedTestProcessDetails *stpd;
+        Text           *cfgdefault;
+        char *dir = INITPTR;
+        char *file = INITPTR;
 
         if (cfg_file == INITPTR) {
                 errno = EINVAL;
@@ -1998,14 +2001,21 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         path = NEW2 (char, strlen (cfg_file) + 1);
         STRCPY (path, cfg_file, strlen (cfg_file) + 1);
         c = strrchr (path, '/');
-        if (c == NULL)
-                c = path;
+        if (c == NULL) {
+                cfgdefault = tx_create(getenv("HOME"));
+                tx_c_append(cfgdefault,"/.min");
+                c = tx_share_buf(cfgdefault);
+                dir = c;
+                file=path;
+        }
         else {
                 *c = '\0';
                 c++;
+                dir=path;
+                file=c;
         }
 
-        sp = mp_create (path, c, ENoComments);
+        sp = mp_create (dir, file, ENoComments);
         if (sp == INITPTR) {
 		SCRIPTER_RTERR_ARG("Min Parser failed to create", c);
                 MIN_ERROR ("Min Parser failed to initialize, params: [%s][%s]",

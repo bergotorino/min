@@ -39,7 +39,10 @@
  * GLOBAL VARIABLES
  */
 DLList *modules;
-eapiIn_t *in;
+//eapiIn_t *in;
+
+DLList *plugins = INITPTR;
+DLListIterator *it = DLListNULLIterator;
 
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
@@ -62,7 +65,7 @@ extern pthread_mutex_t tec_mutex_;
  */
 /* None */
 
-
+        
 /* ----------------------------------------------------------------------------
  * LOCAL CONSTANTS AND MACROS
  */
@@ -92,6 +95,9 @@ LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid);
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 
+
+/* ------------------------------------------------------------------------- */
+
 LOCAL int eapi_add_test_module (char *modulepath)
 {
         test_module_info_s *modinfo = INITPTR;
@@ -99,13 +105,12 @@ LOCAL int eapi_add_test_module (char *modulepath)
 
         modinfo = tm_create (modulepath, INITPTR, 0);
         if (tm_add (modules, modinfo) != INITPTR) {
-                if (in->new_module) {
-                        in->new_module (modulepath, modinfo->module_id_);
-                }
+                MINAPI_PLUGIN_CALL(new_module,new_module(modulepath,
+                                              modinfo->module_id_));
 		ret = 0;
         } else {
                 MIN_WARN ("failed to add module");
-                if (in->no_module)  in->no_module (modulepath);
+                MINAPI_PLUGIN_CALL(no_module,no_module(modulepath));
         }
                 
         return ret;
@@ -465,7 +470,8 @@ LOCAL int eapi_receive_rcp (char *message, int length)
 
 void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 {
-        in = inp;
+        if (plugins==INITPTR) plugins = dl_list_create();
+        dl_list_add(plugins,(void*)inp);
 
         modules = dl_list_create();        
         out->add_test_module    = eapi_add_test_module;
@@ -484,7 +490,19 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 	out->receive_rcp        = eapi_receive_rcp;
 }
 
+/* ------------------------------------------------------------------------- */
 
+DLList* get_plugin_list()
+{
+        return plugins;
+}
+
+DLListIterator* get_it()
+{
+        return &it;
+}
+
+/* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
 

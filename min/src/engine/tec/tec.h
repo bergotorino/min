@@ -39,6 +39,8 @@
 #include <min_test_event_if.h>
 #include <min_parser.h>
 #include <tec_rcp_handling.h>
+#include <min_engine_api.h>
+#include <dllist.h>
 /* ----------------------------------------------------------------------------
  * CONSTANTS
  */
