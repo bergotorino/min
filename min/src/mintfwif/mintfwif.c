@@ -95,6 +95,7 @@ tfwif_callbacks_s tfwif_callbacks;
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
 
+int already_executed = 0;
 eapiOut_t min_clbk_;
 eapiIn_t *in;
 /* ------------------------------------------------------------------------- */
@@ -167,10 +168,13 @@ int min_if_open (min_case_complete_func complete_cb,
 	if (tfwif_modules_ == INITPTR)
 		tfwif_modules_ = dl_list_create();
 
-	in = &in_str;
-	eapi_init (in, &min_clbk_);
-	pl_attach_plugin (&in, &min_clbk_);
-	ec_min_init (envp, 1);
+        if (!already_executed) {
+                in = &in_str;
+                eapi_init (in, &min_clbk_);
+                pl_attach_plugin (&in, &min_clbk_);
+                ec_min_init (envp, 1);
+                already_executed++;
+        }
 
 	module_count = min_clbk_.min_open();
 	while (module_count > ready_module_count_) {
