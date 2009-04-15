@@ -171,10 +171,10 @@ int min_if_open (min_case_complete_func complete_cb,
         if (!already_executed) {
                 in = &in_str;
                 eapi_init (in, &min_clbk_);
-                pl_attach_plugin (&in, &min_clbk_);
-                ec_min_init (envp, 1);
-                already_executed++;
         }
+	pl_attach_plugin (&in, &min_clbk_);
+	ec_min_init (envp, 1);
+	already_executed++;
 
 	module_count = min_clbk_.min_open();
 	while (module_count > ready_module_count_) {
