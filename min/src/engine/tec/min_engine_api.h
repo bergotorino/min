@@ -26,6 +26,8 @@
 #ifndef MIN_ENGINE_API_H
 #define MIN_ENGINE_API_H
 
+#include <dllist.h>
+
 /* ----------------------------------------------------------------------------
  * INCLUDES 
  */
