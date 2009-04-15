@@ -1,5 +1,6 @@
 METASOURCES = AUTO
 INCLUDES = -I. -I.. -I../.. -I../../min -I../../min/src/in_plugins \
+	-I../../min/src/engine/tec \
 	-I/usr/include/glib-2.0 \
 	-I/usr/lib/glib-2.0/include \
 	-I/usr/include/dbus-1.0 \
