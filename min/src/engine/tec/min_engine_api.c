@@ -37,7 +37,7 @@
 #include <dirent.h>
 #include <netdb.h>
 #include <sys/socket.h>
-
+#include <assert.h>
 /* ----------------------------------------------------------------------------
  * GLOBAL VARIABLES
  */
@@ -46,7 +46,7 @@ DLList *modules;
 
 DLList *plugins = INITPTR;
 DLListIterator it = DLListNULLIterator;
-
+static int open;
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
  */
@@ -249,6 +249,8 @@ LOCAL int eapi_error (const char *what, const char *msg)
 LOCAL int eapi_open ()
 {
         MIN_DEBUG ("Opening");
+	assert (open == 0);
+	open = 1;
 	return ec_start_modules();
 }
 
@@ -260,6 +262,7 @@ LOCAL int eapi_close (char *what, char *msg)
         MIN_DEBUG ("Closing");
 	ec_cleanup();
         MIN_DEBUG ("Closed");
+	open = 0;
 	return 0;
 }
 

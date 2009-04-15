@@ -219,6 +219,7 @@ int log_summary_stdout ()
         DLListIterator  mod_it, case_it;
         filename_t      mod_name;
         int             num_failed = 0;
+
         min_test_report_begin ();
 
         for (mod_it = dl_list_head (available_modules);
@@ -2641,11 +2642,8 @@ void ec_cleanup ()
         DLListIterator  work_case_item2;
         test_case_s    *work_case = INITPTR;
         DLList         *work_list;
-
+	
         event_system_cleanup ();
-#ifdef MIN_EXTIF
-        log_summary_stdout ();
-#endif
 	rcp_handling_cleanup ();
         work_module_item = dl_list_head (instantiated_modules);
 	/*shutdown all running tmcs and free list*/
@@ -2719,6 +2717,7 @@ void ec_cleanup ()
         /* This sleep period allows for handling of all sent messages before
 	 * destroying message queue 
 	 */
+
         usleep (50000);
         sm_destroy (ec_settings.sh_mem_id_);
         mq_close_queue (mq_id);

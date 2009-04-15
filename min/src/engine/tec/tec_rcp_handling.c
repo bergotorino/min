@@ -974,6 +974,7 @@ void rcp_handling_cleanup ()
         DLListIterator  work_slave_item;
         DLListIterator  work_data_item;
         received_data  *work_data_entry;
+	MIN_DEBUG (">>");
 
         log_summary_stdout ();
         work_slave_item = dl_list_head (ms_assoc);
@@ -992,6 +993,7 @@ void rcp_handling_cleanup ()
 		work_data_item = dl_list_head (EXTIF_received_data);
         }
         dl_list_free (&EXTIF_received_data);
+	MIN_DEBUG ("<<");
 
 }
 
