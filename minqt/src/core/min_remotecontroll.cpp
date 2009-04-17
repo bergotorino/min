@@ -31,6 +31,7 @@ Min::RemoteControll::RemoteControll()
                                         "org.maemo.MIN"))
     , obj_("org.maemo.MIN","/Min",bus_)
 {
+    // 1. Do error checking
     if (!bus_.isConnected()) {
         qDebug("Error: %s",bus_.lastError().message().toStdString().c_str());
     }
@@ -39,9 +40,44 @@ Min::RemoteControll::RemoteControll()
         qDebug("Error: %s",obj_.lastError().message().toStdString().c_str());
     }
 
-    // connect signals
+    // 2. Connect signals
+    connect (&obj_,SIGNAL(min_case_msg(qulonglong, const QString &)),
+            this,SLOT(minCaseMsg(qulonglong, const QString &)));
+
+    connect (&obj_,SIGNAL(min_case_paused(qulonglong)),
+            this,SLOT(minCasePaused(qulonglong)));
+
+    connect (&obj_,SIGNAL(min_case_result(qulonglong, int, const QString &,
+                                            qulonglong, qulonglong)),
+            this,SLOT(minCaseResult(qulonglong, int, const QString &,
+                                    qulonglong, qulonglong)));
+
+    connect (&obj_,SIGNAL(min_case_resumed(qulonglong)),
+            this,SLOT(minCaseResumed(qulonglong)));
+
+    connect (&obj_,SIGNAL(min_case_started(uint, uint, qulonglong)),
+            this,SLOT(minCaseStarted(uint, uint, qulonglong)));
+
+    connect (&obj_,SIGNAL(min_module_ready(uint)),
+            this,SLOT(minModuleReady(uint)));
+
     connect (&obj_,SIGNAL(min_new_module(const QString &, uint)),
             this,SLOT(minNewModule(const QString &, uint)));
+
+    connect (&obj_,SIGNAL(min_new_test_case(uint, uint, const QString &)),
+            this,SLOT(minNewTestCase(uint, uint, const QString &)));
+
+    connect (&obj_,SIGNAL(min_no_module(const QString &)),
+            this,SLOT(minNoModule(const QString &)));
+
+    connect (&obj_,SIGNAL(min_test_files(const QString &)),
+            this,SLOT(minTestFiles(const QString &)));
+            
+    connect (&obj_,SIGNAL(min_test_modules(const QString &)),
+            this,SLOT(minTestModules(const QString &)));
+
+    // 3. Open plugin
+    obj_.min_open();
 }
 // -----------------------------------------------------------------------------
 bool Min::RemoteControll::isValid() const
@@ -51,7 +87,7 @@ bool Min::RemoteControll::isValid() const
 }
 // -----------------------------------------------------------------------------
 Min::RemoteControll::~RemoteControll()
-{ ; }
+{ obj_.min_close(); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseMsg(qulonglong testrunid,
                                     const QString &message)

@@ -38,13 +38,16 @@
 
 int main( int argc, char* argv[] )
 {
+    // 1. Init the application
     QApplication app(argc,argv);
+
+    // 2. Create window
 //    Min::MainWindow mw;
 //    mw.show();
+
+    // 3. Run the application
 //    return app.exec();
    
-//    QCoreApplication app(argc, argv);
-
     Min::RemoteControll rc;
     rc.minAddTestModule("/home/user/.min/Hard.so");
 
