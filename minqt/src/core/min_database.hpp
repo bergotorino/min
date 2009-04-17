@@ -37,7 +37,7 @@ namespace Min
     // ---------------------------------------------------------------------
     class Database
     {
-                public:
+    public:
 	/**
 	 * default constructor
 	 */
@@ -64,7 +64,7 @@ namespace Min
 	 */
         unsigned int insertModule(unsigned int device_dbid,
                                   unsigned int module_id,
-                                  QString module_name);
+                                  const QString &module_name);
 
 	/**
 	 * test case insertion to database
@@ -75,7 +75,7 @@ namespace Min
 	 */
         unsigned int insertTestCase(unsigned int module_dbid,
                                     unsigned int test_case_id,
-                                    QString test_case_title);
+                                    const QString &test_case_title);
 
 	/**
 	 * test run  (an "instance" of test case) insertion to database
@@ -100,7 +100,7 @@ namespace Min
 	 * @ret - ID of printout in database
 	 */
         unsigned int insertPrintout(unsigned int test_run_dbid,
-                                    QString content);
+                                    const QString &content);
 
 	/**
 	 * updates test run information ( of pause, resume etc.)
@@ -117,7 +117,7 @@ namespace Min
                            unsigned long start_time=0,
                            unsigned long end_time=0,
                            int result=0,
-                           QString result_description="");
+                           const QString &result_description="");
 
 	/**
 	 * gets devise ID from database
@@ -128,11 +128,11 @@ namespace Min
         unsigned int getModuleDbId(unsigned int device_id,
                                  unsigned int module_id);
         unsigned int getModuleDbId(unsigned int device_id,
-                                 QString module_name);
+                                 const QString &module_name);
         unsigned int getTestCaseDbId(unsigned int module_id,
                                    unsigned int test_case_id);
         unsigned int getTestCaseDbId(unsigned int module_id,
-                                   QString test_case_name);
+                                   const QString &test_case_name);
         unsigned int getTestRunDbId(unsigned int test_case_id,
                                   unsigned int test_run_pid);
 
@@ -147,7 +147,7 @@ namespace Min
 	 */
         QStringList getTestCases(unsigned int module_dbid);
 
-                private:
+    private:
         bool initDatabase();
         QSqlDatabase db;
 

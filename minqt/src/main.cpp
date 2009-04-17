@@ -31,53 +31,22 @@
 
 // Min includes
 #include "ui/min_mainwindow.hpp"
-#include "core/min_object.hpp.h"
+#include "core/min_remotecontroll.hpp"
 
-#define MIN_SERVICE_NAME     "org.maemo.MIN"
-#define MIN_SERVICE_OBJECT_PATH "/Min"
-#define MIN_SERVICE_INTERFACE "org.maemo.MIN"
 
 // -----------------------------------------------------------------------------
 
 int main( int argc, char* argv[] )
 {
     QApplication app(argc,argv);
-    Min::MainWindow mw;
-    mw.show();
-    return app.exec();
+//    Min::MainWindow mw;
+//    mw.show();
+//    return app.exec();
    
 //    QCoreApplication app(argc, argv);
 
-    // 1. Connect to DBus
-    QDBusConnection bus = QDBusConnection::connectToBus(QDBusConnection::SessionBus,
-                                                        "org.maemo.MIN");
-    if (!bus.isConnected()) {
-        qDebug("Error: %s",bus.lastError().message().toStdString().c_str());
-    } else {
-        qDebug("Connected to bus: org.Maemo.MIN");
-    }
-
-    // 
-    MinObject minobj("org.maemo.MIN","/Min",bus);
-    if (!minobj.isValid()) {
-        qDebug("Error: %s",minobj.lastError().message().toStdString().c_str());
-    } else {
-        qDebug("MinObject created successfully");
-    }
-    minobj.min_open();
-
-
-
-    // 2. Connect to interface
-/*    QDBusConnectionInterface *iface = bus.interface();
-    if (!iface->isValid()) {
-        qDebug("%s",iface->lastError().message().toStdString().c_str());
-    } else {
-        qDebug("Connected to interface: org.Maemo.MIN");
-    }*/
-
-    // 3. Get registered services from interface
-
+    Min::RemoteControll rc;
+    rc.minAddTestModule("/home/user/.min/Hard.so");
 
     return app.exec();
 }

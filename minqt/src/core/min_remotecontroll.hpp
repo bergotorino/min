@@ -33,6 +33,10 @@
 // Min includes
 #include "min_object.hpp.h"
 
+#define MIN_SERVICE_NAME     "org.maemo.MIN"
+#define MIN_SERVICE_OBJECT_PATH "/Min"
+#define MIN_SERVICE_INTERFACE "org.maemo.MIN"
+
 // -----------------------------------------------------------------------------
 /**
  * @namespace Min
@@ -47,6 +51,7 @@ namespace Min
      */
     class RemoteControll: public QObject
     {
+    Q_OBJECT
     public:
         /** Default C++ Constructor. */
         RemoteControll();
@@ -58,6 +63,39 @@ namespace Min
          *  @return true if initialization was success, false otherwise
          */
         bool isValid() const;
+
+    public:
+
+        /**@{ Functionalities of MinObject */
+        void minAbortCase(qulonglong testrunid);
+        void minAddTestCaseFile(uint moduleid, const QString &testcasefile);
+        void minAddTestModule(const QString &modulepath);
+        void minFatalError(const QString &what, const QString &errorstring);
+        void minPauseCase(qulonglong testrunid);
+        void minQueryTestFiles();
+        void minQueryTestModules();
+        void minResumeCase(qulonglong testrunid);
+        void minStartCase(uint moduleid, uint caseid, uint groupid);
+        /**@}*/
+
+    private slots:
+
+        /**@{ Signals from MinObject */
+        void minCaseMsg(qulonglong testrunid, const QString &message);
+        void minCasePaused(qulonglong testrunid);
+        void minCaseResult(qulonglong testrunid, int result,
+                            const QString &desc,
+                            qulonglong starttime, qulonglong endtime);
+        void minCaseResumed(qulonglong testrunid);
+        void minCaseStarted(uint moduleid, uint caseid, qulonglong testrunid);
+        void minModuleReady(uint moduleid);
+        void minNewModule(const QString &modulename, uint moduleid);
+        void minNewTestCase(uint moduleid, uint caseid,
+                            const QString &casetitle);
+        void minNoModule(const QString &modulename);
+        void minTestFiles(const QString &files);
+        void minTestModules(const QString &modules);
+        /**@}*/
 
     private:
         /**@{Declared but nit defined.*/

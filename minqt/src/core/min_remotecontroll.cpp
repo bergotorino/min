@@ -30,7 +30,19 @@ Min::RemoteControll::RemoteControll()
     : bus_(QDBusConnection::connectToBus(QDBusConnection::SessionBus,
                                         "org.maemo.MIN"))
     , obj_("org.maemo.MIN","/Min",bus_)
-{ }
+{
+    if (!bus_.isConnected()) {
+        qDebug("Error: %s",bus_.lastError().message().toStdString().c_str());
+    }
+
+    if (!obj_.isValid()) {
+        qDebug("Error: %s",obj_.lastError().message().toStdString().c_str());
+    }
+
+    // connect signals
+    connect (&obj_,SIGNAL(min_new_module(const QString &, uint)),
+            this,SLOT(minNewModule(const QString &, uint)));
+}
 // -----------------------------------------------------------------------------
 bool Min::RemoteControll::isValid() const
 {
@@ -40,5 +52,95 @@ bool Min::RemoteControll::isValid() const
 // -----------------------------------------------------------------------------
 Min::RemoteControll::~RemoteControll()
 { ; }
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minCaseMsg(qulonglong testrunid,
+                                    const QString &message)
+{
+
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minCasePaused(qulonglong testrunid)
+{
+
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minCaseResult(qulonglong testrunid, int result,
+                    const QString &desc,
+                    qulonglong starttime, qulonglong endtime)
+{
+
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minCaseResumed(qulonglong testrunid)
+{
+
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minCaseStarted(uint moduleid,
+                                        uint caseid,
+                                        qulonglong testrunid)
+{
+    qDebug("Min::RemoteControll::minCaseStarted\n");
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minModuleReady(uint moduleid)
+{
+
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
+{
+    qDebug("Min::RemoteControll::minNewModule\n");
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
+                    const QString &casetitle)
+{
+
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minNoModule(const QString &modulename)
+{
+
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minTestFiles(const QString &files)
+{
+
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minTestModules(const QString &modules)
+{
+
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minAbortCase(qulonglong testrunid)
+{ obj_.min_abort_case (testrunid); }
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minAddTestCaseFile(uint moduleid,
+                                            const QString &testcasefile)
+{ obj_.min_add_test_case_file (moduleid, testcasefile); }
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minAddTestModule(const QString &modulepath)
+{ obj_.min_add_test_module (modulepath); }
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minFatalError(const QString &what,
+                                        const QString &errorstring)
+{ obj_.min_fatal_error (what,errorstring); }
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minPauseCase(qulonglong testrunid)
+{ obj_.min_pause_case (testrunid); }
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minQueryTestFiles()
+{ obj_.min_query_test_files (); }
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minQueryTestModules()
+{ obj_.min_query_test_modules (); }
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minResumeCase(qulonglong testrunid)
+{ obj_.min_resume_case (testrunid); }
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
+{ obj_.min_start_case (moduleid,caseid,groupid); }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08
