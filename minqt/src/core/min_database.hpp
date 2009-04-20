@@ -27,6 +27,9 @@
 #include <QSqlQuery>
 #include <QVariant>
 
+// Min includes
+#include <min_singleton.hpp>
+
 // -----------------------------------------------------------------------------
 /**
  * @namespace Min
@@ -34,8 +37,11 @@
  */
 namespace Min
 {
+    /** Forward declaration and usefull typedef. */
+    class Database; 
+//    typedef Min::Singleton<Database> SDatabase;
     // ---------------------------------------------------------------------
-    class Database
+    class Database: public Min::Singleton<Database>
     {
     public:
 	/**
@@ -148,9 +154,15 @@ namespace Min
         QStringList getTestCases(unsigned int module_dbid);
 
     private:
+        /**@{ Declared but not defined by design. */
+        /** Copy Constructor. */
+        Database(const Min::Database &c);
+        /** Assignment operator. */
+        Database& operator =(const Min::Database &c);
+        /**@}*/
+
         bool initDatabase();
         QSqlDatabase db;
-
     };
     // -------------------------------------------------------------------------
 };

@@ -17,25 +17,17 @@
  */
 
 /**
- * @file:     min_casespanel.hpp
+ * @file:     min_availablemodel.hpp
  * @version:  1.00
- * @date:     19.03.2009
+ * @date:     20.04.2009
  * @author:   
  */
 
-#ifndef INCLUDED_MIN_CASESPANEL_HPP
-#define INCLUDED_MIN_CASESPANEL_HPP
+#ifndef INCLUDED_MIN_AVAILABLEMODEL_HPP
+#define INCLUDED_MIN_AVAILABLEMODEL_HPP
 
 // System includes
-#include <QWidget>
-
-// Forward declarations
-class QResizeEvent;
-class QToolBox;
-class QTableView;
-class QTabWidget;
-class QAbstractTableModel;
-class QAbstractItemModel;
+#include <QAbstractTableModel>
 
 // -----------------------------------------------------------------------------
 /**
@@ -46,42 +38,39 @@ namespace Min
 {
     // -------------------------------------------------------------------------
     /**
-     * @class CasesPanel
-     * @brief Occupies main area and displays lists of test cases.
+     * @class AvailableModel
+     * @brief
      */
-    class CasesPanel: public QWidget
+    class AvailableModel: public QAbstractTableModel
     {
+    Q_OBJECT
     public:
         /** Default C++ Constructor. */
-        CasesPanel(QWidget *parent);
+        AvailableModel(QObject *parent);
 
         /** Destructor. */
-        ~CasesPanel();
-    protected:
-        /** Handles resize event that comes from the system. */
-        void resizeEvent (QResizeEvent *event);
-    private:
-        /**@{Declared but not defined by design.*/
-        /** Copy Constructor. */
-        CasesPanel( const Min::CasesPanel& c );
-        /** Assignment operator. */
-        Min::CasesPanel& operator =( const Min::CasesPanel& c );
+        ~AvailableModel();
+    
+    public:
+
+        /**@{ Inherited from QAbstractTableModel */
+        int rowCount(const QModelIndex &parent=QModelIndex()) const;
+
+        int columnCount(const QModelIndex &parent=QModelIndex()) const;
+
+        QVariant data(const QModelIndex &index, int role=Qt::DisplayRole) const;
+
+        QVariant headerData(int section,
+                            Qt::Orientation orientation,
+                            int role=Qt::DisplayRole) const;
         /**@}*/
+
     private:
-        /** Main area on the window. */
-        QToolBox *centralWidget_;
-
-        /** Will display modules and cases we can run. */
-        QTableView *availableCasesView_;
-
-        /** Model that feeds available cases view with the data. */
-        QAbstractItemModel *availableCasesModel_;
-
-        /** Will display cases that has been executed {ongoing,completed} */
-        QTabWidget *executedCasesView_;
+        /** Make it noncopyable */
+        Q_DISABLE_COPY(AvailableModel)
     };
     // -------------------------------------------------------------------------
 }; // namespace Min
 // -----------------------------------------------------------------------------
-#endif // INCLUDED_MIN_CASESPANEL_HPP (file created by generator.sh v1.08)
+#endif // INCLUDED_MIN_AVAILABLEMODEL_HPP (file created by generator.sh v1.08)
 

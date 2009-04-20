@@ -39,13 +39,14 @@
 // Min incudes
 #include "min_casesmodel.hpp"
 #include "min_availablecasestreemodel.hpp"
+#include "min_availablemodel.hpp"
 
 // -----------------------------------------------------------------------------
 Min::CasesPanel::CasesPanel(QWidget *parent)
     : QWidget(parent)
     , centralWidget_(new QToolBox(this))
-    , availableCasesView_(new QTreeView(this))
-    , availableCasesModel_(new Min::AvailableCasesTreeModel(this))
+    , availableCasesView_(new QTableView(this))
+    , availableCasesModel_(new Min::AvailableModel(this))
     , executedCasesView_(new QTabWidget(this))
 {
     // Available cases view

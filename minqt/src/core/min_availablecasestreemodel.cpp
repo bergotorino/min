@@ -85,7 +85,7 @@ Min::AvailableCasesTreeModel::AvailableCasesTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
     QList<QVariant> rootData;
-    rootData << "Modules/Cases" << "Id";
+    rootData << "Module Name" << "Test Case Name" << "Description";
     root_ = new Min::TreeItem(rootData);
     setupModelData();
 }

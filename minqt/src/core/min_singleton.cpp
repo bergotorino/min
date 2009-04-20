@@ -17,45 +17,13 @@
  */
 
 /**
- * @file:     main.cpp
+ * @file:     min_singleton.cpp
  * @version:  1.00
- * @date:     18.03.2009
+ * @date:     20.04.2009
  * @author:   
  */
 
-// System includes
-#include <cstdlib>
-#include <QApplication>
-#include <QtCore/QtCore>
-#include <QtDBus/QtDBus>
-
-// Min includes
-#include "ui/min_mainwindow.hpp"
-#include "core/min_remotecontroll.hpp"
-#include "core/min_database.hpp"
-
-
-// -----------------------------------------------------------------------------
-
-int main( int argc, char* argv[] )
-{
-    // 1. Init the application
-    QApplication app(argc,argv);
-
-    Min::Database::getInstance();
-
-    // 2. Create window
-    Min::MainWindow mw;
-    mw.show();
-
-    // 3. Run the application
-    return app.exec();
-   
-    Min::RemoteControll rc;
-    rc.minAddTestModule("/home/user/.min/Hard.so");
-
-    return app.exec();
-}
+#include "min_singleton.hpp"
 
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08
