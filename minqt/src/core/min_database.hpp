@@ -37,17 +37,11 @@
  */
 namespace Min
 {
-    /** Forward declaration and usefull typedef. */
-    class Database; 
-//    typedef Min::Singleton<Database> SDatabase;
     // ---------------------------------------------------------------------
     class Database: public Min::Singleton<Database>
     {
+    friend class Singleton<Database>;
     public:
-	/**
-	 * default constructor
-	 */
-        Database();
 	
 	/**
 	 * default destructor
@@ -154,6 +148,10 @@ namespace Min
         QStringList getTestCases(unsigned int module_dbid);
 
     private:
+	/**
+	 * default constructor
+	 */
+        Database();
         /**@{ Declared but not defined by design. */
         /** Copy Constructor. */
         Database(const Min::Database &c);
