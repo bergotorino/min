@@ -43,7 +43,9 @@
 #include <tec_events.h>
 #include <min_logger.h>
 #include <min_engine_api.h>
-
+#ifndef  MIN_EXTIF
+#include <tec_tcp_handling.h>
+#endif
 /* ----------------------------------------------------------------------------
  * GLOBAL VARIABLES
  */
@@ -89,7 +91,6 @@ extern int      event_system_cleanup (void);
 /* ----------------------------------------------------------------------------
  * LOCAL CONSTANTS AND MACROS
  */
-/* None */
 
 /* ----------------------------------------------------------------------------
  * MODULE DATA STRUCTURES
@@ -1712,14 +1713,12 @@ LOCAL int ec_message_dispatch (MsgBuffer * rcvd_message)
 
                 msg_handling_result = ec_msg_event_handler (rcvd_message);
                 break;
-#ifdef  MIN_EXTIF
         case MSG_EXTIF:
                 msg_handling_result = ec_msg_ms_handler (rcvd_message);
                 break;
         case MSG_SNDRCV:
                 msg_handling_result = ec_msg_sndrcv_handler (rcvd_message);
                 break;
-#endif
 	case MSG_RUN_ID:
                 msg_handling_result = ec_msg_run_id_handler (rcvd_message);
 		break;
@@ -1778,7 +1777,7 @@ LOCAL void     *ec_message_listener (void *arg)
                                             " exiting listener thread");
                                 pthread_exit (NULL);
                         } else {
-
+				ec_poll_sockets();
                                 if (wait_time < 200000)
                                         wait_time = wait_time * 10;
                                 /*sleep should not be longer than 0.2 sec. */
@@ -2053,7 +2052,7 @@ LOCAL int ec_read_module_section (MinParser * inifile)
                         in->new_module (bin_path, module->module_id_);
                 }*/
                 MINAPI_PLUGIN_CALL(new_module,
-                                new_module (bin_path, module->module_id_));
+				   new_module (bin_path, module->module_id_));
 
                 if (module_item == DLListNULLIterator) {
                         MIN_WARN ("Could not insert %s into list",
@@ -2418,6 +2417,9 @@ void ec_min_init (char *envp_[], int operation_mode)
         ec_configure ();
         ec_settings_send ();
 
+#ifndef MIN_EXTIF
+	in->send_rcp = socket_send_rcp;
+#endif /* MIN_EXTIF */
         min_log_open ("MIN", debug_lev);
 
 	MIN_DEBUG ("available_modules %x", available_modules);

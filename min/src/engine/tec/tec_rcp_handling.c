@@ -32,6 +32,12 @@
 #include <scripter_keyword.h>
 #include <mintfwif.h>
 #include <min_engine_api.h>
+#ifndef MIN_EXTIF
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <tec_tcp_handling.h>
+#endif
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -912,12 +918,11 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
 }
 
 /* ------------------------------------------------------------------------- */
-
 /** Function handles external controller "reserve" message
  * @param extif_message pointer to item parser. It is assumed that 
  * mip_get_string was executed once for this parser to get first "word"
  * @return result of operation, 0 if ok.
-*/
+ */
 LOCAL int extif_msg_handle_reserve (MinItemParser * extif_message)
 {
         char            rtype[11];
@@ -958,13 +963,19 @@ LOCAL slave_info *find_slave_by_he (struct hostent *he, DLListIterator *itp)
        return INITPTR;
 }
 
+
+/* ========================  FUNCTIONS ===================================== */
+
 /*---------------------------------------------------------------------------*/
 /** Function called to intitialize rcp handling
  */
 void rcp_handling_init ()
 {
-       ms_assoc = dl_list_create();
-       EXTIF_received_data = dl_list_create();
+#ifndef MIN_EXTIF
+	ec_create_listen_socket ();
+#endif
+	ms_assoc = dl_list_create();
+	EXTIF_received_data = dl_list_create();
 }
 /*---------------------------------------------------------------------------*/
 /** Clean up
@@ -974,7 +985,6 @@ void rcp_handling_cleanup ()
         DLListIterator  work_slave_item;
         DLListIterator  work_data_item;
         received_data  *work_data_entry;
-	MIN_DEBUG (">>");
 
         log_summary_stdout ();
         work_slave_item = dl_list_head (ms_assoc);
@@ -993,13 +1003,10 @@ void rcp_handling_cleanup ()
 		work_data_item = dl_list_head (EXTIF_received_data);
         }
         dl_list_free (&EXTIF_received_data);
-	MIN_DEBUG ("<<");
 
 }
 
-/* ================= OTHER EXPORTED FUNCTIONS ============================== */
-
-
+/* ------------------------------------------------------------------------- */
 /** Function called to send external controller message to master device.
  * @param tc_id id of slave's test case
  * @param msg NULL-terminated string containing body of message 
@@ -1008,23 +1015,19 @@ void rcp_handling_cleanup ()
 void send_to_master (int tc_id, char *msg)
 {
 
-        char           *extif_msg;
         char           *hex;
 
 	if (tc_id != 0) {
 	      tc_id = dl_list_size (selected_cases);
 	}
-        extif_msg = NEW2 (char, 28 + strlen (msg));
         hex = writehex (own_id, tc_id);
-        sprintf (extif_msg, "response %s deadbeef %s", hex, msg);
-        MIN_DEBUG ("SENDING TO EXTIF :%s", extif_msg);
-        in->send_rcp (extif_msg, strlen (extif_msg));
+	in->send_rcp ("response", hex, "deadbeef", msg);
+
         DELETE (hex);
-        DELETE (extif_msg);
 }
 
 /*---------------------------------------------------------------------------*/
-/** Function called to send external controller message to master device.
+/** Function called to send external controller message to slave device.
  * @param slave_name NULL-terminated string containing slave's name
  * @param tc_id id of slave's test case
  * @param msg NULL-terminated string containing body of message 
@@ -1036,10 +1039,8 @@ send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
         DLListIterator  slave_entry_item = DLListNULLIterator;
         slave_info     *slave_entry = INITPTR;
         int             slave_id = 0;
-        char           *extif_message;
         char           *hex;
 
-        extif_message = NEW2 (char, 27 + strlen (message));
         slave_entry_item = dl_list_head (ms_assoc);
         while (slave_entry_item != DLListNULLIterator) {
                 slave_entry = (slave_info *) dl_list_data (slave_entry_item);
@@ -1063,49 +1064,40 @@ send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
         switch (command) {
         case EAllocateSlave:
 		sleep (1);
-                sprintf (extif_message, "reserve deadbeef %s %s", hex, message);
+		in->send_rcp ("reserve", "deadbeef", hex, message);
                 break;
         case EFreeSlave:
-                sprintf (extif_message, "release deadbeef %s %s", hex, message);
+		in->send_rcp ("release", "deadbeef", hex, message);
                 break;
         case ERemoteSlave:
-                sprintf (extif_message, "remote deadbeef %s %s", hex, message);
+		in->send_rcp ("remote", "deadbeef", hex, message);
                 break;
         default:
                 break;
         }
-        MIN_DEBUG ("SENDING TO EXTIF :%s", extif_message);
-        in->send_rcp (extif_message, strlen (extif_message));
-        DELETE (extif_message);
         DELETE (hex);
 }
 
-
+/* ------------------------------------------------------------------------- */
 /**Handler for sendreceive ipc message from slave
  */
 int ec_msg_sndrcv_handler (MsgBuffer * message)
 {
-        char           *extif_message;
         char           *hex;
+	Text *tx;
 
-	extif_message = NEW2 (char, 39 + strlen (message->message_) + 
-			    strlen (message->desc_));
-
+	tx = tx_create (message->message_);
+	tx_c_append (tx, "=");
+	tx_c_append (tx, message->desc_);
         hex = writehex (own_id, 0);
-        sprintf (extif_message, "remote %s deadbeef sendreceive %s=%s",
-                 hex, message->message_, message->desc_);
-        in->send_rcp (extif_message, strlen (extif_message));
-
-        DELETE (extif_message);
+	in->send_rcp ("remote", hex, "deadbeef", tx_share_buf(tx));
+	
+	tx_destroy (&tx);
         DELETE (hex);
-
         return 0;
 }
 
-
-
-
-
+/* ------------------------------------------------------------------------- */
 /** Handler for ipc external controller message,
  * used in master/slave scenarios (hence _ms_);
  * since those in turn have several "subtypes",
@@ -1135,14 +1127,22 @@ int ec_msg_ms_handler (MsgBuffer * message)
                 /* since only master test case can send this message,
                    we will set own_id of this min instance to PID of this 
                    TMC, so that we can forward IPC messages correctly */
+
                 own_id = message->sender_;
+#ifdef MIN_EXTIF
                 slave_entry = NEW (slave_info);
 		slave_entry->slave_name_ = tx_create (message->message_);
                 slave_entry->slave_id_ = 0;
                 dl_list_add (ms_assoc, (void *)slave_entry);
-                sprintf (extifmessage, "phone");
+#else
+		if (allocate_ip_slave (message->desc_)) {
+			MIN_FATAL ("slave allocation failed");
+			DELETE (extifmessage);
+			return -1;
+		}
+#endif
                 send_to_slave (EAllocateSlave, message->message_, 0,
-                               extifmessage);
+			       message->desc_);
                 break;
 
         case EFreeSlave:
@@ -1234,8 +1234,7 @@ int ec_msg_ms_handler (MsgBuffer * message)
         return 0;
 }
 
-
-
+/* ------------------------------------------------------------------------- */
 /** Function reads message received from external controller and 
  * calls  handling
  */
@@ -1259,13 +1258,14 @@ int tec_extif_message_received (char *message, int length)
         return result;
 }
 
+/* ------------------------------------------------------------------------- */
 /** Function that replaces "test case complete" callback, if min instance 
  * is used as slave.
  * @param run_id runtime id of test case (position in "selected cases" list)
  * @param execution_result indicates if starting of test case was successful
  * @param test_result result of test
  * @param desc description (taken from ipc message);
-*/
+ */
 void
 master_report (int run_id, int execution_result, int test_result, char *desc)
 {
@@ -1357,6 +1357,7 @@ int tec_del_ip_slave_from_pool (struct hostent *he, char *slavetype)
 
        return 0;
 }
+
 
 /* ================= TESTS FOR LOCAL FUNCTIONS ============================= */
 #ifdef MIN_UNIT_TEST

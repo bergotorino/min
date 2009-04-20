@@ -128,7 +128,7 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_error_report (char *error);
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_send_rcp (char* message, int length);
+LOCAL void pl_send_rcp (char *cmd, char *sender, char *rcvr, char* msg);
 /* ------------------------------------------------------------------------- */
 LOCAL int _find_mod_by_id (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
@@ -192,9 +192,6 @@ int min_if_open (min_case_complete_func complete_cb,
 /* ------------------------------------------------------------------------- */
 int min_if_close ()
 {
-	if(min_clbk_.min_close) {
-		min_clbk_.min_close();
-	}
 	/*
 	** Clear lists 
 	*/
@@ -207,6 +204,11 @@ int min_if_close ()
 			 free);
 	dl_list_free (&tfwif_test_runs_);
 
+	if(min_clbk_.min_close) {
+		min_clbk_.min_close();
+	}
+
+	MIN_DEBUG ("MODULES FREED");
 	ready_module_count_ = 0;
 	usleep (500000);
 
@@ -351,8 +353,8 @@ int min_if_get_cases (module_info ** modules_arg)
 	pthread_mutex_unlock (&tfwif_mutex_);
 
         *modules_arg = modules;
-        MIN_WARN ("Number of cases = %d, modules: %x", extif_list_size,
-		  modules);
+        MIN_DEBUG ("Number of modules = %d, modules: %x", extif_list_size,
+		   modules);
 	
         return extif_list_size;
 }
@@ -578,6 +580,7 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 	mi->module_ready_ = 0;
 
 	pthread_mutex_lock (&tfwif_mutex_);
+	MIN_DEBUG ("adding module to %x", tfwif_modules_);
 	dl_list_add (tfwif_modules_, mi);
 	pthread_mutex_unlock (&tfwif_mutex_);
 
@@ -649,9 +652,24 @@ LOCAL void pl_error_report (char *error)
 };
 
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_send_rcp (char* message, int length)
+LOCAL void pl_send_rcp (char *cmd, char *sender, char *rcvr, char* msg)
 {
-	tfwif_callbacks.send_extif_msg_ (message, length);
+	Text *tx;
+
+	tx = tx_create (cmd);
+	tx_c_prepend (tx, " ");
+	tx_c_prepend (tx, sender);
+	tx_c_prepend (tx, " ");
+	tx_c_prepend (tx, rcvr);
+	tx_c_prepend (tx, " ");
+	tx_c_prepend (tx, msg);
+
+	MIN_DEBUG ("SENDING TO EXTIF :%s", tx_share_buf (tx));
+
+	tfwif_callbacks.send_extif_msg_ (tx_share_buf (tx), 
+					 strlen (tx_share_buf (tx)));
+
+	tx_destroy (&tx);
 
 	return;
 };

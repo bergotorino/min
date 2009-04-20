@@ -137,7 +137,7 @@ typedef struct  {
 	/* --------------------------------------------------------------------
 	** Send RCP
 	*/
-        void (*send_rcp) (char* message, int length);
+        void (*send_rcp) (char *cmd, char *sender, char *rcvr, char* msg);
 
 } eapiIn_t;
 

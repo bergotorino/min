@@ -1,7 +1,7 @@
 /*
  * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
  * and/or its subsidiary(-ies).
- * Contact: Robert Galkowski
+ * Contact: Sampo Saaristo
  * Contact e-mail: DG.MIN-Support@nokia.com
  * 
  * This program is free software: you can redistribute it and/or modify it 
@@ -18,28 +18,27 @@
 
 
 /**
- *  @file       tec_rcp_handling.h
+ *  @file       tec_tcp_handling.h
  *  @version    0.1
- *  @brief      This file contains header file for rcp handling
+ *  @brief      Header for tec tcp socket handling
  */
-#ifndef TEC_RCP_HANDLING_H
-#define TEC_RCP_HANDLING_H
+
+#ifndef TEC_TCP_HANDLING_H
+#define TEC_TCP_HANDLING_H
 
 /* ------------------------------------------------------------------------- */
 /* INCLUDES */
-#include <sys/socket.h>
-#include <netdb.h>
-#include <min_text.h>
+
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */
-/* None */
 
 /* ------------------------------------------------------------------------- */
 /* DATA TYPES */
+/* None */
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -47,49 +46,18 @@
 
 /* ------------------------------------------------------------------------- */
 /* STRUCTURES */
+/* None */
 
-
-/** Structure for holding master/slave association data */
-typedef struct {
-        /** slave's device id*/
-        int             slave_id_;
-
-	/** type information e.g. "phone" */
-	Text           *slave_name_;
-	
-	/** host address */
-	struct          hostent he_;
-	
-	/** reserved flag */
-	int             reserved_;
-	
-	/** socket for communicating with the slave */
-	int             fd_;
-	
-	/** socket write queue */
-	DLList         *write_queue_;
-} slave_info;
-
-
-/** Function called when message received from external controller
- * @param message sting containing actual message
- * @param length length of message (this param will probobly be dropped
- * @return result of operation
-*/
-int             tec_extif_message_received (char *message, int length);
-
-void            send_to_master (int tc_id, char *msg);
-
-DLList         *EXTIF_received_data;
-
-void            rcp_handling_init ();
- 
-void            rcp_handling_cleanup ();
-
-int             tec_add_ip_slave_to_pool (struct hostent *he, char *slavetype);
-
-int             tec_del_ip_slave_from_pool (struct hostent *he, 
-					    char *slavetype);
-
-#endif
+/* ------------------------------------------------------------------------- */
+/* FUNCTION PROTOTYPES */
+/* ------------------------------------------------------------------------- */
+int ec_poll_sockets ();
+/* ------------------------------------------------------------------------- */
+int ec_create_listen_socket();
+/* ------------------------------------------------------------------------- */
+void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg);
+/* ------------------------------------------------------------------------- */
+int allocate_ip_slave (char *slavetype);
+/* ------------------------------------------------------------------------- */
+#endif /* TEC_TCP_HANDLING_H */
 /* End of file */

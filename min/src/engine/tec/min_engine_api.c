@@ -108,6 +108,8 @@ LOCAL int eapi_add_test_module (char *modulepath)
 
         modinfo = tm_create (modulepath, INITPTR, 0);
         if (tm_add (modules, modinfo) != INITPTR) {
+		MIN_DEBUG ("Number of plugins %d", 
+			   dl_list_size (get_plugin_list()));
                 MINAPI_PLUGIN_CALL(new_module,new_module(modulepath,
                                               modinfo->module_id_));
 		ret = 0;
@@ -494,8 +496,8 @@ LOCAL int eapi_register_slave (char *host, char *slavetype)
 
 void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 {
-        if (plugins==INITPTR) plugins = dl_list_create();
-        dl_list_add(plugins,(void*)inp);
+        if (plugins == INITPTR) plugins = dl_list_create();
+        dl_list_add (plugins, (void*)inp);
 
         modules = dl_list_create();        
         out->add_test_module    = eapi_add_test_module;
