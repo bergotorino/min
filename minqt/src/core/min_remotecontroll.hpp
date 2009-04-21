@@ -32,6 +32,7 @@
 
 // Min includes
 #include "min_object.hpp.h"
+#include "min_singleton.hpp"
 
 #define MIN_SERVICE_NAME     "org.maemo.MIN"
 #define MIN_SERVICE_OBJECT_PATH "/Min"
@@ -49,12 +50,11 @@ namespace Min
      * @class RemoteControll
      * @brief
      */
-    class RemoteControll: public QObject
+    class RemoteControll: public QObject, public Min::Singleton<RemoteControll>
     {
+    friend class Min::Singleton<RemoteControll>;
     Q_OBJECT
     public:
-        /** Default C++ Constructor. */
-        RemoteControll();
 
         /** Destructor. */
         ~RemoteControll();
@@ -98,6 +98,8 @@ namespace Min
         /**@}*/
 
     private:
+        /** Default C++ Constructor. */
+        RemoteControll();
         /**@{Declared but nit defined.*/
         /** Copy Constructor. */
         RemoteControll( const Min::RemoteControll& c );

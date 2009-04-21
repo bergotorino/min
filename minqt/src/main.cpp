@@ -51,7 +51,7 @@ int main( int argc, char* argv[] )
     // 3. Run the application
     return app.exec();
    
-    Min::RemoteControll rc;
+    Min::RemoteControll &rc = Min::RemoteControll::getInstance();
     rc.minAddTestModule("/home/user/.min/Hard.so");
 
     return app.exec();
