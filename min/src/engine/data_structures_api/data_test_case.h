@@ -82,6 +82,8 @@ typedef struct {
         int             priority_;
     /** Pointer to Test Result data of Test Case */
         DLList         *test_result_list_;
+    /** Flag for IP based m/s operation */
+        int             ip_slave_case_;
 } test_case_s;
 
 /* ------------------------------------------------------------------------- */

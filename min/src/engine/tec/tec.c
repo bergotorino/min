@@ -816,6 +816,7 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         /* This module has only one test case */
         DLListIterator  work_case_item =
             dl_list_head (tm_get_tclist (temp_module_item));
+	test_case_s    *work_case;
         int             group_id = tc_get_group_id (work_case_item);
         DLListIterator  orig_case;
         DLListIterator  work_module_item = DLListNULLIterator;
@@ -974,6 +975,15 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         work_module_item =
 		tm_get_ptr_by_pid (instantiated_modules, message->sender_);
         tc_set_status (work_case_item, TEST_CASE_TERMINATED);
+#ifndef MIN_EXTIF
+	work_case = (test_case_s *)dl_list_data (work_case_item);
+	if (work_case->ip_slave_case_) {
+		tcp_master_report (work_case->tc_run_id_, 1, message->param_,
+				   message->desc_);
+
+	} 
+#endif
+
         pthread_mutex_lock (&tec_mutex_);
         pthread_mutex_unlock (&tec_mutex_);
 	
@@ -1242,15 +1252,22 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 					      tr_get_end_time
 					      (work_result_item));*/
 	MINAPI_PLUGIN_CALL (case_result,
-                                case_result (tc_get_run_id (work_case_item), 
-					      message->param_, 
-					      message->message_,
-					      tr_get_start_time
-					      (work_result_item),
-					      tr_get_end_time
-					      (work_result_item)));
+			    case_result (tc_get_run_id (work_case_item), 
+					 message->param_, 
+					 message->message_,
+					 tr_get_start_time
+					 (work_result_item),
+					 tr_get_end_time
+					 (work_result_item)));
+	
+#ifndef MIN_EXTIF
+	work_case = (test_case_s *)dl_list_data (work_case_item);
+	if (work_case->ip_slave_case_) {
+		tcp_master_report (work_case->tc_run_id_, 1, message->param_,
+				   message->desc_);
 
-
+	} 
+#endif
         /* Now let's link created result item to original test case. 
 	 * We will use module link, test case id and test case filename 
 	 */

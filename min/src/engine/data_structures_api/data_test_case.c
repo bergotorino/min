@@ -119,7 +119,7 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
         pthread_mutex_lock (&TC_MUTEX);
 
         test_case_s    *tc_data = NEW (test_case_s);
-
+	
         if ((tc_data != NULL) &&
             (strlen (tc_cfg_filename) < MaxFileName + 1) &&
             (strlen (tc_title) < MaxTestCaseName + 1)) {
@@ -130,7 +130,7 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
                 tc_data->status_ = TEST_CASE_IDLE;
                 tc_data->priority_ = 0;
                 tc_data->test_result_list_ = dl_list_create ();
-
+		tc_data->ip_slave_case_ = 0;
                 /* Test Case given data */
                 tc_data->tm_data_item_ = tm_data_item;
                 STRCPY (tc_data->title_, tc_title, strlen (tc_title) + 1);

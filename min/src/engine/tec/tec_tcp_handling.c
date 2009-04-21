@@ -31,6 +31,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 
 #include <dllist.h>
 #include <min_logger.h>
@@ -49,6 +50,7 @@ extern DLList *ms_assoc;
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 int rcp_listen_socket = -1;
+pthread_mutex_t socket_write_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -189,8 +191,12 @@ LOCAL void socket_write_rcp (slave_info *slave)
                 return;
 	}
 
+	pthread_mutex_lock (&socket_write_mutex_);
+
         it = dl_list_head (slave->write_queue_);
         if (it == DLListNULLIterator) {
+		pthread_mutex_unlock (&socket_write_mutex_);
+
                 return;
         }
         
@@ -205,6 +211,7 @@ LOCAL void socket_write_rcp (slave_info *slave)
         MIN_DEBUG ("sent %d bytes", ret);
         dl_list_remove_it (it);
         tx_destroy (&tx);
+	pthread_mutex_unlock (&socket_write_mutex_);
 
         return;
 	
@@ -372,8 +379,12 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 		MIN_WARN ("No entry found for socket %d", fd);
 		return;
 	}
+	pthread_mutex_lock (&socket_write_mutex_);
 
 	dl_list_add (entry->write_queue_, tx);
+
+	pthread_mutex_unlock (&socket_write_mutex_);
+
 }
 
 /* ------------------------------------------------------------------------- */
