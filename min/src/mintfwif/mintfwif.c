@@ -659,12 +659,12 @@ LOCAL void pl_send_rcp (char *cmd, char *sender, char *rcvr, char* msg,
 	Text *tx;
 
 	tx = tx_create (cmd);
-	tx_c_prepend (tx, " ");
-	tx_c_prepend (tx, sender);
-	tx_c_prepend (tx, " ");
-	tx_c_prepend (tx, rcvr);
-	tx_c_prepend (tx, " ");
-	tx_c_prepend (tx, msg);
+	tx_c_append (tx, " ");
+	tx_c_append (tx, sender);
+	tx_c_append (tx, " ");
+	tx_c_append (tx, rcvr);
+	tx_c_append (tx, " ");
+	tx_c_append (tx, msg);
 
 	MIN_DEBUG ("SENDING TO EXTIF :%s", tx_share_buf (tx));
 
