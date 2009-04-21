@@ -182,6 +182,7 @@ LOCAL void socket_write_rcp (slave_info *slave)
         Text *tx;
 	DLListIterator it;
         int ret;
+	char len_buff[5];
 
         if (slave->write_queue_ == NULL || slave->write_queue_ == INITPTR) {
 		MIN_WARN ("write queue does not exist");
@@ -194,6 +195,12 @@ LOCAL void socket_write_rcp (slave_info *slave)
         }
         
         tx = dl_list_data (it);
+
+	len_buff[0] = strlen (tx_share_buf(tx));
+        len_buff[1] = strlen (tx_share_buf(tx)) >> 8;
+        
+        write (slave->fd_, &len_buff, 2);
+
         ret = write (slave->fd_, tx_share_buf (tx), strlen (tx_share_buf (tx)));
         MIN_DEBUG ("sent %d bytes", ret);
         dl_list_remove_it (it);
@@ -280,7 +287,12 @@ int ec_poll_sockets ()
 		MIN_INFO ("connect from %s\n",
 			  inet_ntoa (client_addr.sin_addr));
                 new_tcp_master (rcp_socket, &client_addr);
+		if (listen (rcp_listen_socket, 1)) {
+			MIN_FATAL ("Listen failed %s", strerror (errno));
+			return -1;
+		}
 	}
+
 	rw_rcp_sockets (&rd, &wr);
 
 	return 0;
@@ -374,9 +386,9 @@ int allocate_ip_slave (char *slavetype, char *slavename)
 {
        slave_info *slave;
        DLListIterator it;
-       struct sockaddr_in in_addr;
-       struct in_addr slave_ip;
-       int found = 0, fd;
+       int s, found = 0, sfd;
+       struct addrinfo hints;
+       struct addrinfo *result, *rp;
 
        if (ms_assoc == INITPTR)
                return -1;
@@ -397,24 +409,38 @@ int allocate_ip_slave (char *slavetype, char *slavename)
 	       return -1;
        }
 
-       if ((fd = socket (AF_INET, SOCK_STREAM, 0)) < 0) {
-	       MIN_WARN ("socket() failed %s", strerror (errno));
+     
+       memset(&hints, 0, sizeof(struct addrinfo));
+       hints.ai_family = AF_UNSPEC;    
+       hints.ai_socktype = SOCK_STREAM;
+       hints.ai_flags = 0;
+       hints.ai_protocol = 0;         
+       
+       s = getaddrinfo(slave->he_.h_name, "5001", &hints, &result);
+       if (s != 0) {
+	       MIN_WARN ("getaddrinfo: %s\n", gai_strerror(s));
 	       return -1;
        }
-       
-       MIN_DEBUG ("slave ip = %s", slave->he_.h_addr);
-       inet_aton (slave->he_.h_addr, &slave_ip);
-       in_addr.sin_addr = slave_ip;
-       in_addr.sin_family = AF_INET; 
-       in_addr.sin_port = htons (MIN_TCP_PORT); 
-       
-       if (connect (fd, (struct sockaddr *)&in_addr, 
-		    sizeof (struct sockaddr_in))) {
-	       MIN_FATAL ("connecting to slave failed %s", strerror (errno));
+
+       for (rp = result; rp != NULL; rp = rp->ai_next) {
+	       sfd = socket(rp->ai_family, rp->ai_socktype,
+			    rp->ai_protocol);
+	       if (sfd == -1)
+		       continue;
+
+	       if (connect(sfd, rp->ai_addr, rp->ai_addrlen) != -1)
+		       break;                  
+
+	       close(sfd);
+       }
+
+       if (rp == NULL) {               
+	       MIN_WARN ("Could not connect %s", slave->he_.h_name);
 	       return -1;
        }
+
        
-       slave->fd_ = fd;
+       slave->fd_ = sfd;
        slave->reserved_ = 1;
 
        return 0;
