@@ -55,7 +55,7 @@ int ec_poll_sockets ();
 /* ------------------------------------------------------------------------- */
 int ec_create_listen_socket();
 /* ------------------------------------------------------------------------- */
-void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg);
+void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd);
 /* ------------------------------------------------------------------------- */
 int allocate_ip_slave (char *slavetype);
 /* ------------------------------------------------------------------------- */

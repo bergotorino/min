@@ -54,8 +54,11 @@ typedef struct {
         /** slave's device id*/
         int             slave_id_;
 
-	/** type information e.g. "phone" */
+	/** name of the slave */
 	Text           *slave_name_;
+
+	/** type information e.g. "phone" */
+	Text           *slave_type_;
 	
 	/** host address */
 	struct          hostent he_;

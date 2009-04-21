@@ -128,7 +128,8 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_error_report (char *error);
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_send_rcp (char *cmd, char *sender, char *rcvr, char* msg);
+LOCAL void pl_send_rcp (char *cmd, char *sender, char *rcvr, char* msg,
+			int param);
 /* ------------------------------------------------------------------------- */
 LOCAL int _find_mod_by_id (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
@@ -652,7 +653,8 @@ LOCAL void pl_error_report (char *error)
 };
 
 /* ------------------------------------------------------------------------- */
-LOCAL void pl_send_rcp (char *cmd, char *sender, char *rcvr, char* msg)
+LOCAL void pl_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, 
+			int param)
 {
 	Text *tx;
 

@@ -309,7 +309,6 @@ EXIT:
 
 /* ------------------------------------------------------------------------- */
 /** Function handles RCP message containing sendreceive command
-
 */
 LOCAL int handle_remote_sendreceive (MinItemParser * extif_message, int dev_id)
 {
@@ -963,7 +962,6 @@ LOCAL slave_info *find_slave_by_he (struct hostent *he, DLListIterator *itp)
        return INITPTR;
 }
 
-
 /* ========================  FUNCTIONS ===================================== */
 
 /*---------------------------------------------------------------------------*/
@@ -1021,7 +1019,7 @@ void send_to_master (int tc_id, char *msg)
 	      tc_id = dl_list_size (selected_cases);
 	}
         hex = writehex (own_id, tc_id);
-	in->send_rcp ("response", hex, "deadbeef", msg);
+	in->send_rcp ("response", hex, "deadbeef", msg, 0);
 
         DELETE (hex);
 }
@@ -1064,13 +1062,16 @@ send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
         switch (command) {
         case EAllocateSlave:
 		sleep (1);
-		in->send_rcp ("reserve", "deadbeef", hex, message);
+		in->send_rcp ("reserve", "deadbeef", hex, message, 
+			      slave_entry->fd_);
                 break;
         case EFreeSlave:
-		in->send_rcp ("release", "deadbeef", hex, message);
+		in->send_rcp ("release", "deadbeef", hex, message,
+			      slave_entry->fd_);
                 break;
         case ERemoteSlave:
-		in->send_rcp ("remote", "deadbeef", hex, message);
+		in->send_rcp ("remote", "deadbeef", hex, message,
+			      slave_entry->fd_);
                 break;
         default:
                 break;
@@ -1090,7 +1091,7 @@ int ec_msg_sndrcv_handler (MsgBuffer * message)
 	tx_c_append (tx, "=");
 	tx_c_append (tx, message->desc_);
         hex = writehex (own_id, 0);
-	in->send_rcp ("remote", hex, "deadbeef", tx_share_buf(tx));
+	in->send_rcp ("remote", hex, "deadbeef", tx_share_buf(tx), 0);
 	
 	tx_destroy (&tx);
         DELETE (hex);
@@ -1317,8 +1318,10 @@ int tec_add_ip_slave_to_pool (struct hostent *he, char *slavetype)
        slave = NEW(slave_info);
        slave->reserved_ = 0;
        memcpy (&slave->he_, he, sizeof (struct hostent));
-       slave->slave_name_ = tx_create (slavetype);
+       slave->slave_type_ = tx_create (slavetype);
+       slave->slave_name_ = INITPTR;
        slave->fd_ = -1;
+       slave->write_queue_ = dl_list_create ();
        
        dl_list_add (ms_assoc, slave);
 
@@ -1353,6 +1356,10 @@ int tec_del_ip_slave_from_pool (struct hostent *he, char *slavetype)
        }
 
        tx_destroy (&slave->slave_name_);
+       tx_destroy (&slave->slave_type_);
+
+       /* FIXME flush write queue */
+
        DELETE (slave);
 
        return 0;

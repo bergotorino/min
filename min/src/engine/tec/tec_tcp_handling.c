@@ -43,14 +43,13 @@
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
 extern DLList *ms_assoc;
-
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 int rcp_listen_socket = -1;
-int master_socket = -1;
+
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -81,6 +80,9 @@ LOCAL void socket_read_rcp (slave_info *slave);
 /* ------------------------------------------------------------------------- */
 LOCAL void socket_write_rcp (slave_info *slave);
 /* ------------------------------------------------------------------------- */
+LOCAL slave_info *find_slave_by_fd (int fd);
+/* ------------------------------------------------------------------------- */
+LOCAL slave_info *find_master (int fd);
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -108,16 +110,16 @@ LOCAL int set_active_rcp_sockets (fd_set *rd, fd_set *wr, int nfds)
 /* ------------------------------------------------------------------------- */
 LOCAL void new_tcp_master (int socket, struct sockaddr_in *master_ip)
 {
-	/*
-	** There can be only one
-	*/
-	if (master_socket != -1) {
-		MIN_WARN ("we already have a master");
-		close (socket);
-		return;
-	}
+	slave_info *master;
+	
+	master = NEW (slave_info);
+	master->slave_name_ = tx_create ("deadbeef");
+	master->slave_type_ = tx_create ("master");
+	master->fd_ = socket;
+	master->write_queue_ = dl_list_create ();
+	master->reserved_ = 1;
 
-	master_socket = socket;
+	dl_list_add (ms_assoc, master);
 
 	return;
 }
@@ -200,6 +202,41 @@ LOCAL void socket_write_rcp (slave_info *slave)
         return;
 	
 }
+/* ------------------------------------------------------------------------- */
+LOCAL slave_info *find_slave_by_fd (int fd)
+{
+       DLListIterator it;
+       slave_info *ips;
+ 
+
+       for (it = dl_list_head (ms_assoc); it != INITPTR;
+            it = dl_list_next (it)) {
+               ips = dl_list_data (it);
+               if (ips->fd_ == fd)  {
+                       return ips;
+               }
+       }
+       
+       return INITPTR;
+}
+/* ------------------------------------------------------------------------- */
+LOCAL slave_info *find_master (int fd)
+{
+       DLListIterator it;
+       slave_info *ips;
+ 
+
+       for (it = dl_list_head (ms_assoc); it != INITPTR;
+            it = dl_list_next (it)) {
+               ips = dl_list_data (it);
+               if (!strcmp (tx_share_buf (ips->slave_type_), "master"))  {
+		       return ips;
+	       }
+       }
+       
+       return INITPTR;
+}
+
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
@@ -301,10 +338,30 @@ int ec_create_listen_socket()
 }
 
 /* ------------------------------------------------------------------------- */
-
-void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg)
+void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 {
-	return;
+	Text *tx;
+	slave_info *entry;
+
+	tx = tx_create (cmd);
+	tx_c_prepend (tx, " ");
+	tx_c_prepend (tx, sender);
+	tx_c_prepend (tx, " ");
+	tx_c_prepend (tx, rcvr);
+	tx_c_prepend (tx, " ");
+	tx_c_prepend (tx, msg);
+
+	if (fd == 0 && !strcmp (rcvr, "deadbeef"))
+		entry = find_master (fd);
+	else
+		entry = find_slave_by_fd (fd);
+	
+	if (entry == INITPTR) {
+		MIN_WARN ("No entry found for socket %d", fd);
+		return;
+	}
+
+	dl_list_add (entry->write_queue_, tx);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -313,7 +370,7 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg)
  *  @param slavetype type of the slave e.g. "phone"
  *  @return 0 on success, 1 on error
  */
-int allocate_ip_slave (char *slavetype)
+int allocate_ip_slave (char *slavetype, char *slavename)
 {
        slave_info *slave;
        DLListIterator it;
@@ -327,9 +384,10 @@ int allocate_ip_slave (char *slavetype)
        for (it = dl_list_head (ms_assoc); it != INITPTR;
 	    it = dl_list_next (it)) {
 	       slave = dl_list_data (it);
-	       if (!strcmp (tx_share_buf (slave->slave_name_), slavetype) &&
+	       if (!strcmp (tx_share_buf (slave->slave_type_), slavetype) &&
 		   slave->reserved_ == 0) {
 		       found = 1;
+		       slave->slave_name_ = tx_create (slavename);
 		       break;
 	       }
        }
@@ -361,6 +419,7 @@ int allocate_ip_slave (char *slavetype)
 
        return 0;
 }
+
 
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
