@@ -396,6 +396,7 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
         int             mod_found = 0, conf_found = 0;
         DLListIterator  work_module_item = DLListNULLIterator, it;
         test_module_info_s *work_module = INITPTR;
+	test_case_s    *work_case;
         DLListIterator  work_case_item = DLListNULLIterator;
         char           *message;
         int             error_code = 0;
@@ -578,11 +579,14 @@ MODULE_PRESENT:
                 goto FAULT;
         }
 
-#ifndef MIN_EXTIF
-
-#endif
         result = ec_exec_test_case (work_case_item);
         caseid = dl_list_size (selected_cases);
+#ifndef MIN_EXTIF
+	work_case_item = dl_list_head (selected_cases);
+	work_case = dl_list_data (work_case_item);
+	work_case->ip_slave_case_ = 1;
+#endif
+
         if (result != 0) {
                 error_code = -2;
                 MIN_WARN ("Error in test case execution");

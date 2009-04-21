@@ -237,7 +237,6 @@ int log_summary_stdout ()
         return num_failed;
 }
 
-/*end of temp code*/
 /**Function used to select test case for execution - passed test case is 
  * copied, and then copied case is added to  "selected" list. As this function 
  * modifies "selected" list, code that calls it should first lock "tec_mutex_",
