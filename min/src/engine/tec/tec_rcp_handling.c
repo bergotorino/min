@@ -584,7 +584,7 @@ MODULE_PRESENT:
         result = ec_exec_test_case (work_case_item);
         caseid = dl_list_size (selected_cases);
 #ifndef MIN_EXTIF
-	work_case_item = dl_list_head (selected_cases);
+	work_case_item = dl_list_tail (selected_cases);
 	work_case = dl_list_data (work_case_item);
 	work_case->ip_slave_case_ = 1;
 #endif
@@ -986,9 +986,6 @@ LOCAL slave_info *find_slave_by_he (struct hostent *he, DLListIterator *itp)
  */
 void rcp_handling_init ()
 {
-#ifndef MIN_EXTIF
-	ec_create_listen_socket ();
-#endif
 	ms_assoc = dl_list_create();
 	EXTIF_received_data = dl_list_create();
 }
@@ -1334,6 +1331,7 @@ int tec_add_ip_slave_to_pool (struct hostent *he, char *slavetype)
        }
        slave = NEW(slave_info);
        slave->reserved_ = 0;
+       slave->slave_id_ = 0;
        memcpy (&slave->he_, he, sizeof (struct hostent));
        slave->slave_type_ = tx_create (slavetype);
        slave->slave_name_ = INITPTR;

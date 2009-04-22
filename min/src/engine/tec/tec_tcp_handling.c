@@ -64,7 +64,6 @@ pthread_mutex_t socket_write_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 /* LOCAL CONSTANTS AND MACROS */
 #define MIN_TCP_PORT 5001
 
-
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
 /* None */
@@ -85,6 +84,7 @@ LOCAL void socket_write_rcp (slave_info *slave);
 LOCAL slave_info *find_slave_by_fd (int fd, DLListIterator *itp);
 /* ------------------------------------------------------------------------- */
 LOCAL slave_info *find_master (int fd);
+/* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -145,6 +145,7 @@ LOCAL void rw_rcp_sockets (fd_set *rd, fd_set *wr)
 
 	return;
 }
+/* ------------------------------------------------------------------------- */
 LOCAL void free_tcp_slave (slave_info *slave)
 {
 	slave_info *master;
@@ -163,6 +164,7 @@ LOCAL void free_tcp_slave (slave_info *slave)
 	close (slave->fd_);
 	slave->fd_ = -1;
 	slave->reserved_ = 0;
+	slave->slave_id_ = 0;
 	tx_destroy (&slave->slave_name_);
 	return;
 }
@@ -212,7 +214,7 @@ LOCAL void socket_write_rcp (slave_info *slave)
 
 	pthread_mutex_lock (&socket_write_mutex_);
 
-        it = dl_list_head (slave->write_queue_);
+        it = dl_list_tail (slave->write_queue_);
         if (it == DLListNULLIterator) {
 		pthread_mutex_unlock (&socket_write_mutex_);
 
@@ -278,7 +280,7 @@ LOCAL slave_info *find_master (int fd)
 /** Handles socket polling
  * @return 0 or  -1 on error
  */
-int ec_poll_sockets ()
+void *ec_poll_sockets (void *arg)
 {
 	fd_set rd, wr, er;
 	int nfds = 0;
@@ -286,44 +288,45 @@ int ec_poll_sockets ()
 	struct sockaddr_in client_addr;
 	struct timeval tv;
         int ret, rcp_socket;
-	
-	if (rcp_listen_socket == -1) {
-		MIN_WARN ("listen socket not ready, exiting");
-		return -1;
-	}
 
-	FD_ZERO (&rd);
-	FD_ZERO (&wr);
-	FD_ZERO (&er);
-	FD_SET (rcp_listen_socket, &rd);
-	nfds = MAX(nfds, rcp_listen_socket);
-	nfds = set_active_rcp_sockets (&rd, &wr, nfds);
-	
-	tv.tv_sec = 0;
-	tv.tv_usec = 100000;
-	ret = select (nfds + 1, &rd, &wr, &er, &tv);
+	ec_create_listen_socket ();
 
-	if (FD_ISSET(rcp_listen_socket, &rd)) {
-		memset (&client_addr, 0, len = sizeof(client_addr));
-		rcp_socket = accept (rcp_listen_socket, 
-				     (struct sockaddr *) &client_addr, 
+	while (rcp_listen_socket > 0) {
+		FD_ZERO (&rd);
+		FD_ZERO (&wr);
+		FD_ZERO (&er);
+		FD_SET (rcp_listen_socket, &rd);
+		nfds = MAX(nfds, rcp_listen_socket);
+		nfds = set_active_rcp_sockets (&rd, &wr, nfds);
+		
+		tv.tv_sec = 0;
+		tv.tv_usec = 100000;
+		ret = select (nfds + 1, &rd, &wr, &er, &tv);
+		
+		if (FD_ISSET(rcp_listen_socket, &rd)) {
+			memset (&client_addr, 0, len = sizeof(client_addr));
+			rcp_socket = accept (rcp_listen_socket, 
+					     (struct sockaddr *) &client_addr, 
 				     &len);
-		if (rcp_socket < 0) {
-			MIN_FATAL ("accept() failed %s", strerror (errno));
-			return -1;
+			if (rcp_socket < 0) {
+				MIN_FATAL ("accept() failed %s", 
+					   strerror (errno));
+				return NULL;
+			}
+			MIN_INFO ("connect from %s\n",
+				  inet_ntoa (client_addr.sin_addr));
+			new_tcp_master (rcp_socket, &client_addr);
+			if (listen (rcp_listen_socket, 1)) {
+				MIN_FATAL ("Listen failed %s", 
+					   strerror (errno));
+				return NULL;
+			}
 		}
-		MIN_INFO ("connect from %s\n",
-			  inet_ntoa (client_addr.sin_addr));
-                new_tcp_master (rcp_socket, &client_addr);
-		if (listen (rcp_listen_socket, 1)) {
-			MIN_FATAL ("Listen failed %s", strerror (errno));
-			return -1;
-		}
+		
+		rw_rcp_sockets (&rd, &wr);
 	}
 
-	rw_rcp_sockets (&rd, &wr);
-
-	return 0;
+	return NULL;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -364,11 +367,15 @@ int ec_create_listen_socket()
         if (bind (rcp_listen_socket, 
 		  (struct sockaddr *)&in_addr, sizeof (in_addr))  == -1) {
                 MIN_FATAL ("Failed to bind to rcp socket %s", strerror (errno));
+		close (rcp_listen_socket);
+		rcp_listen_socket = -1;
                 return -1;
                 
         }
         if (listen (rcp_listen_socket, 1)) {
 		MIN_FATAL ("Listen failed %s", strerror (errno));
+		close (rcp_listen_socket);
+		rcp_listen_socket = -1;
 		return -1;
 	}
 

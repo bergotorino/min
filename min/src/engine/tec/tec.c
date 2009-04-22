@@ -43,7 +43,7 @@
 #include <tec_events.h>
 #include <min_logger.h>
 #include <min_engine_api.h>
-#ifndef  MIN_EXTIF
+#ifndef MIN_EXTIF
 #include <tec_tcp_handling.h>
 #endif
 /* ----------------------------------------------------------------------------
@@ -977,6 +977,7 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
 #ifndef MIN_EXTIF
 	work_case = (test_case_s *)dl_list_data (work_case_item);
 	if (work_case->ip_slave_case_) {
+		MIN_DEBUG ("ip slave case");
 		tcp_master_report (work_case->tc_run_id_, 1, message->param_,
 				   message->desc_);
 
@@ -1260,8 +1261,11 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 					 (work_result_item)));
 	
 #ifndef MIN_EXTIF
+	MIN_DEBUG ("is it ip slave case ?");
 	work_case = (test_case_s *)dl_list_data (work_case_item);
 	if (work_case->ip_slave_case_) {
+		MIN_DEBUG ("ip slave case");
+
 		tcp_master_report (work_case->tc_run_id_, 1, message->param_,
 				   message->desc_);
 
@@ -1793,7 +1797,6 @@ LOCAL void     *ec_message_listener (void *arg)
                                             " exiting listener thread");
                                 pthread_exit (NULL);
                         } else {
-				ec_poll_sockets();
                                 if (wait_time < 200000)
                                         wait_time = wait_time * 10;
                                 /*sleep should not be longer than 0.2 sec. */
@@ -2409,8 +2412,12 @@ void ec_min_init (char *envp_[], int operation_mode)
 {
         int             thread_creation_result;
         pthread_t       listener_thread;
+#ifndef MIN_EXTIF
+        pthread_t       socket_thread;
+#endif
         unsigned int    debug_lev = 3;  
-
+	long            tmp = 0;
+  
         ec_settings.operation_mode_ = operation_mode;
 
         envp = envp_;
@@ -2463,8 +2470,7 @@ void ec_min_init (char *envp_[], int operation_mode)
 
         /*start modules */
         /* ec_start_modules (); */
-        /* Listener thread creation */
-        long            tmp = 0;
+        /* Listener thread(s) creation */
         thread_creation_result =
             pthread_create (&listener_thread, NULL, ec_message_listener,
                             (void *)tmp);
@@ -2485,7 +2491,29 @@ void ec_min_init (char *envp_[], int operation_mode)
                 min_log_close ();
                 exit (0);
         }
+#ifndef MIN_EXTIF
+        thread_creation_result =
+            pthread_create (&socket_thread, NULL, ec_poll_sockets,
+                            (void *)tmp);
+        if (thread_creation_result != 0) {
+                MIN_WARN ("Failed to create new thread");
+                char           *fault_text = "unspecified problem";
+                switch (thread_creation_result) {
+                case EAGAIN:
+                        fault_text =
+                            "Limit of threads in the system exceeded";
+                        break;
+                case EPERM:
+                        fault_text =
+                            "Insufficient user rights to create thread";
+                        break;
+                }
+                MIN_FATAL ("%s", fault_text);
+                min_log_close ();
+                exit (0);
+        }
 
+#endif
         sl_set_sighandler (SIGSEGV, handle_sigsegv);
         sl_set_sighandler (SIGTERM, handle_sigterm);
         sl_set_sighandler (SIGBUS, handle_sigbus);
