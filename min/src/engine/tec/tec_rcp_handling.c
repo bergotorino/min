@@ -184,6 +184,8 @@ LOCAL int extif_msg_handle_release (MinItemParser * extif_message)
 {
         /*restore original "complete" callback if allowed, otherwise mark that 
            it's allowed */
+        send_to_master (0, "release 0");
+
         if (ok_to_break == ESTrue) {
 #ifdef MIN_EXTIF
                 tfwif_callbacks.complete_callback_ = original_complete_callback;
@@ -192,7 +194,7 @@ LOCAL int extif_msg_handle_release (MinItemParser * extif_message)
 #endif
         } else
                 ok_to_break = ESTrue;
-        send_to_master (0, "release 0");
+	
         return 0;
 }
 

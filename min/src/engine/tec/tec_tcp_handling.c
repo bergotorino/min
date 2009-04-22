@@ -82,7 +82,7 @@ LOCAL void socket_read_rcp (slave_info *slave);
 /* ------------------------------------------------------------------------- */
 LOCAL void socket_write_rcp (slave_info *slave);
 /* ------------------------------------------------------------------------- */
-LOCAL slave_info *find_slave_by_fd (int fd);
+LOCAL slave_info *find_slave_by_fd (int fd, DLListIterator *itp);
 /* ------------------------------------------------------------------------- */
 LOCAL slave_info *find_master (int fd);
 
@@ -145,6 +145,27 @@ LOCAL void rw_rcp_sockets (fd_set *rd, fd_set *wr)
 
 	return;
 }
+LOCAL void free_tcp_slave (slave_info *slave)
+{
+	slave_info *master;
+	DLListIterator it;
+	if (!strcmp (tx_share_buf(slave->slave_type_), "master")) {
+		master = find_slave_by_fd (slave->fd_, it);
+		close (master->fd_);
+		tx_destroy (&master->slave_type_);
+		tx_destroy (&master->slave_name_);
+		dl_list_free (&master->write_queue_);
+		dl_list_remove_it (it);
+		DELETE (master);
+		return;
+	} 
+
+	close (slave->fd_);
+	slave->fd_ = -1;
+	slave->reserved_ = 0;
+	tx_destroy (&slave->slave_name_);
+	return;
+}
 /* ------------------------------------------------------------------------- */
 LOCAL void socket_read_rcp (slave_info *slave)
 {
@@ -155,8 +176,7 @@ LOCAL void socket_read_rcp (slave_info *slave)
         bytes_read = read (slave->fd_, &len_buff, 2);
         if (bytes_read != 2) {
                 MIN_WARN ("can't read even 2 bytes from socket");
-                close (slave->fd_);
-		slave->fd_ = -1;
+		free_tcp_slave (slave);
                 return;
         }
         len = len_buff [1] << 8  | len_buff [0];
@@ -165,8 +185,7 @@ LOCAL void socket_read_rcp (slave_info *slave)
         bytes_read = read (slave->fd_, buff, len);
         if (bytes_read != len) {
                 MIN_WARN ("failed to read the whole message");
-		close (slave->fd_);
-		slave->fd_ = -1;
+		free_tcp_slave (slave);
                 return;
         }
 
@@ -217,16 +236,18 @@ LOCAL void socket_write_rcp (slave_info *slave)
 	
 }
 /* ------------------------------------------------------------------------- */
-LOCAL slave_info *find_slave_by_fd (int fd)
+LOCAL slave_info *find_slave_by_fd (int fd, DLListIterator *itp)
 {
        DLListIterator it;
        slave_info *ips;
  
+       *itp = INITPTR;
 
        for (it = dl_list_head (ms_assoc); it != INITPTR;
             it = dl_list_next (it)) {
                ips = dl_list_data (it);
                if (ips->fd_ == fd)  {
+                       *itp = it;
                        return ips;
                }
        }
@@ -361,6 +382,7 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 {
 	Text *tx;
 	slave_info *entry;
+	DLListIterator it;
 
 	tx = tx_create (cmd);
 	tx_c_append (tx, " ");
@@ -373,7 +395,7 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 	if (fd == 0 && !strcmp (rcvr, "deadbeef"))
 		entry = find_master (fd);
 	else
-		entry = find_slave_by_fd (fd);
+		entry = find_slave_by_fd (fd, it);
 	
 	if (entry == INITPTR) {
 		MIN_WARN ("No entry found for socket %d", fd);
