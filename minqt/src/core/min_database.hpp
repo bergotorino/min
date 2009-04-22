@@ -71,11 +71,13 @@ namespace Min
 	 * @param module_dbid - module ID in database
 	 * @param test_case_id - test case ID in MIN
 	 * @param test_case_title - test case title in MIN
+	 * @parame test_case_description - description of test case
 	 * @ret test case ID in database
 	 */
         unsigned int insertTestCase(unsigned int module_dbid,
                                     unsigned int test_case_id,
-                                    const QString &test_case_title);
+                                    const QString &test_case_title,
+				    const QString &test_case_description);
 
 	/**
 	 * test run  (an "instance" of test case) insertion to database
@@ -146,6 +148,8 @@ namespace Min
 	 * gets test case names from database for UI
 	 */
         QStringList getTestCases(unsigned int module_dbid);
+
+	QVector<QStringList> getUIView(unsigned int device_dbid);
 
     private:
 	/**

@@ -83,22 +83,25 @@ unsigned int Min::Database::insertModule(unsigned int device_dbid,
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::insertTestCase(unsigned int module_dbid,
                 unsigned int test_case_id,
-                const QString &test_case_title)
+                const QString &test_case_title,
+		const QString &test_case_description)
 {
     QSqlQuery query;
-    query.prepare("SELECT id FROM test_case WHERE module_id=:modid AND module_name=:title AND test_case_id=:caseid;");
+    query.prepare("SELECT id FROM test_case WHERE module_id=:modid AND module_name=:title AND test_case_id=:caseid AND test_case_description=:descr;");
     query.bindValue(QString(":caseid"), QVariant(test_case_id));
     query.bindValue(QString(":modid"), QVariant(module_dbid));
     query.bindValue(QString(":title"), QVariant(test_case_title));
+    query.bindValue(QString(":descr"), QVariant(test_case_description));
     query.exec();
     if(query.size()>0){
         return 0;
     }
     query.finish();
-    query.prepare("INSERT INTO test_case(test_case_id, module_id, test_case_title) VALUES (:caseid, :modid, :title);");
+    query.prepare("INSERT INTO test_case(test_case_id, module_id, test_case_title, test_case_description) VALUES (:caseid, :modid, :title, :descr);");
     query.bindValue(QString(":caseid"), QVariant(test_case_id));
     query.bindValue(QString(":modid"), QVariant(module_dbid));
     query.bindValue(QString(":title"), QVariant(test_case_title));
+    query.bindValue(QString(":descr"), QVariant(test_case_description));
     if(query.exec()){
         return query.lastInsertId().toUInt();
     }else{
@@ -299,6 +302,31 @@ QStringList Min::Database::getTestCases(unsigned int module_dbid)
 
 };
 // ----------------------------------------------------------------------------
+QVector<QStringList> Min::Database::getUIView(unsigned int device_dbid)
+{
+    QSqlQuery query;
+    QVector<QStringList> retval;
+    QStringList row;
+    query.prepare("SELECT * FROM uiview;");
+    if(query.exec()){
+        while(query.next()) {
+	    row.clear();
+            row.append(query.value(0).toString());
+            row.append(query.value(1).toString());
+            row.append(query.value(2).toString());
+            row.append(query.value(3).toString());
+	    retval.append(row);
+
+
+
+
+        }
+    }
+    return retval;
+
+};
+
+// ----------------------------------------------------------------------------
 bool Min::Database::initDatabase()
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
@@ -315,19 +343,26 @@ bool Min::Database::initDatabase()
         QSqlQuery query;
         query.exec("CREATE TABLE device (id INTEGER PRIMARY KEY, device_id int);");
         query.exec("CREATE TABLE module (id INTEGER PRIMARY KEY, module_id int, device_id int, module_name varchar);");
-        query.exec("CREATE TABLE test_case (id INTEGER PRIMARY KEY, test_case_id int, module_id int, test_case_title varchar);");
+        query.exec("CREATE TABLE test_case (id INTEGER PRIMARY KEY, test_case_id int, module_id int, test_case_title varchar, test_case_description varchar);");
         query.exec("CREATE TABLE test_run (id INTEGER PRIMARY KEY, test_run_pid int, test_case_id int, group_id int, status int, start_time int, end_time int, result int, result_description varchar);");
         query.exec("CREATE TABLE printout (id INTEGER PRIMARY KEY, test_run_id int, content varchar);");
 
+	
+	
+	query.exec("CREATE VIEW uiview AS SELECT module.module_name AS module_name, test_case.test_case_name AS test_case_name, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid WHERE module.id=test_case.module_id;");
+
         /* Demo data */
-        /*
+        
         query.exec("INSERT INTO device VALUES (NULL, 10);");
-        query.exec("INSERT INTO device VALUES (NULL, 20);");
         query.exec("INSERT INTO module VALUES (NULL, 1, 10, \"minDemoModule\");");
-        query.exec("INSERT INTO module VALUES (NULL, 2, 10, \"minDemo2\");");
-        query.exec("INSERT INTO module VALUES (NULL, 1, 20, \"minDemoModule\");");
-        query.exec("INSERT INTO module VALUES (NULL, 2, 20, \"minDemo2\");");
-        */
+        query.exec("INSERT INTO module VALUES (NULL, 2, 10, \"scripter\");");
+	query.exec("INSERT INTO test_case VALUES(NULL, 1, 1, \"Demo_1\", \"\");");
+	query.exec("INSERT INTO test_case VALUES(NULL, 2, 1, \"Demo_2\"), \"\";");
+	query.exec("INSERT INTO test_case VALUES(NULL, 1, 2, \"Scripted test case 1\", \"\");");
+	query.exec("INSERT INTO test_case VALUES(NULL, 2, 2, \"Second scripter case\", \"\");");
+
+
+        
 
         return true;
     }
