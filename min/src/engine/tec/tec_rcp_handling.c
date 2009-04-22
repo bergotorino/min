@@ -855,8 +855,16 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                         slave_entry =
                             (slave_info *) dl_list_data (slave_entry_item);
                         if (slave_entry->slave_id_ == slave_id) {
+#ifdef MIN_EXTIF
+				tx_destroy (&slave_entry->slave_name_);
                                 DELETE (slave_entry);
                                 dl_list_remove_it (slave_entry_item);
+#else
+				close (slave_entry->fd_);
+				slave_entry->fd_ = -1;
+				slave_entry->reserved_ = 0;
+				tx_destroy (&slave_entry->slave_name_);
+#endif
                                 break;
                         }
 
