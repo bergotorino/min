@@ -1,4 +1,4 @@
-/*
+ /*
  * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
  * and/or its subsidiary(-ies).
  * Contact: Sampo Saaristo
@@ -29,6 +29,7 @@
 #include <min_common.h>
 #include <consoleui.h>
 #include <tec.h>
+#include <tec_tcp_handling.h>
 #include <data_api.h>
 #include <ext_interface.h>
 #include <min_engine_api.h>
@@ -51,7 +52,7 @@ extern eapiIn_t in_str;
 /* GLOBAL VARIABLES */
 eapiIn_t *in;
 eapiOut_t *out;
-
+int slave_exit;
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -323,10 +324,8 @@ LOCAL pthread_t load_plugin (const char *plugin_name)
 int main (int argc, char *argv[], char *envp[])
 {
         int             cont_flag, status, c, oper_mode, exit_flag;
-        int             no_cui_flag,
-                        help_flag,
-                        version_flag,
-                        retval;
+        int             no_cui_flag, help_flag, version_flag, retval, 
+		slave_mode, master_socket;
         DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
         pthread_t       plugin_thread[10];
@@ -359,6 +358,8 @@ int main (int argc, char *argv[], char *envp[])
                         {"execute", required_argument, NULL, 'x'},
 			{"slave", required_argument, NULL, 's'},
                         {"plugin",required_argument, NULL,'p'},
+                        {"masterfd",required_argument, NULL,'m'},
+
 		};
 
         modulelist = dl_list_create();
@@ -372,7 +373,7 @@ int main (int argc, char *argv[], char *envp[])
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
      
-		c = getopt_long (argc, argv, "nchvi:x:s:",
+		c = getopt_long (argc, argv, "nchvi:x:s:m",
 				 min_options, &option_index);
      
 		/* Detect the end of the options. */
@@ -405,15 +406,23 @@ int main (int argc, char *argv[], char *envp[])
 		case '?':
 			help_flag = 1;
 			break;
+
                 case 'i':
                         test_module_info (optarg);
                         exit_flag = 1;
                         break;
+
                 case 'p':
                         tx_c_copy (plugin,optarg);
                         break;
+
 		case 's':
 			dl_list_add (slavelist, optarg);
+			break;
+
+		case 'm':
+			slave_mode = 1;
+			master_socket = atoi (optarg);
 			break;
 		default:
 			abort ();
@@ -476,7 +485,15 @@ int main (int argc, char *argv[], char *envp[])
 					dl_list_next (work_module_item);
 			}
 		}
-		retval = ext_if_exec ();
+		if (!slave_mode)
+			retval = ext_if_exec ();
+		else {
+			new_tcp_master (master_socket);
+			while (slave_exit == 0)
+				usleep (500000);
+			ec_cleanup();
+			return 0;
+		}
 	} else {
 
                 c2 = tx_get_buf(plugin);

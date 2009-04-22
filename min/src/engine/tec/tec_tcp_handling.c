@@ -44,6 +44,7 @@
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
 extern DLList *ms_assoc;
+extern int slave_exit;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 
@@ -72,8 +73,6 @@ pthread_mutex_t socket_write_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
 LOCAL int set_active_rcp_sockets (fd_set *rd, fd_set *wr, int nfds);
-/* ------------------------------------------------------------------------- */
-LOCAL void new_tcp_master (int socket, struct sockaddr_in *master_ip);
 /* ------------------------------------------------------------------------- */
 LOCAL void rw_rcp_sockets (fd_set *rd, fd_set *rw);
 /* ------------------------------------------------------------------------- */
@@ -110,22 +109,6 @@ LOCAL int set_active_rcp_sockets (fd_set *rd, fd_set *wr, int nfds)
 	return nfds;
 }
 /* ------------------------------------------------------------------------- */
-LOCAL void new_tcp_master (int socket, struct sockaddr_in *master_ip)
-{
-	slave_info *master;
-	
-	master = NEW (slave_info);
-	master->slave_name_ = tx_create ("deadbeef");
-	master->slave_type_ = tx_create ("master");
-	master->fd_ = socket;
-	master->write_queue_ = dl_list_create ();
-	master->reserved_ = 1;
-
-	dl_list_add (ms_assoc, master);
-
-	return;
-}
-/* ------------------------------------------------------------------------- */
 LOCAL void rw_rcp_sockets (fd_set *rd, fd_set *wr)
 {
 	DLListIterator it;
@@ -158,6 +141,7 @@ LOCAL void free_tcp_slave (slave_info *slave)
 		dl_list_free (&master->write_queue_);
 		dl_list_remove_it (it);
 		DELETE (master);
+		slave_exit = 1;
 		return;
 	} 
 
@@ -289,20 +273,22 @@ void *ec_poll_sockets (void *arg)
 	struct timeval tv;
         int ret, rcp_socket;
 
-	ec_create_listen_socket ();
-
-	while (rcp_listen_socket > 0) {
+	
+	while (1) {
 		FD_ZERO (&rd);
 		FD_ZERO (&wr);
 		FD_ZERO (&er);
+#if 0
 		FD_SET (rcp_listen_socket, &rd);
 		nfds = MAX(nfds, rcp_listen_socket);
+#endif
 		nfds = set_active_rcp_sockets (&rd, &wr, nfds);
 		
 		tv.tv_sec = 0;
 		tv.tv_usec = 100000;
 		ret = select (nfds + 1, &rd, &wr, &er, &tv);
 		
+#if 0
 		if (FD_ISSET(rcp_listen_socket, &rd)) {
 			memset (&client_addr, 0, len = sizeof(client_addr));
 			rcp_socket = accept (rcp_listen_socket, 
@@ -322,67 +308,13 @@ void *ec_poll_sockets (void *arg)
 				return NULL;
 			}
 		}
-		
+#endif		
 		rw_rcp_sockets (&rd, &wr);
 	}
 
 	return NULL;
 }
 
-/* ------------------------------------------------------------------------- */
-/** Creates a socket to accept tcp connections
- * @return 0 or -1 on error
- */
-int ec_create_listen_socket()
-{
-	int s;
-	struct sockaddr_in in_addr;
-        struct addrinfo hints;
-        struct addrinfo *result;
-        char hostname [HOST_NAME_MAX];
-
-        memset(&hints, 0, sizeof(struct addrinfo));
-        hints.ai_family = AF_INET;    /* Allow IPv4 */
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_flags = AI_PASSIVE;    
-        hints.ai_protocol = 0;          
-        hints.ai_canonname = NULL;
-        hints.ai_addr = NULL;
-        hints.ai_next = NULL;
-
-        gethostname (hostname, HOST_NAME_MAX);
-        s = getaddrinfo(hostname, 0, &hints, &result);
-        if (s != 0) {
-                MIN_FATAL ("getaddrinfo: %s\n", gai_strerror(s));
-                return -1;
-        }
-        memcpy (&in_addr, result->ai_addr, sizeof (struct sockaddr_in));
-        in_addr.sin_port = htons (MIN_TCP_PORT); 
-
-	if ((rcp_listen_socket = socket (AF_INET, SOCK_STREAM, 0)) == -1) {
-                MIN_FATAL ("Failed to create rcp socket %s", strerror (errno));
-                return -1;
-        }
-
-        if (bind (rcp_listen_socket, 
-		  (struct sockaddr *)&in_addr, sizeof (in_addr))  == -1) {
-                MIN_FATAL ("Failed to bind to rcp socket %s", strerror (errno));
-		close (rcp_listen_socket);
-		rcp_listen_socket = -1;
-                return -1;
-                
-        }
-        if (listen (rcp_listen_socket, 1)) {
-		MIN_FATAL ("Listen failed %s", strerror (errno));
-		close (rcp_listen_socket);
-		rcp_listen_socket = -1;
-		return -1;
-	}
-
-        MIN_INFO ("accepting connections on port %d\n", MIN_TCP_PORT);
-
-	return 0;
-}
 
 /* ------------------------------------------------------------------------- */
 void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
@@ -486,6 +418,22 @@ int allocate_ip_slave (char *slavetype, char *slavename)
        return 0;
 }
 
+/* ------------------------------------------------------------------------- */
+void new_tcp_master (int socket)
+{
+	slave_info *master;
+	
+	master = NEW (slave_info);
+	master->slave_name_ = tx_create ("deadbeef");
+	master->slave_type_ = tx_create ("master");
+	master->fd_ = socket;
+	master->write_queue_ = dl_list_create ();
+	master->reserved_ = 1;
+
+	dl_list_add (ms_assoc, master);
+
+	return;
+}
 
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
