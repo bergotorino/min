@@ -150,7 +150,7 @@ LOCAL void free_tcp_slave (slave_info *slave)
 	slave_info *master;
 	DLListIterator it;
 	if (!strcmp (tx_share_buf(slave->slave_type_), "master")) {
-		master = find_slave_by_fd (slave->fd_, it);
+		master = find_slave_by_fd (slave->fd_, &it);
 		close (master->fd_);
 		tx_destroy (&master->slave_type_);
 		tx_destroy (&master->slave_name_);
@@ -395,7 +395,7 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 	if (fd == 0 && !strcmp (rcvr, "deadbeef"))
 		entry = find_master (fd);
 	else
-		entry = find_slave_by_fd (fd, it);
+		entry = find_slave_by_fd (fd, &it);
 	
 	if (entry == INITPTR) {
 		MIN_WARN ("No entry found for socket %d", fd);
