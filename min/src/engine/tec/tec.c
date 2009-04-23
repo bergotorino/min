@@ -1551,7 +1551,8 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
 	*/
 	if (!strcmp (message->desc_, "__error_console__")) {
 		/*if (in->error_report) in->error_report (message->message_);*/
-		MINAPI_PLUGIN_CALL(error_report,error_report (message->message_));
+		MINAPI_PLUGIN_CALL (error_report,
+				    error_report (message->message_));
 		tr_remove_printout (print_msg);
 		goto EXIT;
 	}
@@ -1745,7 +1746,8 @@ LOCAL int ec_message_dispatch (MsgBuffer * rcvd_message)
 		
         default:
 
-                MIN_WARN ("Faulty message received of type: %d",rcvd_message->type_);
+                MIN_WARN ("Faulty message received of type: %d", 
+			  rcvd_message->type_);
         }
 
         return msg_handling_result;

@@ -31,7 +31,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
+#include <syslog.h>
 #include <min_logger.h>
 
 /* ------------------------------------------------------------------------- */
@@ -53,7 +53,14 @@
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */
-/* None */
+#define MIND_LOG(__str__, __arg__) \
+	do {\
+		tx = tx_create (__str__); \
+		tx_c_append (tx, " ");	     \
+		tx_c_append (tx, __arg__); \
+		syslog (LOG_INFO, tx_share_buf (tx)); \
+		tx_destroy (&tx);\
+	} while (0)
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
@@ -88,6 +95,7 @@ int create_listen_socket()
         struct addrinfo hints;
         struct addrinfo *result;
         char hostname [HOST_NAME_MAX];
+        Text *tx;
 
         memset(&hints, 0, sizeof(struct addrinfo));
         hints.ai_family = AF_INET;    /* Allow IPv4 */
@@ -101,34 +109,35 @@ int create_listen_socket()
         gethostname (hostname, HOST_NAME_MAX);
         s = getaddrinfo(hostname, 0, &hints, &result);
         if (s != 0) {
-                MIN_FATAL ("getaddrinfo: %s\n", gai_strerror(s));
+                MIND_LOG ("getaddrinfo", gai_strerror(s));
                 return -1;
         }
         memcpy (&in_addr, result->ai_addr, sizeof (struct sockaddr_in));
         in_addr.sin_port = htons (MIN_TCP_PORT); 
 
 	if ((rcp_listen_socket = socket (AF_INET, SOCK_STREAM, 0)) == -1) {
-                MIN_FATAL ("Failed to create rcp socket %s", strerror (errno));
+                MIND_LOG("Failed to create rcp socket", 
+			 strerror (errno));
                 return -1;
         }
 
         if (bind (rcp_listen_socket, 
 		  (struct sockaddr *)&in_addr, sizeof (in_addr))  == -1) {
-                MIN_FATAL ("Failed to bind to rcp socket %s", strerror (errno));
+                MIND_LOG("Failed to bind to rcp socket", 
+			 strerror (errno));
 		close (rcp_listen_socket);
 		rcp_listen_socket = -1;
                 return -1;
                 
         }
         if (listen (rcp_listen_socket, 1)) {
-		MIN_FATAL ("Listen failed %s", strerror (errno));
+		MIND_LOG ("Listen failed", strerror (errno));
 		close (rcp_listen_socket);
 		rcp_listen_socket = -1;
 		return -1;
 	}
 
-        MIN_INFO ("accepting connections on port %d\n", MIN_TCP_PORT);
-
+        MIND_LOG ("accepting"," connections");
 	return 0;
 }
 
@@ -141,9 +150,13 @@ LOCAL int poll_sockets (char *envp[])
 	struct sockaddr_in client_addr;
 	struct timeval tv;
         int ret, rcp_socket, pid;
-	char args [2][100];
+	char *args[2];
+        Text *tx;
 
 	create_listen_socket ();
+	args [0] = NEW2 (char, 100);
+	args [1] = NEW2 (char, 100);
+
 	sprintf (args [0], "%s", "/usr/bin/min.bin");
 	while (rcp_listen_socket > 0) {
 		FD_ZERO (&rd);
@@ -161,33 +174,35 @@ LOCAL int poll_sockets (char *envp[])
 					     (struct sockaddr *) &client_addr, 
 				     &len);
 			if (rcp_socket < 0) {
-				MIN_FATAL ("accept() failed %s", 
-					   strerror (errno));
+				MIND_LOG ("accept() failed", 
+					 strerror (errno));
 				return -1;
 			}
-			sprintf (args[1], "-f %u", rcp_socket);
+			sprintf (args[1], "-m %u", rcp_socket);
 			pid = fork ();
 			switch (pid) {
 			case -1:
-				MIN_FATAL ("Failed to create process !");
+				MIND_LOG ("Failed to create process !",
+					 strerror (errno));
 				break;
 			case 0:
 				close (rcp_listen_socket);
 				execve (args[0], args, envp);
-				MIN_FATAL ("Failed to min engine :%s",
-					   strerror (errno));
+				MIND_LOG ("Failed start to "
+					  "min engine",
+					  strerror (errno));
 				break;
 			default:
 				close (rcp_socket);
 				break;
 			}
 
-			MIN_INFO ("connect from %s\n",
+			MIND_LOG ("connect from",
 				  inet_ntoa (client_addr.sin_addr));
-			
+
 			if (listen (rcp_listen_socket, 1)) {
-				MIN_FATAL ("Listen failed %s", 
-					   strerror (errno));
+				MIND_LOG("Listen failed", 
+					 strerror (errno));
 				return -1;
 			}
 		}
@@ -202,13 +217,8 @@ LOCAL int poll_sockets (char *envp[])
 int main (int argc, char *argv[], char *envp[])
 {
 	int retval;
-
-        min_log_open ("MIND", 3);
-	/* daemon */
-	MIN_INFO ("started");
+	openlog ("MIND", LOG_PID | LOG_CONS, LOG_LOCAL0);
         retval = poll_sockets (envp);
-	MIN_INFO ("exiting");
-	min_log_close();
 	return retval;
 }
 

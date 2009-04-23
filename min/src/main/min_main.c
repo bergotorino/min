@@ -324,8 +324,8 @@ LOCAL pthread_t load_plugin (const char *plugin_name)
 int main (int argc, char *argv[], char *envp[])
 {
         int             cont_flag, status, c, oper_mode, exit_flag;
-        int             no_cui_flag, help_flag, version_flag, retval, 
-		slave_mode, master_socket;
+        int             no_cui_flag, help_flag, version_flag, retval;
+	int 	        slave_mode, master_socket;
         DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
         pthread_t       plugin_thread[10];
