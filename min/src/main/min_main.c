@@ -373,7 +373,7 @@ int main (int argc, char *argv[], char *envp[])
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
      
-		c = getopt_long (argc, argv, "nchvi:x:s:m",
+		c = getopt_long (argc, argv, "nchvi:x:s:m:",
 				 min_options, &option_index);
      
 		/* Detect the end of the options. */
@@ -422,6 +422,7 @@ int main (int argc, char *argv[], char *envp[])
 
 		case 'm':
 			slave_mode = 1;
+			no_cui_flag = 1;
 			master_socket = atoi (optarg);
 			break;
 		default:
