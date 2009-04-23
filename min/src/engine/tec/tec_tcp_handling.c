@@ -392,7 +392,7 @@ int allocate_ip_slave (char *slavetype, char *slavename)
        hints.ai_flags = 0;
        hints.ai_protocol = 0;         
        
-       s = getaddrinfo(slave->he_.h_name, "5001", &hints, &result);
+       s = getaddrinfo(slave->he_.h_name, "51551", &hints, &result);
        if (s != 0) {
 	       MIN_WARN ("getaddrinfo: %s\n", gai_strerror(s));
 	       return -1;
