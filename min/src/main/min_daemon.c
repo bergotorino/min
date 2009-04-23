@@ -176,6 +176,7 @@ LOCAL int poll_sockets (char *envp[])
 					  strerror (errno));
 				break;
 			default:
+				sl_set_sighandler (SIGCHLD, handle_sigchld);
 				close (rcp_socket);
 				break;
 			}
@@ -215,7 +216,6 @@ int main (int argc, char *argv[], char *envp[])
 {
 	int retval;
 	openlog ("MIND", LOG_PID | LOG_CONS, LOG_LOCAL0);
-        sl_set_sighandler (SIGCHLD, handle_sigchld);
         sl_set_sighandler (SIGINT,  handle_sigint);
         sl_set_sighandler (SIGHUP,  handle_sigint);
         retval = poll_sockets (envp);
