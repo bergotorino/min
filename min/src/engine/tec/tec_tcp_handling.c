@@ -198,7 +198,7 @@ LOCAL void socket_write_rcp (slave_info *slave)
 
 	pthread_mutex_lock (&socket_write_mutex_);
 
-        it = dl_list_tail (slave->write_queue_);
+        it = dl_list_head (slave->write_queue_);
         if (it == DLListNULLIterator) {
 		pthread_mutex_unlock (&socket_write_mutex_);
 
