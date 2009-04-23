@@ -33,6 +33,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
+#include <min_common.h>
 #include <dllist.h>
 #include <min_logger.h>
 #include <tec_rcp_handling.h>
@@ -63,7 +64,6 @@ int slave_result_sent = 0;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
-#define MIN_TCP_PORT 5001
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
