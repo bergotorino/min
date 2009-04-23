@@ -2599,18 +2599,12 @@ int test_allocate_slave (const char *slave_type, const char *slave_name)
                 goto EXIT;
         }
 
-        if (strcmp (slave_type, "phone") == 0) {
-                STRCPY (msg.desc_, slave_type, MaxDescSize);
-                STRCPY (msg.message_, slave_name, MaxMsgSize);
-                mq_send_message (scripter_mod.mqid, &msg);
+	STRCPY (msg.desc_, slave_type, MaxDescSize);
+	STRCPY (msg.message_, slave_name, MaxMsgSize);
+	mq_send_message (scripter_mod.mqid, &msg);
 
-                /* Stop execution till response comes */
-                scripter_mod.extif_pending = ESTrue;
-        } else {
-                SCRIPTER_RTERR_ARG ("Slave type not supported", 
-                                    slave_type);
-                MIN_WARN ("Slave type not supported [%s]", slave_type);
-        }
+	/* Stop execution till response comes */
+	scripter_mod.extif_pending = ESTrue;
       EXIT:
         return retval;
 }

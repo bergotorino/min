@@ -703,13 +703,6 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number,
                 retval = -1;
                 goto EXIT;
         }
-        if (strcmp (token, "phone") != 0) {
-                SCRIPTER_SYNTAX_ERROR ("allocate",
-				       "slave type differs from phone");
-                DELETE (token);
-                retval = -1;
-                goto EXIT;
-        }
         DELETE (token);
         result = mip_get_next_string (line, &token);
         if (result != ENOERR) {

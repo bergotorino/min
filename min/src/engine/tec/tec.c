@@ -2114,6 +2114,56 @@ LOCAL int ec_read_module_section (MinParser * inifile)
         return 0;
 }
 
+LOCAL int ec_read_slaves_section (MinParser * inifile)
+{
+	char *hostname = NULL;
+	char *slavetype = NULL;
+	MinSectionParser *slave_def;
+        MinItemParser    *line; 
+	struct hostent *he;
+	int i = 1, ret;
+
+        slave_def = mp_section (inifile, "[Slaves]", "[End_Slaves]", i);
+        while (slave_def != INITPTR) {
+		
+		line = mmp_get_item_line (slave_def, "", ESNoTag);
+
+		while (line != INITPTR) {
+			ret = mip_get_string (line, "", &hostname);
+			if (ret != ENOERR) {
+				MIN_WARN ("error parsing slaves section:"
+					  "no hostname specified");
+				goto next_line;
+			}
+
+			he = gethostbyname (hostname);
+			if (he == NULL) {
+				MIN_WARN ("failed to resolve host %s: %s",
+					  strerror (h_errno));
+				goto next_line;
+			}
+       
+			
+			mip_get_next_string (line, &slavetype);
+
+			tec_add_ip_slave_to_pool (he, 
+						  slavetype ? 
+						  slavetype : "phone");
+			DELETE (slavetype);
+			DELETE (hostname);
+		next_line:
+			mip_destroy(&line);
+			
+			line = mmp_get_next_item_line (slave_def);
+		}
+		mmp_destroy (&slave_def);
+		i ++;
+		slave_def = mp_section (inifile, "[Slaves]", "[End_Slaves]", i);
+	}
+
+        return 0;
+}
+
 LOCAL int ec_read_module_confdir ()
 {
 
@@ -2269,6 +2319,8 @@ LOCAL int ec_read_conf (MinParser * inifile, int operation_mode)
                    if we don't use external controller */
                 ec_read_module_section (inifile);
         }
+	
+	ec_read_slaves_section (inifile);
 
         return 0;
 err_exit:
@@ -2433,8 +2485,9 @@ void ec_min_init (char *envp_[], int operation_mode)
         instantiated_modules = dl_list_create ();
         selected_cases = dl_list_create ();
 
-        /* not sure if this code should be here, but it should work anyway */
         pthread_mutex_lock (&tec_mutex_);
+	rcp_handling_init ();
+
         ec_settings.engine_pid_ = getpid ();
         pthread_mutex_unlock (&tec_mutex_);
         ec_settings.search_dirs = dl_list_create ();
@@ -2467,7 +2520,6 @@ void ec_min_init (char *envp_[], int operation_mode)
                 exit (0);
         }
         event_system_init ();
-	rcp_handling_init ();
 
 
         /*start modules */
