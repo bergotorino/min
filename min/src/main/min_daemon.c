@@ -92,29 +92,11 @@ int create_listen_socket()
 {
 	int s;
 	struct sockaddr_in in_addr;
-        struct addrinfo hints;
-        struct addrinfo *result;
-        char hostname [HOST_NAME_MAX];
         Text *tx;
 
-        memset(&hints, 0, sizeof(struct addrinfo));
-        hints.ai_family = AF_INET;    /* Allow IPv4 */
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_flags = AI_PASSIVE;    
-        hints.ai_protocol = 0;          
-        hints.ai_canonname = NULL;
-        hints.ai_addr = NULL;
-        hints.ai_next = NULL;
-
-        gethostname (hostname, HOST_NAME_MAX);
-        s = getaddrinfo(hostname, 0, &hints, &result);
-        if (s != 0) {
-                MIND_LOG ("getaddrinfo", gai_strerror(s));
-                return -1;
-        }
-        memcpy (&in_addr, result->ai_addr, sizeof (struct sockaddr_in));
         in_addr.sin_port = htons (MIN_TCP_PORT); 
-
+	in_addr.sin_family = AF_INET;
+	in_addr.sin_addr.s_addr = INADDR_ANY;
 	if ((rcp_listen_socket = socket (AF_INET, SOCK_STREAM, 0)) == -1) {
                 MIND_LOG("Failed to create rcp socket", 
 			 strerror (errno));

@@ -876,6 +876,17 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                 }
                 retval = 0;
         } else if (strcasecmp (command, "remote") == 0) {
+                slave_entry_item = dl_list_head (ms_assoc);
+                while (slave_entry_item != DLListNULLIterator) {
+                        slave_entry =
+                            (slave_info *) dl_list_data (slave_entry_item);
+                        if (slave_entry->slave_id_ == slave_id) 
+                                break;
+                        
+
+                }
+                retval = 0;
+
                 mip_get_next_string (extif_message, &command);
                 if (strcasecmp (command, "run") == 0) {
                         splithex (srcid, &slave_id, &case_id);
@@ -906,7 +917,8 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                                              result);
                                 mq_send_message (mq_id, &ipc_message);
                                 retval = 0;
-				if (slave_entry->status_ 
+				if (slave_entry != INITPTR && 
+				    slave_entry->status_ 
 				    & SLAVE_STAT_RESERVED) {
 					slave_entry->status_ |= 
 						SLAVE_STAT_RESULT;
@@ -927,7 +939,8 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                                              result);
                                 mq_send_message (mq_id, &ipc_message);
                                 retval = 0;
-				if (slave_entry->status_ & 
+				if (slave_entry != INITPTR &&
+				    slave_entry->status_ & 
 				    SLAVE_STAT_RESERVED) {
 					slave_entry->status_ |= 
 						SLAVE_STAT_RESULT;
