@@ -49,6 +49,7 @@ extern eapiIn_t *in;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
 extern pthread_mutex_t tec_mutex_;
+extern int slave_result_sent;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
@@ -821,6 +822,7 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                 slave_entry->slave_id_ = slave_id;
                 if (retval == -1)
                         result = 0;
+		slave_entry->status_ = SLAVE_STAT_RESERVED;
                 /*it seems that result was not sent, assume success */
                 ipc_message.sender_ = ec_settings.engine_pid_;
                 ipc_message.receiver_ = own_id;
@@ -862,10 +864,11 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                                 DELETE (slave_entry);
                                 dl_list_remove_it (slave_entry_item);
 #else
-				close (slave_entry->fd_);
-				slave_entry->fd_ = -1;
-				slave_entry->reserved_ = 0;
-				tx_destroy (&slave_entry->slave_name_);
+				if (slave_entry->status_ & SLAVE_STAT_RESULT) {
+					/* we have a result - can close */
+					tcp_slave_close (slave_entry);
+				} else
+					slave_entry->status_ &= 0xe;
 #endif
                                 break;
                         }
@@ -903,7 +906,15 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                                              result);
                                 mq_send_message (mq_id, &ipc_message);
                                 retval = 0;
+				if (slave_entry->status_ 
+				    & SLAVE_STAT_RESERVED) {
+					slave_entry->status_ |= 
+						SLAVE_STAT_RESULT;
 
+				} else {
+					/* we have are free - can close */
+					tcp_slave_close (slave_entry);
+				}
                         } else if (strcasecmp (param1, "error") == 0) {
                                 mip_get_int (extif_message, "result=", &result);
                                 ipc_message.sender_ = ec_settings.engine_pid_;
@@ -916,6 +927,16 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                                              result);
                                 mq_send_message (mq_id, &ipc_message);
                                 retval = 0;
+				if (slave_entry->status_ & 
+				    SLAVE_STAT_RESERVED) {
+					slave_entry->status_ |= 
+						SLAVE_STAT_RESULT;
+
+				} else {
+					/* we have are free - can close */
+					tcp_slave_close (slave_entry);
+				}
+
                         }
                 } else if (strcasecmp (command, "request") == 0) {
                         retval =
@@ -1330,7 +1351,7 @@ int tec_add_ip_slave_to_pool (struct hostent *he, char *slavetype)
                return 1;
        }
        slave = NEW(slave_info);
-       slave->reserved_ = 0;
+       slave->status_ = SLAVE_STAT_FREE;
        slave->slave_id_ = 0;
        memcpy (&slave->he_, he, sizeof (struct hostent));
        slave->slave_type_ = tx_create (slavetype);
@@ -1366,7 +1387,7 @@ int tec_del_ip_slave_from_pool (struct hostent *he, char *slavetype)
        
        dl_list_remove_it (it);
        
-       if (slave->reserved_) {
+       if (slave->status_ & SLAVE_STAT_RESERVED) {
                MIN_WARN ("slave still reserved");
        }
 
@@ -1394,6 +1415,7 @@ tcp_master_report (int run_id, int execution_result, int test_result,
         extifmessage = NEW2 (char, 30);
         sprintf (extifmessage, "remote run ready result=%d", test_result);
         send_to_master (run_id + 1, extifmessage);
+	slave_result_sent = 1;
         DELETE (extifmessage);
 }
 

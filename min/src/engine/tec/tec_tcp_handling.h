@@ -28,7 +28,7 @@
 
 /* ------------------------------------------------------------------------- */
 /* INCLUDES */
-
+#include <tec_rcp_handling.h>
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -61,5 +61,6 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd);
 /* ------------------------------------------------------------------------- */
 int allocate_ip_slave (char *slavetype);
 /* ------------------------------------------------------------------------- */
+void tcp_slave_close (slave_info *slave);
 #endif /* TEC_TCP_HANDLING_H */
 /* End of file */

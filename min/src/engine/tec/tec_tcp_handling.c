@@ -52,7 +52,7 @@ extern int slave_exit;
 /* GLOBAL VARIABLES */
 int rcp_listen_socket = -1;
 pthread_mutex_t socket_write_mutex_ = PTHREAD_MUTEX_INITIALIZER;
-
+int slave_result_sent = 0;
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -147,7 +147,7 @@ LOCAL void free_tcp_slave (slave_info *slave)
 
 	close (slave->fd_);
 	slave->fd_ = -1;
-	slave->reserved_ = 0;
+	slave->status_ = SLAVE_STAT_FREE;
 	slave->slave_id_ = 0;
 	tx_destroy (&slave->slave_name_);
 	return;
@@ -373,7 +373,7 @@ int allocate_ip_slave (char *slavetype, char *slavename)
 	    it = dl_list_next (it)) {
 	       slave = dl_list_data (it);
 	       if (!strcmp (tx_share_buf (slave->slave_type_), slavetype) &&
-		   slave->reserved_ == 0) {
+		   slave->status_ == SLAVE_STAT_FREE) {
 		       found = 1;
 		       slave->slave_name_ = tx_create (slavename);
 		       break;
@@ -417,7 +417,7 @@ int allocate_ip_slave (char *slavetype, char *slavename)
 
        
        slave->fd_ = sfd;
-       slave->reserved_ = 1;
+       slave->status_ = SLAVE_STAT_RESERVED;
 
        return 0;
 }
@@ -432,11 +432,19 @@ void new_tcp_master (int socket)
 	master->slave_type_ = tx_create ("master");
 	master->fd_ = socket;
 	master->write_queue_ = dl_list_create ();
-	master->reserved_ = 1;
+	master->status_ = SLAVE_STAT_RESERVED;
 
 	dl_list_add (ms_assoc, master);
 
 	return;
+}
+
+/* ------------------------------------------------------------------------- */
+void tcp_slave_close (slave_info *slave) {
+	close (slave->fd_);
+	slave->fd_ = -1;
+	slave->status_ = SLAVE_STAT_FREE ;
+	tx_destroy (&slave->slave_name_);
 }
 
 /* ------------------------------------------------------------------------- */
