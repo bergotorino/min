@@ -32,6 +32,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <syslog.h>
+#include <min_ipc_mechanism.h>
 #include <min_logger.h>
 
 /* ------------------------------------------------------------------------- */
@@ -65,7 +66,7 @@
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
 int rcp_listen_socket;
-
+int mins_running = 0;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
@@ -88,7 +89,7 @@ int rcp_listen_socket;
 /** Creates a socket to accept tcp connections
  * @return 0 or -1 on error
  */
-int create_listen_socket()
+LOCAL int create_listen_socket()
 {
 	int s;
 	struct sockaddr_in in_addr;
@@ -194,13 +195,31 @@ LOCAL int poll_sockets (char *envp[])
 	return 0;
 }
 
+/* ------------------------------------------------------------------------- */
+LOCAL void handle_sigchld (int sig)
+{
+	mins_running--;
+
+}
+
+/* ------------------------------------------------------------------------- */
+LOCAL void handle_sigint (int sig)
+{
+	mins_running--;
+	close (rcp_listen_socket);
+	rcp_listen_socket = -1;
+}
 
 /* ------------------------------------------------------------------------- */
 int main (int argc, char *argv[], char *envp[])
 {
 	int retval;
 	openlog ("MIND", LOG_PID | LOG_CONS, LOG_LOCAL0);
+        sl_set_sighandler (SIGCHLD, handle_sigchld);
+        sl_set_sighandler (SIGINT,  handle_sigint);
+        sl_set_sighandler (SIGHUP,  handle_sigint);
         retval = poll_sockets (envp);
+	closelog();
 	return retval;
 }
 

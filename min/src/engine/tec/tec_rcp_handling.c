@@ -1032,7 +1032,6 @@ void rcp_handling_cleanup ()
         DLListIterator  work_data_item;
         received_data  *work_data_entry;
 
-        log_summary_stdout ();
         work_slave_item = dl_list_head (ms_assoc);
         while (work_slave_item != DLListNULLIterator) {
                 dl_list_remove_it (work_slave_item);
