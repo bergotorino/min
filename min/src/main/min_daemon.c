@@ -207,6 +207,11 @@ LOCAL int poll_sockets (char *envp[])
 /* ------------------------------------------------------------------------- */
 LOCAL void handle_sigchld (int sig)
 {
+        int             pid, status;
+        while ((pid = waitpid (-1, &status, 0)) > 0) {
+		usleep (500000);
+        }
+
 	mins_running--;
 
 }
