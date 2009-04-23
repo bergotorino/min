@@ -29,6 +29,9 @@
 // System includes
 #include <QAbstractTableModel>
 
+// Min includes
+#include "min_database.hpp"
+
 // -----------------------------------------------------------------------------
 /**
  * @namespace Min
@@ -68,6 +71,9 @@ namespace Min
     private:
         /** Make it noncopyable */
         Q_DISABLE_COPY(AvailableModel)
+
+        /** Handler to database connection for MIN */
+        Min::Database &db_;
     };
     // -------------------------------------------------------------------------
 }; // namespace Min

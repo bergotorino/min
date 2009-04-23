@@ -302,12 +302,12 @@ QStringList Min::Database::getTestCases(unsigned int module_dbid)
 
 };
 // ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getUIView(unsigned int device_dbid)
+QVector<QStringList> Min::Database::getAvailableView(unsigned int device_dbid)
 {
     QSqlQuery query;
     QVector<QStringList> retval;
     QStringList row;
-    query.prepare("SELECT * FROM uiview;");
+    query.prepare("SELECT * FROM availableview;");
     if(query.exec()){
         while(query.next()) {
 	    row.clear();
@@ -349,21 +349,21 @@ bool Min::Database::initDatabase()
 
 	
 	
-	query.exec("CREATE VIEW uiview AS SELECT module.module_name AS module_name, test_case.test_case_name AS test_case_name, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid WHERE module.id=test_case.module_id;");
+	query.exec("CREATE VIEW availableview AS SELECT module.module_name AS module_name, test_case.test_case_name AS test_case_name, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid WHERE module.id=test_case.module_id;");
 
         /* Demo data */
         
         query.exec("INSERT INTO device VALUES (NULL, 10);");
         query.exec("INSERT INTO module VALUES (NULL, 1, 10, \"minDemoModule\");");
+        query.exec("INSERT INTO module VALUES (NULL, 2, 10, \"minDemo2\");");
+        query.exec("INSERT INTO module VALUES (NULL, 1, 20, \"minDemoModule\");");
+        query.exec("INSERT INTO module VALUES (NULL, 2, 20, \"minDemo2\");");
         query.exec("INSERT INTO module VALUES (NULL, 2, 10, \"scripter\");");
 	query.exec("INSERT INTO test_case VALUES(NULL, 1, 1, \"Demo_1\", \"\");");
 	query.exec("INSERT INTO test_case VALUES(NULL, 2, 1, \"Demo_2\"), \"\";");
 	query.exec("INSERT INTO test_case VALUES(NULL, 1, 2, \"Scripted test case 1\", \"\");");
 	query.exec("INSERT INTO test_case VALUES(NULL, 2, 2, \"Second scripter case\", \"\");");
-
-
         
-
         return true;
     }
 

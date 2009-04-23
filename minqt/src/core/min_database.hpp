@@ -149,7 +149,7 @@ namespace Min
 	 */
         QStringList getTestCases(unsigned int module_dbid);
 
-	QVector<QStringList> getUIView(unsigned int device_dbid);
+	QVector<QStringList> getAvailableView(unsigned int device_dbid);
 
     private:
 	/**

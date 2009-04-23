@@ -43,6 +43,7 @@ int main( int argc, char* argv[] )
     QApplication app(argc,argv);
 
     Min::Database::getInstance();
+    Min::RemoteControll::getInstance();
 
     // 2. Create window
     Min::MainWindow mw;

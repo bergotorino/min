@@ -56,6 +56,8 @@ namespace Min
     private slots:
         /** Displays "About" information. */
         void displayAboutDialog ();
+        /** Displays "Add module" dialog. */
+        void displayAddModuleDialog();
     private:
         /**@{ Declared but not defined by design. */
         /** Copy Constructor. */
@@ -66,6 +68,9 @@ namespace Min
 
         /** Initializes the menu bar. */
         void setupMenuBar();
+
+        /** Initializes the tool bar. */
+        void setupToolBar();
     private:
         /** MIN Qt client main widget. */
         Min::MainWidget *mainWidget_;

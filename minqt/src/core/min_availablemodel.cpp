@@ -32,6 +32,7 @@
 // -----------------------------------------------------------------------------
 Min::AvailableModel::AvailableModel(QObject *parent)
     : QAbstractTableModel(parent)
+    , db_(Min::Database::getInstance())
 { ; }
 // -----------------------------------------------------------------------------
 Min::AvailableModel::~AvailableModel()
@@ -39,7 +40,7 @@ Min::AvailableModel::~AvailableModel()
 // -----------------------------------------------------------------------------
 int Min::AvailableModel::rowCount(const QModelIndex &parent) const
 {
-    return 5;
+    return 2;
 }
 // -----------------------------------------------------------------------------
 int Min::AvailableModel::columnCount(const QModelIndex &parent) const
@@ -51,13 +52,34 @@ QVariant Min::AvailableModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) return QVariant();
 
+    QStringList modules = db_.getModules(10);
+    int row = index.row();
+    int column = index.column();
+
+
+    if (role==Qt::DisplayRole) {
+        unsigned int mdbid = db_.getModuleDbId(10,modules[0]);
+        QStringList tests = db_.getTestCases(mdbid);
+
+        if (column==0) return modules[0];
+        if (column==1) return "Test Case";
+        return "Nothing";
+    }
+    return QVariant();
+/*
     switch (role) {
     case Qt::DisplayRole:
-        return "Ala ma kota";
+
+        getModuleDbId(10,modules[0])
+        QStringList getTestCases(unsigned int module_dbid);
+
+
+        return modules[0];
         break;
     default:
         return QVariant();
     }
+*/
 }
 // -----------------------------------------------------------------------------
 QVariant Min::AvailableModel::headerData(int section,

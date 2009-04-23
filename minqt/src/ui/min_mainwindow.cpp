@@ -32,6 +32,9 @@
 #include <QMenuBar>
 #include <QGridLayout>
 #include <QListView>
+#include <QToolBar>
+#include <QIcon>
+#include <QAction>
 
 // Min includes
 #include "min_mainwidget.hpp"
@@ -46,6 +49,7 @@ Min::MainWindow::MainWindow()
     setGeometry(0,0,500,500);
     statusBar()->show();
     setupMenuBar();
+    setupToolBar();
 
     // Add the real window
     setCentralWidget(mainWidget_);
@@ -63,10 +67,27 @@ void Min::MainWindow::setupMenuBar()
             this,SLOT(displayAboutDialog()));
 }
 // -----------------------------------------------------------------------------
+void Min::MainWindow::setupToolBar()
+{
+    QToolBar *tlb = addToolBar("Min actions");
+    QAction *runaction = tlb->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/clicknrun.png"),
+                                        "Run Selected Test Cases");
+    QAction *addmoduleaction = tlb->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/db_add.png"),
+                                            "Add Test Module");
+
+    connect (addmoduleaction,SIGNAL(triggered(bool)),
+            this,SLOT(displayAddModuleDialog()));
+}
+// -----------------------------------------------------------------------------
 void Min::MainWindow::displayAboutDialog()
 {
     // FIXME: shoud really display about dialog
     qDebug("About");
+}
+// -----------------------------------------------------------------------------
+void Min::MainWindow::displayAddModuleDialog()
+{
+    qDebug("Add Module");
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08
