@@ -212,8 +212,9 @@ LOCAL void socket_write_rcp (slave_info *slave)
         
         write (slave->fd_, &len_buff, 2);
 
+	MIN_DEBUG ("SENDING TO EXTIF :%s", tx_share_buf (tx));
         ret = write (slave->fd_, tx_share_buf (tx), strlen (tx_share_buf (tx)));
-        MIN_DEBUG ("sent %d bytes", ret);
+
         dl_list_remove_it (it);
         tx_destroy (&tx);
 	pthread_mutex_unlock (&socket_write_mutex_);
@@ -322,6 +323,9 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 	Text *tx;
 	slave_info *entry;
 	DLListIterator it;
+
+	MIN_DEBUG ("cmd:%s sender:%s rcvr:%s msg:%s fd:%d",
+		   cmd, sender, rcvr, msg, fd);
 
 	tx = tx_create (cmd);
 	tx_c_append (tx, " ");
