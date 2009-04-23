@@ -325,7 +325,7 @@ int main (int argc, char *argv[], char *envp[])
 {
         int             cont_flag, status, c, oper_mode, exit_flag;
         int             no_cui_flag, help_flag, version_flag, retval;
-	int 	        slave_mode, master_socket;
+	int 	        slave_mode = 0, master_socket;
         DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
         pthread_t       plugin_thread[10];
