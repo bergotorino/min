@@ -423,6 +423,7 @@ int main (int argc, char *argv[], char *envp[])
 		case 'm':
 			slave_mode = 1;
 			no_cui_flag = 1;
+			oper_mode = 0;
 			master_socket = atoi (optarg);
 			break;
 		default:
