@@ -59,7 +59,7 @@ int ec_create_listen_socket();
 /* ------------------------------------------------------------------------- */
 void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd);
 /* ------------------------------------------------------------------------- */
-int allocate_ip_slave (char *slavetype, pid_t pid);
+int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid);
 /* ------------------------------------------------------------------------- */
 void tcp_slave_close (slave_info *slave);
 /* ------------------------------------------------------------------------- */

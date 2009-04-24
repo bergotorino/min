@@ -594,7 +594,6 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
                         retval =
                             handle_remote_event_request_resp (extif_message);
                 } else if (strcasecmp (command, "release") == 0)
-                        /*TEMPORARY SOLUTION, INVESTIGATE EVENT SYSTEM */
                         retval = 0;
         }
       out:

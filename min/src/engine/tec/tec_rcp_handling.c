@@ -943,7 +943,6 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                         retval =
                             handle_remote_event_request_resp (extif_message);
                 } else if (strcasecmp (command, "release") == 0)
-                        /*TEMPORARY SOLUTION, INVESTIGATE EVENT SYSTEM */
                         retval = 0;
         }
       out:
@@ -1171,7 +1170,8 @@ int ec_msg_ms_handler (MsgBuffer * message)
                 slave_entry->slave_id_ = 0;
                 dl_list_add (ms_assoc, (void *)slave_entry);
 #else
-		if (allocate_ip_slave (message->desc_, own_id)) {
+		if (allocate_ip_slave (message->message_, message->desc_, 
+				       own_id)) {
 			MIN_FATAL ("slave allocation failed");
 			DELETE (extifmessage);
 			return -1;
