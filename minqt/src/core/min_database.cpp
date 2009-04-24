@@ -31,7 +31,7 @@ Min::Database::Database()
 // ----------------------------------------------------------------------------
 Min::Database::~Database()
 {
-    /* EMPTY BODY */
+	db.close();
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::insertDevice(unsigned int device_id)
@@ -327,7 +327,7 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int device_dbid)
 bool Min::Database::initDatabase()
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/home/user/min.db");
+    db.setDatabaseName(":memory:");
     if (!db.open()) {
         QMessageBox::critical(0, QString("Cannot open database"),
             QString("Unable to establish MIN database backend.\n"
@@ -357,7 +357,7 @@ bool Min::Database::initDatabase()
 	query.exec("INSERT INTO test_case VALUES(NULL, 1, 2, \"Scripted test case 1\", \"\");");
 	query.exec("INSERT INTO test_case VALUES(NULL, 2, 2, \"Second scripter case\", \"\");");
 
-	query.exec("CREATE VIEW availableview AS SELECT module.module_name AS module_name, test_case.test_case_name AS test_case_name, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid WHERE module.id=test_case.module_id;");
+	query.exec("CREATE VIEW availableview AS SELECT module.module_name AS module_name, test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid FROM test_case, module WHERE module.id=test_case.module_id;");
 //        query.exec("Create VIEW availableview AS select module.device_id, module.module_name, test_case.test_case_title from module left join test_case on module.id == test_case.module_id where module.device_id==10;");
 //        query.exec("Create VIEW availableview AS select module.module_name, test_case.test_case_title, module.device_id AS device_id from module left join test_case on module.id == test_case.module_id;");
 
