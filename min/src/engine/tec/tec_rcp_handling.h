@@ -72,6 +72,9 @@ typedef struct {
 	/** socket for communicating with the slave */
 	int             fd_;
 	
+	/** pid of test case that allocated this slave */
+	pid_t           pid_;
+
 	/** socket write queue */
 	DLList         *write_queue_;
 } slave_info;

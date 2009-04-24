@@ -59,8 +59,12 @@ int ec_create_listen_socket();
 /* ------------------------------------------------------------------------- */
 void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd);
 /* ------------------------------------------------------------------------- */
-int allocate_ip_slave (char *slavetype);
+int allocate_ip_slave (char *slavetype, pid_t pid);
 /* ------------------------------------------------------------------------- */
 void tcp_slave_close (slave_info *slave);
+/* ------------------------------------------------------------------------- */
+int tcp_msg_handle_response (MinItemParser *mip);
+/* ------------------------------------------------------------------------- */
+
 #endif /* TEC_TCP_HANDLING_H */
 /* End of file */

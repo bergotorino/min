@@ -1731,7 +1731,6 @@ LOCAL int ec_message_dispatch (MsgBuffer * rcvd_message)
                 break;
 
         case MSG_EVENT:
-
                 msg_handling_result = ec_msg_event_handler (rcvd_message);
                 break;
         case MSG_EXTIF:

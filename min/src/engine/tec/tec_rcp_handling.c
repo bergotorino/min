@@ -49,7 +49,7 @@ extern eapiIn_t *in;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
 extern pthread_mutex_t tec_mutex_;
-extern int slave_result_sent;
+
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
@@ -87,20 +87,32 @@ TSBool          ok_to_break;    /*flag stating if it is ok to revert back to
 /* None */
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
+/* ------------------------------------------------------------------------- */
 LOCAL int       min_if_dispatch_extif_msg (MinItemParser * extif_message);
+/* ------------------------------------------------------------------------- */
 LOCAL int       extif_msg_handle_reserve (MinItemParser * extif_message);
+/* ------------------------------------------------------------------------- */
 LOCAL int       extif_msg_handle_release (MinItemParser * extif_message);
+/* ------------------------------------------------------------------------- */
 LOCAL int       extif_msg_handle_response (MinItemParser * extif_message);
+/* ------------------------------------------------------------------------- */
 LOCAL int       extif_msg_handle_command (MinItemParser * extif_message);
+/* ------------------------------------------------------------------------- */
 LOCAL int       handle_remote_run (MinItemParser * extif_message);
+/* ------------------------------------------------------------------------- */
 LOCAL int       handle_remote_pause (MinItemParser * extif_message,
                                      int case_id);
+/* ------------------------------------------------------------------------- */
 LOCAL int       handle_remote_cancel (MinItemParser * extif_message,
                                       int case_id);
+/* ------------------------------------------------------------------------- */
 LOCAL int       splithex (char *hex, int *dev_id, int *case_id);
+/* ------------------------------------------------------------------------- */
 LOCAL int       handle_remote_sendreceive (MinItemParser * extif_message,
                                            int dev_id);
+/* ------------------------------------------------------------------------- */
 LOCAL slave_info *find_slave_by_he (struct hostent *he, DLListIterator *itp);
+/* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -743,7 +755,12 @@ LOCAL int min_if_dispatch_extif_msg (MinItemParser * extif_message)
         }
 
         if (strcasestr (messtype, "response") != NULL) {
+#ifdef MIN_EXTIF
                 result = extif_msg_handle_response (extif_message);
+#else
+                result = tcp_msg_handle_response (extif_message);
+
+#endif
                 goto DISPATCH_EXIT;
         }
 
@@ -859,17 +876,9 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                         slave_entry =
                             (slave_info *) dl_list_data (slave_entry_item);
                         if (slave_entry->slave_id_ == slave_id) {
-#ifdef MIN_EXTIF
 				tx_destroy (&slave_entry->slave_name_);
                                 DELETE (slave_entry);
                                 dl_list_remove_it (slave_entry_item);
-#else
-				if (slave_entry->status_ & SLAVE_STAT_RESULT) {
-					/* we have a result - can close */
-					tcp_slave_close (slave_entry);
-				} else
-					slave_entry->status_ &= 0xe;
-#endif
                                 break;
                         }
 
@@ -917,16 +926,6 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                                              result);
                                 mq_send_message (mq_id, &ipc_message);
                                 retval = 0;
-				if (slave_entry != INITPTR && 
-				    slave_entry->status_ 
-				    & SLAVE_STAT_RESERVED) {
-					slave_entry->status_ |= 
-						SLAVE_STAT_RESULT;
-
-				} else {
-					/* we have are free - can close */
-					tcp_slave_close (slave_entry);
-				}
                         } else if (strcasecmp (param1, "error") == 0) {
                                 mip_get_int (extif_message, "result=", &result);
                                 ipc_message.sender_ = ec_settings.engine_pid_;
@@ -936,20 +935,9 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                                 ipc_message.param_ = result;
                                 ipc_message.extif_msg_type_ = EResponseSlave;
                                 MIN_DEBUG ("ipc sending with result %d",
-                                             result);
+					   result);
                                 mq_send_message (mq_id, &ipc_message);
                                 retval = 0;
-				if (slave_entry != INITPTR &&
-				    slave_entry->status_ & 
-				    SLAVE_STAT_RESERVED) {
-					slave_entry->status_ |= 
-						SLAVE_STAT_RESULT;
-
-				} else {
-					/* we have are free - can close */
-					tcp_slave_close (slave_entry);
-				}
-
                         }
                 } else if (strcasecmp (command, "request") == 0) {
                         retval =
@@ -1183,7 +1171,7 @@ int ec_msg_ms_handler (MsgBuffer * message)
                 slave_entry->slave_id_ = 0;
                 dl_list_add (ms_assoc, (void *)slave_entry);
 #else
-		if (allocate_ip_slave (message->desc_)) {
+		if (allocate_ip_slave (message->desc_, own_id)) {
 			MIN_FATAL ("slave allocation failed");
 			DELETE (extifmessage);
 			return -1;
@@ -1427,7 +1415,6 @@ tcp_master_report (int run_id, int execution_result, int test_result,
         extifmessage = NEW2 (char, 30);
         sprintf (extifmessage, "remote run ready result=%d", test_result);
         send_to_master (run_id + 1, extifmessage);
-	slave_result_sent = 1;
         DELETE (extifmessage);
 }
 

@@ -33,8 +33,11 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
+#include <tec.h>
+#include <tec_events.h>
 #include <min_common.h>
 #include <dllist.h>
+#include <min_parser.h>
 #include <min_logger.h>
 #include <tec_rcp_handling.h>
 
@@ -53,7 +56,7 @@ extern int slave_exit;
 /* GLOBAL VARIABLES */
 int rcp_listen_socket = -1;
 pthread_mutex_t socket_write_mutex_ = PTHREAD_MUTEX_INITIALIZER;
-int slave_result_sent = 0;
+int current_slave_fd;
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -176,6 +179,7 @@ LOCAL void socket_read_rcp (slave_info *slave)
         }
 
 	buff [len] = '\0';
+	current_slave_fd = slave->fd_; 
         tec_extif_message_received (buff, len);
 
         DELETE (buff);
@@ -258,58 +262,50 @@ LOCAL slave_info *find_master (int fd)
        
        return INITPTR;
 }
+/* ------------------------------------------------------------------------- */
+LOCAL int splithex (char *hex, int *dev_id, int *case_id)
+{
+        char            dev_id_c[5];
+        char            case_id_c[5];
+        char           *endptr;
+
+        if (strlen (hex) != 8) {
+                return -1;
+        }
+
+        snprintf (dev_id_c, 5, "%s", hex);
+        snprintf (case_id_c, 5, "%s", hex + 4);
+        *dev_id = strtol (dev_id_c, &endptr, 16);
+        *case_id = strtol (case_id_c, &endptr, 16);
+
+        return 0;
+}
+/* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
-/** Handles socket polling
- * @return 0 or  -1 on error
+/** Handles socket polling thread
+ *  @return NULL
  */
 void *ec_poll_sockets (void *arg)
 {
 	fd_set rd, wr, er;
 	int nfds = 0;
-	unsigned len;
-	struct sockaddr_in client_addr;
 	struct timeval tv;
-        int ret, rcp_socket;
+        int ret;
 
 	
 	while (1) {
 		FD_ZERO (&rd);
 		FD_ZERO (&wr);
 		FD_ZERO (&er);
-#if 0
-		FD_SET (rcp_listen_socket, &rd);
-		nfds = MAX(nfds, rcp_listen_socket);
-#endif
 		nfds = set_active_rcp_sockets (&rd, &wr, nfds);
 		
 		tv.tv_sec = 0;
 		tv.tv_usec = 100000;
 		ret = select (nfds + 1, &rd, &wr, &er, &tv);
 		
-#if 0
-		if (FD_ISSET(rcp_listen_socket, &rd)) {
-			memset (&client_addr, 0, len = sizeof(client_addr));
-			rcp_socket = accept (rcp_listen_socket, 
-					     (struct sockaddr *) &client_addr, 
-				     &len);
-			if (rcp_socket < 0) {
-				MIN_FATAL ("accept() failed %s", 
-					   strerror (errno));
-				return NULL;
-			}
-			MIN_INFO ("connect from %s\n",
-				  inet_ntoa (client_addr.sin_addr));
-			new_tcp_master (rcp_socket, &client_addr);
-			if (listen (rcp_listen_socket, 1)) {
-				MIN_FATAL ("Listen failed %s", 
-					   strerror (errno));
-				return NULL;
-			}
-		}
-#endif		
 		rw_rcp_sockets (&rd, &wr);
 	}
 
@@ -358,7 +354,7 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
  *  @param slavetype type of the slave e.g. "phone"
  *  @return 0 on success, 1 on error
  */
-int allocate_ip_slave (char *slavetype, char *slavename)
+int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
 {
        slave_info *slave;
        DLListIterator it;
@@ -418,6 +414,7 @@ int allocate_ip_slave (char *slavetype, char *slavename)
        
        slave->fd_ = sfd;
        slave->status_ = SLAVE_STAT_RESERVED;
+       slave->pid_ = pid;
 
        return 0;
 }
@@ -445,6 +442,168 @@ void tcp_slave_close (slave_info *slave) {
 	slave->fd_ = -1;
 	slave->status_ = SLAVE_STAT_FREE ;
 	tx_destroy (&slave->slave_name_);
+}
+
+/* ------------------------------------------------------------------------- */
+/**Function handles "response" message coming from external controller
+ * @param extif_message pointer to item parser. It is assumed that 
+ * mip_get_string was  executed once for this parser to get first "word"
+ * @return result of operation, 0 if ok.
+ */
+int tcp_msg_handle_response (MinItemParser * extif_message)
+{
+        char           *command = INITPTR;
+        char           *param1 = NULL;
+        char           *srcid = INITPTR;
+        char           *destid = INITPTR;
+        int             result = 666;
+        int             retval = 666;
+        int             slave_id = 0;
+        int             case_id = 0;
+        MsgBuffer       ipc_message;
+        slave_info     *slave_entry = INITPTR;
+        char           *slave_name = NULL;
+        DLListIterator  slave_entry_item;
+
+        mip_get_next_string (extif_message, &srcid);
+
+        mip_get_next_string (extif_message, &destid);
+
+        mip_get_next_string (extif_message, &command);
+	
+	slave_entry = find_slave_by_fd (current_slave_fd, &slave_entry_item);
+	if (slave_entry == INITPTR) {
+		MIN_FATAL ("no slave found bound to fd %d!",
+			   current_slave_fd);
+	}
+
+	current_slave_fd = -1;
+
+        if (strcasecmp (command, "reserve") == 0) {
+		mip_get_next_int (extif_message, &result);
+		
+                /*it seems that result was not send, assume success */
+                splithex (srcid, &slave_id, &case_id);
+                slave_entry->slave_id_ = slave_id;
+                if (retval == -1)
+                        result = 0;
+		slave_entry->status_ = SLAVE_STAT_RESERVED;
+
+                ipc_message.sender_ = ec_settings.engine_pid_;
+                ipc_message.receiver_ = slave_entry->pid_;
+                ipc_message.type_ = MSG_EXTIF;
+                ipc_message.special_ = 0;
+                ipc_message.extif_msg_type_ = EResponseSlave;
+                ipc_message.param_ = result;
+                MIN_DEBUG ("ipc sending with result %d", result);
+                mq_send_message (mq_id, &ipc_message);
+                retval = 0;
+        } else if (strcasecmp (command, "release") == 0) {
+                retval =
+                    mip_get_next_tagged_int (extif_message, "result=", &result);
+                if (retval == -1)
+                        mip_get_next_int (extif_message, &result);
+                /*result was not tagged int */
+                if (retval == -1)
+                        result = 0;
+                /*it seems that result was not send, assume success */
+                ipc_message.sender_ = ec_settings.engine_pid_;
+                ipc_message.receiver_ = slave_entry->pid_;
+                ipc_message.type_ = MSG_EXTIF;
+                ipc_message.param_ = result;
+                ipc_message.special_ = 0;
+                ipc_message.extif_msg_type_ = EResponseSlave;
+                MIN_DEBUG ("ipc sending with result %d", result);
+                mq_send_message (mq_id, &ipc_message);
+                /*slave released, remove it from ms_assoc */
+                splithex (srcid, &slave_id, &case_id);
+		
+		if (slave_entry->status_ & SLAVE_STAT_RESULT) {
+			/* we have a result - can close */
+			tcp_slave_close (slave_entry);
+		} else
+			slave_entry->status_ &= 0xe;
+		
+                retval = 0;
+        } else if (strcasecmp (command, "remote") == 0) {
+                mip_get_next_string (extif_message, &command);
+                if (strcasecmp (command, "run") == 0) {
+                        splithex (srcid, &slave_id, &case_id);
+                        /*translate received caseid into proper 
+                        number that can be stored in scripter*/
+                        case_id = (slave_id<<16) + case_id;
+                        mip_get_next_string (extif_message, &param1);
+                        if (strcasecmp (param1, "started") == 0) {
+                                ipc_message.sender_ = ec_settings.engine_pid_;
+                                ipc_message.receiver_ = slave_entry->pid_;
+                                ipc_message.type_ = MSG_EXTIF;
+                                ipc_message.special_ = case_id;
+                                ipc_message.param_ = 0;
+                                ipc_message.extif_msg_type_ = EResponseSlave;
+                                MIN_DEBUG ("ipc sending with result 0");
+                                mq_send_message (mq_id, &ipc_message);
+                                retval = 0;
+                        } else if (strcasecmp (param1, "ready") == 0) {
+                                mip_get_int (extif_message, "result=", &result);
+                                ipc_message.sender_ = ec_settings.engine_pid_;
+                                ipc_message.receiver_ = slave_entry->pid_;
+                                ipc_message.type_ = MSG_EXTIF;
+                                ipc_message.special_ = case_id;
+                                ipc_message.param_ = result;
+                                ipc_message.extif_msg_type_ =
+                                    ERemoteSlaveResponse;
+                                MIN_DEBUG ("ipc sending with result %d",
+                                             result);
+                                mq_send_message (mq_id, &ipc_message);
+                                retval = 0;
+				if (slave_entry != INITPTR && 
+				    slave_entry->status_ 
+				    & SLAVE_STAT_RESERVED) {
+					slave_entry->status_ |= 
+						SLAVE_STAT_RESULT;
+					
+				} else {
+					/* we have are free - can close */
+					tcp_slave_close (slave_entry);
+				}
+                        } else if (strcasecmp (param1, "error") == 0) {
+                                mip_get_int (extif_message, "result=", &result);
+                                ipc_message.sender_ = ec_settings.engine_pid_;
+                                ipc_message.receiver_ = slave_entry->pid_;
+                                ipc_message.type_ = MSG_EXTIF;
+                                ipc_message.special_ = case_id;
+                                ipc_message.param_ = result;
+                                ipc_message.extif_msg_type_ = EResponseSlave;
+                                MIN_DEBUG ("ipc sending with result %d",
+                                             result);
+                                mq_send_message (mq_id, &ipc_message);
+                                retval = 0;
+				if (slave_entry != INITPTR &&
+				    slave_entry->status_ & 
+				    SLAVE_STAT_RESERVED) {
+					slave_entry->status_ |= 
+						SLAVE_STAT_RESULT;
+
+				} else {
+					/* we have are free - can close */
+					tcp_slave_close (slave_entry);
+				}
+
+                        }
+                } else if (strcasecmp (command, "request") == 0) {
+                        retval =
+                            handle_remote_event_request_resp (extif_message);
+                } else if (strcasecmp (command, "release") == 0)
+                        /*TEMPORARY SOLUTION, INVESTIGATE EVENT SYSTEM */
+                        retval = 0;
+        }
+      out:
+        DELETE (command);
+        DELETE (param1);
+        DELETE (srcid);
+        DELETE (destid);
+
+        return retval;
 }
 
 /* ------------------------------------------------------------------------- */
