@@ -308,6 +308,8 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int device_dbid)
     QVector<QStringList> retval;
     QStringList row;
     query.prepare("SELECT * FROM availableview;");
+//    query.prepare("SELECT * FROM availableview where device_id=:devid;");
+//    query.bindValue(QString(":devid"),10);
     if(query.exec()){
         while(query.next()) {
 	    row.clear();
@@ -316,21 +318,16 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int device_dbid)
             row.append(query.value(2).toString());
             row.append(query.value(3).toString());
 	    retval.append(row);
-
-
-
-
         }
     }
     return retval;
-
 };
 
 // ----------------------------------------------------------------------------
 bool Min::Database::initDatabase()
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(":memory:");
+    db.setDatabaseName("/home/user/min.db");
     if (!db.open()) {
         QMessageBox::critical(0, QString("Cannot open database"),
             QString("Unable to establish MIN database backend.\n"
@@ -347,10 +344,6 @@ bool Min::Database::initDatabase()
         query.exec("CREATE TABLE test_run (id INTEGER PRIMARY KEY, test_run_pid int, test_case_id int, group_id int, status int, start_time int, end_time int, result int, result_description varchar);");
         query.exec("CREATE TABLE printout (id INTEGER PRIMARY KEY, test_run_id int, content varchar);");
 
-	
-	
-	query.exec("CREATE VIEW availableview AS SELECT module.module_name AS module_name, test_case.test_case_name AS test_case_name, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid WHERE module.id=test_case.module_id;");
-
         /* Demo data */
         
         query.exec("INSERT INTO device VALUES (NULL, 10);");
@@ -363,7 +356,11 @@ bool Min::Database::initDatabase()
 	query.exec("INSERT INTO test_case VALUES(NULL, 2, 1, \"Demo_2\"), \"\";");
 	query.exec("INSERT INTO test_case VALUES(NULL, 1, 2, \"Scripted test case 1\", \"\");");
 	query.exec("INSERT INTO test_case VALUES(NULL, 2, 2, \"Second scripter case\", \"\");");
-        
+
+	query.exec("CREATE VIEW availableview AS SELECT module.module_name AS module_name, test_case.test_case_name AS test_case_name, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid WHERE module.id=test_case.module_id;");
+//        query.exec("Create VIEW availableview AS select module.device_id, module.module_name, test_case.test_case_title from module left join test_case on module.id == test_case.module_id where module.device_id==10;");
+//        query.exec("Create VIEW availableview AS select module.module_name, test_case.test_case_title, module.device_id AS device_id from module left join test_case on module.id == test_case.module_id;");
+
         return true;
     }
 
