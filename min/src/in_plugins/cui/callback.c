@@ -1328,7 +1328,7 @@ LOCAL void start_new_case_menu ()
 {
         if (get_tcs_for_start_new_case () != -1)
                 /* Show new menu */
-                update_menu (cb_start_new_case_menu, "Start new case", 0,
+                update_menu (cb_start_new_case_menu, "Start new case", 1,
                              &start_new_case_menu_focus);
 }
 

@@ -66,6 +66,8 @@ bool            continue_ = true;
 eapiIn_t        out_clbk_;
 eapiOut_t       min_clbk_;
 
+unsigned int    ready_module_count_ = 0;
+
 /* List available of cases */
 DLList *case_list_ = INITPTR;
 /* List executed cases */
@@ -143,7 +145,7 @@ LOCAL void      save_focus_pos (int index, int top_row);
 LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
-                        long starttime, long endtime);
+			   long starttime, long endtime);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
@@ -487,7 +489,7 @@ LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
-                        long starttime, long endtime)
+			   long starttime, long endtime)
 {
 	ExecutedTestCase *etc;
 	MIN_DEBUG ("Finnished: run id = %ld with result: %d", testrunid, result);
@@ -636,6 +638,16 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 
 }
 /* ------------------------------------------------------------------------- */
+LOCAL void pl_module_ready (unsigned moduleid)
+{
+        ready_module_count_ ++;
+	if (ready_module_count_ == dl_list_size (available_modules)) {
+	        popup_window ("All cases loaded", 1);
+
+	}
+}
+
+/* ------------------------------------------------------------------------- */
 LOCAL void pl_no_module (char *modulename)
 {
         MIN_WARN ("Module %s has not been loaded",modulename);        
@@ -753,7 +765,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         (*out_callback)->module_prints          = pl_msg_print;
         (*out_callback)->new_module             = pl_new_module;
         (*out_callback)->no_module              = pl_no_module;
-        (*out_callback)->module_ready           = NULL;
+        (*out_callback)->module_ready           = pl_module_ready;
         (*out_callback)->new_case               = pl_new_case;
         (*out_callback)->error_report           = pl_error_report;
 
