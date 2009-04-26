@@ -896,7 +896,9 @@ LOCAL void uengine_handle_extif_response (int result, int caseid)
         if (caseid > 0) {
 
                 scripter_mod.extif_remote++;
-
+		MIN_DEBUG ("scripter_mod.extif_remote=%d",
+			   scripter_mod.extif_remote);
+			   
                 stpd = NEW (ScriptedTestProcessDetails);
                 stpd->tcr_list_ = dl_list_create ();
                 STRCPY (stpd->testclass_, "", 1);
@@ -940,6 +942,8 @@ LOCAL void uengine_handle_extif_remote_response (int testresult, int caseid)
         ScriptedTestProcessDetails *stpd = INITPTR;
         TestCaseResult *tcr;
         scripter_mod.extif_remote--;
+	MIN_DEBUG ("scripter_mod.extif_remote=%d",
+		   scripter_mod.extif_remote);
 
         sprintf (id, "%d", caseid);
 

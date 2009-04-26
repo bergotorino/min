@@ -476,17 +476,27 @@ LOCAL int eapi_receive_rcp (char *message, int length)
 
 LOCAL int eapi_register_slave (char *host, char *slavetype)
 {
-       struct hostent *he;
+	int ret;
+	struct addrinfo hints, *result;
+	
+	
 
-       he = gethostbyname (host);
-       if (he == NULL) {
-               MIN_WARN ("failed to resolve host %s: %s",
-                         strerror (h_errno));
-               return 1;
-       }
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = 0;
+	hints.ai_protocol = 0;          /* Any protocol */
+
+	ret = getaddrinfo(host, "51551", &hints, &result);
+	if (ret != 0) {
+		MIN_WARN ("failed to resolve host %s: %s",
+			  strerror (h_errno));
+		return 1;
+	}
        
 
-       return tec_add_ip_slave_to_pool (he, slavetype ? slavetype : "phone");
+       return tec_add_ip_slave_to_pool (&result, 
+					slavetype ? slavetype : "phone");
 }
 
 /* ------------------------------------------------------------------------- */

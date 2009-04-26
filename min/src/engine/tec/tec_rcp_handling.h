@@ -61,7 +61,7 @@ typedef struct {
 	Text           *slave_type_;
 	
 	/** host address */
-	struct          hostent he_;
+	struct          addrinfo *addrinfo_;
 	
 	/** reserved flag */
 #define SLAVE_STAT_FREE 0x0
@@ -95,9 +95,10 @@ void            rcp_handling_init ();
  
 void            rcp_handling_cleanup ();
 
-int             tec_add_ip_slave_to_pool (struct hostent *he, char *slavetype);
+int             tec_add_ip_slave_to_pool (struct addrinfo **ai, 
+					  char *slavetype);
 
-int             tec_del_ip_slave_from_pool (struct hostent *he, 
+int             tec_del_ip_slave_from_pool (struct addrinfo *ai, 
 					    char *slavetype);
 
 #endif

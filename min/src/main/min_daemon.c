@@ -69,6 +69,7 @@
 /* LOCAL GLOBAL VARIABLES */
 int rcp_listen_socket;
 int mins_running = 0;
+int exit = 0;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
@@ -151,7 +152,7 @@ LOCAL int poll_sockets (char *envp[])
 	args [1] = NEW2 (char, 100);
 
 	sprintf (args [0], "%s", "/usr/bin/min.bin");
-	while (rcp_listen_socket > 0) {
+	while (exit == 0 && rcp_listen_socket > 0) {
 		FD_ZERO (&rd);
 		FD_ZERO (&wr);
 		FD_ZERO (&er);
@@ -198,12 +199,13 @@ LOCAL int poll_sockets (char *envp[])
 			if (listen (rcp_listen_socket, 1)) {
 				MIND_LOG("Listen failed", 
 					 strerror (errno));
+				close (rcp_listen_socket);
 				return -1;
 			}
 		}
 		
 	}
-
+	close (rcp_listen_socket);
 	return 0;
 }
 
@@ -222,9 +224,7 @@ LOCAL void handle_sigchld (int sig)
 /* ------------------------------------------------------------------------- */
 LOCAL void handle_sigint (int sig)
 {
-	mins_running--;
-	close (rcp_listen_socket);
-	rcp_listen_socket = -1;
+	exit = 1;
 }
 
 /* ------------------------------------------------------------------------- */

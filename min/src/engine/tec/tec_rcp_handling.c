@@ -111,7 +111,8 @@ LOCAL int       splithex (char *hex, int *dev_id, int *case_id);
 LOCAL int       handle_remote_sendreceive (MinItemParser * extif_message,
                                            int dev_id);
 /* ------------------------------------------------------------------------- */
-LOCAL slave_info *find_slave_by_he (struct hostent *he, DLListIterator *itp);
+LOCAL slave_info *find_slave_by_addrinfo (struct addrinfo *ai, 
+					  DLListIterator *itp);
 /* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
@@ -698,7 +699,6 @@ LOCAL int splithex (char *hex, int *dev_id, int *case_id)
 }
 
 /* ------------------------------------------------------------------------- */
-
 /** Function writes text representation of slave adress, in hexadecimal with 
  * leading zeros
  * @param deviceid identifier of device
@@ -981,7 +981,8 @@ LOCAL int extif_msg_handle_reserve (MinItemParser * extif_message)
         return 0;
 }
 
-LOCAL slave_info *find_slave_by_he (struct hostent *he, DLListIterator *itp)
+LOCAL slave_info *find_slave_by_addrinfo (struct addrinfo *ai, 
+					  DLListIterator *itp)
 {
        DLListIterator it;
        slave_info *ips;
@@ -991,7 +992,7 @@ LOCAL slave_info *find_slave_by_he (struct hostent *he, DLListIterator *itp)
        for (it = dl_list_head (ms_assoc); it != INITPTR;
             it = dl_list_next (it)) {
                ips = dl_list_data (it);
-               if (!memcmp (he, &ips->he_, sizeof (struct hostent)))  {
+               if (!memcmp (ai, ips->addrinfo_, sizeof (struct hostent)))  {
                        *itp = it;
                        return ips;
                }
@@ -1076,7 +1077,8 @@ send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
         slave_entry_item = dl_list_head (ms_assoc);
         while (slave_entry_item != DLListNULLIterator) {
                 slave_entry = (slave_info *) dl_list_data (slave_entry_item);
-                if (strcmp (slave_name, 
+                if (slave_entry->slave_name_ != INITPTR &&
+		    strcmp (slave_name, 
 			    tx_share_buf (slave_entry->slave_name_)) == 0) {
                         slave_id = slave_entry->slave_id_;
                         break;
@@ -1170,7 +1172,7 @@ int ec_msg_ms_handler (MsgBuffer * message)
                 slave_entry->slave_id_ = 0;
                 dl_list_add (ms_assoc, (void *)slave_entry);
 #else
-		if (allocate_ip_slave (message->message_, message->desc_, 
+		if (allocate_ip_slave (message->desc_, message->message_,
 				       own_id)) {
 			MIN_FATAL ("slave allocation failed");
 			DELETE (extifmessage);
@@ -1341,19 +1343,19 @@ master_report (int run_id, int execution_result, int test_result, char *desc)
  *  @param slavetype type of the slave e.g. "phone"
  *  @return 0 on success, 1 on error
  */
-int tec_add_ip_slave_to_pool (struct hostent *he, char *slavetype)
+int tec_add_ip_slave_to_pool (struct addrinfo **ai, char *slavetype)
 {
        slave_info *slave;
        DLListIterator it;
        
-       if (find_slave_by_he (he, &it) != INITPTR) {
+       if (find_slave_by_addrinfo (ai, &it) != INITPTR) {
                MIN_WARN ("Slave already registered");
                return 1;
        }
        slave = NEW(slave_info);
        slave->status_ = SLAVE_STAT_FREE;
        slave->slave_id_ = 0;
-       memcpy (&slave->he_, he, sizeof (struct hostent));
+       slave->addrinfo_ = *ai;
        slave->slave_type_ = tx_create (slavetype);
        slave->slave_name_ = INITPTR;
        slave->fd_ = -1;
@@ -1371,7 +1373,7 @@ int tec_add_ip_slave_to_pool (struct hostent *he, char *slavetype)
  *  @param slavetype type of the slave e.g. "phone"
  *  @return 0 on success, 1 on error
  */
-int tec_del_ip_slave_from_pool (struct hostent *he, char *slavetype)
+int tec_del_ip_slave_from_pool (struct addrinfo *ai, char *slavetype)
 {
        slave_info *slave;
        DLListIterator it;
@@ -1379,7 +1381,7 @@ int tec_del_ip_slave_from_pool (struct hostent *he, char *slavetype)
        if (ms_assoc == INITPTR)
                return 1;
        
-       slave = find_slave_by_he (he, &it); 
+       slave = find_slave_by_addrinfo (ai, &it); 
        if (slave == INITPTR) {
                MIN_WARN ("slave not found");
                return 1;

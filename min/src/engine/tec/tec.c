@@ -2119,7 +2119,7 @@ LOCAL int ec_read_slaves_section (MinParser * inifile)
 	char *slavetype = NULL;
 	MinSectionParser *slave_def;
         MinItemParser    *line; 
-	struct hostent *he;
+	struct addrinfo hints, *result = NULL;
 	int i = 1, ret;
 
         slave_def = mp_section (inifile, "[Slaves]", "[End_Slaves]", i);
@@ -2135,19 +2135,26 @@ LOCAL int ec_read_slaves_section (MinParser * inifile)
 				goto next_line;
 			}
 
-			he = gethostbyname (hostname);
-			if (he == NULL) {
+			memset(&hints, 0, sizeof(struct addrinfo));
+			hints.ai_family = AF_INET;    
+			hints.ai_socktype = SOCK_STREAM; 
+			hints.ai_flags = 0;
+			hints.ai_protocol = 0;          
+			
+			ret = getaddrinfo(hostname, "51551", &hints, &result);
+			if (ret != 0) {
 				MIN_WARN ("failed to resolve host %s: %s",
 					  strerror (h_errno));
-				goto next_line;
+				return 1;
 			}
        
-			
+		
 			mip_get_next_string (line, &slavetype);
 
-			tec_add_ip_slave_to_pool (he, 
+			tec_add_ip_slave_to_pool (&result, 
 						  slavetype ? 
 						  slavetype : "phone");
+			result = NULL;
 			DELETE (slavetype);
 			DELETE (hostname);
 		next_line:

@@ -359,8 +359,7 @@ int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
        slave_info *slave;
        DLListIterator it;
        int s, found = 0, sfd;
-       struct addrinfo hints;
-       struct addrinfo *result, *rp;
+       struct addrinfo *rp;
 
        if (ms_assoc == INITPTR)
                return -1;
@@ -382,19 +381,8 @@ int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
        }
 
      
-       memset(&hints, 0, sizeof(struct addrinfo));
-       hints.ai_family = AF_UNSPEC;    
-       hints.ai_socktype = SOCK_STREAM;
-       hints.ai_flags = 0;
-       hints.ai_protocol = 0;         
-       
-       s = getaddrinfo(slave->he_.h_name, "51551", &hints, &result);
-       if (s != 0) {
-	       MIN_WARN ("getaddrinfo: %s\n", gai_strerror(s));
-	       return -1;
-       }
 
-       for (rp = result; rp != NULL; rp = rp->ai_next) {
+       for (rp = slave->addrinfo_; rp != NULL; rp = rp->ai_next) {
 	       sfd = socket(rp->ai_family, rp->ai_socktype,
 			    rp->ai_protocol);
 	       if (sfd == -1)
@@ -407,7 +395,8 @@ int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
        }
 
        if (rp == NULL) {               
-	       MIN_WARN ("Could not connect %s", slave->he_.h_name);
+	       MIN_WARN ("Could not connect %s", rp->ai_canonname,
+			 strerror(errno));
 	       return -1;
        }
 
