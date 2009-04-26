@@ -69,7 +69,7 @@
 /* LOCAL GLOBAL VARIABLES */
 int rcp_listen_socket;
 int mins_running = 0;
-int exit = 0;
+int exit_ = 0;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
@@ -152,7 +152,7 @@ LOCAL int poll_sockets (char *envp[])
 	args [1] = NEW2 (char, 100);
 
 	sprintf (args [0], "%s", "/usr/bin/min.bin");
-	while (exit == 0 && rcp_listen_socket > 0) {
+	while (exit_ == 0 && rcp_listen_socket > 0) {
 		FD_ZERO (&rd);
 		FD_ZERO (&wr);
 		FD_ZERO (&er);
@@ -224,7 +224,7 @@ LOCAL void handle_sigchld (int sig)
 /* ------------------------------------------------------------------------- */
 LOCAL void handle_sigint (int sig)
 {
-	exit = 1;
+	exit_ = 1;
 }
 
 /* ------------------------------------------------------------------------- */
