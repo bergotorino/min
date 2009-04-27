@@ -963,17 +963,30 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
 LOCAL int extif_msg_handle_reserve (MinItemParser * extif_message)
 {
         char            rtype[11];
+#ifndef MIN_EXTIF
 
+        char           *srcid = INITPTR;
+        char           *destid = INITPTR;
+        int             dev_id = 0;
+        int             case_id = -1;
+#endif	
         /*change "complete case" callback */
         pthread_mutex_lock (&tec_mutex_);
         ok_to_break = ESFalse;
+
 #ifdef MIN_EXTIF
         original_complete_callback = tfwif_callbacks.complete_callback_;
         MIN_DEBUG ("old callback = %x ", tfwif_callbacks.complete_callback_);
         MIN_DEBUG ("master report = %x ", master_report);
         tfwif_callbacks.complete_callback_ = master_report;
         MIN_DEBUG ("new callback = %x ", tfwif_callbacks.complete_callback_);
+#else
+        mip_get_next_string (extif_message, &srcid);
+        mip_get_next_string (extif_message, &destid);
+	splithex (destid, &dev_id, &case_id);
+	own_id = dev_id;
 #endif
+
         pthread_mutex_unlock (&tec_mutex_);
         sprintf (rtype, "reserve 0");
         send_to_master (0, rtype);

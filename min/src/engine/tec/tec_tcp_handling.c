@@ -395,13 +395,13 @@ int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
        }
 
        if (rp == NULL) {               
-	       MIN_WARN ("Could not connect %s", rp->ai_canonname,
-			 strerror(errno));
+	       MIN_WARN ("Could not connect %s", strerror(errno));
 	       return -1;
        }
 
        
        slave->fd_ = sfd;
+       slave->slave_id_ = slave->fd_;
        slave->status_ = SLAVE_STAT_RESERVED;
        slave->pid_ = pid;
 
