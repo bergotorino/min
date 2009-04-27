@@ -20,7 +20,7 @@
 /**
  *  @file       tec_tcp_handling.c
  *  @version    0.1
- *  @brief      This file contains implementation of the Test Module Controller
+ *  @brief      RCP handling routines for tcp based master slave
  */
 
 /* ------------------------------------------------------------------------- */
@@ -75,18 +75,56 @@ int current_slave_fd;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
+/** Goes through the list of slaves and sets sockets that are available
+ *  for reading or writing to the fd sets
+ *  @param rd set of read sockets
+ *  @param wr set of write sockets
+ *  @param nfds highest fd in sets before calling this func
+ *  @return the value of highest fd in set
+ */
 LOCAL int set_active_rcp_sockets (fd_set *rd, fd_set *wr, int nfds);
 /* ------------------------------------------------------------------------- */
+/** Read/write sockets  
+ *  @param rd set of read sockets
+ *  @param wr set of write sockets
+ */
 LOCAL void rw_rcp_sockets (fd_set *rd, fd_set *rw);
 /* ------------------------------------------------------------------------- */
+/** Reads the socket bound to the slave_info
+ *  @param slave_info the slave with a socket available for reading
+ */
 LOCAL void socket_read_rcp (slave_info *slave);
 /* ------------------------------------------------------------------------- */
+/** Writes to socket bound to slave_info
+ *  @param slave_info the slave with a socket available for writing
+ */
 LOCAL void socket_write_rcp (slave_info *slave);
 /* ------------------------------------------------------------------------- */
+/** Finds a slave with fd
+ *  @param fd search key
+ *  @param itp out used to pass also the DLListIterator to caller
+ *  @return slave_info if found, INITPTR if not
+ */
 LOCAL slave_info *find_slave_by_fd (int fd, DLListIterator *itp);
 /* ------------------------------------------------------------------------- */
-LOCAL slave_info *find_master (int fd);
+/** Searches for master (a "special" slave)
+ *  @return slave_info if found, INITPTR if not
+ */
+LOCAL slave_info *find_master ();
 /* ------------------------------------------------------------------------- */
+/** Frees the tcp type slave - closes slave socket, marks the slave free
+ *  @param slave slave to be freed
+ */
+LOCAL void free_tcp_slave (slave_info *slave);
+/* ------------------------------------------------------------------------- */
+/** Splits RCP's adress string fields into two ints.
+ * @param hex [in] string to be split, has to be 8 characters, otherwise
+ *  function fails
+ * @param dev_id [out] pointer to int that will hold device id
+ * @param case_id [out] pointer to int that will hold case id
+ * @return result of operation, 0 if ok
+ */
+LOCAL int splithex (char *hex, int *dev_id, int *case_id);
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -246,7 +284,7 @@ LOCAL slave_info *find_slave_by_fd (int fd, DLListIterator *itp)
        return INITPTR;
 }
 /* ------------------------------------------------------------------------- */
-LOCAL slave_info *find_master (int fd)
+LOCAL slave_info *find_master ()
 {
        DLListIterator it;
        slave_info *ips;
@@ -312,8 +350,14 @@ void *ec_poll_sockets (void *arg)
 	return NULL;
 }
 
-
 /* ------------------------------------------------------------------------- */
+/** Build rcp message and adds it to the write queue of slave
+ *  @param cmd command e.g. "reserve"
+ *  @param sender RCP sender identifier
+ *  @param rcvr RCP receiver identifier
+ *  @param msg the rest of message
+ *  @param fd the socket of the destination
+ */
 void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 {
 	Text *tx;
@@ -332,7 +376,7 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 	tx_c_append (tx, msg);
 
 	if (fd == 0 && !strcmp (rcvr, "deadbeef"))
-		entry = find_master (fd);
+		entry = find_master ();
 	else
 		entry = find_slave_by_fd (fd, &it);
 	
@@ -415,6 +459,9 @@ int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Creates a new master entry
+ * param socket the socket of the master
+ */
 void new_tcp_master (int socket)
 {
 	slave_info *master;
@@ -432,6 +479,9 @@ void new_tcp_master (int socket)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Function to close slave 
+ * @param slave the slave_info struck
+ */
 void tcp_slave_close (slave_info *slave) {
 	close (slave->fd_);
 	slave->fd_ = -1;
@@ -440,7 +490,7 @@ void tcp_slave_close (slave_info *slave) {
 }
 
 /* ------------------------------------------------------------------------- */
-/**Function handles "response" message coming from external controller
+/**Function handles "response" message coming from external controller over tcp
  * @param extif_message pointer to item parser. It is assumed that 
  * mip_get_string was  executed once for this parser to get first "word"
  * @return result of operation, 0 if ok.

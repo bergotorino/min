@@ -158,7 +158,7 @@ LOCAL int split_string_eq (char *input, char **name, char **var)
         return 0;
 
 }
-
+/* ------------------------------------------------------------------------- */
 LOCAL int
 extif_send_ipc_sendrcv (long receipent, char *data_name, char *data_value)
 {
@@ -171,7 +171,7 @@ extif_send_ipc_sendrcv (long receipent, char *data_name, char *data_value)
 
         return mq_send_message (mq_id, &data_message);
 }
-
+/* ------------------------------------------------------------------------- */
 LOCAL int get_id_from_slavename (char *slavename)
 {
         DLListIterator  work_slave_item = DLListNULLIterator;
@@ -195,7 +195,7 @@ LOCAL int get_id_from_slavename (char *slavename)
         }
         return retval;
 }
-
+/* ------------------------------------------------------------------------- */
 LOCAL int extif_msg_handle_release (MinItemParser * extif_message)
 {
         /*restore original "complete" callback if allowed, otherwise mark that 
@@ -213,7 +213,6 @@ LOCAL int extif_msg_handle_release (MinItemParser * extif_message)
 	
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 LOCAL void
 tec_ms_handle_data_request (int slave_id, char *varname, long requester)
@@ -262,7 +261,6 @@ tec_ms_handle_data_request (int slave_id, char *varname, long requester)
         }
         pthread_mutex_unlock (&tec_mutex_);
 }
-
 /* ------------------------------------------------------------------------- */
 LOCAL int extif_msg_handle_command (MinItemParser * extif_message)
 {
@@ -324,7 +322,6 @@ LOCAL int extif_msg_handle_command (MinItemParser * extif_message)
 EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Function handles RCP message containing sendreceive command
 */
@@ -389,9 +386,6 @@ LOCAL int handle_remote_sendreceive (MinItemParser * extif_message, int dev_id)
         pthread_mutex_unlock (&tec_mutex_);
         return 0;
 }
-
-
-
 /* ------------------------------------------------------------------------- */
 /**Function handles RCP message containing "remote run" command.
  * @param extif_message - pointer to item parser containing received message. 
@@ -625,7 +619,6 @@ MODULE_PRESENT:
         DELETE (casefile);
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /**Function implemens handling of "remote pause" command 
  * @param extif_message - pointer to item parser containing received message.
@@ -634,12 +627,10 @@ MODULE_PRESENT:
  * @param case_id - dev id extracted from external controller address field
  * @return result of operation - 0 if ok.
  */
-
 LOCAL int handle_remote_pause (MinItemParser * extif_message, int case_id)
 {
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /**Function implemens handling of "remote cancel" command 
  * @param extif_message - pointer to item parser containing received message. 
@@ -672,8 +663,6 @@ LOCAL int handle_remote_cancel (MinItemParser * extif_message, int case_id)
          */
         return result;
 }
-
-
 /* ------------------------------------------------------------------------- */
 /**Function splits RCP's adress string fields into two ints.
  * @param hex [in] string to be split, has to be 8 characters, otherwise
@@ -682,7 +671,6 @@ LOCAL int handle_remote_cancel (MinItemParser * extif_message, int case_id)
  * @param case_id [out] pointer to int that will hold case id
  * @return result of operation, 0 if ok
 */
-
 LOCAL int splithex (char *hex, int *dev_id, int *case_id)
 {
         char            dev_id_c[5];
@@ -700,7 +688,6 @@ LOCAL int splithex (char *hex, int *dev_id, int *case_id)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Function writes text representation of slave adress, in hexadecimal with 
  * leading zeros
@@ -723,9 +710,7 @@ LOCAL char     *writehex (int devid, int caseid)
 
         return hex;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /**Function recognizes message received from external controller and calls 
  * apropriate handler
  * @param extif_message pointer to MinItemParser with parser created
@@ -777,7 +762,6 @@ LOCAL int min_if_dispatch_extif_msg (MinItemParser * extif_message)
 
         return result;
 }
-
 /* ------------------------------------------------------------------------- */
 /**Function handles "response" message coming from external controller
  * @param extif_message pointer to item parser. It is assumed that 
@@ -997,7 +981,12 @@ LOCAL int extif_msg_handle_reserve (MinItemParser * extif_message)
 
         return 0;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Searches for slave based on address
+ * @param ai address information
+ * @param itp OUT used to pass the DLListIterator to caller
+ * @return slave_info if found, otherwise INITPTR
+ */
 LOCAL slave_info *find_slave_by_addrinfo (struct addrinfo *ai, 
 					  DLListIterator *itp)
 {
@@ -1131,7 +1120,6 @@ send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
         }
         DELETE (hex);
 }
-
 /* ------------------------------------------------------------------------- */
 /**Handler for sendreceive ipc message from slave
  */
@@ -1150,7 +1138,6 @@ int ec_msg_sndrcv_handler (MsgBuffer * message)
         DELETE (hex);
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Handler for ipc external controller message,
  * used in master/slave scenarios (hence _ms_);
@@ -1158,7 +1145,7 @@ int ec_msg_sndrcv_handler (MsgBuffer * message)
  * function reads type and calls apropriate handlers.
  * @param message MsgBUffer containing received IPC message
  * @return result of the operation
-*/
+ */
 int ec_msg_ms_handler (MsgBuffer * message)
 {
         char           *extifmessage = NULL;
@@ -1289,7 +1276,6 @@ int ec_msg_ms_handler (MsgBuffer * message)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Function reads message received from external controller and 
  * calls  handling
@@ -1313,7 +1299,6 @@ int tec_extif_message_received (char *message, int length)
 
         return result;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Function that replaces "test case complete" callback, if min instance 
  * is used as slave.
@@ -1354,7 +1339,6 @@ master_report (int run_id, int execution_result, int test_result, char *desc)
                 ok_to_break = ESTrue;
         DELETE (extifmessage);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Adds a new entry to pool of ip slaves
  *  @param he host address information
@@ -1383,8 +1367,6 @@ int tec_add_ip_slave_to_pool (struct addrinfo **ai, char *slavetype)
 
        return 0;
 }
-
-
 /* ------------------------------------------------------------------------- */
 /** Deletes entry from the pool of ip slaves
  *  @param he host address information
@@ -1420,8 +1402,13 @@ int tec_del_ip_slave_from_pool (struct addrinfo *ai, char *slavetype)
 
        return 0;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Used in tcp/ip operation to report case result to master
+ * @param run_id runtime id of test case (position in "selected cases" list)
+ * @param execution_result indicates if starting of test case was successful
+ * @param test_result result of test
+ * @param desc description (taken from ipc message);
+ */
 void
 tcp_master_report (int run_id, int execution_result, int test_result, 
 		   char *desc)
@@ -1438,7 +1425,6 @@ tcp_master_report (int run_id, int execution_result, int test_result,
         send_to_master (run_id + 1, extifmessage);
         DELETE (extifmessage);
 }
-
 
 /* ================= TESTS FOR LOCAL FUNCTIONS ============================= */
 #ifdef MIN_UNIT_TEST
