@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+# pre-remove script for MIN
+#
+/etc/init.d/min stop
+true

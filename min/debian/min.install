@@ -11,8 +11,11 @@ usr/lib/libminevent*
 usr/lib/libmintmapi*
 usr/lib/libmininterference*
 usr/bin/min
+usr/bin/mind
 usr/bin/min.bin
 usr/bin/tmc
 usr/bin/patchminconf.sh 
 usr/bin/mindelmod.pl 
 etc/min.conf
+etc/event.d/min
+etc/init.d/min
