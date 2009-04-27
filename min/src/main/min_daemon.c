@@ -135,7 +135,7 @@ LOCAL int create_listen_socket()
 	return 0;
 }
 
-
+/* ------------------------------------------------------------------------- */
 LOCAL int poll_sockets (char *envp[])
 {
 	fd_set rd, wr, er;

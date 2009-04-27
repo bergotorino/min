@@ -66,7 +66,6 @@ bool            continue_ = true;
 eapiIn_t        out_clbk_;
 eapiOut_t       min_clbk_;
 
-unsigned int    ready_module_count_ = 0;
 
 /* List available of cases */
 DLList *case_list_ = INITPTR;
@@ -640,10 +639,11 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_module_ready (unsigned moduleid)
 {
+	static unsigned int  ready_module_count_ = 0;
+
         ready_module_count_ ++;
 	if (ready_module_count_ == dl_list_size (available_modules)) {
 	        popup_window ("All cases loaded", 1);
-
 	}
 }
 
