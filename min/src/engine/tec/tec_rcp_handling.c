@@ -94,7 +94,9 @@ LOCAL int       extif_msg_handle_reserve (MinItemParser * extif_message);
 /* ------------------------------------------------------------------------- */
 LOCAL int       extif_msg_handle_release (MinItemParser * extif_message);
 /* ------------------------------------------------------------------------- */
+#ifdef MIN_EXTIF
 LOCAL int       extif_msg_handle_response (MinItemParser * extif_message);
+#endif
 /* ------------------------------------------------------------------------- */
 LOCAL int       extif_msg_handle_command (MinItemParser * extif_message);
 /* ------------------------------------------------------------------------- */
@@ -412,7 +414,6 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
         int             mod_found = 0, conf_found = 0;
         DLListIterator  work_module_item = DLListNULLIterator, it;
         test_module_info_s *work_module = INITPTR;
-	test_case_s    *work_case;
         DLListIterator  work_case_item = DLListNULLIterator;
         char           *message;
         int             error_code = 0;
@@ -422,7 +423,9 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
         TParsingType    parsing = ENormalParsing;
         char           *casetitle = NULL;
         filename_t      name;
-
+#ifndef MIN_EXTIF
+	test_case_s    *work_case;
+#endif
         result = mip_get_string (extif_message, "module=", &module);
         if (result != 0) {
                 MIN_WARN ("remote module not specified");
@@ -781,6 +784,7 @@ LOCAL int min_if_dispatch_extif_msg (MinItemParser * extif_message)
  * mip_get_string was  executed once for this parser to get first "word"
  * @return result of operation, 0 if ok.
  */
+#ifdef MIN_EXTIF
 LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
 {
         char           *command = INITPTR;
@@ -953,7 +957,7 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
 
         return retval;
 }
-
+#endif
 /* ------------------------------------------------------------------------- */
 /** Function handles external controller "reserve" message
  * @param extif_message pointer to item parser. It is assumed that 
@@ -1167,8 +1171,9 @@ int ec_msg_ms_handler (MsgBuffer * message)
         TParsingType   parsing=ENormalParsing;
 
         MinItemParser *params = INITPTR;
+#ifdef MIN_EXTIF
         slave_info     *slave_entry = INITPTR;
-
+#endif
 
         extifmessage = NEW2 (char, strlen (message->message_) + 255);
 
@@ -1361,7 +1366,7 @@ int tec_add_ip_slave_to_pool (struct addrinfo **ai, char *slavetype)
        slave_info *slave;
        DLListIterator it;
        
-       if (find_slave_by_addrinfo (ai, &it) != INITPTR) {
+       if (find_slave_by_addrinfo (*ai, &it) != INITPTR) {
                MIN_WARN ("Slave already registered");
                return 1;
        }
@@ -1416,6 +1421,7 @@ int tec_del_ip_slave_from_pool (struct addrinfo *ai, char *slavetype)
        return 0;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 tcp_master_report (int run_id, int execution_result, int test_result, 
 		   char *desc)

@@ -815,7 +815,6 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         /* This module has only one test case */
         DLListIterator  work_case_item =
             dl_list_head (tm_get_tclist (temp_module_item));
-	test_case_s    *work_case;
         int             group_id = tc_get_group_id (work_case_item);
         DLListIterator  orig_case;
         DLListIterator  work_module_item = DLListNULLIterator;
@@ -831,7 +830,9 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         int             it = 1; /*general purpose loop iterator */
 
         int             cont_flag = 1;
-
+#ifndef MIN_EXTIF
+	test_case_s    *work_case;
+#endif
         work_module_item = dl_list_head (instantiated_modules);
         tm_get_module_filename (temp_module_item, name);
 

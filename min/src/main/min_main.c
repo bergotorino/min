@@ -251,7 +251,7 @@ LOCAL int add_ip_slaves (DLList * slavelist)
         for (it = dl_list_head (slavelist); it != DLListNULLIterator;
              it = dl_list_next (it)) {
                 command = (char *)dl_list_data (it);
-                if (p = strrchr (command, ':')) {
+                if ((p = strrchr (command, ':'))) {
                         *p = '\0';
                         p++;
                }

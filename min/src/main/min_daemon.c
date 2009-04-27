@@ -102,7 +102,6 @@ LOCAL void handle_sigint (int sig);
  */
 LOCAL int create_listen_socket()
 {
-	int s;
 	struct sockaddr_in in_addr;
         Text *tx;
 

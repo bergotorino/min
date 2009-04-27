@@ -357,8 +357,9 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
 {
        slave_info *slave;
+       static int slave_id = 0;
        DLListIterator it;
-       int s, found = 0, sfd;
+       int found = 0, sfd;
        struct addrinfo *rp;
 
        if (ms_assoc == INITPTR)
@@ -398,10 +399,15 @@ int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
 	       MIN_WARN ("Could not connect %s", strerror(errno));
 	       return -1;
        }
-
+       
+       if (slave_id >= 0xffff) {
+	       MIN_WARN ("Slave id wraparound");
+	       slave_id = 1;
+       } else
+	       slave_id ++;
        
        slave->fd_ = sfd;
-       slave->slave_id_ = slave->fd_;
+       slave->slave_id_ = slave_id;
        slave->status_ = SLAVE_STAT_RESERVED;
        slave->pid_ = pid;
 
@@ -451,7 +457,6 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
         int             case_id = 0;
         MsgBuffer       ipc_message;
         slave_info     *slave_entry = INITPTR;
-        char           *slave_name = NULL;
         DLListIterator  slave_entry_item;
 
         mip_get_next_string (extif_message, &srcid);
@@ -585,7 +590,6 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
                 } else if (strcasecmp (command, "release") == 0)
                         retval = 0;
         }
-      out:
         DELETE (command);
         DELETE (param1);
         DELETE (srcid);
