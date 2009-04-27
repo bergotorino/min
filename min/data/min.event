@@ -1,0 +1,8 @@
+description "MIN Daemon"
+author "Sampo Saaristo"
+
+start on runlevel 2
+stop on runlevel [!2]
+
+exec /usr/bin/mind 
+

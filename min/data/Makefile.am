@@ -16,5 +16,11 @@ min.conf:
 	echo ThreadIdToLogFile=NO >> min.conf
 	echo [End_Logger_Defaults] >> min.conf
 
+install-data-local:
+	mkdir -p $(DESTDIR)/etc/event.d/
+	cp min.event $(DESTDIR)/etc/event.d/min
+	mkdir -p $(DESTDIR)/etc/init.d/
+	cp min.init $(DESTDIR)/etc/init.d/min
+
 clean: 
 	-rm min.conf
