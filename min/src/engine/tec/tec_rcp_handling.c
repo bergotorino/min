@@ -998,7 +998,7 @@ LOCAL slave_info *find_slave_by_addrinfo (struct addrinfo *ai,
        for (it = dl_list_head (ms_assoc); it != INITPTR;
             it = dl_list_next (it)) {
                ips = dl_list_data (it);
-               if (!memcmp (ai, ips->addrinfo_, sizeof (struct hostent)))  {
+               if (!memcmp (ai, ips->addrinfo_, sizeof (struct addrinfo)))  {
                        *itp = it;
                        return ips;
                }
