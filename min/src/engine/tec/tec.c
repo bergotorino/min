@@ -2114,6 +2114,7 @@ LOCAL int ec_read_module_section (MinParser * inifile)
         return 0;
 }
 
+#ifndef MIN_EXTIF
 LOCAL int ec_read_slaves_section (MinParser * inifile)
 {
 	char *hostname = NULL;
@@ -2170,7 +2171,7 @@ LOCAL int ec_read_slaves_section (MinParser * inifile)
 
         return 0;
 }
-
+#endif /* ndef MIN_EXTIF */
 LOCAL int ec_read_module_confdir ()
 {
 
@@ -2326,9 +2327,9 @@ LOCAL int ec_read_conf (MinParser * inifile, int operation_mode)
                    if we don't use external controller */
                 ec_read_module_section (inifile);
         }
-	
+#ifndef MIN_EXTIF
 	ec_read_slaves_section (inifile);
-
+#endif
         return 0;
 err_exit:
         ec_cleanup();
