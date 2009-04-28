@@ -35,9 +35,11 @@
 #include <QToolBar>
 #include <QIcon>
 #include <QAction>
+#include <QCoreApplication>
 
 // Min includes
 #include "min_mainwidget.hpp"
+#include "min_aboutdialog.hpp"
 
 // -----------------------------------------------------------------------------
 Min::MainWindow::MainWindow()
@@ -60,11 +62,14 @@ Min::MainWindow::~MainWindow()
 // -----------------------------------------------------------------------------
 void Min::MainWindow::setupMenuBar()
 {
-    QMenu *menu = menuBar()->addMenu (tr("&File"));
-    menu = menuBar()->addMenu (tr("&Help"));
-    QAction *action = menu->addAction(tr("About"));
-    connect (action,SIGNAL(triggered(bool)),
+    QMenu *file_menu = menuBar()->addMenu (tr("&File"));
+    QMenu *help_menu = menuBar()->addMenu (tr("&Help"));
+    QAction *exit_action = file_menu->addAction(tr("Exit"));
+    QAction *about_action = help_menu->addAction(tr("About"));
+    connect (about_action,SIGNAL(triggered(bool)),
             this,SLOT(displayAboutDialog()));
+    connect (exit_action, SIGNAL(triggered(bool)),
+	    QCoreApplication::instance(), SLOT(quit()));
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::setupToolBar()
@@ -81,8 +86,8 @@ void Min::MainWindow::setupToolBar()
 // -----------------------------------------------------------------------------
 void Min::MainWindow::displayAboutDialog()
 {
-    // FIXME: shoud really display about dialog
-    qDebug("About");
+    AboutDialog *ad=new AboutDialog(this);
+    ad->show();
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::displayAddModuleDialog()
