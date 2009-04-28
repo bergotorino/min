@@ -827,7 +827,6 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                 slave_entry->slave_id_ = slave_id;
                 if (retval == -1)
                         result = 0;
-		slave_entry->status_ = SLAVE_STAT_RESERVED;
                 /*it seems that result was not sent, assume success */
                 ipc_message.sender_ = ec_settings.engine_pid_;
                 ipc_message.receiver_ = own_id;
@@ -864,7 +863,6 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                         slave_entry =
                             (slave_info *) dl_list_data (slave_entry_item);
                         if (slave_entry->slave_id_ == slave_id) {
-				tx_destroy (&slave_entry->slave_name_);
                                 DELETE (slave_entry);
                                 dl_list_remove_it (slave_entry_item);
                                 break;
@@ -873,17 +871,6 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                 }
                 retval = 0;
         } else if (strcasecmp (command, "remote") == 0) {
-                slave_entry_item = dl_list_head (ms_assoc);
-                while (slave_entry_item != DLListNULLIterator) {
-                        slave_entry =
-                            (slave_info *) dl_list_data (slave_entry_item);
-                        if (slave_entry->slave_id_ == slave_id) 
-                                break;
-                        
-
-                }
-                retval = 0;
-
                 mip_get_next_string (extif_message, &command);
                 if (strcasecmp (command, "run") == 0) {
                         splithex (srcid, &slave_id, &case_id);
@@ -914,6 +901,7 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                                              result);
                                 mq_send_message (mq_id, &ipc_message);
                                 retval = 0;
+
                         } else if (strcasecmp (param1, "error") == 0) {
                                 mip_get_int (extif_message, "result=", &result);
                                 ipc_message.sender_ = ec_settings.engine_pid_;
@@ -923,7 +911,7 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                                 ipc_message.param_ = result;
                                 ipc_message.extif_msg_type_ = EResponseSlave;
                                 MIN_DEBUG ("ipc sending with result %d",
-					   result);
+                                             result);
                                 mq_send_message (mq_id, &ipc_message);
                                 retval = 0;
                         }
@@ -931,6 +919,7 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                         retval =
                             handle_remote_event_request_resp (extif_message);
                 } else if (strcasecmp (command, "release") == 0)
+                        /*TEMPORARY SOLUTION, INVESTIGATE EVENT SYSTEM */
                         retval = 0;
         }
       out:
