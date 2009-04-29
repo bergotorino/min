@@ -21,6 +21,7 @@
 
 
 #include "min_database.hpp"
+#include "tmc_common.h"
 
 // ----------------------------------------------------------------------------
 Min::Database::Database()
@@ -307,9 +308,8 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int device_dbid)
     QSqlQuery query;
     QVector<QStringList> retval;
     QStringList row;
-    query.prepare("SELECT * FROM availableview;");
-//    query.prepare("SELECT * FROM availableview where device_id=:devid;");
-//    query.bindValue(QString(":devid"),10);
+    query.prepare("SELECT module_name, test_case_title, test_case_description, test_case_dbid FROM availableview WHERE device_dbid=:devdbid;");
+    query.bindValue(QString(":devdbid"), QVariant(device_dbid));
     if(query.exec()){
         while(query.next()) {
 	    row.clear();
@@ -322,7 +322,106 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int device_dbid)
     }
     return retval;
 };
-
+// ----------------------------------------------------------------------------
+QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid)
+{
+    QSqlQuery query;
+    QVector<QStringList> retval;
+    QStringList row;
+    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid;");
+    query.bindValue(QString(":devdbid"), QVariant(device_dbid));
+    if(query.exec()){
+        while(query.next()) {
+	    row.clear();
+            row.append(query.value(0).toString());
+            row.append(query.value(1).toString());
+            row.append(query.value(2).toString());
+            row.append(query.value(3).toString());
+	    retval.append(row);
+        }
+    }
+    return retval;
+};
+// ----------------------------------------------------------------------------
+QVector<QStringList> Min::Database::getOngoingView(unsigned int device_dbid)
+{
+    QSqlQuery query;
+    QVector<QStringList> retval;
+    QStringList row;
+    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid;");
+    query.bindValue(QString(":devdbid"), QVariant(device_dbid));
+    if(query.exec()){
+        while(query.next()) {
+	    row.clear();
+            row.append(query.value(0).toString());
+            row.append(query.value(1).toString());
+            row.append(query.value(2).toString());
+            row.append(query.value(3).toString());
+	    retval.append(row);
+        }
+    }
+    return retval;
+};
+// ----------------------------------------------------------------------------
+QVector<QStringList> Min::Database::getPassedView(unsigned int device_dbid)
+{
+    QSqlQuery query;
+    QVector<QStringList> retval;
+    QStringList row;
+    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid;");
+    query.bindValue(QString(":devdbid"), QVariant(device_dbid));
+    if(query.exec()){
+        while(query.next()) {
+	    row.clear();
+            row.append(query.value(0).toString());
+            row.append(query.value(1).toString());
+            row.append(query.value(2).toString());
+            row.append(query.value(3).toString());
+	    retval.append(row);
+        }
+    }
+    return retval;
+};
+// ----------------------------------------------------------------------------
+QVector<QStringList> Min::Database::getFailedView(unsigned int device_dbid)
+{
+    QSqlQuery query;
+    QVector<QStringList> retval;
+    QStringList row;
+    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid;");
+    query.bindValue(QString(":devdbid"), QVariant(device_dbid));
+    if(query.exec()){
+        while(query.next()) {
+	    row.clear();
+            row.append(query.value(0).toString());
+            row.append(query.value(1).toString());
+            row.append(query.value(2).toString());
+            row.append(query.value(3).toString());
+	    retval.append(row);
+        }
+    }
+    return retval;
+};
+// ----------------------------------------------------------------------------
+QVector<QStringList> Min::Database::getAbortedView(unsigned int device_dbid)
+{
+    QSqlQuery query;
+    QVector<QStringList> retval;
+    QStringList row;
+    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid;");
+    query.bindValue(QString(":devdbid"), QVariant(device_dbid));    
+    if(query.exec()){
+        while(query.next()) {
+	    row.clear();
+            row.append(query.value(0).toString());
+            row.append(query.value(1).toString());
+            row.append(query.value(2).toString());
+            row.append(query.value(3).toString());
+	    retval.append(row);
+        }
+    }
+    return retval;
+};
 // ----------------------------------------------------------------------------
 bool Min::Database::initDatabase()
 {
@@ -347,19 +446,20 @@ bool Min::Database::initDatabase()
         /* Demo data */
         
         query.exec("INSERT INTO device VALUES (NULL, 10);");
-        query.exec("INSERT INTO module VALUES (NULL, 1, 10, \"minDemoModule\");");
-        query.exec("INSERT INTO module VALUES (NULL, 2, 10, \"minDemo2\");");
-        query.exec("INSERT INTO module VALUES (NULL, 1, 20, \"minDemoModule\");");
-        query.exec("INSERT INTO module VALUES (NULL, 2, 20, \"minDemo2\");");
-        query.exec("INSERT INTO module VALUES (NULL, 2, 10, \"scripter\");");
-	query.exec("INSERT INTO test_case VALUES(NULL, 1, 1, \"Demo_1\", \"\");");
-	query.exec("INSERT INTO test_case VALUES(NULL, 2, 1, \"Demo_2\"), \"\";");
-	query.exec("INSERT INTO test_case VALUES(NULL, 1, 2, \"Scripted test case 1\", \"\");");
-	query.exec("INSERT INTO test_case VALUES(NULL, 2, 2, \"Second scripter case\", \"\");");
+        query.exec("INSERT INTO module VALUES (NULL, 1, 1, \"minDemo0\");");
+	query.exec("INSERT INTO module VALUES (NULL, 2, 1, \"minDemo1\");");
 
-	query.exec("CREATE VIEW availableview AS SELECT module.module_name AS module_name, test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid FROM test_case, module WHERE module.id=test_case.module_id;");
-//        query.exec("Create VIEW availableview AS select module.device_id, module.module_name, test_case.test_case_title from module left join test_case on module.id == test_case.module_id where module.device_id==10;");
-//        query.exec("Create VIEW availableview AS select module.module_name, test_case.test_case_title, module.device_id AS device_id from module left join test_case on module.id == test_case.module_id;");
+	query.exec("INSERT INTO test_case VALUES(NULL, 1, 1, \"D1\", \"demo 1 test case\");");
+	query.exec("INSERT INTO test_case VALUES(NULL, 2, 1, \"D2\", \"demo 2 test case\");");
+	query.exec("INSERT INTO test_case VALUES(NULL, 3, 1, \"D3\", \"demo 3 test case\");");
+	query.exec("INSERT INTO test_case VALUES(NULL, 4, 1, \"D4\", \"demo 4 test case\");");
+	query.exec("INSERT INTO test_case VALUES(NULL, 1, 2, \"D5\", \"demo 5 test case\");");
+	query.exec("INSERT INTO test_case VALUES(NULL, 2, 2, \"D6\", \"demo 6 test case\");");
+
+	query.exec("CREATE VIEW availableview AS SELECT module.device_id AS device_dbid, module.module_name AS module_name, test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid FROM test_case, module WHERE module.id=test_case.module_id;");
+//	query.exec("CREATE VIEW executedview AS SELECT test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_run.group_id AS group_id, test_run.status AS status, test_run.start_time AS start_time, test_run.end_time AS end_time, test_run.result AS result, test_run.result_description AS result_description, test_run.id as test_run_dbid FROM test_case, test_run WHERE test_run.case_id=test_case.id;");
+
+//	query.exec("CREATE VIEW availableview AS SELECT module.module_name AS module_name, test_case.test_case_title AS test_case_title, \"descr\" AS test_case_description, test_case.id AS test_case_dbid FROM test_case, module WHERE module.id=test_case.module_id;");
 
         return true;
     }

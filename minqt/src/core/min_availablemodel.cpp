@@ -57,9 +57,9 @@ QVariant Min::AvailableModel::data(const QModelIndex &index, int role) const
 
     if (role==Qt::DisplayRole) {
         // Device_id is id from database not the one supplied by MIN
-	    QVector<QStringList> data = db_.getAvailableView(2);
+	    QVector<QStringList> data = db_.getAvailableView(1);
 
-        if (row < data.count() && column < 2 ) {
+        if (row < data.count() && column < 3 ) {
             return data[row][column];
         } else return "Nothing";
     }

@@ -147,9 +147,19 @@ namespace Min
 	/**
 	 * gets test case names from database for UI
 	 */
-        QStringList getTestCases(unsigned int module_dbid);
+        QStringList getTestCases(unsigned int module_dbid = 1);
 
-	QVector<QStringList> getAvailableView(unsigned int device_dbid);
+	QVector<QStringList> getAvailableView(unsigned int device_dbid = 1);
+
+	QVector<QStringList> getExecutedView(unsigned int device_dbid = 1);
+
+	QVector<QStringList> getOngoingView(unsigned int device_dbid = 1);
+
+	QVector<QStringList> getPassedView(unsigned int device_dbid = 1);
+
+	QVector<QStringList> getFailedView(unsigned int device_dbid = 1);
+
+	QVector<QStringList> getAbortedView(unsigned int device_dbid = 1);
 
     private:
 	/**
