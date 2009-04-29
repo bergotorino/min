@@ -471,7 +471,8 @@ int main (int argc, char *argv[], char *envp[])
                 eapi_init (in, out);
                 /* Perform application start-up */
                 ec_min_init (envp, oper_mode);
-                ec_start_modules();
+		if (!slave_mode)
+			ec_start_modules();
 		if (add_command_line_modules (modulelist) ||
 		    add_ip_slaves (slavelist))
 			exit (-1);
