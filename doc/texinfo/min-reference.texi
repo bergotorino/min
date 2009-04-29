@@ -240,6 +240,10 @@ Project home page: http://garage.maemo.org/projects/min/
 * State events: State events.
 * Indication events: Indication events.
 * MIN Event System usage: MIN Event System usage.
+* Running master/slave test cases over TCP/IP: Running master/slave test cases over TCP/IP.
+* MIN Daemon: MIN Daemon.
+* Specifying slaves: Specifying slaves.
+* Master/slave example: Master/slave example.
 * MIN Text interface usage: MIN Text interface usage.
 * Critical information: Critical information.
 * Usage example: Usage example.
@@ -924,11 +928,32 @@ Project home page: http://garage.maemo.org/projects/min/
 @subsection Indication events
 @include chapters/Indication_events.texi
 
-@node MIN Event System usage, MIN Text interface usage, Indication events, Using MIN Event System for test cases synchronization
+@node MIN Event System usage, Running master/slave test cases over TCP/IP , Indication events, Using MIN Event System for test cases synchronization
 @section MIN Event System usage
 @include chapters/MIN_Event_System_usage.texi
 
-@node MIN Text interface usage, Critical information, MIN Event System usage, Top
+@node Running master/slave test cases over TCP/IP, MIN Daemon, MIN Event System usage, Top
+@chapter Running master/slave test cases over TCP/IP
+@include chapters/Master_slave_cases_over_tcpip.texi
+@menu
+* MIN Daemon: MIN Daemon.
+* Specifying slaves: Specifying slaves.
+* Master/slave example: Master/slave example.
+@end menu
+
+@node MIN Daemon, Specifying slaves, Running master/slave test cases over TCP/IP, Running master/slave test cases over TCP/IP
+@section MIN Daemon
+@include chapters/MIN_Daemon.texi
+
+@node Specifying slaves, Master/slave example, MIN Daemon, Running master/slave test cases over TCP/IP
+@section Specifying slaves 
+@include chapters/Specifying_slaves.texi
+
+@node Master/slave example, MIN Text interface usage,  Specifying slaves, Running master/slave test cases over TCP/IP
+@section Master/slave example
+@include chapters/Master_slave_example.texi
+
+@node MIN Text interface usage, Critical information, Master/slave example, Top
 @chapter MIN Text interface usage
 @include chapters/MIN_Text_interface_usage.texi
 @menu
