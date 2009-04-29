@@ -1,0 +1,17 @@
+This simple example runs the first case in @code{minDemoModule} in two slaves of type ``desktop'' and ``laptop''.
+
+In the @code{min.conf} we have specified the slaves as in previous chapter. The master script could then look as follows.
+
+@example
+[Test]
+title run minDemodule in two slaves
+allocate desktop slave1
+remote slave1 run minDemoModule  dummy.cfg 1
+free slave1
+allocate laptop slave2
+remote slave2 run minDemoModule  dummy.cfg 1
+free slave2
+[Endtest]
+@end example
+
+

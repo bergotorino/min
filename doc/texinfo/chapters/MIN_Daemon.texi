@@ -1,0 +1,1 @@
+As of release 2009w19 MIN is shipped with MIN daemon (mind). The process listens to pre-defined port (51551) and when someone (master), connects that port, MIN engine is launched. The engine runs only for the duration of the slave test case.

@@ -1,0 +1,3 @@
+This chapter describes how MIN can be used to run master/slave test cases over 
+TCP/IP without the need for some external controller. 
+

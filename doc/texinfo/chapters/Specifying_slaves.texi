@@ -1,0 +1,15 @@
+Before running the master/slave case, the slaves must be introduced to master. This can be done with command line swith @code{--slave hostname[slave_type]}. The hostname (or ip address) is mandatory, if slave type is not given, it defaults to ``phone''. It is also possible to configure slaves in @code{min.conf} file.
+
+@example
+[Slaves]
+10.10.1.2 desktop
+maemo laptop
+somehost #defaults to phone
+[End_Slaves]
+@end example
+
+Note that, if the host name given for slave does not resolve, slave is not added to the pool of slaves. The connection with the slave is formed, when the master test case tries to alloacte slave. 
+
+In the MIN script syntax the slave type is defined when allocating the slave, for example @code{allocate desktop slave1}. This would allocate first free slave of type ``desktop''. 
+
+
