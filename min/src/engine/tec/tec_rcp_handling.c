@@ -1014,9 +1014,19 @@ void rcp_handling_cleanup ()
         DLListIterator  work_slave_item;
         DLListIterator  work_data_item;
         received_data  *work_data_entry;
-
+	slave_info     *slave;
         work_slave_item = dl_list_head (ms_assoc);
         while (work_slave_item != DLListNULLIterator) {
+		slave = dl_list_data (work_slave_item);
+		if (slave->write_queue_)
+			dl_list_free (&slave->write_queue_);
+		if (slave->slave_name_)
+			tx_destroy (&slave->slave_name_);
+		if (slave->slave_type_)
+			tx_destroy (&slave->slave_type_);
+		if (slave->addrinfo_)
+			freeaddrinfo (slave->addrinfo_);
+		DELETE (slave);
                 dl_list_remove_it (work_slave_item);
                 work_slave_item = dl_list_head (ms_assoc);
         }
@@ -1162,6 +1172,7 @@ int ec_msg_ms_handler (MsgBuffer * message)
                 own_id = message->sender_;
 #ifdef MIN_EXTIF
                 slave_entry = NEW (slave_info);
+		memset (slave_entry, 0x0, sizeof (slave_info));
 		slave_entry->slave_name_ = tx_create (message->message_);
                 slave_entry->slave_id_ = 0;
                 dl_list_add (ms_assoc, (void *)slave_entry);

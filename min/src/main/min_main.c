@@ -525,7 +525,7 @@ int main (int argc, char *argv[], char *envp[])
         }
 	
         dl_list_free (&modulelist);
-
+	dl_list_free (&slavelist);
         return retval;
 }
 
