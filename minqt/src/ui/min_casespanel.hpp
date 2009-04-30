@@ -79,6 +79,9 @@ namespace Min
 
         /** Will display cases that has been executed {ongoing,completed} */
         QTabWidget *executedCasesView_;
+
+        /** Will display all executed cases */
+        QTableView *executedTable_;
     };
     // -------------------------------------------------------------------------
 }; // namespace Min

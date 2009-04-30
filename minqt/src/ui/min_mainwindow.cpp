@@ -40,6 +40,7 @@
 // Min includes
 #include "min_mainwidget.hpp"
 #include "min_aboutdialog.hpp"
+#include "min_remotecontroll.hpp"
 
 // -----------------------------------------------------------------------------
 Min::MainWindow::MainWindow()
@@ -55,6 +56,9 @@ Min::MainWindow::MainWindow()
 
     // Add the real window
     setCentralWidget(mainWidget_);
+
+
+
 }
 // -----------------------------------------------------------------------------
 Min::MainWindow::~MainWindow()
@@ -93,6 +97,7 @@ void Min::MainWindow::displayAboutDialog()
 void Min::MainWindow::displayAddModuleDialog()
 {
     qDebug("Add Module");
+    Min::RemoteControll &rc = Min::RemoteControll::getInstance();
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

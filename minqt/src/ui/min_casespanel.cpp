@@ -49,7 +49,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     , availableCasesView_(new QTableView(this))
     , availableCasesModel_(new Min::AvailableModel(this))
     , executedCasesView_(new QTabWidget(this))
-    , executedTabe_(new QTableView(this))
+    , executedTable_(new QTableView(this))
 {
     // Available cases view
 //    availableCasesView_->setModel(availableCasesModel_);
@@ -58,7 +58,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     availableCasesView_->setModel(proxyview);
     
     // Executed cases view
-    executedCasesView_->addTab(new QLabel(),"All");
+    executedCasesView_->addTab(executedTable_,"All");
     executedCasesView_->addTab(new QLabel(),"Ongoing");
     executedCasesView_->addTab(new QLabel(),"Passed");
     executedCasesView_->addTab(new QLabel(),"Failed");
@@ -69,7 +69,6 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     // Main pane
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
     centralWidget_->addItem(executedCasesView_,QString("Executed Cases"));
-    executedCasesView_->addItem(executedTable_)
     centralWidget_->addItem(new QLabel("Pie chart goes here!"),
                                         QString("Summary"));
 }

@@ -303,13 +303,13 @@ QStringList Min::Database::getTestCases(unsigned int module_dbid)
 
 };
 // ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getAvailableView(unsigned int device_dbid)
+QVector<QStringList> Min::Database::getAvailableView(unsigned int devid) const
 {
     QSqlQuery query;
     QVector<QStringList> retval;
     QStringList row;
     query.prepare("SELECT module_name, test_case_title, test_case_description, test_case_dbid FROM availableview WHERE device_dbid=:devdbid;");
-    query.bindValue(QString(":devdbid"), QVariant(device_dbid));
+    query.bindValue(QString(":devdbid"), QVariant(devid));
     if(query.exec()){
         while(query.next()) {
 	    row.clear();
@@ -426,6 +426,7 @@ QVector<QStringList> Min::Database::getAbortedView(unsigned int device_dbid)
 bool Min::Database::initDatabase()
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
+//    db.setDatabaseName("/home/user/min.db");
     db.setDatabaseName(":memory:");
     if (!db.open()) {
         QMessageBox::critical(0, QString("Cannot open database"),

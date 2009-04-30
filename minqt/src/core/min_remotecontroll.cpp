@@ -126,7 +126,7 @@ void Min::RemoteControll::minModuleReady(uint moduleid)
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
 {
-    qDebug("Min::RemoteControll::minNewModule\n");
+    qDebug("Min::RemoteControll::minNewModule %d\n",moduleid);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
@@ -143,12 +143,14 @@ void Min::RemoteControll::minNoModule(const QString &modulename)
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minTestFiles(const QString &files)
 {
-
+    qDebug("Min::RemoteControll::minTestFiles %s\n",
+            files.toStdString().c_str());
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minTestModules(const QString &modules)
 {
-
+    qDebug("Min::RemoteControll::minTestModules %s\n",
+            modules.toStdString().c_str());
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minAbortCase(qulonglong testrunid)

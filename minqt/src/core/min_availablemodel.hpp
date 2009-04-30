@@ -28,6 +28,8 @@
 
 // System includes
 #include <QAbstractTableModel>
+#include <QVector>
+#include <QStringList>
 
 // Min includes
 #include "min_database.hpp"
@@ -74,6 +76,9 @@ namespace Min
 
         /** Handler to database connection for MIN */
         Min::Database &db_;
+
+        /** Data to be displayed fetched from the database */
+        mutable QVector<QStringList> data_;
     };
     // -------------------------------------------------------------------------
 }; // namespace Min

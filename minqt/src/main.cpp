@@ -43,18 +43,16 @@ int main( int argc, char* argv[] )
     QApplication app(argc,argv);
 
     Min::Database::getInstance();
-    Min::RemoteControll::getInstance();
+    Min::RemoteControll &rc = Min::RemoteControll::getInstance();
+
+//    rc.minQueryTestFiles();
+//    rc.minQueryTestModules();
 
     // 2. Create window
     Min::MainWindow mw;
     mw.show();
 
     // 3. Run the application
-    return app.exec();
-   
-    Min::RemoteControll &rc = Min::RemoteControll::getInstance();
-    rc.minAddTestModule("/home/user/.min/Hard.so");
-
     return app.exec();
 }
 

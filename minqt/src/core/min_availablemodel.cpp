@@ -33,6 +33,7 @@
 Min::AvailableModel::AvailableModel(QObject *parent)
     : QAbstractTableModel(parent)
     , db_(Min::Database::getInstance())
+    , data_()
 { ; }
 // -----------------------------------------------------------------------------
 Min::AvailableModel::~AvailableModel()
@@ -40,7 +41,8 @@ Min::AvailableModel::~AvailableModel()
 // -----------------------------------------------------------------------------
 int Min::AvailableModel::rowCount(const QModelIndex &parent) const
 {
-    return 10;
+    data_ = db_.getAvailableView(1);
+    return data_.count();
 }
 // -----------------------------------------------------------------------------
 int Min::AvailableModel::columnCount(const QModelIndex &parent) const
@@ -56,11 +58,8 @@ QVariant Min::AvailableModel::data(const QModelIndex &index, int role) const
     int column = index.column();
 
     if (role==Qt::DisplayRole) {
-        // Device_id is id from database not the one supplied by MIN
-	    QVector<QStringList> data = db_.getAvailableView(1);
-
-        if (row < data.count() && column < 3 ) {
-            return data[row][column];
+        if (row < data_.count() && column < 2 ) {
+            return data_[row][column];
         } else return "Nothing";
     }
     return QVariant();
