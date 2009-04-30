@@ -17,7 +17,8 @@ SOURCES     +=  main.cpp                                \
 		        core/min_database.cpp                   \
                 core/min_availablemodel.cpp             \
                 core/min_singleton.cpp			\
-		ui/min_aboutdialog.cpp
+		ui/min_aboutdialog.cpp			\
+		core/min_executedmodel.cpp
 
 HEADERS     +=  ui/min_mainwidget.hpp                   \
                 ui/min_devicepanel.hpp                  \
@@ -30,7 +31,8 @@ HEADERS     +=  ui/min_mainwidget.hpp                   \
 		        core/min_database.hpp                   \
                 core/min_availablemodel.hpp             \
                 core/min_singleton.hpp			\
-		ui/min_aboutdialog.hpp
+		ui/min_aboutdialog.hpp			\
+		core/min_executedmodel.hpp
 
 MOC_DIR     =   ./.moc
 OBJECTS_DIR =   ./.moc

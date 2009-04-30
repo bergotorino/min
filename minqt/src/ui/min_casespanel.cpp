@@ -35,6 +35,7 @@
 #include <QAbstractTableModel>
 #include <QAbstractItemModel>
 #include <QTreeView>
+#include <QSortFilterProxyModel>
 
 // Min incudes
 #include "min_casesmodel.hpp"
@@ -48,9 +49,13 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     , availableCasesView_(new QTableView(this))
     , availableCasesModel_(new Min::AvailableModel(this))
     , executedCasesView_(new QTabWidget(this))
+    , executedTabe_(new QTableView(this))
 {
     // Available cases view
-    availableCasesView_->setModel(availableCasesModel_);
+//    availableCasesView_->setModel(availableCasesModel_);
+    QSortFilterProxyModel *proxyview=new QSortFilterProxyModel(this);
+    proxyview->setSourceModel(availableCasesModel_);
+    availableCasesView_->setModel(proxyview);
     
     // Executed cases view
     executedCasesView_->addTab(new QLabel(),"All");
@@ -59,9 +64,12 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     executedCasesView_->addTab(new QLabel(),"Failed");
     executedCasesView_->addTab(new QLabel(),"Aborted");
 
+    
+
     // Main pane
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
     centralWidget_->addItem(executedCasesView_,QString("Executed Cases"));
+    executedCasesView_->addItem(executedTable_)
     centralWidget_->addItem(new QLabel("Pie chart goes here!"),
                                         QString("Summary"));
 }
