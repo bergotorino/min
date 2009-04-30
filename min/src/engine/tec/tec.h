@@ -130,7 +130,8 @@ int             ec_add_module (TSChar * mod_name, DLList * testcase_files,
 char           *create_path ();
 /*search for file in defined search paths */
 int             ec_search_lib (char *mod_name);
-
+/* reads config files and do reports new modules (uses eapi) */
+int ec_configure ();
 /* -------------------------------------------------------------------------*/
 
 #endif                          /* TEC_H */

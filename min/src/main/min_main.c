@@ -325,7 +325,7 @@ int main (int argc, char *argv[], char *envp[])
 {
         int             cont_flag, status, c, oper_mode, exit_flag;
         int             no_cui_flag, help_flag, version_flag, retval;
-	int 	        slave_mode = 0, master_socket;
+	    int 	        slave_mode = 0, master_socket;
         DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
         pthread_t       plugin_thread[10];
@@ -363,7 +363,7 @@ int main (int argc, char *argv[], char *envp[])
 		};
 
         modulelist = dl_list_create();
-	slavelist = dl_list_create();
+	    slavelist = dl_list_create();
 	work_module_item = DLListNULLIterator;
 	oper_mode = no_cui_flag = help_flag = version_flag = cont_flag = 0;
         retval = exit_flag = 0;
@@ -498,6 +498,8 @@ int main (int argc, char *argv[], char *envp[])
 			return 0;
 		}
 	} else {
+                /* Perform application start-up */
+                ec_min_init (envp, oper_mode);
 
                 c2 = tx_get_buf(plugin);
                 do {
@@ -513,20 +515,17 @@ int main (int argc, char *argv[], char *envp[])
                 } while (c3!=NULL);
                 tx_destroy (&plugin);
 
-                /* Perform application start-up */
-                ec_min_init (envp, oper_mode);
-                ec_start_modules();
-
 		if (add_command_line_modules (modulelist) ||
-		    add_ip_slaves (slavelist))
-			exit (-1);
+		    add_ip_slaves (slavelist)) {
+			    exit (-1);
+        }
 		
 	        pthread_join (plugin_thread[0], &tmp);
-        }
+    }
 	
-        dl_list_free (&modulelist);
+    dl_list_free (&modulelist);
 	dl_list_free (&slavelist);
-        return retval;
+    return retval;
 }
 
 /* ------------------------------------------------------------------------- */

@@ -250,9 +250,10 @@ LOCAL int eapi_error (const char *what, const char *msg)
 
 LOCAL int eapi_open ()
 {
-        MIN_DEBUG ("Opening");
-	assert (open == 0);
+    MIN_DEBUG ("Opening");
+	//assert (open == 0);
 	open = 1;
+    ec_configure ();
 	return ec_start_modules();
 }
 
@@ -513,18 +514,18 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
         out->add_test_module    = eapi_add_test_module;
         out->add_test_case_file = eapi_add_test_case_file;
         out->start_case         = eapi_start_test_case;
-	out->pause_case         = eapi_pause_case;
-	out->resume_case        = eapi_resume_case;
-	out->abort_case         = eapi_abort_case;
+	    out->pause_case         = eapi_pause_case;
+	    out->resume_case        = eapi_resume_case;
+	    out->abort_case         = eapi_abort_case;
         out->fatal_error        = eapi_error;
 
-	out->min_close          = eapi_close;
-	out->min_open           = eapi_open;
+	    out->min_close          = eapi_close;
+	    out->min_open           = eapi_open;
         out->query_test_modules = eapi_query_test_modules;
         out->query_test_files   = eapi_query_test_files;
 
-	out->register_slave     = eapi_register_slave;
-	out->receive_rcp        = eapi_receive_rcp;
+	    out->register_slave     = eapi_register_slave;
+	    out->receive_rcp        = eapi_receive_rcp;
 }
 
 /* ------------------------------------------------------------------------- */

@@ -2342,7 +2342,7 @@ err_exit:
  * $HOME/.min/min.conf, ./min.conf. Settings with single value are 
  * overwritten, module and search paths are appended.
  */
-LOCAL int ec_configure ()
+int ec_configure ()
 {
         MinParser     *inifile = INITPTR;
         char           *home_d = getenv ("HOME");
@@ -2500,7 +2500,6 @@ void ec_min_init (char *envp_[], int operation_mode)
         pthread_mutex_unlock (&tec_mutex_);
         ec_settings.search_dirs = dl_list_create ();
         ec_init_logger_settings ();
-        ec_configure ();
         ec_settings_send ();
 
 #ifndef MIN_EXTIF
