@@ -1,0 +1,6 @@
+min-all (2009w19) unstable; urgency=low
+  * Seventh MIN Release
+  * Added: ip slave registration to MIN Engine API and a pool of slaves to Engine
+  * Added: usability changes to MIN
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   27 April 2009 15:27:14 +0100
