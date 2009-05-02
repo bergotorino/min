@@ -2,5 +2,9 @@
 #
 # pre-remove script for MIN
 #
-/etc/init.d/min stop
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d min stop
+else
+    /etc/init.d/min stop
+fi
 true
