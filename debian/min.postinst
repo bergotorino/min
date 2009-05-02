@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Post-installation script for MIN
+#
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d min stop
+    sleep 1
+    invoke-rc.d min start
+else
+    /etc/init.d/min stop
+    sleep 1
+    /etc/init.d/min start
+fi

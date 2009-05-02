@@ -1,0 +1,8 @@
+/usr/share/min-tests/EventsTestModule*
+/usr/share/min-tests/HardCoded*
+/usr/share/min-tests/TestClass*
+/usr/share/min-tests/LuaTestClass*
+/usr/share/min-tests/scripter.cfg
+/usr/share/min-tests/luascripter.lua
+/usr/share/min-tests/runtests.sh
+
