@@ -2,6 +2,10 @@
 #
 # Post-installation script for MIN
 #
+
+if which update-rc.d >/dev/null 2>&1; then
+    update-rc.d min defaults
+fi
 if which invoke-rc.d >/dev/null 2>&1; then
     invoke-rc.d min stop
     sleep 1
@@ -11,3 +15,4 @@ else
     sleep 1
     /etc/init.d/min start
 fi
+ldconfig
