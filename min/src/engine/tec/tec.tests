@@ -56,6 +56,8 @@ START_TEST(write_modules_list)
 	test_module_info_s* first_module;
         unit_test_result = 0;
         ec_min_init(envp_,0);
+	ec_configure();
+	ec_start_modules();
         first_module = available_modules->head_->data_;
         fname = first_module->module_filename_;
         char* result = strstr(fname,"minDemoModule");
