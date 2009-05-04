@@ -40,6 +40,8 @@
 extern int      tec_tests ();
 extern int      tec_events_tests ();
 
+int slave_exit;
+
 /* ----------------------------------------------------------------------------
  * CONSTANTS
  */
