@@ -42,7 +42,7 @@
 /** No error definition */
 #define ENOERR 0
 /** MIN version */
-#define MIN_VERSION_STR "min2009w16"
+#define MIN_VERSION_STR "min2009w19"
 /* ------------------------------------------------------------------------- */
 /** Max length of the Test Result description.
  */
