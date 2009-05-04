@@ -1,6 +1,6 @@
 min-all (2009w19) unstable; urgency=low
   * Seventh MIN Release
-  * Added: ip slave registration to MIN Engine API and a pool of slaves to Engine
-  * Added: usability changes to MIN
+  * Fixed: Console-ui doesn't show all the test cases on first view
+  * Fixed: undefined g_cclosure__VOID_STRING occuring on armel.
 
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   27 April 2009 15:27:14 +0100
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   04 May 2009 08:37:10 +0100
