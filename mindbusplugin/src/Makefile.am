@@ -11,8 +11,8 @@ noinst_HEADERS = min_dbus_plugin.h
 include_HEADERS = min_dbus_client_interface.h
 min_dbus_la_SOURCES = min_dbus_plugin.c
 
-min_dbus_la_LDFLAGS = -module
-min_dbus_la_CFLAGS = $(AM_CFLAGS) -lglib-2.0 -ldbus-glib-1
+min_dbus_la_LDFLAGS = -module -lglib-2.0 -ldbus-glib-1 -lgobject-2.0
+min_dbus_la_CFLAGS = $(AM_CFLAGS)
 
 CLEANFILES = min_dbus_plugin.h \
 	     min_dbus_client_interface.h
