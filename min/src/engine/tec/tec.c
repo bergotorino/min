@@ -2351,6 +2351,8 @@ int ec_configure ()
         char           *min_d;
         int             op_mode = ec_settings.operation_mode_;
 
+        ec_init_logger_settings ();
+
         /*Initialize logger settings */
         /*Read settings from global .conf */
         if (curr_d == NULL || strcmp (MIN_CONF_DIR, curr_d) != 0) {
@@ -2407,6 +2409,7 @@ int ec_configure ()
          */
         if (op_mode == 0)
                 ec_read_module_confdir ();
+        ec_settings_send ();
 
         return 0;
 }
@@ -2499,8 +2502,7 @@ void ec_min_init (char *envp_[], int operation_mode)
         ec_settings.engine_pid_ = getpid ();
         pthread_mutex_unlock (&tec_mutex_);
         ec_settings.search_dirs = dl_list_create ();
-        ec_init_logger_settings ();
-        ec_settings_send ();
+
 
 #ifndef MIN_EXTIF
 	in->send_rcp = socket_send_rcp;
