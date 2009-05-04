@@ -21,5 +21,6 @@ AC_SUBST(LT_AGE)
 
 AC_OUTPUT(\
 	Makefile \
-        src/Makefile)
+        src/Makefile \
+        data/Makefile)
 
