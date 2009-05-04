@@ -26,6 +26,7 @@ libmintec_a_LIBADD = $(top_builddir)/src/utils/libminutils.la \
 libmintectest_a_SOURCES = tec.c \
 			  tec_events.c \
 			  tec_rcp_handling.c \
+			  tec_tcp_handling.c \
 			  tec.test \
 			  tec_events.tests \
 			  min_engine_api.c \
