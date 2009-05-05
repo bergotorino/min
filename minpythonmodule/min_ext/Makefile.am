@@ -7,7 +7,9 @@ INCLUDES = -I. \
 	   -I../../min/src/tmc/test_module_api \
 	   -I../../min/src/utils/logger \
 	   -I../../min/src/utils/dllist \
-	   -I../../min/src/utils/ipc
+	   -I../../min/src/utils/ipc \
+	   -I../../min/src/utils/text
+
 pkglib_LTLIBRARIES 	= min_ext.la
 
 min_ext_la_CFLAGS = $(AM_CFLAGS)

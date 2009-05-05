@@ -8,7 +8,8 @@ INCLUDES = -I. \
 	   -I../../../min/src/tmc/test_module_api \
 	   -I../../../min/src/utils/logger \
 	   -I../../../min/src/utils/dllist \
-	   -I../../../min/src/utils/ipc 
+	   -I../../../min/src/utils/ipc \ 
+	   -I../../min/src/utils/text 
 
 LuaTestClass_la_CFLAGS = -DLUA_USE_POSIX
 LuaTestClass_la_LDFLAGS = -shared -module

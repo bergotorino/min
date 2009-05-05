@@ -8,7 +8,9 @@ INCLUDES = -I. \
 	   -I../../../min/src/tmc/test_module_api \
 	   -I../../../min/src/utils/logger \
 	   -I../../../min/src/utils/dllist \
-	   -I../../../min/src/utils/ipc 
+	   -I../../../min/src/utils/ipc \
+	   -I../../../min/src/utils/text 
+
 
 TestClass_la_LDFLAGS = -shared -module
 TestClass_la_SOURCES = TestClass.c TestClassCases.c
