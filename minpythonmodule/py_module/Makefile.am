@@ -1,6 +1,14 @@
 METASOURCES=Auto
 TOPDIR=.
-INCLUDES = -I$(TOPDIR)/src
+INCLUDES = -I. \
+	   -I ./src \
+	   -I../../min/src \
+	   -I../../min/src/services/event_system \
+	   -I../../min/src/tmc \
+	   -I../../min/src/tmc/test_module_api \
+	   -I../../min/src/utils/logger \
+	   -I../../min/src/utils/dllist \
+	   -I../../min/src/utils/ipc
 pkglib_LTLIBRARIES 	= pythonscripter.la
 
 pythonscripter_la_CFLAGS = $(AM_CFLAGS)
