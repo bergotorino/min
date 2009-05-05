@@ -1,8 +1,10 @@
 description "MIN Daemon"
 author "Sampo Saaristo"
 
-start on runlevel 2
-stop on runlevel [!2]
+start on started wlancond
+stop on starting shutdown
 
-exec /usr/bin/mind 
+console output
+
+exec /etc/init.d/min start
 
