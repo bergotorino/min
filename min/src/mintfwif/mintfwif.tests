@@ -129,6 +129,8 @@ START_TEST(exec_case_inv_arg)
         DLListIterator work_case_item = DLListNULLIterator;
         int result = 0;
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -162,6 +164,8 @@ START_TEST(exec_case_success)
         int result = 0;
         
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 cont_flag = 1;
@@ -178,7 +182,7 @@ START_TEST(exec_case_success)
         work_module_item = dl_list_head( instantiated_modules );
         work_case_item = dl_list_at(tm_get_tclist(work_module_item),1);
         result = min_if_exec_case("minDemoModule",1);
-        usleep(20000);
+        usleep(50000);
 
         work_case_item = dl_list_at(selected_cases,0);
         fail_unless ( (tc_get_status(work_case_item)) == TEST_CASE_ONGOING , "Case status not set");
@@ -196,6 +200,8 @@ START_TEST(cancel_case_inv_arg)
         DLListIterator work_case_item = DLListNULLIterator;
         int result = 0;
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -228,6 +234,8 @@ START_TEST(cancel_case_not_running)
         int result = 0;
         
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -262,6 +270,8 @@ START_TEST(cancel_case_cancelled)
         int result = 0;
         
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -303,6 +313,8 @@ START_TEST(cancel_case_success)
         int result = 0;
         
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -340,6 +352,8 @@ START_TEST(pause_case_inv_arg)
         DLListIterator work_case_item = DLListNULLIterator;
         int result = 0;
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -372,6 +386,8 @@ START_TEST(pause_case_not_running)
         int result = 0;
         
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -406,6 +422,8 @@ START_TEST(pause_case_paused)
         int result = 0;
         
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -448,6 +466,8 @@ START_TEST(pause_case_success)
         int result = 0;
         
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -486,6 +506,8 @@ START_TEST(resume_case_inv_arg)
         DLListIterator work_case_item = DLListNULLIterator;
         int result = 0;
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -517,6 +539,8 @@ START_TEST(resume_case_not_paused)
         DLListIterator work_case_item = DLListNULLIterator;
         int result = 0;
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -549,6 +573,8 @@ START_TEST(resume_case_paused)
         DLListIterator work_case_item = DLListNULLIterator;
         int result = 0;
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -592,6 +618,8 @@ START_TEST(resume_case_not_running)
         int result = 0;
         
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         
         while( cont_flag == 0 ) {
                 usleep(100000);
@@ -626,6 +654,8 @@ START_TEST(get_cases_success)
         int status;
         
         ec_min_init(envp_,0);
+        ec_configure();
+        ec_start_modules();
         while( cont_flag == 0 ) {
                 usleep(100000);
                 work_module_item = dl_list_head(instantiated_modules);
@@ -660,6 +690,8 @@ START_TEST( add_module_without_tcfile )
         DLListIterator work_module_item = DLListNULLIterator;
         int status;
         ec_min_init(envp_,1);
+        ec_configure();
+        ec_start_modules();
         while( cont_flag == 0 ) {
                 cont_flag = 1;
                 usleep(100000);
@@ -691,6 +723,8 @@ START_TEST( add_module_with_invalid_tc_file_ok )
         DLListIterator work_module_item = DLListNULLIterator;
         int status;
         ec_min_init(envp_,1);
+        ec_configure();
+        ec_start_modules();
         while( cont_flag == 0 ) {
                 cont_flag = 1;
                 usleep(100000);
@@ -723,6 +757,8 @@ START_TEST( add_module_with_valid_tc_file_ok )
         DLListIterator work_module_item = DLListNULLIterator;
         int status;
         ec_min_init(envp_,1);
+        ec_configure();
+        ec_start_modules();
         while( cont_flag == 0 ) {
                 cont_flag = 1;
                 usleep(100000);
@@ -754,6 +790,8 @@ START_TEST( add_invalid_module )
         DLListIterator work_module_item = DLListNULLIterator;
         int status;
         ec_min_init(envp_,1);
+        ec_configure();
+        ec_start_modules();
         while( cont_flag == 0 ) {
                 cont_flag = 1;
                 usleep(100000);
