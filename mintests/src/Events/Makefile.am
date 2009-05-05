@@ -9,7 +9,9 @@ INCLUDES = -I. \
 	   -I../../../min/src/utils/logger \
 	   -I../../../min/src/utils/dllist \
 	   -I../../../min/src/utils/ipc \
+	   -I../../../min/src/utils/lib_loader \
 	   -I../../../min/src/utils/text \
+	   -I../../../min/src/utils/parser \
 	   -I../../../min/shared
 
 EventsTestModule_la_LDFLAGS = -module -shared
