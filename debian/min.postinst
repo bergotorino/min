@@ -4,7 +4,7 @@
 #
 
 if which update-rc.d >/dev/null 2>&1; then
-    update-rc.d min defaults
+    update-rc.d min defaults 90 20
 fi
 if which invoke-rc.d >/dev/null 2>&1; then
     invoke-rc.d min stop
