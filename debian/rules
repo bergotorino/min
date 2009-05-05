@@ -2,7 +2,6 @@
 CC = gcc
 CFLAGS = -g -Wall
 export DH_VERBOSE=1
-export DH_COMPAT=4
 
 package = min-all
 
