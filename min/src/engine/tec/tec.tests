@@ -48,16 +48,18 @@ START_TEST(initialize)
         fail_unless(((available_modules != INITPTR)||(instantiated_modules != INITPTR)||(selected_cases != INITPTR)),"failed to initialize data");
         mq_close_queue(mq_id);
 }
-
 END_TEST
+
 START_TEST(write_modules_list)
 {
 	char* fname;
 	test_module_info_s* first_module;
         unit_test_result = 0;
+
         ec_min_init(envp_,0);
 	ec_configure();
 	ec_start_modules();
+
         first_module = available_modules->head_->data_;
         fname = first_module->module_filename_;
         char* result = strstr(fname,"minDemoModule");
@@ -70,8 +72,8 @@ END_TEST
 START_TEST(module_instantiation)
 {
         long mpid = 0;
-	    DLListIterator work_item;
-        ec_min_init(envp_,0);
+	DLListIterator work_item;
+        ec_min_init(envp_,0);	
         unit_test_result = ec_start_modules();
         work_item = dl_list_head(instantiated_modules);
         while (work_item != DLListNULLIterator)
@@ -248,6 +250,7 @@ START_TEST(module_start)
 	long pid_check;
 	DLListIterator work_item;
         ec_min_init(envp_,0);
+	ec_configure();
         ec_start_modules();
         work_item = dl_list_head(instantiated_modules);
         do {
@@ -665,6 +668,8 @@ START_TEST(add_module_full_path)
         ec_min_init(envp_,0);
         
         ec_add_module("/usr/lib/min/minDemoModule.so",empty_list,0);
+        ec_start_modules();
+
         usleep(5000);
         result = dl_list_size(instantiated_modules);
         fail_unless(result != 1,"Module not added");
@@ -737,7 +742,7 @@ Suite* tec_suite()
         TCase* tc_core = tcase_create("tc_core");
 
         /* Set new timeout limit */
-        tcase_set_timeout ( tc_core , 10 );
+        tcase_set_timeout ( tc_core , 500);
 
 	tcase_add_checked_fixture (tc_core, setup, teardown);
 
@@ -773,10 +778,10 @@ int tec_tests(char *evnp[])
 	Suite   * s;
 	SRunner * sr;
 	envp_ = envp;
-        // srunner_set_fork_status (sr,CK_NOFORK); 
         number_failed = 0;
         s  = tec_suite ();
         sr = srunner_create (s);
+        //srunner_set_fork_status (sr,CK_NOFORK); 
         srunner_run_all(sr, CK_NORMAL);
         number_failed = srunner_ntests_failed(sr);
         srunner_free(sr);
