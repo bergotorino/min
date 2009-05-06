@@ -54,6 +54,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     // Available cases view
 //    availableCasesView_->setModel(availableCasesModel_);
     availableCasesView_->setShowGrid(false);
+    availableCasesView_->setSelectionBehavior(QAbstractItemView::SelectRows);
     QSortFilterProxyModel *proxyView= new QSortFilterProxyModel(this);
     proxyView->setSourceModel(availableCasesModel_);
     availableCasesView_->setModel(proxyView);
@@ -72,8 +73,6 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
                                         QString("Summary"));
 
     // Signals and slots
-    connect (availableCasesView_,SIGNAL(clicked(const QModelIndex&)),
-            this,SLOT(availableViewSetRowSelection(const QModelIndex&)));
 }
 // -----------------------------------------------------------------------------
 Min::CasesPanel::~CasesPanel()
