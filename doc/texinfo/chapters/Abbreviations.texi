@@ -14,6 +14,8 @@ A utility, which extracts information from text files.
 @item MIN
 @itemx MIN Test Framework 
 The name of the developed MIN Test Framework test tool.
+@item MIN Qt
+MIN Qt Graphical User Interface.
 @item Test Case
 A unique test, which either passes or fails.
 @item Test Engine

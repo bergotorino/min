@@ -4,6 +4,7 @@ case "$1" in
 	"pdf")
 	pdftex min.texi
 	pdftex min-reference.texi
+	pdftex minqt-reference.texi
 	;;
 	"docbook")
 	makeinfo --docbook min.texi

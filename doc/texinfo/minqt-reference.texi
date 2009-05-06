@@ -1,0 +1,202 @@
+\input texinfo  @c -*-texinfo-*-
+@c %**start of header (This is for running texinfo on a region.)
+@setfilename minqt-reference.info
+@settitle MIN Qt Interface Reference Guide
+@c %**end of header (This is for running texinfo on a region.)
+
+@ignore
+@ifinfo
+@format
+START-INFO-DIR-ENTRY
+* MIN: (min-reference.info). MIN Test Framework for Lunux/Maemo.
+END-INFO-DIR-ENTRY
+@end format
+@end ifinfo
+@end ignore
+
+@set document_version 1.0
+@set document_title MIN Test Framework
+@set document_full_title MIN Qt Interface Reference Guide
+@set document_author MIN Development Team
+@set application_full_name MIN Test Framework
+@set module_wizard_command createtestmodule
+@set application_command min
+@set copyright_owner Nokia
+@set copyright_date 2008
+
+
+@ifinfo
+This file documents @value{application_full_name}
+
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts and no Back-Cover Texts.  A copy of the license is included in the section entitled "GNU Free Documentation License".
+
+Online copy of this document (recent): @*@url{http://min.sourceforge.net/doc/min-reference.html}
+
+Documentation download page: @url{https://garage.maemo.org/docman/?group_id=853}
+
+Project home page: @url{http://garage.maemo.org/projects/min/}
+@end ifinfo
+
+@titlepage
+@title @value{document_title}
+@subtitle @value{document_full_title}
+@author @value{document_author}
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+@sp 2
+Document Version @value{document_version}
+@sp 2
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.2 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts and no Back-Cover Texts.  A copy of the license is included in the section entitled "GNU Free Documentation License".
+
+Online copy of this document (recent): 
+
+@url{http://min.sourceforge.net/doc/min-reference.html}
+
+Documentation download page: @url{https://garage.maemo.org/docman/?group_id=853}
+
+Project home page: @url{http://garage.maemo.org/projects/min/}
+@end titlepage
+
+@ifinfo
+@node Top, Document Version, (dir), (dir)
+@top General Introduction
+This file documents @value{application_full_name}
+
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+
+Document Version @value{document_version}
+
+Online copy of this document (recent): @url{http://min.sourceforge.net/doc/min-reference.html}
+
+Documentation download page: @url{https://garage.maemo.org/docman/?group_id=853}
+
+Project home page: @url{http://garage.maemo.org/projects/min/}
+@end ifinfo
+
+@ifdocbook
+@node Top, Document Version, (dir), (dir)
+@top General Introduction
+This file documents @value{application_full_name}
+
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+
+Document Version @value{document_version}
+
+Online copy of this document (recent): @url{http://min.sourceforge.net/doc/min-reference.html}
+
+Documentation download page: @url{https://garage.maemo.org/docman/?group_id=853}
+
+Project home page: @url{http://garage.maemo.org/projects/min/}
+@end ifdocbook
+
+@ifhtml
+@node Top, Table of contents, (dir), (dir)
+@top General Introduction
+This page documents @value{application_full_name}
+
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+
+Document Version @value{document_version}
+
+Online copy of this document (recent): @url{http://min.sourceforge.net/doc/min-reference.html}
+
+Documentation download page: @url{https://garage.maemo.org/docman/?group_id=853}
+
+Project home page: @url{http://garage.maemo.org/projects/min/}
+@end ifhtml
+
+
+@ifplaintext
+@node Top, Document Version, (dir), (dir)
+@top General Introduction
+This page documents @value{application_full_name}
+
+Copyright @copyright{} @value{copyright_date} @value{copyright_owner}
+
+Document Version @value{document_version}
+
+Online copy of this document (recent): http://min.sourceforge.net/doc/min-reference.html
+
+Documentation download page: https://garage.maemo.org/docman/?group_id=853
+
+Project home page: http://garage.maemo.org/projects/min/
+@end ifplaintext
+
+
+@menu
+
+* Top: Top.
+* Document Version: Document Version.
+@ifhtml
+* Table of contents: Table of contents.
+@end ifhtml
+* Document control: Document control.
+* Documentation conventions: Documentation conventions.
+* Abbreviations and definitions: Abbreviations and definitions.
+* MIN Qt database backend: MIN Qt database backend.
+* GNU Free Documentation License: GNU Free Documentation License.
+@end menu
+
+@ifnothtml
+@summarycontents
+@contents
+
+@node Document Version, Document control, Top, Top
+@end ifnothtml
+@ifhtml
+
+@node Table of contents, Document Version, Top, Top
+@summarycontents
+@contents
+
+@node Document Version, Document control, Table of contents, Top
+@end ifhtml
+@unnumbered Document Version History
+
+@multitable @columnfractions .10 .20 .15 .50 
+@headitem Version @tab Date @tab Status @tab Comments 
+@item 1.0 @tab 17.12.2008 @tab Draft @tab Initial draft 
+
+@end multitable
+
+
+@node Document control, Documentation conventions, Document Version, Top
+@chapter Document control
+@menu
+* Documentation conventions: Documentation conventions.
+* Abbreviations and definitions: Abbreviations and definitions.
+@end menu
+
+@node Documentation conventions, Abbreviations and definitions, Document control, Document control
+@section Documentation conventions
+@include chapters/Documentation_conventions.texi
+
+@node Abbreviations and definitions, Using MIN for test cases implementation, Documentation conventions, Document control
+@section Abbreviations and definitions
+@include chapters/Abbreviations.texi
+
+@node MIN Qt general informations, MIN Qt database backend, Abbreviations and definitions, Top
+@chapter MIN Qt general informations
+@include chapters/MINQt_general.texi
+
+
+@node MIN Qt database backend, GNU Free Documentation License, MIN Qt Interface general informations, Top
+@chapter Using MIN for test cases implementation
+@include chapters/MINQt_database_backend.texi
+
+@node MIN DBus interface, GNU Free Documentation License, MIN Qt database backend, Top
+@chapter MIN DBus interface
+@include chapters/MIN_DBus_interface.texi
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+@include chapters/GNU_Free_Documentation_License.texi
+
+
+
+@bye
+
+
