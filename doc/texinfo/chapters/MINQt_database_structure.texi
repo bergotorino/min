@@ -1,0 +1,28 @@
+Database structure for MIN Qt backend was designed to rely on engine data structures,
+and simultaneously provide database-like, optimized table structure. It is 
+created in memory when starting MIN Qt interface, and stores data received from
+engin via DBus interface to prevent unnecessary data transfers during every GUI
+refresh.
+
+Test cases and modules identification is handled by engine with identifiers not
+unique throughout whole engine (for instance in case of test case, numbering is
+unique for test cases related to one module). This fact implies necessity of
+unique numbering of items, using database typical method of including autoincremented
+primary key for each table, not related directly to engine internals.
+
+Tables structure is shown in the figure below:
+
+@ifinfo
+@image{images/min_db_final,15cm,,MIN database,txt}
+@end ifinfo
+@ifplaintext
+@image{images/min_db_final,15cm,,MIN database,txt}
+@end ifplaintext
+@ifhtml
+@image{images/min_db_final,15cm,,MIN database,png}
+@end ifhtml
+@iftex
+@image{images/min_db_final,15cm,,MIN database,png}
+@end iftex
+
+

@@ -1,1 +1,3 @@
-This chapter describes MIN Qt database backend in detail.
+This chapter describes MIN Qt database backend used to store its specific data in single and efficient data structure.
+
+
