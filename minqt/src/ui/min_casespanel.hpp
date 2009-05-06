@@ -76,6 +76,9 @@ namespace Min
         /** Will display modules and cases we can run. */
         QTableView *availableCasesView_;
 
+        /** Model that feeds executed cases view with the data. */
+        QAbstractItemModel *executedCasesModel_;
+
         /** Model that feeds available cases view with the data. */
         QAbstractItemModel *availableCasesModel_;
 

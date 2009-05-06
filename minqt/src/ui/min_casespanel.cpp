@@ -40,6 +40,8 @@
 // Min incudes
 #include "min_casesmodel.hpp"
 #include "min_availablecasestreemodel.hpp"
+#include "min_executedmodel.hpp"
+
 #include "min_availablemodel.hpp"
 #include "min_database.hpp"
 
@@ -48,18 +50,19 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     : QWidget(parent)
     , centralWidget_(new QToolBox(this))
     , availableCasesView_(new QTableView(this))
+    , executedCasesModel_(new Min::ExecutedModel(this))
     , availableCasesModel_(new Min::AvailableModel(this))
     , executedCasesView_(new QTabWidget(this))
     , executedTable_(new QTableView(this))
     , db_(Min::Database::getInstance())
 {
     // Available cases view
-//    availableCasesView_->setModel(availableCasesModel_);
     availableCasesView_->setShowGrid(false);
     availableCasesView_->setSelectionBehavior(QAbstractItemView::SelectRows);
     QSortFilterProxyModel *proxyView= new QSortFilterProxyModel(this);
     proxyView->setSourceModel(availableCasesModel_);
     availableCasesView_->setModel(proxyView);
+    executedTable_->setModel(executedCasesModel_);
     
     // Executed cases view
     executedCasesView_->addTab(executedTable_,"All");
