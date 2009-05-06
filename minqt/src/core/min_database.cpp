@@ -153,7 +153,7 @@ unsigned int Min::Database::insertPrintout(unsigned int test_run_dbid,
     if (query.exec()) {
         // Notify
         emit updated();
-        return query.lastInsertId().toUint();
+        return query.lastInsertId().toUInt();
     }
     else return 0;
 
