@@ -41,6 +41,7 @@
 #include "min_casesmodel.hpp"
 #include "min_availablecasestreemodel.hpp"
 #include "min_availablemodel.hpp"
+#include "min_database.hpp"
 
 // -----------------------------------------------------------------------------
 Min::CasesPanel::CasesPanel(QWidget *parent)
@@ -50,6 +51,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     , availableCasesModel_(new Min::AvailableModel(this))
     , executedCasesView_(new QTabWidget(this))
     , executedTable_(new QTableView(this))
+    , db_(Min::Database::getInstance())
 {
     // Available cases view
 //    availableCasesView_->setModel(availableCasesModel_);
@@ -73,6 +75,8 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
                                         QString("Summary"));
 
     // Signals and slots
+    connect (&db_,SIGNAL(updated()),
+            availableCasesView_,SLOT(repaint()));
 }
 // -----------------------------------------------------------------------------
 Min::CasesPanel::~CasesPanel()
@@ -84,10 +88,9 @@ void Min::CasesPanel::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
 }
 // -----------------------------------------------------------------------------
-void Min::CasesPanel::availableViewSetRowSelection(const QModelIndex &index)
+void Min::CasesPanel::updateAvailableView()
 {
-    if (!index.isValid()) return;
-    availableCasesView_->selectRow(index.row());
+    qDebug("Updated!!!\n");
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

@@ -46,6 +46,7 @@ class QAbstractItemModel;
  */
 namespace Min
 {
+    class Database;
     // -------------------------------------------------------------------------
     /**
      * @class CasesPanel
@@ -66,11 +67,8 @@ namespace Min
         void resizeEvent (QResizeEvent *event);
 
     private slots:
-        /** Selects row of item which is clicked.
-         *  Translates QModelIndex into row value which is accepted by
-         *  QTableView::setectRow
-         */
-        void availableViewSetRowSelection(const QModelIndex &index);
+        /** Updates the view */
+        void updateAvailableView();
     private:
         /** Main area on the window. */
         QToolBox *centralWidget_;
@@ -86,6 +84,9 @@ namespace Min
 
         /** Will display all executed cases */
         QTableView *executedTable_;
+
+        /** Handler to the database */
+        Min::Database &db_;
     };
     // -------------------------------------------------------------------------
 }; // namespace Min

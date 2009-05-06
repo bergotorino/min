@@ -62,6 +62,8 @@ unsigned int Min::Database::insertModule(unsigned int device_dbid,
                 unsigned int module_id,
                 const QString &module_name)
 {
+    emit updated();
+
     // Check if module with this id exists
     QSqlQuery query;
     query.prepare("SELECT id FROM module WHERE device_id=:devid AND module_id=:modid AND module_name=:name;");
