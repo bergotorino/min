@@ -139,6 +139,8 @@ void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
 {
     qDebug("Min::RemoteControll::minNewTestCase %d %d %s\n",
           moduleid,caseid,casetitle.toStdString().c_str());
+    Min::Database &db = Min::Database::getInstance();
+    db.insertTestCase(db.getModuleDbId(1,moduleid),caseid,casetitle,"");
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNoModule(const QString &modulename)

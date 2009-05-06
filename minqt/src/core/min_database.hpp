@@ -38,8 +38,10 @@
 namespace Min
 {
     // ---------------------------------------------------------------------
-    class Database: public Min::Singleton<Database>
+    class Database: public QObject,
+                    public Min::Singleton<Database>
     {
+    Q_OBJECT
     friend class Singleton<Database>;
     public:
 	
