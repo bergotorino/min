@@ -36,3 +36,5 @@ HEADERS     +=  ui/min_mainwidget.hpp                   \
 
 MOC_DIR     =   ./.moc
 OBJECTS_DIR =   ./.moc
+target.path = /usr/bin
+INSTALLS = target
