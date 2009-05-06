@@ -15,7 +15,8 @@ DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 confflags += --build=$(DEB_BUILD_GNU_TYPE) --host=$(DEB_HOST_GNU_TYPE)
 
 SUBDIRS="min minpythonmodule mintests mindbusplugin"
-
+ALLDIRS="min minpythonmodule mintests mindbusplugin minqt"
+INSTALL_ROOT = $(CURDIR)/debian/tmp
 build: build-stamp
 build-stamp:
 	dh_testdir
@@ -28,6 +29,7 @@ build-stamp:
 		$(MAKE) || exit 1; \
 		cd ..;\
 	done
+	cd minqt && qmake && $(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" && cd ..
 	touch NEWS 
 	touch ChangeLog
 	touch build-stamp
@@ -35,7 +37,7 @@ build-stamp:
 clean: 
 	dh_clean
 	rm -f build-stamp
-	for FILE in "$(SUBDIRS)"; do \
+	for FILE in "$(ALLDIRS)"; do \
 		cd "$$FILE"; \
 		[ ! -f Makefile ] || $(MAKE) distclean; \
 		cd ..;\
@@ -51,6 +53,8 @@ install: build
 		$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp; \
 		cd ..;\
 	done
+	cd minqt && $(MAKE) install "INSTALL_ROOT = $(CURDIR)/debian/tmp"
+	cd ..
 
 binary-indep: install
 
