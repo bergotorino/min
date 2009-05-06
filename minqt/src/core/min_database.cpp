@@ -21,7 +21,7 @@
 
 
 #include "min_database.hpp"
-#include "tmc_common.h"
+//#include "tmc_common.h"
 
 // ----------------------------------------------------------------------------
 Min::Database::Database()
@@ -342,7 +342,7 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int devid) const
     return retval;
 };
 // ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid)
+QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid) const
 {
     QSqlQuery query;
     QVector<QStringList> retval;
@@ -362,7 +362,7 @@ QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid)
     return retval;
 };
 // ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getOngoingView(unsigned int device_dbid)
+QVector<QStringList> Min::Database::getOngoingView(unsigned int device_dbid) const
 {
     QSqlQuery query;
     QVector<QStringList> retval;
@@ -382,7 +382,7 @@ QVector<QStringList> Min::Database::getOngoingView(unsigned int device_dbid)
     return retval;
 };
 // ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getPassedView(unsigned int device_dbid)
+QVector<QStringList> Min::Database::getPassedView(unsigned int device_dbid) const
 {
     QSqlQuery query;
     QVector<QStringList> retval;
@@ -402,7 +402,7 @@ QVector<QStringList> Min::Database::getPassedView(unsigned int device_dbid)
     return retval;
 };
 // ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getFailedView(unsigned int device_dbid)
+QVector<QStringList> Min::Database::getFailedView(unsigned int device_dbid) const
 {
     QSqlQuery query;
     QVector<QStringList> retval;
@@ -422,7 +422,7 @@ QVector<QStringList> Min::Database::getFailedView(unsigned int device_dbid)
     return retval;
 };
 // ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getAbortedView(unsigned int device_dbid)
+QVector<QStringList> Min::Database::getAbortedView(unsigned int device_dbid) const
 {
     QSqlQuery query;
     QVector<QStringList> retval;

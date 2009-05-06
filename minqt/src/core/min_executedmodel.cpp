@@ -1,4 +1,4 @@
-/*`
+/*
  * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
  * and/or its subsidiary(-ies).
  * Contact: Konrad Marek Zapalowicz
@@ -16,7 +16,6 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-
 // System includes
 #include <QSize>
 
@@ -27,6 +26,7 @@
 Min::ExecutedModel::ExecutedModel(QObject *parent)
     : QAbstractTableModel(parent)
     , db_(Min::Database::getInstance())
+    , data_()
 { ; }
 // -----------------------------------------------------------------------------
 Min::ExecutedModel::~ExecutedModel()
@@ -34,7 +34,8 @@ Min::ExecutedModel::~ExecutedModel()
 // -----------------------------------------------------------------------------
 int Min::ExecutedModel::rowCount(const QModelIndex &parent) const
 {
-    return 10;
+    data_ = db_.getExecutedView(1);
+    return data_.count();
 }
 // -----------------------------------------------------------------------------
 int Min::ExecutedModel::columnCount(const QModelIndex &parent) const
@@ -50,11 +51,8 @@ QVariant Min::ExecutedModel::data(const QModelIndex &index, int role) const
     int column = index.column();
 
     if (role==Qt::DisplayRole) {
-        // Device_id is id from database not the one supplied by MIN
-	    QVector<QStringList> data = db_.getExecutedView(1);
-
-        if (row < data.count() && column < 3 ) {
-            return data[row][column];
+        if (row < data_.count() && column < 2 ) {
+            return data_[row][column];
         } else return "Nothing";
     }
     return QVariant();
@@ -78,4 +76,3 @@ QVariant Min::ExecutedModel::headerData(int section,
     }
 }
 // -----------------------------------------------------------------------------
-// file created by generator.sh v1.08

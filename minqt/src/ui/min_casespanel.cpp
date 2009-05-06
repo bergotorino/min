@@ -76,7 +76,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
 
     // Signals and slots
     connect (&db_,SIGNAL(updated()),
-            availableCasesView_,SLOT(repaint()));
+             this,SLOT(updateAvailableView()));
 }
 // -----------------------------------------------------------------------------
 Min::CasesPanel::~CasesPanel()
