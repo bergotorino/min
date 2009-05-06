@@ -161,6 +161,11 @@ namespace Min
 
 	QVector<QStringList> getAbortedView(unsigned int device_dbid = 1);
 
+    signals:
+
+        /** Emitted when database contents are updated (inserted,removed, changed) */
+        void updated();
+
     private:
 	/**
 	 * default constructor

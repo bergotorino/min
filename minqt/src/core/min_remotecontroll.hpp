@@ -98,14 +98,11 @@ namespace Min
         /**@}*/
 
     private:
+        /** Copying is forbidden */
+        Q_DISABLE_COPY(RemoteControll);
+
         /** Default C++ Constructor. */
         RemoteControll();
-        /**@{Declared but nit defined.*/
-        /** Copy Constructor. */
-        RemoteControll( const Min::RemoteControll& c );
-        /** Assignment operator. */
-        Min::RemoteControll& operator =( const Min::RemoteControll& c );
-        /**@}*/
 
         /** Connection to the DBus */
         QDBusConnection bus_;

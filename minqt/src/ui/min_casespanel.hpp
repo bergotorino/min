@@ -28,11 +28,13 @@
 
 // System includes
 #include <QWidget>
+#include <QModelIndex>
 
 // Forward declarations
 class QResizeEvent;
 class QToolBox;
 class QTableView;
+class QListView;
 class QTabWidget;
 class QAbstractTableModel;
 class QAbstractItemModel;
@@ -51,6 +53,8 @@ namespace Min
      */
     class CasesPanel: public QWidget
     {
+    Q_OBJECT
+    Q_DISABLE_COPY(CasesPanel);
     public:
         /** Default C++ Constructor. */
         CasesPanel(QWidget *parent);
@@ -60,13 +64,13 @@ namespace Min
     protected:
         /** Handles resize event that comes from the system. */
         void resizeEvent (QResizeEvent *event);
-    private:
-        /**@{Declared but not defined by design.*/
-        /** Copy Constructor. */
-        CasesPanel( const Min::CasesPanel& c );
-        /** Assignment operator. */
-        Min::CasesPanel& operator =( const Min::CasesPanel& c );
-        /**@}*/
+
+    private slots:
+        /** Selects row of item which is clicked.
+         *  Translates QModelIndex into row value which is accepted by
+         *  QTableView::setectRow
+         */
+        void availableViewSetRowSelection(const QModelIndex &index);
     private:
         /** Main area on the window. */
         QToolBox *centralWidget_;

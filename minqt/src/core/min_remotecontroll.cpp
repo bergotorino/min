@@ -23,7 +23,11 @@
  * @author:   
  */
 
+// Module include
 #include "min_remotecontroll.hpp"
+
+// Min includes
+#include "min_database.hpp"
 
 // -----------------------------------------------------------------------------
 Min::RemoteControll::RemoteControll()
@@ -127,6 +131,7 @@ void Min::RemoteControll::minModuleReady(uint moduleid)
 void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
 {
     qDebug("Min::RemoteControll::minNewModule %d\n",moduleid);
+    Min::Database::getInstance().insertModule (1,moduleid,modulename);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,

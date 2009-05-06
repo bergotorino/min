@@ -53,9 +53,10 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
 {
     // Available cases view
 //    availableCasesView_->setModel(availableCasesModel_);
-    QSortFilterProxyModel *proxyview=new QSortFilterProxyModel(this);
-    proxyview->setSourceModel(availableCasesModel_);
-    availableCasesView_->setModel(proxyview);
+    availableCasesView_->setShowGrid(false);
+    QSortFilterProxyModel *proxyView= new QSortFilterProxyModel(this);
+    proxyView->setSourceModel(availableCasesModel_);
+    availableCasesView_->setModel(proxyView);
     
     // Executed cases view
     executedCasesView_->addTab(executedTable_,"All");
@@ -64,13 +65,15 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     executedCasesView_->addTab(new QLabel(),"Failed");
     executedCasesView_->addTab(new QLabel(),"Aborted");
 
-    
-
     // Main pane
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
     centralWidget_->addItem(executedCasesView_,QString("Executed Cases"));
     centralWidget_->addItem(new QLabel("Pie chart goes here!"),
                                         QString("Summary"));
+
+    // Signals and slots
+    connect (availableCasesView_,SIGNAL(clicked(const QModelIndex&)),
+            this,SLOT(availableViewSetRowSelection(const QModelIndex&)));
 }
 // -----------------------------------------------------------------------------
 Min::CasesPanel::~CasesPanel()
@@ -80,6 +83,12 @@ void Min::CasesPanel::resizeEvent(QResizeEvent *event)
 {
     centralWidget_->resize(event->size());
     QWidget::resizeEvent(event);
+}
+// -----------------------------------------------------------------------------
+void Min::CasesPanel::availableViewSetRowSelection(const QModelIndex &index)
+{
+    if (!index.isValid()) return;
+    availableCasesView_->selectRow(index.row());
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08
