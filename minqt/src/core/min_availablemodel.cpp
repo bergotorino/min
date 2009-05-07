@@ -42,7 +42,6 @@ Min::AvailableModel::~AvailableModel()
 // -----------------------------------------------------------------------------
 int Min::AvailableModel::rowCount(const QModelIndex &parent) const
 {
-    data_ = db_.getAvailableView(1);
     return data_.count();
 }
 // -----------------------------------------------------------------------------
