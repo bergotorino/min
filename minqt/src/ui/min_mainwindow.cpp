@@ -41,6 +41,7 @@
 #include "min_mainwidget.hpp"
 #include "min_aboutdialog.hpp"
 #include "min_remotecontroll.hpp"
+#include "min_database.hpp"
 
 // -----------------------------------------------------------------------------
 Min::MainWindow::MainWindow()
@@ -105,7 +106,37 @@ void Min::MainWindow::displayAddModuleDialog()
 // -----------------------------------------------------------------------------
 void Min::MainWindow::handleRunTestCase()
 {
-    
+    // Obtain selection model for available test cases
+    const QItemSelectionModel *selection =
+                                mainWidget_->getSelectedAvailableTestCases();
+
+    if (!selection->hasSelection()) return;
+
+    // We obtain list of indexes that describe selected rows
+    QModelIndexList modules = selection->selectedRows(0);
+    QModelIndexList cases   = selection->selectedRows(1);
+
+    for (unsigned int i = 0; i < modules.count(); i++) {
+        Min::Database &db = Min::Database::getInstance();
+        unsigned int moduleId   = db.getModuleDbId(0,modules[i].data().toString());
+        unsigned int caseId     = db.getTestCaseDbId(moduleId,cases[i].data().toString());
+
+        qDebug("Module:    %s, modid %d",modules[i].data().toString().toStdString().c_str(),moduleId);
+        qDebug("Test Case: %s, caseid %d",cases[i].data().toString().toStdString().c_str(),caseId);
+    }
+
+/*
+        unsigned int getModuleDbId(unsigned int device_id,
+                                 unsigned int module_id);
+        unsigned int getModuleDbId(unsigned int device_id,
+                                 const QString &module_name);
+        unsigned int getTestCaseDbId(unsigned int module_id,
+                                   unsigned int test_case_id);
+        unsigned int getTestCaseDbId(unsigned int module_id,
+                                   const QString &test_case_name);
+*/
+
+    qDebug("Run Test Case");
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08
