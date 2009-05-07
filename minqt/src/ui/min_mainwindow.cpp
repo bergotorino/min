@@ -123,18 +123,12 @@ void Min::MainWindow::handleRunTestCase()
 
         qDebug("Module:    %s, modid %d",modules[i].data().toString().toStdString().c_str(),moduleId);
         qDebug("Test Case: %s, caseid %d",cases[i].data().toString().toStdString().c_str(),caseId);
-    }
 
-/*
-        unsigned int getModuleDbId(unsigned int device_id,
-                                 unsigned int module_id);
-        unsigned int getModuleDbId(unsigned int device_id,
-                                 const QString &module_name);
-        unsigned int getTestCaseDbId(unsigned int module_id,
-                                   unsigned int test_case_id);
-        unsigned int getTestCaseDbId(unsigned int module_id,
-                                   const QString &test_case_name);
-*/
+        Min::RemoteControll &rc = Min::RemoteControll::getInstance();
+        rc.minStartCase(db.getModuleEngineId(1,moduleId),
+                        db.getTestCaseEngineId(moduleId,caseId),
+                        1); /* groupId to be extracted from database, for now just put 1 */
+    }
 
     qDebug("Run Test Case");
 }

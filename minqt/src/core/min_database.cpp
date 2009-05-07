@@ -243,6 +243,22 @@ unsigned int Min::Database::getModuleDbId(unsigned int device_id,
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
+unsigned int Min::Database::getModuleEngineId(unsigned int deviceId,
+                                            unsigned int moduleDbId)
+{
+    QSqlQuery query;
+    QVariant id=0;
+    query.prepare("SELECT module_id FROM module WHERE device_id=:devid AND id=:moddbid;");
+    query.bindValue(QString(":devid"), QVariant(deviceId));
+    query.bindValue(QString(":moddbid"), QVariant(moduleDbId));
+    if(query.exec()){
+        if(query.next()) {
+            id=query.value(0);
+        }
+    }
+    return id.toUInt();
+}
+// ----------------------------------------------------------------------------
 unsigned int Min::Database::getTestCaseDbId(unsigned int module_id,
                                         unsigned int test_case_id)
 {
@@ -274,6 +290,22 @@ unsigned int Min::Database::getTestCaseDbId(unsigned int module_id,
     }
     return id.toUInt();
 };
+// ----------------------------------------------------------------------------
+unsigned int Min::Database::getTestCaseEngineId(unsigned int moduleDbId,
+                                                unsigned int testCaseDbId)
+{
+    QSqlQuery query;
+    QVariant id(0);
+    query.prepare("SELECT test_case_id FROM test_case WHERE module_id=:moddbid AND id=:casedbid;");
+    query.bindValue(QString(":moddbid"), QVariant(moduleDbId));
+    query.bindValue(QString(":casedbid"), QVariant(testCaseDbId));
+    if(query.exec()){
+        if(query.next()) {
+            id=query.value(0);
+        }
+    }
+    return id.toUInt();
+}
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getTestRunDbId(unsigned int test_case_id,
                                         unsigned int test_run_pid)

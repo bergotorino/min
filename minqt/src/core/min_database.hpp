@@ -140,6 +140,12 @@ namespace Min
         unsigned int getTestRunDbId(unsigned int test_case_id,
                                   unsigned int test_run_pid);
 
+        unsigned int getTestCaseEngineId(unsigned int moduleDbId,
+                                        unsigned int testCaseDbId);
+
+        unsigned int getModuleEngineId(unsigned int deviceId,
+                                        unsigned int moduleDbId);
+
 	/**
 	 * gets module names from database for UI
 	 *
