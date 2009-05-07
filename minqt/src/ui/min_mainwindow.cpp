@@ -84,6 +84,9 @@ void Min::MainWindow::setupToolBar()
     QAction *addmoduleaction = tlb->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/db_add.png"),
                                             "Add Test Module");
 
+    // Connect buttons with signals
+    connect (runaction,SIGNAL(triggered(bool)),
+            this,SLOT(handleRunTestCase()));
     connect (addmoduleaction,SIGNAL(triggered(bool)),
             this,SLOT(displayAddModuleDialog()));
 }
@@ -98,6 +101,11 @@ void Min::MainWindow::displayAddModuleDialog()
 {
     qDebug("Add Module");
     Min::RemoteControll &rc = Min::RemoteControll::getInstance();
+}
+// -----------------------------------------------------------------------------
+void Min::MainWindow::handleRunTestCase()
+{
+    
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

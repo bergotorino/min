@@ -37,6 +37,7 @@ class QSplitter;
 class QStringListModel;
 class QTableView;
 class QTabWidget;
+class QItemSelectionModel;
 
 // -----------------------------------------------------------------------------
 /**
@@ -64,6 +65,13 @@ namespace Min
 
         /** Destructor. */
         ~MainWidget();
+
+    public:
+
+        /** Gets selection model for available cases view (those to be executed)
+         *  @return pointer to selection model
+         */
+        QItemSelectionModel* getSelectedAvailableTestCases() const;
 
     protected:
         /** Handles resize event that comes from the system. */

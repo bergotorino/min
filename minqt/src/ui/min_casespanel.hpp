@@ -38,6 +38,7 @@ class QListView;
 class QTabWidget;
 class QAbstractTableModel;
 class QAbstractItemModel;
+class QItemSelectionModel;
 
 // -----------------------------------------------------------------------------
 /**
@@ -62,6 +63,13 @@ namespace Min
 
         /** Destructor. */
         ~CasesPanel();
+    public:
+
+        /** Gets information about selected test cases from available cases view
+         *  @return pointer to the QSelectionItemModel
+         */
+        QItemSelectionModel* getSelectionFromAvailableCasesView();
+
     protected:
         /** Handles resize event that comes from the system. */
         void resizeEvent (QResizeEvent *event);

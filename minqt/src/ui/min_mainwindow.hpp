@@ -46,6 +46,7 @@ namespace Min
      */
     class MainWindow: public QMainWindow
     {
+    Q_DISABLE_COPY(MainWindow)
     Q_OBJECT
     public:
         /** Default C++ Constructor. */
@@ -58,14 +59,9 @@ namespace Min
         void displayAboutDialog ();
         /** Displays "Add module" dialog. */
         void displayAddModuleDialog();
+        /** Executes test cases. */
+        void handleRunTestCase();
     private:
-        /**@{ Declared but not defined by design. */
-        /** Copy Constructor. */
-        MainWindow( const Min::MainWindow& c );
-        /** Assignment operator. */
-        Min::MainWindow& operator =( const Min::MainWindow& c );
-        /**@}*/
-
         /** Initializes the menu bar. */
         void setupMenuBar();
 

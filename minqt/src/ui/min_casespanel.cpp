@@ -85,6 +85,11 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
 Min::CasesPanel::~CasesPanel()
 { ; }
 // -----------------------------------------------------------------------------
+QItemSelectionModel* Min::CasesPanel::getSelectionFromAvailableCasesView()
+{
+    return availableCasesView_->selectionModel();
+}
+// -----------------------------------------------------------------------------
 void Min::CasesPanel::resizeEvent(QResizeEvent *event)
 {
     centralWidget_->resize(event->size());

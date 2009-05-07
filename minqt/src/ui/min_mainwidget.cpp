@@ -60,6 +60,11 @@ Min::MainWidget::MainWidget(QWidget *parent)
 Min::MainWidget::~MainWidget()
 { ; }
 // -----------------------------------------------------------------------------
+QItemSelectionModel* Min::MainWidget::getSelectedAvailableTestCases() const
+{
+    return mainPanel_->getSelectionFromAvailableCasesView();
+}
+// -----------------------------------------------------------------------------
 void Min::MainWidget::resizeEvent ( QResizeEvent * event )
 {
     splitter_->resize(event->size());

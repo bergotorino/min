@@ -47,7 +47,8 @@ int Min::AvailableModel::rowCount(const QModelIndex &parent) const
 // -----------------------------------------------------------------------------
 int Min::AvailableModel::columnCount(const QModelIndex &parent) const
 {
-    return 3;
+    /** we are removing description for now, at future it will be 3 */
+    return 2;
 }
 // -----------------------------------------------------------------------------
 QVariant Min::AvailableModel::data(const QModelIndex &index, int role) const
