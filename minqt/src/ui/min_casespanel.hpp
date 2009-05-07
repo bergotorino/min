@@ -29,7 +29,7 @@
 // System includes
 #include <QWidget>
 #include <QModelIndex>
-
+#include <QSortFilterProxyModel>
 // Forward declarations
 class QResizeEvent;
 class QToolBox;
@@ -95,6 +95,35 @@ namespace Min
 
         /** Will display all executed cases */
         QTableView *executedTable_;
+
+        /** Will display all ongoing cases */
+        QTableView *ongoingTable_;
+
+        /** Will display all passed cases */
+        QTableView *passedTable_;
+
+        /** Will display all failed cases */
+        QTableView *failedTable_;
+
+        /** Will display all aborted cases */
+        QTableView *abortedTable_;
+
+	/* Proxy model fo filterout available test cases */
+	QSortFilterProxyModel *availableProxy_;
+
+	/* Proxy model fo filterout ongoing test cases */
+	QSortFilterProxyModel *ongoingProxy_;
+
+	/* Proxy model fo filterout passed test cases */
+	QSortFilterProxyModel *passedProxy_;
+
+	/* Proxy model fo filterout failedtest cases */
+	QSortFilterProxyModel *failedProxy_;
+
+	/* Proxy model fo filterout aborted test cases */
+	QSortFilterProxyModel *abortedProxy_;
+
+
 
         /** Handler to the database */
         Min::Database &db_;

@@ -64,7 +64,7 @@ QVariant Min::ExecutedModel::headerData(int section,
 {
     if (orientation==Qt::Horizontal) {
         if (role==Qt::DisplayRole ) {
-            if (section==0) return "Module Name";
+            if (section==0) return "Test Case Name";
             if (section==1) return "Test Case Name";
             if (section==2) return "Description";
             if (section==3) return "Tags";

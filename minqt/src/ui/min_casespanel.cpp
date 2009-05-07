@@ -54,22 +54,35 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     , availableCasesModel_(new Min::AvailableModel(this))
     , executedCasesView_(new QTabWidget(this))
     , executedTable_(new QTableView(this))
+    , ongoingTable_(new QTableView(this))
+    , passedTable_(new QTableView(this))
+    , failedTable_(new QTableView(this))
+    , abortedTable_(new QTableView(this))
+    , availableProxy_(new QSortFilterProxyModel(this))
+    , ongoingProxy_(new QSortFilterProxyModel(this))
+    , passedProxy_(new QSortFilterProxyModel(this))
+    , failedProxy_(new QSortFilterProxyModel(this))
+    , abortedProxy_(new QSortFilterProxyModel(this))
     , db_(Min::Database::getInstance())
 {
     // Available cases view
     availableCasesView_->setShowGrid(false);
     availableCasesView_->setSelectionBehavior(QAbstractItemView::SelectRows);
     QSortFilterProxyModel *proxyView= new QSortFilterProxyModel(this);
-    proxyView->setSourceModel(availableCasesModel_);
-    availableCasesView_->setModel(proxyView);
+    availableProxy_->setSourceModel(availableCasesModel_);
+    availableCasesView_->setModel(availableProxy_);
     executedTable_->setModel(executedCasesModel_);
+    ongoingTable_->setModel(executedCasesModel_);
+    passedTable_->setModel(executedCasesModel_);
+    failedTable_->setModel(executedCasesModel_);
+    abortedTable_->setModel(executedCasesModel_);
     
     // Executed cases view
     executedCasesView_->addTab(executedTable_,"All");
-    executedCasesView_->addTab(new QLabel(),"Ongoing");
-    executedCasesView_->addTab(new QLabel(),"Passed");
-    executedCasesView_->addTab(new QLabel(),"Failed");
-    executedCasesView_->addTab(new QLabel(),"Aborted");
+    executedCasesView_->addTab(ongoingTable_,"Ongoing");
+    executedCasesView_->addTab(passedTable_,"Passed");
+    executedCasesView_->addTab(failedTable_,"Failed");
+    executedCasesView_->addTab(abortedTable_,"Aborted");
 
     // Main pane
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
