@@ -118,7 +118,7 @@ void Min::MainWindow::handleRunTestCase()
 
     for (unsigned int i = 0; i < modules.count(); i++) {
         Min::Database &db = Min::Database::getInstance();
-        unsigned int moduleId   = db.getModuleDbId(0,modules[i].data().toString());
+        unsigned int moduleId   = db.getModuleDbId(1,modules[i].data().toString());
         unsigned int caseId     = db.getTestCaseDbId(moduleId,cases[i].data().toString());
 
         qDebug("Module:    %s, modid %d",modules[i].data().toString().toStdString().c_str(),moduleId);
