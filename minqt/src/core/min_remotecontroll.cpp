@@ -130,15 +130,15 @@ void Min::RemoteControll::minModuleReady(uint moduleid)
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
 {
-    qDebug("Min::RemoteControll::minNewModule %d\n",moduleid);
+    //qDebug("Min::RemoteControll::minNewModule %d\n",moduleid);
     Min::Database::getInstance().insertModule (1,moduleid,modulename);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
                     const QString &casetitle)
 {
-    qDebug("Min::RemoteControll::minNewTestCase %d %d %s\n",
-          moduleid,caseid,casetitle.toStdString().c_str());
+    //qDebug("Min::RemoteControll::minNewTestCase %d %d %s\n",
+    //      moduleid,caseid,casetitle.toStdString().c_str());
     Min::Database &db = Min::Database::getInstance();
     db.insertTestCase(db.getModuleDbId(1,moduleid),caseid,casetitle,"");
 }

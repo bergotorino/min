@@ -70,6 +70,13 @@ namespace Min
                             int role=Qt::DisplayRole) const;
         /**@}*/
 
+    public slots:
+
+        /** Makes the model to refetch its data from database and to notify the
+         *  view to update itself.
+         */
+        void updateModelData();
+
     private:
         /** Make it noncopyable */
         Q_DISABLE_COPY(AvailableModel)

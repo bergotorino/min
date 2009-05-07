@@ -23,11 +23,12 @@
  * @author:   
  */
 
+// Module include
+#include "min_availablemodel.hpp"
+
 // System includes
 #include <QSize>
 
-// Module include
-#include "min_availablemodel.hpp"
 
 // -----------------------------------------------------------------------------
 Min::AvailableModel::AvailableModel(QObject *parent)
@@ -81,6 +82,13 @@ QVariant Min::AvailableModel::headerData(int section,
         if (role!=Qt::DisplayRole) return QVariant();
         return section+1;
     }
+}
+// -----------------------------------------------------------------------------
+void Min::AvailableModel::updateModelData()
+{
+    emit layoutAboutToBeChanged();
+    data_ = db_.getAvailableView(1);
+    emit layoutChanged();
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08
