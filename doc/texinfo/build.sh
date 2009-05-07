@@ -8,21 +8,27 @@ case "$1" in
 	;;
 	"docbook")
 	makeinfo --docbook min.texi
+	makeinfo --docbook minqt-reference.texi
 	makeinfo --docbook min-reference.texi
 	;;
 	"info")
 	makeinfo min.texi
+	makeinfo minqt-reference.texi
 	makeinfo min-reference.texi
 	;;
 	"plaintext")
 	makeinfo --plaintext --no-ifinfo --output=min.txt min.texi
 	makeinfo --plaintext --no-ifinfo --output=min-reference.txt min-reference.texi
+	makeinfo --plaintext --no-ifinfo --output=minqt-reference.txt min-reference.texi
 	;;
 	"html-s")
 	makeinfo --html --css-include=min.css min.texi
 	mkdir min/images/
 	cp images/*.png min/images/
 	makeinfo --html --css-include=min.css min-reference.texi
+	makeinfo --html --css-include=min.css minqt-reference.texi
+	mkdir minqt-reference/images/
+	cp images/*.png minqt-reference/images/
 	mkdir min-reference/images/
 	cp images/*.png min-reference/images/
 	;;
@@ -33,6 +39,7 @@ case "$1" in
 	#;;
 	"html")
 	makeinfo --no-split --css-include=min.css --html min.texi
+	makeinfo --no-split --css-include=min.css --html minqt-reference.texi
 	makeinfo --no-split --css-include=min.css --html min-reference.texi
 	;;
 	"all")

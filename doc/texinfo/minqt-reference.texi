@@ -136,6 +136,7 @@ Project home page: http://garage.maemo.org/projects/min/
 * Document control: Document control.
 * Documentation conventions: Documentation conventions.
 * Abbreviations and definitions: Abbreviations and definitions.
+* MIN Qt Interface general informations: MIN Qt Interface general informations.
 * MIN Qt database backend: MIN Qt database backend.
 * Database structure: Database structure.
 * Database usage: Database usage.
@@ -176,12 +177,12 @@ Project home page: http://garage.maemo.org/projects/min/
 @section Documentation conventions
 @include chapters/Documentation_conventions.texi
 
-@node Abbreviations and definitions, Using MIN for test cases implementation, Documentation conventions, Document control
+@node Abbreviations and definitions, MIN Qt Interface general informations, Documentation conventions, Document control
 @section Abbreviations and definitions
 @include chapters/Abbreviations.texi
 
-@node MIN Qt general informations, MIN Qt database backend, Abbreviations and definitions, Top
-@chapter MIN Qt general informations
+@node MIN Qt Interface general informations, MIN Qt database backend, Abbreviations and definitions, Top
+@chapter MIN Qt Interface general informations
 @include chapters/MINQt_general.texi
 
 

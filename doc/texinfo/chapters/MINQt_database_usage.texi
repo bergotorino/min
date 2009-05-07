@@ -5,13 +5,15 @@ and by accessing to database identifiers by appropriate engine identifiers.
 
 Database access methods are divided into few categories:
 
-@table
+@table @b
 @item inserts
 Functions to insert data to database, when it comes to relations database id is used to point to related element.
 @item updates
 Functions to update existing data, because most of elements in MIN are persistent after addition, most of updates are done on test runs.
 @item database id getters
 Functions to retrieve database id of item providing MIN engine data.
+@item views for model
+Functions to retrieve data to abstract model used in UI
 @end table
 
 
