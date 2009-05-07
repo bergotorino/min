@@ -1,2 +1,17 @@
-Database structure is 
+Database structure is wrapped with C++ Qt-like class (allowing usage of Qt specific
+signals and slots functionality). To maintain database consistency identifiers
+used as primary keys in database can be accessed directly when inserting new data,
+and by accessing to database identifiers by appropriate engine identifiers.
+
+Database access methods are divided into few categories:
+
+@table
+@item inserts
+Functions to insert data to database, when it comes to relations database id is used to point to related element.
+@item updates
+Functions to update existing data, because most of elements in MIN are persistent after addition, most of updates are done on test runs.
+@item database id getters
+Functions to retrieve database id of item providing MIN engine data.
+@end table
+
 
