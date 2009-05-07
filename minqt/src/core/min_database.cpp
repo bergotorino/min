@@ -264,7 +264,7 @@ unsigned int Min::Database::getTestCaseDbId(unsigned int module_id,
 {
     QSqlQuery query;
     QVariant id(0);
-    query.prepare("SELECT id FROM test_case WHERE module_id=:modid AND test_case_name=:casename;");
+    query.prepare("SELECT id FROM test_case WHERE module_id=:modid AND test_case_title=:casename;");
     query.bindValue(QString(":modid"), QVariant(module_id));
     query.bindValue(QString(":casename"), QVariant(test_case_name));
     if(query.exec()){
@@ -345,7 +345,7 @@ QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid) co
     QSqlQuery query;
     QVector<QStringList> retval;
     QStringList row;
-    query.prepare("SELECT test_case_title, test_case_description, status, start_time, end_time, result, result_description, group_id FROM executedview WHERE device_dbid=:devdbid;");
+    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid;");
     query.bindValue(QString(":devdbid"), QVariant(device_dbid));
     if(query.exec()){
         while(query.next()) {
@@ -354,6 +354,12 @@ QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid) co
             row.append(query.value(1).toString());
             row.append(query.value(2).toString());
             row.append(query.value(3).toString());
+            row.append(query.value(4).toString());
+            row.append(query.value(5).toString());
+            row.append(query.value(6).toString());
+            row.append(query.value(7).toString());
+            row.append(query.value(8).toString());
+            row.append(query.value(9).toString());
 	    retval.append(row);
         }
     }
@@ -474,13 +480,13 @@ bool Min::Database::initDatabase()
 	query.exec("INSERT INTO test_case VALUES(NULL, 1, 2, \"D5\", \"demo 5 test case\");");
 	query.exec("INSERT INTO test_case VALUES(NULL, 2, 2, \"D6\", \"demo 6 test case\");");
 
-	query.exec("INSERT INTO test_run VALUES(NULL, 12345, 3, 1, 1, 0, 100, 1, \"result of run\" );");
-	query.exec("INSERT INTO test_run VALUES(NULL, 12346, 3, 1, 1, 0, 100, 1, \"result of run\" );");
-	query.exec("INSERT INTO test_run VALUES(NULL, 12360, 3, 1, 1, 0, 100, 1, \"result of run\" );");
-	query.exec("INSERT INTO test_run VALUES(NULL, 12399, 3, 2, 1, 0, 100, 1, \"result of run\" );");
-	query.exec("INSERT INTO test_run VALUES(NULL, 12400, 3, 2, 1, 0, 100, 1, \"result of run\" );");
-	query.exec("INSERT INTO test_run VALUES(NULL, 12460, 3, 2, 1, 0, 100, 1, \"result of run\" );");
-	query.exec("INSERT INTO test_run VALUES(NULL, 12500, 3, 2, 1, 0, 100, 1, \"result of run\" );");
+	query.exec("INSERT INTO test_run VALUES(NULL, 12345, 3, 1, 1, 10, 100, 1, \"result of run\" );");
+	query.exec("INSERT INTO test_run VALUES(NULL, 12346, 3, 1, 1, 10, 100, 1, \"result of run\" );");
+	query.exec("INSERT INTO test_run VALUES(NULL, 12360, 3, 1, 1, 10, 100, 1, \"result of run\" );");
+	query.exec("INSERT INTO test_run VALUES(NULL, 12399, 3, 2, 1, 10, 100, 1, \"result of run\" );");
+	query.exec("INSERT INTO test_run VALUES(NULL, 12400, 3, 2, 1, 10, 100, 1, \"result of run\" );");
+	query.exec("INSERT INTO test_run VALUES(NULL, 12460, 3, 2, 1, 10, 100, 1, \"result of run\" );");
+	query.exec("INSERT INTO test_run VALUES(NULL, 12500, 3, 2, 1, 10, 100, 1, \"result of run\" );");
 */
 
 	query.exec("CREATE VIEW availableview AS SELECT module.device_id AS device_dbid, module.module_name AS module_name, test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid FROM test_case, module WHERE module.id=test_case.module_id;");
