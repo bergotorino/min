@@ -68,14 +68,58 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     // Available cases view
     availableCasesView_->setShowGrid(false);
     availableCasesView_->setSelectionBehavior(QAbstractItemView::SelectRows);
-    QSortFilterProxyModel *proxyView= new QSortFilterProxyModel(this);
     availableProxy_->setSourceModel(availableCasesModel_);
+    ongoingProxy_->setSourceModel(executedCasesModel_);
+    passedProxy_->setSourceModel(executedCasesModel_);
+    failedProxy_->setSourceModel(executedCasesModel_);
+    abortedProxy_->setSourceModel(executedCasesModel_);
+
     availableCasesView_->setModel(availableProxy_);
+
     executedTable_->setModel(executedCasesModel_);
+    executedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    executedTable_->setColumnHidden(1, true);
+    executedTable_->setColumnHidden(2, true);
+    executedTable_->setColumnHidden(4, true);
+    executedTable_->setColumnHidden(5, true);
+    executedTable_->setColumnHidden(6, true);
+    executedTable_->setColumnHidden(7, true);
+    executedTable_->setColumnHidden(8, true);
+    executedTable_->setColumnHidden(9, true);
+
     ongoingTable_->setModel(executedCasesModel_);
+    ongoingTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ongoingTable_->setColumnHidden(1,true);
+    ongoingTable_->setColumnHidden(2,true);
+    ongoingTable_->setColumnHidden(5,true);
+    ongoingTable_->setColumnHidden(6,true);
+    ongoingTable_->setColumnHidden(7,true);
+    ongoingTable_->setColumnHidden(8,true);
+    ongoingTable_->setColumnHidden(9,true);
+
     passedTable_->setModel(executedCasesModel_);
+    passedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    passedTable_->setColumnHidden(1,true);
+    passedTable_->setColumnHidden(2,true);
+    passedTable_->setColumnHidden(3,true);
+    passedTable_->setColumnHidden(8,true);
+    passedTable_->setColumnHidden(9,true);
+
     failedTable_->setModel(executedCasesModel_);
+    failedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    failedTable_->setColumnHidden(1,true);
+    failedTable_->setColumnHidden(2,true);
+    failedTable_->setColumnHidden(3,true);
+    failedTable_->setColumnHidden(8,true);
+    failedTable_->setColumnHidden(9,true);
+
     abortedTable_->setModel(executedCasesModel_);
+    abortedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    abortedTable_->setColumnHidden(1,true);
+    abortedTable_->setColumnHidden(2,true);
+    abortedTable_->setColumnHidden(3,true);
+    abortedTable_->setColumnHidden(8,true);
+    abortedTable_->setColumnHidden(9,true);
     
     // Executed cases view
     executedCasesView_->addTab(executedTable_,"All");

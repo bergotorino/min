@@ -40,7 +40,7 @@ int Min::ExecutedModel::rowCount(const QModelIndex &parent) const
 // -----------------------------------------------------------------------------
 int Min::ExecutedModel::columnCount(const QModelIndex &parent) const
 {
-    return 3;
+    return 10;
 }
 // -----------------------------------------------------------------------------
 QVariant Min::ExecutedModel::data(const QModelIndex &index, int role) const
@@ -51,9 +51,7 @@ QVariant Min::ExecutedModel::data(const QModelIndex &index, int role) const
     int column = index.column();
 
     if (role==Qt::DisplayRole) {
-        if (row < data_.count() && column < 2 ) {
             return data_[row][column];
-        } else return "Nothing";
     }
     return QVariant();
 }
@@ -65,9 +63,15 @@ QVariant Min::ExecutedModel::headerData(int section,
     if (orientation==Qt::Horizontal) {
         if (role==Qt::DisplayRole ) {
             if (section==0) return "Test Case Name";
-            if (section==1) return "Test Case Name";
-            if (section==2) return "Description";
-            if (section==3) return "Tags";
+            if (section==1) return "Test Case Description";
+            if (section==2) return "Group ID";
+            if (section==3) return "Status";
+            if (section==4) return "Start Time";
+            if (section==5) return "End Time";
+            if (section==6) return "Result";
+            if (section==7) return "Result Description";
+            if (section==8) return "Test Run DB-ID";
+            if (section==9) return "Device DB-ID";
         }
         return QVariant();
     } else {
