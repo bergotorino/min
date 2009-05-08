@@ -169,7 +169,6 @@ bool Min::Database::updateTestRun(unsigned int dbid,
                                 int result,
                                 const QString &result_description)
 {
-    qDebug("Strzelil jak...\n");
 
     // Update existing test run
     QSqlQuery query;
@@ -185,8 +184,9 @@ bool Min::Database::updateTestRun(unsigned int dbid,
         raw_query.append(QString::number(end_time));
         raw_query.append(" , result=");
         raw_query.append(QString::number(result));
-        raw_query.append(" , result_description=");
+        raw_query.append(" , result_description=\"");
         raw_query.append(result_description);
+        raw_query.append("\"");
     }
     raw_query.append(" WHERE id=");
     raw_query.append(QString::number(dbid));

@@ -114,9 +114,9 @@ void Min::RemoteControll::minCaseResult(int testrunid, int result,
     Min::Database &db = Min::Database::getInstance();
     db.updateTestRun(db.getTestRunDbId(testrunid),
                     TP_ENDED,   // status
-                    starttime+1,  
-                    endtime+1,
-                    result+1,     
+                    starttime,  
+                    endtime,
+                    result,     
                     desc);
 }
 // -----------------------------------------------------------------------------
