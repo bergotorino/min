@@ -137,6 +137,7 @@ namespace Min
                                    unsigned int test_case_id);
         unsigned int getTestCaseDbId(unsigned int module_id,
                                    const QString &test_case_name);
+        unsigned int getTestRunDbId(unsigned int test_run_pid);
         unsigned int getTestRunDbId(unsigned int test_case_id,
                                   unsigned int test_run_pid);
 

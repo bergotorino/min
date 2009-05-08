@@ -307,6 +307,20 @@ unsigned int Min::Database::getTestCaseEngineId(unsigned int moduleDbId,
     return id.toUInt();
 }
 // ----------------------------------------------------------------------------
+unsigned int Min::Database::getTestRunDbId(unsigned int test_run_pid)
+{
+    QSqlQuery query;
+    QVariant id=0;
+    query.prepare("SELECT id FROM test_run WHERE test_run_pid=:runpid;");
+    query.bindValue(QString(":runpid"), QVariant(test_run_pid));
+    if(query.exec()){
+        if(query.next()) {
+            id=query.value(0);
+        }
+    }
+    return id.toUInt();
+};
+// ----------------------------------------------------------------------------
 unsigned int Min::Database::getTestRunDbId(unsigned int test_case_id,
                                         unsigned int test_run_pid)
 {
