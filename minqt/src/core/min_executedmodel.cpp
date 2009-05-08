@@ -39,7 +39,6 @@ Min::ExecutedModel::~ExecutedModel()
 // -----------------------------------------------------------------------------
 int Min::ExecutedModel::rowCount(const QModelIndex &parent) const
 {
-    data_ = db_.getExecutedView(1);
     return data_.count();
 }
 // -----------------------------------------------------------------------------
@@ -92,5 +91,12 @@ QVariant Min::ExecutedModel::headerData(int section,
         if (role!=Qt::DisplayRole) return QVariant();
         return section+1;
     }
+}
+// -----------------------------------------------------------------------------
+void Min::ExecutedModel::updateModelData()
+{
+    emit layoutAboutToBeChanged();
+    data_ = db_.getExecutedView(1);
+    emit layoutChanged();
 }
 // -----------------------------------------------------------------------------

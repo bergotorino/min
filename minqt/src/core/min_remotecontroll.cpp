@@ -28,6 +28,8 @@
 
 // Min includes
 #include "min_database.hpp"
+#include "min_common.h"
+#include "tmc_common.h"
 
 // -----------------------------------------------------------------------------
 Min::RemoteControll::RemoteControll()
@@ -109,8 +111,18 @@ void Min::RemoteControll::minCaseResult(int testrunid, int result,
                     const QString &desc,
                     int starttime, int endtime)
 {
-    qDebug("Min::RemoteControll::minCaseResult\n");/* %d %d %s\n",
-            testrunid,result,desc.toStdString());*/
+    qDebug("Min::RemoteControll::minCaseResult\n");
+
+    Min::Database &db = Min::Database::getInstance();
+//    db.updateTestRun();
+    /*
+        bool updateTestRun(unsigned int dbid,
+                           int status,
+                           unsigned long start_time=0,
+                           unsigned long end_time=0,
+                           int result=0,
+                           const QString &result_description="");
+                           */
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseResumed(int testrunid)
@@ -123,7 +135,14 @@ void Min::RemoteControll::minCaseStarted(uint moduleid,
                                         uint caseid,
                                         int testrunid)
 {
-    qDebug("Min::RemoteControll::minCaseStarted\n");
+    //qDebug("Min::RemoteControll::minCaseStarted\n");
+
+    Min::Database &db = Min::Database::getInstance();
+    db.insertTestRun(db.getTestCaseDbId(moduleid,caseid),
+                     testrunid, 
+                     0,         // groupid
+                     TP_RUNNING,// status
+                     0);        // start time FIXME: should be actual
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minModuleReady(uint moduleid)
