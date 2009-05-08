@@ -112,14 +112,12 @@ void Min::RemoteControll::minCaseResult(int testrunid, int result,
 {
     //qDebug("Min::RemoteControll::minCaseResult\n");
     Min::Database &db = Min::Database::getInstance();
-    if (db.updateTestRun(db.getTestRunDbId(testrunid),
+    db.updateTestRun(db.getTestRunDbId(testrunid),
                     TP_ENDED,   // status
                     starttime+1,  
                     endtime+1,
                     result+1,     
-                    desc) ) {
-        qDebug("LALALALA");
-    } else qDebug("HUJJ");
+                    desc);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseResumed(int testrunid)
