@@ -44,6 +44,9 @@
 
 #include "min_availablemodel.hpp"
 #include "min_database.hpp"
+#include "min_common.h"
+#include "tmc_common.h"
+#include "min_descriptionprovider.hpp"
 
 // -----------------------------------------------------------------------------
 Min::CasesPanel::CasesPanel(QWidget *parent)
@@ -68,9 +71,17 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     // Proxies
     availableProxy_->setSourceModel(availableCasesModel_);
     ongoingProxy_->setSourceModel(executedCasesModel_);
+    ongoingProxy_->setFilterKeyColumn(6);
+    ongoingProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_NC));
     passedProxy_->setSourceModel(executedCasesModel_);
+    passedProxy_->setFilterKeyColumn(6);
+    passedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_PASSED));
     failedProxy_->setSourceModel(executedCasesModel_);
+    failedProxy_->setFilterKeyColumn(6);
+    failedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_FAILED));
     abortedProxy_->setSourceModel(executedCasesModel_);
+    abortedProxy_->setFilterKeyColumn(6);
+    abortedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_CRASHED));
 
     // Available cases view
     availableCasesView_->setShowGrid(false);
@@ -89,7 +100,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     executedTable_->setColumnHidden(8, true);
     executedTable_->setColumnHidden(9, true);
 
-    ongoingTable_->setModel(executedCasesModel_);
+    ongoingTable_->setModel(ongoingProxy_);
     ongoingTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
     ongoingTable_->setColumnHidden(1,true);
     ongoingTable_->setColumnHidden(2,true);
@@ -99,7 +110,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     ongoingTable_->setColumnHidden(8,true);
     ongoingTable_->setColumnHidden(9,true);
 
-    passedTable_->setModel(executedCasesModel_);
+    passedTable_->setModel(passedProxy_);
     passedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
     passedTable_->setColumnHidden(1,true);
     passedTable_->setColumnHidden(2,true);
@@ -107,7 +118,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     passedTable_->setColumnHidden(8,true);
     passedTable_->setColumnHidden(9,true);
 
-    failedTable_->setModel(executedCasesModel_);
+    failedTable_->setModel(failedProxy_);
     failedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
     failedTable_->setColumnHidden(1,true);
     failedTable_->setColumnHidden(2,true);
@@ -115,7 +126,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     failedTable_->setColumnHidden(8,true);
     failedTable_->setColumnHidden(9,true);
 
-    abortedTable_->setModel(executedCasesModel_);
+    abortedTable_->setModel(abortedProxy_);
     abortedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
     abortedTable_->setColumnHidden(1,true);
     abortedTable_->setColumnHidden(2,true);
