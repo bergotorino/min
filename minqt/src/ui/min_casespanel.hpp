@@ -76,6 +76,8 @@ namespace Min
 
     private slots:
         /** Updates the view */
+        void hideViewColumns();
+        /** Updates the view */
         void updateAvailableView();
     private:
         /** Main area on the window. */
