@@ -25,7 +25,7 @@ HEADERS     +=  ui/min_mainwidget.hpp                   \
                 ui/min_casespanel.hpp                   \
                 core/min_casesmodel.hpp                 \
                 core/min_availablecasestreemodel.hpp    \
-                core/min_object.hpp.h                   \
+                core/min_object.h                       \
                 core/min_remotecontroll.hpp             \
                 ui/min_mainwindow.hpp			        \
 		        core/min_database.hpp                   \

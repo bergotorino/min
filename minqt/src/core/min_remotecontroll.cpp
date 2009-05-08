@@ -45,22 +45,22 @@ Min::RemoteControll::RemoteControll()
     }
 
     // 2. Connect signals
-    connect (&obj_,SIGNAL(min_case_msg(qulonglong, const QString &)),
-            this,SLOT(minCaseMsg(qulonglong, const QString &)));
+    connect (&obj_,SIGNAL(min_case_msg(int, const QString &)),
+            this,SLOT(minCaseMsg(int, const QString &)));
 
-    connect (&obj_,SIGNAL(min_case_paused(qulonglong)),
-            this,SLOT(minCasePaused(qulonglong)));
+    connect (&obj_,SIGNAL(min_case_paused(int)),
+            this,SLOT(minCasePaused(int)));
 
-    connect (&obj_,SIGNAL(min_case_result(qulonglong, int, const QString &,
-                                            qulonglong, qulonglong)),
-            this,SLOT(minCaseResult(qulonglong, int, const QString &,
-                                    qulonglong, qulonglong)));
+    connect (&obj_,SIGNAL(min_case_result(int, int, const QString &,
+                                            int, int)),
+            this,SLOT(minCaseResult(int, int, const QString &,
+                                    int, int)));
 
-    connect (&obj_,SIGNAL(min_case_resumed(qulonglong)),
-            this,SLOT(minCaseResumed(qulonglong)));
+    connect (&obj_,SIGNAL(min_case_resumed(int)),
+            this,SLOT(minCaseResumed(int)));
 
-    connect (&obj_,SIGNAL(min_case_started(uint, uint, qulonglong)),
-            this,SLOT(minCaseStarted(uint, uint, qulonglong)));
+    connect (&obj_,SIGNAL(min_case_started(uint, uint, int)),
+            this,SLOT(minCaseStarted(uint, uint, int)));
 
     connect (&obj_,SIGNAL(min_module_ready(uint)),
             this,SLOT(minModuleReady(uint)));
@@ -93,32 +93,35 @@ bool Min::RemoteControll::isValid() const
 Min::RemoteControll::~RemoteControll()
 { obj_.min_close(); }
 // -----------------------------------------------------------------------------
-void Min::RemoteControll::minCaseMsg(qulonglong testrunid,
+void Min::RemoteControll::minCaseMsg(int testrunid,
                                     const QString &message)
 {
-
+    qDebug("Min::RemoteControll::minCaseMsg\n",testrunid);
 }
 // -----------------------------------------------------------------------------
-void Min::RemoteControll::minCasePaused(qulonglong testrunid)
+void Min::RemoteControll::minCasePaused(int testrunid)
 {
 
 }
 // -----------------------------------------------------------------------------
-void Min::RemoteControll::minCaseResult(qulonglong testrunid, int result,
+#include <string.h>
+void Min::RemoteControll::minCaseResult(int testrunid, int result,
                     const QString &desc,
-                    qulonglong starttime, qulonglong endtime)
+                    int starttime, int endtime)
 {
-
+    qDebug("Min::RemoteControll::minCaseResult\n");/* %d %d %s\n",
+            testrunid,result,desc.toStdString());*/
 }
 // -----------------------------------------------------------------------------
-void Min::RemoteControll::minCaseResumed(qulonglong testrunid)
+void Min::RemoteControll::minCaseResumed(int testrunid)
 {
+    qDebug("Min::RemoteControll::minCaseResumed\n");
 
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseStarted(uint moduleid,
                                         uint caseid,
-                                        qulonglong testrunid)
+                                        int testrunid)
 {
     qDebug("Min::RemoteControll::minCaseStarted\n");
 }
@@ -160,7 +163,7 @@ void Min::RemoteControll::minTestModules(const QString &modules)
             modules.toStdString().c_str());
 }
 // -----------------------------------------------------------------------------
-void Min::RemoteControll::minAbortCase(qulonglong testrunid)
+void Min::RemoteControll::minAbortCase(long testrunid)
 { obj_.min_abort_case (testrunid); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minAddTestCaseFile(uint moduleid,
@@ -174,7 +177,7 @@ void Min::RemoteControll::minFatalError(const QString &what,
                                         const QString &errorstring)
 { obj_.min_fatal_error (what,errorstring); }
 // -----------------------------------------------------------------------------
-void Min::RemoteControll::minPauseCase(qulonglong testrunid)
+void Min::RemoteControll::minPauseCase(long testrunid)
 { obj_.min_pause_case (testrunid); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minQueryTestFiles()
@@ -183,7 +186,7 @@ void Min::RemoteControll::minQueryTestFiles()
 void Min::RemoteControll::minQueryTestModules()
 { obj_.min_query_test_modules (); }
 // -----------------------------------------------------------------------------
-void Min::RemoteControll::minResumeCase(qulonglong testrunid)
+void Min::RemoteControll::minResumeCase(long testrunid)
 { obj_.min_resume_case (testrunid); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)

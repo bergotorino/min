@@ -65,17 +65,19 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     , abortedProxy_(new QSortFilterProxyModel(this))
     , db_(Min::Database::getInstance())
 {
-    // Available cases view
-    availableCasesView_->setShowGrid(false);
-    availableCasesView_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    // Proxies
     availableProxy_->setSourceModel(availableCasesModel_);
     ongoingProxy_->setSourceModel(executedCasesModel_);
     passedProxy_->setSourceModel(executedCasesModel_);
     failedProxy_->setSourceModel(executedCasesModel_);
     abortedProxy_->setSourceModel(executedCasesModel_);
 
+    // Available cases view
+    availableCasesView_->setShowGrid(false);
+    availableCasesView_->setSelectionBehavior(QAbstractItemView::SelectRows);
     availableCasesView_->setModel(availableProxy_);
 
+    // Executed cases view
     executedTable_->setModel(executedCasesModel_);
     executedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
     executedTable_->setColumnHidden(1, true);
@@ -121,7 +123,6 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     abortedTable_->setColumnHidden(8,true);
     abortedTable_->setColumnHidden(9,true);
     
-    // Executed cases view
     executedCasesView_->addTab(executedTable_,"All");
     executedCasesView_->addTab(ongoingTable_,"Ongoing");
     executedCasesView_->addTab(passedTable_,"Passed");

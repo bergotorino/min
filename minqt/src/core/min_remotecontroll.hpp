@@ -31,7 +31,7 @@
 #include <QObject>
 
 // Min includes
-#include "min_object.hpp.h"
+#include "min_object.h"
 #include "min_singleton.hpp"
 
 #define MIN_SERVICE_NAME     "org.maemo.MIN"
@@ -82,7 +82,7 @@ namespace Min
         /** Aborts specified ongoing test case.
          *  @param testrunid id of the ongoing test case
          */
-        void minAbortCase(qulonglong testrunid);
+        void minAbortCase(long testrunid);
 
         /** Adds file with test cases to the module
          *  @param moduleid is the id of motole to which file will be added
@@ -104,7 +104,7 @@ namespace Min
         /** Pauses specified case
          *  @param testrunid is the id of ongoing case to be paused
          */
-        void minPauseCase(qulonglong testrunid);
+        void minPauseCase(long testrunid);
 
         /** Asks Min for list of test case files */
         void minQueryTestFiles();
@@ -115,7 +115,7 @@ namespace Min
         /** Resules previously paused case
          *  @param testrunid is the run id of pasued test case
          */
-        void minResumeCase(qulonglong testrunid);
+        void minResumeCase(long testrunid);
 
         /** Executed a test case
          *  @param moduleid is the id of module to which test case belongs to
@@ -136,12 +136,12 @@ namespace Min
          *  @aram testrunid indicates test case
          *  @param message is the message from test case
          */
-        void minCaseMsg(qulonglong testrunid, const QString &message);
+        void minCaseMsg(int testrunid, const QString &message);
 
         /** Confirmation that test case has been paused
          *  @aram testrunid indicates test case
          */
-        void minCasePaused(qulonglong testrunid);
+        void minCasePaused(int testrunid);
 
         /** Test case result
          *  @aram testrunid indicates test case
@@ -150,14 +150,14 @@ namespace Min
          *  @param startime is the unix timestamp of test case start time
          *  @param endtime is the unix timestamp of test case end time
          */
-        void minCaseResult(qulonglong testrunid, int result,
+        void minCaseResult(int testrunid, int result,
                             const QString &desc,
-                            qulonglong starttime, qulonglong endtime);
+                            int starttime, int endtime);
 
         /** Confirmation that paused test case has been resumed
          *  @aram testrunid indicates test case
          */
-        void minCaseResumed(qulonglong testrunid);
+        void minCaseResumed(int testrunid);
 
         /** Confirmation that test case has been started
          *  @param moduleid is the id of module to which test case belongs to
@@ -167,7 +167,7 @@ namespace Min
          *  Note: testrunid is used for interaction with test case that is
          *  executing
          */
-        void minCaseStarted(uint moduleid, uint caseid, qulonglong testrunid);
+        void minCaseStarted(uint moduleid, uint caseid, int testrunid);
 
         /** Indicates that all test cases has been enumerated from module
          *  @param moduleid is the id of module

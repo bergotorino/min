@@ -116,21 +116,18 @@ void Min::MainWindow::handleRunTestCase()
     QModelIndexList modules = selection->selectedRows(0);
     QModelIndexList cases   = selection->selectedRows(1);
 
+    // For each selected, execute it!
     for (unsigned int i = 0; i < modules.count(); i++) {
         Min::Database &db = Min::Database::getInstance();
         unsigned int moduleId   = db.getModuleDbId(1,modules[i].data().toString());
         unsigned int caseId     = db.getTestCaseDbId(moduleId,cases[i].data().toString());
 
-        qDebug("Module:    %s, modid %d",modules[i].data().toString().toStdString().c_str(),moduleId);
-        qDebug("Test Case: %s, caseid %d",cases[i].data().toString().toStdString().c_str(),caseId);
-
         Min::RemoteControll &rc = Min::RemoteControll::getInstance();
         rc.minStartCase(db.getModuleEngineId(1,moduleId),
                         db.getTestCaseEngineId(moduleId,caseId),
-                        1); /* groupId to be extracted from database, for now just put 1 */
+                        0); /* groupId to be extracted from database, for now just put 1 */
     }
 
-    qDebug("Run Test Case");
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08
