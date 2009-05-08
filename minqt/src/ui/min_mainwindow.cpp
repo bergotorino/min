@@ -36,6 +36,7 @@
 #include <QIcon>
 #include <QAction>
 #include <QCoreApplication>
+#include <QShortcut>
 
 // Min includes
 #include "min_mainwidget.hpp"
@@ -47,6 +48,7 @@
 Min::MainWindow::MainWindow()
     : QMainWindow()
     , mainWidget_(new Min::MainWidget(this))
+    , toolBar_(NULL)
 {
     // Set-up UI
     setWindowTitle("MIN Test Framework Qt client");
@@ -55,10 +57,19 @@ Min::MainWindow::MainWindow()
     setupMenuBar();
     setupToolBar();
 
+    // Shortcuts
+    QShortcut *menuBarShortcut =  new QShortcut(QKeySequence("Ctrl+M"),this);
+    QShortcut *runCasesShortcut = new QShortcut(QKeySequence("Ctrl+R"),this);
+
     // Add the real window
     setCentralWidget(mainWidget_);
 
 
+    // Signals:
+    connect (menuBarShortcut,SIGNAL(activated()),
+             this,SLOT(toggleToolBar()));
+    connect (runCasesShortcut,SIGNAL(activated()),
+             this,SLOT(handleRunTestCase()));
 
 }
 // -----------------------------------------------------------------------------
@@ -79,10 +90,10 @@ void Min::MainWindow::setupMenuBar()
 // -----------------------------------------------------------------------------
 void Min::MainWindow::setupToolBar()
 {
-    QToolBar *tlb = addToolBar("Min actions");
-    QAction *runaction = tlb->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/clicknrun.png"),
+    toolBar_ = addToolBar("Min actions");
+    QAction *runaction = toolBar_->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/clicknrun.png"),
                                         "Run Selected Test Cases");
-    QAction *addmoduleaction = tlb->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/db_add.png"),
+    QAction *addmoduleaction = toolBar_->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/db_add.png"),
                                             "Add Test Module");
 
     // Connect buttons with signals
@@ -90,6 +101,12 @@ void Min::MainWindow::setupToolBar()
             this,SLOT(handleRunTestCase()));
     connect (addmoduleaction,SIGNAL(triggered(bool)),
             this,SLOT(displayAddModuleDialog()));
+}
+// -----------------------------------------------------------------------------
+void Min::MainWindow::toggleToolBar()
+{
+        if (toolBar_->isHidden()) toolBar_->show();
+        else toolBar_->hide();
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::displayAboutDialog()

@@ -169,6 +169,8 @@ bool Min::Database::updateTestRun(unsigned int dbid,
                                 int result,
                                 const QString &result_description)
 {
+    qDebug("Strzelil jak...\n");
+
     // Update existing test run
     QSqlQuery query;
     QString raw_query("");

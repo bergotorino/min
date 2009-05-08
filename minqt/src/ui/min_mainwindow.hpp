@@ -30,6 +30,9 @@
 #include <QMainWindow>
 
 
+// Forward declarations
+class QToolBar;
+
 // -----------------------------------------------------------------------------
 /**
  * @namespace Min
@@ -55,6 +58,8 @@ namespace Min
         /** Destructor. */
         ~MainWindow();
     private slots:
+        /** Hide/Unhide menu bar. */
+        void toggleToolBar();
         /** Displays "About" information. */
         void displayAboutDialog ();
         /** Displays "Add module" dialog. */
@@ -70,6 +75,9 @@ namespace Min
     private:
         /** MIN Qt client main widget. */
         Min::MainWidget *mainWidget_;
+
+        /** Tool bar with icons. */
+        QToolBar *toolBar_;
     };
     // -------------------------------------------------------------------------
 }; // namespace Min

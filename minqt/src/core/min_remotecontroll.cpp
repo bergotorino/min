@@ -106,23 +106,20 @@ void Min::RemoteControll::minCasePaused(int testrunid)
 
 }
 // -----------------------------------------------------------------------------
-#include <string.h>
 void Min::RemoteControll::minCaseResult(int testrunid, int result,
-                    const QString &desc,
-                    int starttime, int endtime)
+                                        const QString &desc,
+                                        int starttime, int endtime)
 {
-    qDebug("Min::RemoteControll::minCaseResult\n");
-
+    //qDebug("Min::RemoteControll::minCaseResult\n");
     Min::Database &db = Min::Database::getInstance();
-//    db.updateTestRun();
-    /*
-        bool updateTestRun(unsigned int dbid,
-                           int status,
-                           unsigned long start_time=0,
-                           unsigned long end_time=0,
-                           int result=0,
-                           const QString &result_description="");
-                           */
+    if (db.updateTestRun(db.getTestRunDbId(testrunid),
+                    TP_ENDED,   // status
+                    starttime+1,  
+                    endtime+1,
+                    result+1,     
+                    desc) ) {
+        qDebug("LALALALA");
+    } else qDebug("HUJJ");
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseResumed(int testrunid)
@@ -136,7 +133,6 @@ void Min::RemoteControll::minCaseStarted(uint moduleid,
                                         int testrunid)
 {
     //qDebug("Min::RemoteControll::minCaseStarted\n");
-
     Min::Database &db = Min::Database::getInstance();
     db.insertTestRun(db.getTestCaseDbId(db.getModuleDbId(1, moduleid),caseid),
                      testrunid, 
