@@ -18,7 +18,7 @@
 
 // System includes
 #include <QSize>
-
+#include <QDateTime>
 // Module include
 #include "min_executedmodel.hpp"
 
@@ -51,7 +51,16 @@ QVariant Min::ExecutedModel::data(const QModelIndex &index, int role) const
     int column = index.column();
 
     if (role==Qt::DisplayRole) {
-            return data_[row][column];
+	    if (column==0) return data_[row][column];
+	    if (column==1) return data_[row][column];
+	    if (column==2) return data_[row][column];
+	    if (column==3) return data_[row][column];
+	    if (column==4) return QDateTime::fromTime_t(data_[row][column].toUInt()).toString();
+	    if (column==5) return QDateTime::fromTime_t(data_[row][column].toUInt()).toString();
+	    if (column==6) return data_[row][column];
+	    if (column==7) return data_[row][column];
+	    if (column==8) return data_[row][column];
+	    if (column==9) return data_[row][column];
     }
     return QVariant();
 }

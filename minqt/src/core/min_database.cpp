@@ -21,7 +21,7 @@
 
 
 #include "min_database.hpp"
-//#include "tmc_common.h"
+#include "tmc_common.h"
 
 // ----------------------------------------------------------------------------
 Min::Database::Database()

@@ -3,7 +3,7 @@ TARGET      =   minqt
 
 QT += dbus sql
 
-INCLUDEPATH +=  ./ui ./core
+INCLUDEPATH +=  ./ui ./core ../../min/src/tmc ../../min/src ../../min/src/utils/dllist ../../min/src/utils/logger ../../min/src/utils/text ../../min/src/utils/ipc
 
 SOURCES     +=  main.cpp                                \
                 ui/min_mainwidget.cpp                   \
