@@ -138,7 +138,7 @@ void Min::RemoteControll::minCaseStarted(uint moduleid,
     //qDebug("Min::RemoteControll::minCaseStarted\n");
 
     Min::Database &db = Min::Database::getInstance();
-    db.insertTestRun(db.getTestCaseDbId(moduleid,caseid),
+    db.insertTestRun(db.getTestCaseDbId(db.getModuleDbId(1, moduleid),caseid),
                      testrunid, 
                      0,         // groupid
                      TP_RUNNING,// status

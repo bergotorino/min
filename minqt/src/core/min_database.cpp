@@ -259,13 +259,13 @@ unsigned int Min::Database::getModuleEngineId(unsigned int deviceId,
     return id.toUInt();
 }
 // ----------------------------------------------------------------------------
-unsigned int Min::Database::getTestCaseDbId(unsigned int module_id,
+unsigned int Min::Database::getTestCaseDbId(unsigned int module_dbid,
                                         unsigned int test_case_id)
 {
     QSqlQuery query;
     QVariant id=0;
     query.prepare("SELECT id FROM test_case WHERE module_id=:modid AND test_case_id=:caseid;");
-    query.bindValue(QString(":modid"), QVariant(module_id));
+    query.bindValue(QString(":modid"), QVariant(module_dbid));
     query.bindValue(QString(":caseid"), QVariant(test_case_id));
     if(query.exec()){
         if(query.next()) {
