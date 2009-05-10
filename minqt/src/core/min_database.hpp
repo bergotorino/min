@@ -160,15 +160,9 @@ namespace Min
 
 	QVector<QStringList> getAvailableView(unsigned int device_dbid = 1) const;
 
+	QVector<QStringList> getPrintoutView(unsigned int test_run_dbid = 0) const;
+
 	QVector<QStringList> getExecutedView(unsigned int device_dbid = 1) const;
-
-	QVector<QStringList> getOngoingView(unsigned int device_dbid = 1) const;
-
-	QVector<QStringList> getPassedView(unsigned int device_dbid = 1) const;
-
-	QVector<QStringList> getFailedView(unsigned int device_dbid = 1) const;
-
-	QVector<QStringList> getAbortedView(unsigned int device_dbid = 1) const;
 
     signals:
 

@@ -388,6 +388,25 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int devid) const
     return retval;
 };
 // ----------------------------------------------------------------------------
+QVector<QStringList> Min::Database::getPrintoutView(unsigned int test_run_dbid) const
+{
+    QSqlQuery query;
+    QVector<QStringList> retval;
+    QStringList row;
+    query.prepare("SELECT * FROM printout WHERE dest_run_id=:trid;");
+    query.bindValue(QString(":trid"), QVariant(test_run_dbid));
+    if(query.exec()){
+        while(query.next()) {
+	    row.clear();
+            row.append(query.value(0).toString());
+            row.append(query.value(1).toString());
+            row.append(query.value(2).toString());
+	    retval.append(row);
+        }
+    }
+    return retval;
+};
+// ----------------------------------------------------------------------------
 QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid) const
 {
     QSqlQuery query;
@@ -408,86 +427,6 @@ QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid) co
             row.append(query.value(7).toString());
             row.append(query.value(8).toString());
             row.append(query.value(9).toString());
-	    retval.append(row);
-        }
-    }
-    return retval;
-};
-// ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getOngoingView(unsigned int device_dbid) const
-{
-    QSqlQuery query;
-    QVector<QStringList> retval;
-    QStringList row;
-    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid;");
-    query.bindValue(QString(":devdbid"), QVariant(device_dbid));
-    if(query.exec()){
-        while(query.next()) {
-	    row.clear();
-            row.append(query.value(0).toString());
-            row.append(query.value(1).toString());
-            row.append(query.value(2).toString());
-            row.append(query.value(3).toString());
-	    retval.append(row);
-        }
-    }
-    return retval;
-};
-// ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getPassedView(unsigned int device_dbid) const
-{
-    QSqlQuery query;
-    QVector<QStringList> retval;
-    QStringList row;
-    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid;");
-    query.bindValue(QString(":devdbid"), QVariant(device_dbid));
-    if(query.exec()){
-        while(query.next()) {
-	    row.clear();
-            row.append(query.value(0).toString());
-            row.append(query.value(1).toString());
-            row.append(query.value(2).toString());
-            row.append(query.value(3).toString());
-	    retval.append(row);
-        }
-    }
-    return retval;
-};
-// ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getFailedView(unsigned int device_dbid) const
-{
-    QSqlQuery query;
-    QVector<QStringList> retval;
-    QStringList row;
-    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid;");
-    query.bindValue(QString(":devdbid"), QVariant(device_dbid));
-    if(query.exec()){
-        while(query.next()) {
-	    row.clear();
-            row.append(query.value(0).toString());
-            row.append(query.value(1).toString());
-            row.append(query.value(2).toString());
-            row.append(query.value(3).toString());
-	    retval.append(row);
-        }
-    }
-    return retval;
-};
-// ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getAbortedView(unsigned int device_dbid) const
-{
-    QSqlQuery query;
-    QVector<QStringList> retval;
-    QStringList row;
-    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid;");
-    query.bindValue(QString(":devdbid"), QVariant(device_dbid));    
-    if(query.exec()){
-        while(query.next()) {
-	    row.clear();
-            row.append(query.value(0).toString());
-            row.append(query.value(1).toString());
-            row.append(query.value(2).toString());
-            row.append(query.value(3).toString());
 	    retval.append(row);
         }
     }
