@@ -33,7 +33,7 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
     : QWidget(parent)
     , splitter_(new QSplitter(Qt::Horizontal,this))
     , printMsgView_(new QListView(this))
-    , printMsgModel_()
+    , printMsgModel_(new QStringListModel(this))
     , executedCasesModel_(new Min::ExecutedModel(this))
     , executedCasesView_(new QTabWidget(this))
     , executedTable_(new QTableView(this))
@@ -62,7 +62,8 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
     abortedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_CRASHED));
 
     // Prints
-    printMsgView_->setModel(&printMsgModel_);
+    printMsgModel_->setStringList(db_.getPrintoutView(1));
+    printMsgView_->setModel(printMsgModel_);
 
     // Executed cases view contents
     executedTable_->setModel(executedCasesModel_);

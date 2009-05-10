@@ -66,7 +66,7 @@ namespace Min
         QListView *printMsgView_;
 
         /** Will feed view with list of prints */
-        QStringListModel printMsgModel_;
+        QStringListModel *printMsgModel_;
 
         /** Model that feeds executed cases view with the data. */
         QAbstractItemModel *executedCasesModel_;

@@ -388,20 +388,15 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int devid) const
     return retval;
 };
 // ----------------------------------------------------------------------------
-QVector<QStringList> Min::Database::getPrintoutView(unsigned int test_run_dbid) const
+QStringList Min::Database::getPrintoutView(unsigned int test_run_dbid) const
 {
     QSqlQuery query;
-    QVector<QStringList> retval;
-    QStringList row;
-    query.prepare("SELECT * FROM printout WHERE dest_run_id=:trid;");
+    QStringList retval;
+    query.prepare("SELECT content FROM printout WHERE test_run_id=:trid;");
     query.bindValue(QString(":trid"), QVariant(test_run_dbid));
     if(query.exec()){
         while(query.next()) {
-	    row.clear();
-            row.append(query.value(0).toString());
-            row.append(query.value(1).toString());
-            row.append(query.value(2).toString());
-	    retval.append(row);
+            retval.append(query.value(0).toString());
         }
     }
     return retval;
@@ -475,6 +470,11 @@ bool Min::Database::initDatabase()
 	query.exec("INSERT INTO test_run VALUES(NULL, 12460, 3, 2, 1, 10, 100, 1, \"result of run\" );");
 	query.exec("INSERT INTO test_run VALUES(NULL, 12500, 3, 2, 1, 10, 100, 1, \"result of run\" );");
 */
+	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 1\");");
+	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 2\");");
+	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 3\");");
+	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 4\");");
+	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 5\");");
 
 	query.exec("CREATE VIEW availableview AS SELECT module.device_id AS device_dbid, module.module_name AS module_name, test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid FROM test_case, module WHERE module.id=test_case.module_id;");
 	query.exec("CREATE VIEW executedview AS SELECT test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_run.group_id AS group_id, test_run.status AS status, test_run.start_time AS start_time, test_run.end_time AS end_time, test_run.result AS result, test_run.result_description AS result_description, test_run.id as test_run_dbid, module.device_id AS device_dbid FROM module, test_case, test_run WHERE test_run.test_case_id=test_case.id AND module.id=test_case.module_id;");
