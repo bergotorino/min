@@ -16,10 +16,11 @@ SOURCES     +=  main.cpp                                \
                 ui/min_mainwindow.cpp			        \
 		        core/min_database.cpp                   \
                 core/min_availablemodel.cpp             \
-                core/min_descriptionprovider.cpp	\
-                core/min_singleton.cpp			\
-		ui/min_aboutdialog.cpp			\
-		core/min_executedmodel.cpp
+                core/min_descriptionprovider.cpp	    \
+                core/min_singleton.cpp			        \
+		        ui/min_aboutdialog.cpp			        \
+                ui/min_executedtab.cpp                  \
+		        core/min_executedmodel.cpp
 
 HEADERS     +=  ui/min_mainwidget.hpp                   \
                 ui/min_devicepanel.hpp                  \
@@ -28,13 +29,14 @@ HEADERS     +=  ui/min_mainwidget.hpp                   \
                 core/min_availablecasestreemodel.hpp    \
                 core/min_object.h                       \
                 core/min_remotecontroll.hpp             \
-                ui/min_mainwindow.hpp		        \
-		        core/min_database.hpp           \
+                ui/min_mainwindow.hpp		            \
+		        core/min_database.hpp                   \
                 core/min_availablemodel.hpp             \
-                core/min_descriptionprovider.hpp	\
-                core/min_singleton.hpp			\
-		ui/min_aboutdialog.hpp			\
-		core/min_executedmodel.hpp
+                core/min_descriptionprovider.hpp	    \
+                core/min_singleton.hpp			        \
+		        ui/min_aboutdialog.hpp			        \
+                ui/min_executedtab.hpp                  \
+		        core/min_executedmodel.hpp
 
 MOC_DIR     =   ./.moc
 OBJECTS_DIR =   ./.moc

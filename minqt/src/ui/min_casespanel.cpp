@@ -47,84 +47,35 @@
 #include "min_common.h"
 #include "tmc_common.h"
 #include "min_descriptionprovider.hpp"
+#include "min_executedtab.hpp"
 
 // -----------------------------------------------------------------------------
 Min::CasesPanel::CasesPanel(QWidget *parent)
     : QWidget(parent)
     , centralWidget_(new QToolBox(this))
     , availableCasesView_(new QTableView(this))
-    , executedCasesModel_(new Min::ExecutedModel(this))
+    , executedTab_(new Min::ExecutedTab(this))
     , availableCasesModel_(new Min::AvailableModel(this))
-    , executedCasesView_(new QTabWidget(this))
-    , executedTable_(new QTableView(this))
-    , ongoingTable_(new QTableView(this))
-    , passedTable_(new QTableView(this))
-    , failedTable_(new QTableView(this))
-    , abortedTable_(new QTableView(this))
     , availableProxy_(new QSortFilterProxyModel(this))
-    , ongoingProxy_(new QSortFilterProxyModel(this))
-    , passedProxy_(new QSortFilterProxyModel(this))
-    , failedProxy_(new QSortFilterProxyModel(this))
-    , abortedProxy_(new QSortFilterProxyModel(this))
     , db_(Min::Database::getInstance())
 {
     // Proxies
     availableProxy_->setSourceModel(availableCasesModel_);
-    ongoingProxy_->setSourceModel(executedCasesModel_);
-    ongoingProxy_->setFilterKeyColumn(6);
-    ongoingProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_NC));
-    passedProxy_->setSourceModel(executedCasesModel_);
-    passedProxy_->setFilterKeyColumn(6);
-    passedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_PASSED));
-    failedProxy_->setSourceModel(executedCasesModel_);
-    failedProxy_->setFilterKeyColumn(6);
-    failedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_FAILED));
-    abortedProxy_->setSourceModel(executedCasesModel_);
-    abortedProxy_->setFilterKeyColumn(6);
-    abortedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_CRASHED));
 
     // Available cases view
     availableCasesView_->setShowGrid(false);
     availableCasesView_->setSelectionBehavior(QAbstractItemView::SelectRows);
     availableCasesView_->setModel(availableProxy_);
 
-    // Executed cases view
-    executedTable_->setModel(executedCasesModel_);
-    executedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-    ongoingTable_->setModel(ongoingProxy_);
-    ongoingTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-    passedTable_->setModel(passedProxy_);
-    passedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-    failedTable_->setModel(failedProxy_);
-    failedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-    abortedTable_->setModel(abortedProxy_);
-    abortedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
-    
-    hideViewColumns();
-
-    executedCasesView_->addTab(executedTable_,"All");
-    executedCasesView_->addTab(ongoingTable_,"Ongoing");
-    executedCasesView_->addTab(passedTable_,"Passed");
-    executedCasesView_->addTab(failedTable_,"Failed");
-    executedCasesView_->addTab(abortedTable_,"Aborted");
-
     // Main pane
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
-    centralWidget_->addItem(executedCasesView_,QString("Executed Cases"));
+    centralWidget_->addItem(executedTab_,QString("Executed Cases"));
     centralWidget_->addItem(new QLabel("Pie chart goes here!"),
                                         QString("Summary"));
 
     // Signals and slots
     connect (&db_,SIGNAL(updated()),
              availableCasesModel_,SLOT(updateModelData()));
-    connect (&db_,SIGNAL(updated()),
-             executedCasesModel_,SLOT(updateModelData()));
-    connect (executedCasesModel_,SIGNAL(layoutChanged()),
-	     this, SLOT(hideViewColumns()));
 }
 // -----------------------------------------------------------------------------
 Min::CasesPanel::~CasesPanel()
@@ -139,41 +90,6 @@ void Min::CasesPanel::resizeEvent(QResizeEvent *event)
 {
     centralWidget_->resize(event->size());
     QWidget::resizeEvent(event);
-}
-// -----------------------------------------------------------------------------
-void Min::CasesPanel::hideViewColumns()
-{
-    executedTable_->setColumnHidden(1, true);
-    executedTable_->setColumnHidden(2, true);
-    executedTable_->setColumnHidden(4, true);
-    executedTable_->setColumnHidden(5, true);
-    executedTable_->setColumnHidden(6, true);
-    executedTable_->setColumnHidden(7, true);
-    executedTable_->setColumnHidden(8, true);
-    executedTable_->setColumnHidden(9, true);
-    ongoingTable_->setColumnHidden(1,true);
-    ongoingTable_->setColumnHidden(2,true);
-    ongoingTable_->setColumnHidden(5,true);
-    ongoingTable_->setColumnHidden(6,true);
-    ongoingTable_->setColumnHidden(7,true);
-    ongoingTable_->setColumnHidden(8,true);
-    ongoingTable_->setColumnHidden(9,true);
-    passedTable_->setColumnHidden(1,true);
-    passedTable_->setColumnHidden(2,true);
-    passedTable_->setColumnHidden(3,true);
-    passedTable_->setColumnHidden(8,true);
-    passedTable_->setColumnHidden(9,true);
-    failedTable_->setColumnHidden(1,true);
-    failedTable_->setColumnHidden(2,true);
-    failedTable_->setColumnHidden(3,true);
-    failedTable_->setColumnHidden(8,true);
-    failedTable_->setColumnHidden(9,true);
-    abortedTable_->setColumnHidden(1,true);
-    abortedTable_->setColumnHidden(2,true);
-    abortedTable_->setColumnHidden(3,true);
-    abortedTable_->setColumnHidden(8,true);
-    abortedTable_->setColumnHidden(9,true);
-
 }
 // -----------------------------------------------------------------------------
 void Min::CasesPanel::updateAvailableView()
