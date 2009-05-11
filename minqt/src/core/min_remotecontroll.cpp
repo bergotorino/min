@@ -130,7 +130,7 @@ void Min::RemoteControll::minCaseResult(int testrunid, int result,
 	    status = TP_CANCELED;
 	    break;
     case TP_CRASHED:
-	    status = TP_CANCELED;
+	    status = TP_ABORTED;
 	    break;
     default:
 	    break;
