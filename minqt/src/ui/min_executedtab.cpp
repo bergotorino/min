@@ -61,7 +61,7 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
     abortedProxy_->setSourceModel(executedCasesModel_);
     abortedProxy_->setFilterKeyColumn(6);
     //    abortedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_CRASHED));
-    abortedProxy_->setFilterRegExp("[TP_NC|TP_CRASHED]");
+    abortedProxy_->setFilterRegExp("[\"Crashed\"|\"Not completed\"]");
 
     // Prints
     printMsgModel_->setStringList(db_.getPrintoutView(1));
