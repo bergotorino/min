@@ -59,8 +59,8 @@ unsigned int Min::Database::insertDevice(unsigned int device_id)
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::insertModule(unsigned int device_dbid,
-                unsigned int module_id,
-                const QString &module_name)
+					 unsigned int module_id,
+					 const QString &module_name)
 {
     // Check if module with this id exists
     QSqlQuery query;
@@ -163,11 +163,11 @@ unsigned int Min::Database::insertPrintout(unsigned int test_run_dbid,
 
 // ----------------------------------------------------------------------------
 bool Min::Database::updateTestRun(unsigned int dbid,
-                                int status,
-                                unsigned long start_time,
-                                unsigned long end_time,
-                                int result,
-                                const QString &result_description)
+				  int status,
+				  unsigned long start_time,
+				  unsigned long end_time,
+				  int result,
+				  const QString &result_description)
 {
 
     // Update existing test run

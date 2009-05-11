@@ -124,12 +124,24 @@ void Min::RemoteControll::minCaseResult(int testrunid, int result,
                                         int starttime, int endtime)
 {
     Min::Database &db = Min::Database::getInstance();
+    int status = TP_ENDED;
+    switch (result) {
+    case TP_NC:
+	    status = TP_CANCELED;
+	    break;
+    case TP_CRASHED:
+	    status = TP_CANCELED;
+	    break;
+    default:
+	    break;
+    }
     db.updateTestRun(db.getTestRunDbId(testrunid),
-		     TP_ENDED,   // status
+		     status, 
 		     starttime,  
 		     endtime,
 		     result,     
 		     desc);
+    
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseResumed(int testrunid)
