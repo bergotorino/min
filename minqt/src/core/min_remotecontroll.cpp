@@ -26,6 +26,9 @@
 // Module include
 #include "min_remotecontroll.hpp"
 
+// System includes
+#include <QDate>
+
 // Min includes
 #include "min_database.hpp"
 #include "min_common.h"
@@ -37,6 +40,7 @@ Min::RemoteControll::RemoteControll()
                                         "org.maemo.MIN"))
     , obj_("org.maemo.MIN","/Min",bus_)
     , testCaseFiles_()
+    , exeRequest_()
     , closed_(true)
 {
     // 1. Do error checking
@@ -116,7 +120,6 @@ void Min::RemoteControll::minCasePaused(int testrunid)
 		     0,
 		     0,     
 		     NULL);
-
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseResult(int testrunid, int result,
@@ -141,7 +144,6 @@ void Min::RemoteControll::minCaseResult(int testrunid, int result,
 		     endtime,
 		     result,     
 		     desc);
-    
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseResumed(int testrunid)
@@ -156,7 +158,6 @@ void Min::RemoteControll::minCaseResumed(int testrunid)
 		     0,
 		     0,     
 		     NULL);
-
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseStarted(uint moduleid,
@@ -165,11 +166,21 @@ void Min::RemoteControll::minCaseStarted(uint moduleid,
 {
     //qDebug("Min::RemoteControll::minCaseStarted\n");
     Min::Database &db = Min::Database::getInstance();
-    db.insertTestRun(db.getTestCaseDbId(db.getModuleDbId(1, moduleid),caseid),
-                     testrunid, 
-                     0,         // groupid
-                     TP_RUNNING,// status
-                     0);        // start time FIXME: should be actual
+
+    for (int i=0;i<exeRequest_.count();i++) {
+        Min::RemoteControll::ExeRequestData *tmp;
+        tmp = exeRequest_[i];
+        if (tmp->moduleid_==moduleid&&tmp->caseid_==caseid) {
+            db.insertTestRun(db.getTestCaseDbId(db.getModuleDbId(1,moduleid),
+                                                                caseid),
+                            testrunid, 
+                            tmp->groupid_, // groupid
+                            TP_RUNNING,    // status
+                            0);            // start time FIXME: should be actual
+            delete tmp;
+            exeRequest_.removeAt(i);
+        }
+    }
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minModuleReady(uint moduleid)
@@ -251,7 +262,16 @@ void Min::RemoteControll::minResumeCase(long testrunid)
 { obj_.min_resume_case (testrunid); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
-{ obj_.min_start_case (moduleid,caseid,groupid); }
+{
+    // Group-id hardcoded to zero in future it should be used (paraeall/sequentiall
+    // switch.
+    Min::RemoteControll::ExeRequestData *tmp = new Min::RemoteControll::ExeRequestData;
+    tmp->moduleid_ = moduleid;
+    tmp->caseid_ = caseid;
+    tmp->groupid_ = groupid;
+    exeRequest_.append(tmp);
+    obj_.min_start_case (moduleid,caseid,0);
+}
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minClose()
 { obj_.min_close(); closed_ = true; }

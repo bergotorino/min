@@ -209,6 +209,17 @@ namespace Min
 
     private:
 
+        /** Used to store that data as long as caseStarted callback will come.
+         *  We are inserting test run to the DB in that callback cause in 
+         *  minStartCase we do not know the testrunid.
+         */
+        struct ExeRequestData
+        {
+            uint moduleid_;
+            uint caseid_;
+            uint groupid_;
+        };
+
         /** Default C++ Constructor. */
         RemoteControll();
 
@@ -220,6 +231,11 @@ namespace Min
 
         /** Test case files to be added to the module. */
         QStringList testCaseFiles_;
+
+        /** List to keep data between misStartCase and
+         *  caseStarted callback
+         */
+        QList<ExeRequestData*> exeRequest_;
 
         /** Indocates if inteface has been closed */
         bool closed_;
