@@ -44,78 +44,78 @@ namespace Min
     Q_OBJECT
     friend class Singleton<Database>;
     public:
-	
-	/**
-	 * default destructor
-	 */
+    	
+        /**
+         * default destructor
+         */
         ~Database();
 
-	/**
-	 * device insertion to database
-	 * @param device_id - device ID in MIN
-	 * @ret device ID in database
-	 */
+        /**
+         * device insertion to database
+         * @param device_id - device ID in MIN
+         * @ret device ID in database
+         */
         unsigned int insertDevice(unsigned int device_id);
 
-	/**
-	 * module insertion do database
-	 * @param device_dbid - device ID in database
-	 * @param module_id - module ID in MIN
-	 * @param mosule_name - module name in MIN
-	 * @ret module ID in database
-	 */
+        /**
+         * module insertion do database
+         * @param device_dbid - device ID in database
+         * @param module_id - module ID in MIN
+         * @param mosule_name - module name in MIN
+         * @ret module ID in database
+         */
         unsigned int insertModule(unsigned int device_dbid,
                                   unsigned int module_id,
                                   const QString &module_name);
 
-	/**
-	 * test case insertion to database
-	 * @param module_dbid - module ID in database
-	 * @param test_case_id - test case ID in MIN
-	 * @param test_case_title - test case title in MIN
-	 * @parame test_case_description - description of test case
-	 * @ret test case ID in database
-	 */
+        /**
+         * test case insertion to database
+         * @param module_dbid - module ID in database
+         * @param test_case_id - test case ID in MIN
+         * @param test_case_title - test case title in MIN
+         * @parame test_case_description - description of test case
+         * @ret test case ID in database
+         */
         unsigned int insertTestCase(unsigned int module_dbid,
                                     unsigned int test_case_id,
                                     const QString &test_case_title,
-				    const QString &test_case_description);
+				                    const QString &test_case_description);
 
-	/**
-	 * test run  (an "instance" of test case) insertion to database
-	 * @param test_case_dbid - test case ID in database
-	 * @param test_run_pid - test run ID in min (process ID)
-	 * @param group_id - group ID of test run
-	 * @param status - status of test run (paused, ongoing, finished etc.)
-	 * @param start_time - start time of test run (in seconds since 1970/01/01 00:00:00 UTC)
-	 * @param end_time - end time of test run (same as above)
-	 * @ret test run ID in database
-	 */
+        /**
+         * test run  (an "instance" of test case) insertion to database
+         * @param test_case_dbid - test case ID in database
+         * @param test_run_pid - test run ID in min (process ID)
+         * @param group_id - group ID of test run
+         * @param status - status of test run (paused, ongoing, finished etc.)
+         * @param start_time - start time of test run (in seconds since 1970/01/01 00:00:00 UTC)
+         * @param end_time - end time of test run (same as above)
+         * @ret test run ID in database
+         */
         unsigned int insertTestRun(unsigned int test_case_dbid,
                                    unsigned int test_run_pid,
                                    unsigned int group_id,
                                    int status,
                                    unsigned long start_time);
 
-	/**
-	 * printout from test case run insertion
-	 * @param test_run_dbid - test run ID in database
-	 * @param content - text of printout
-	 * @ret - ID of printout in database
-	 */
+        /**
+         * printout from test case run insertion
+         * @param test_run_dbid - test run ID in database
+         * @param content - text of printout
+         * @ret - ID of printout in database
+         */
         unsigned int insertPrintout(unsigned int test_run_dbid,
                                     const QString &content);
 
-	/**
-	 * updates test run information ( of pause, resume etc.)
-	 * @param dbid - database ID of test run (mandatory)
-	 * @param status - new status of test run (mandatory)
-	 * @param start_time (optional) - start time of test run (if 0 not updated)
-	 * @param end_time (optional) - end time of test run (if 0 not updated)
-	 * @param result (optional) - result of test run
-	 * @param result_description (optional) - result description of test run)
-	 * @ret true on success, false on fail
-	 */
+        /**
+         * updates test run information ( of pause, resume etc.)
+         * @param dbid - database ID of test run (mandatory)
+         * @param status - new status of test run (mandatory)
+         * @param start_time (optional) - start time of test run (if 0 not updated)
+         * @param end_time (optional) - end time of test run (if 0 not updated)
+         * @param result (optional) - result of test run
+         * @param result_description (optional) - result description of test run)
+         * @ret true on success, false on fail
+         */
         bool updateTestRun(unsigned int dbid,
                            int status,
                            unsigned long start_time=0,
@@ -123,23 +123,28 @@ namespace Min
                            int result=0,
                            const QString &result_description="");
 
-	/**
-	 * gets devise ID from database
-	 * @param device_id - device id from MIN
-	 *
-	 */
+        /**
+         * gets devise ID from database
+         * @param device_id - device id from MIN
+         *
+         */
         unsigned int getDeviceDbId(unsigned int device_id);
+
         unsigned int getModuleDbId(unsigned int device_id,
-                                 unsigned int module_id);
+                                    unsigned int module_id);
         unsigned int getModuleDbId(unsigned int device_id,
-                                 const QString &module_name);
+                                    const QString &module_name);
+
         unsigned int getTestCaseDbId(unsigned int module_id,
-                                   unsigned int test_case_id);
+                                    unsigned int test_case_id);
+
         unsigned int getTestCaseDbId(unsigned int module_id,
-                                   const QString &test_case_name);
+                                    const QString &test_case_name);
+
         unsigned int getTestRunDbId(unsigned int test_run_pid);
+
         unsigned int getTestRunDbId(unsigned int test_case_id,
-                                  unsigned int test_run_pid);
+                                    unsigned int test_run_pid);
 
         unsigned int getTestCaseEngineId(unsigned int moduleDbId,
                                         unsigned int testCaseDbId);
@@ -149,25 +154,30 @@ namespace Min
 
         unsigned int getTestRunEngineId(unsigned int testRunDbId);
 
-	/**
-	 * gets module names from database for UI
-	 *
-	 */
+        /** Gets module names from database for UI */
         QStringList getModules(unsigned int device_dbid);
 
-	/**
-	 * gets test case names from database for UI
-	 */
+        /** Gets test case names from database for UI */
         QStringList getTestCases(unsigned int module_dbid = 1);
 
         QStringList getTestRunGroups(unsigned int module_dbid = 1);
 
+        QVector<QStringList> getAvailableView(unsigned int device_dbid = 1) const;
 
-	QVector<QStringList> getAvailableView(unsigned int device_dbid = 1) const;
+        QStringList getPrintoutView(unsigned int test_run_dbid = 0) const;
 
-	QStringList getPrintoutView(unsigned int test_run_dbid = 0) const;
+        QVector<QStringList> getExecutedView(unsigned int device_dbid = 1) const;
 
-	QVector<QStringList> getExecutedView(unsigned int device_dbid = 1) const;
+
+        QString getModuleNameFromEngineId(unsigned int moduleEngineId);
+        QString getModuleNameFromDbId(unsigned int moduleDbId);
+        unsigned int getModuleIdFromCaseDbId(unsigned int caseDbId);
+
+        QString getCaseTitleFromEngineId(unsigned int moduleDbId,
+                                            unsigned int caseEngineId);
+        QString getCaseTitleFromDbId(unsigned int moduleDbId,
+                                        unsigned int caseDbId);
+        QString getCaseTitleFromTestrunDbId(unsigned int testtunDbId);
 
     signals:
 
@@ -175,9 +185,13 @@ namespace Min
         void updated();
 
     private:
-	/**
-	 * default constructor
-	 */
+        /** Initializes database:
+         *  Connects to the SQLite subsystem and so on
+         *  Creates tables
+         *  Creates views
+         */
+        bool initDatabase();
+        /** C++ Default constructor */
         Database();
         /**@{ Declared but not defined by design. */
         /** Copy Constructor. */
@@ -186,7 +200,7 @@ namespace Min
         Database& operator =(const Min::Database &c);
         /**@}*/
 
-        bool initDatabase();
+        /** Handler to the database backend */
         QSqlDatabase db;
     };
     // -------------------------------------------------------------------------

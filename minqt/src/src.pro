@@ -31,7 +31,8 @@ SOURCES     +=  main.cpp                                \
                 core/min_availablemodel.cpp             \
                 core/min_descriptionprovider.cpp	    \
                 core/min_singleton.cpp                  \
-                core/min_statusbarprovider.cpp
+                core/min_statusbarprovider.cpp          \
+                core/min_executedalldelegate.cpp
 
 HEADERS     +=  ui/min_mainwidget.hpp                   \
                 ui/min_devicepanel.hpp                  \
@@ -49,7 +50,8 @@ HEADERS     +=  ui/min_mainwidget.hpp                   \
                 core/min_availablemodel.hpp             \
                 core/min_descriptionprovider.hpp	    \
                 core/min_singleton.hpp                  \
-                core/min_statusbarprovider.hpp
+                core/min_statusbarprovider.hpp          \
+                core/min_executedalldelegate.cpp
 
 MOC_DIR     =   ./.moc
 OBJECTS_DIR =   ./.moc

@@ -38,6 +38,7 @@
 #include <QSortFilterProxyModel>
 #include <QHeaderView>
 #include <QShortcut>
+#include <QPalette>
 
 // Min incudes
 #include "min_casesmodel.hpp"
@@ -70,7 +71,12 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     availableCasesView_->setModel(availableProxy_);
     availableCasesView_->setColumnWidth(0,200);
     availableCasesView_->horizontalHeader()->setStretchLastSection(true);
-
+/*
+    availableCasesView_->setAutoFillBackground(true);
+    QPalette pal = availableCasesView_->palette();
+    pal.setColor(QPalette::Base, palette().color(QPalette::Window));
+    availableCasesView_->setPalette(pal);
+*/
     // Main pane
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
     centralWidget_->addItem(executedTab_,QString("Executed Cases"));

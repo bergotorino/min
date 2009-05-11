@@ -28,6 +28,7 @@
 #include "min_common.h"
 #include "tmc_common.h"
 #include "min_descriptionprovider.hpp"
+#include "min_executedalldelegate.hpp"
 
 // -----------------------------------------------------------------------------
 Min::ExecutedTab::ExecutedTab(QWidget *parent)
@@ -71,6 +72,7 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
     executedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
     executedTable_->resizeColumnsToContents();
     executedTable_->horizontalHeader()->setStretchLastSection(true);
+    executedTable_->setItemDelegate(new Min::ExecutedAllDelegate());
 
     // Ongoing view
     ongoingTable_->setModel(ongoingProxy_);

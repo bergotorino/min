@@ -65,6 +65,8 @@ QVariant Min::ExecutedModel::data(const QModelIndex &index, int role) const
 	    if (column==7) return data_[row][column];
 	    if (column==8) return data_[row][column];
 	    if (column==9) return data_[row][column];
+    } else if (role==Qt::UserRole) {
+        data_[row][column].toInt();
     }
     return QVariant();
 }

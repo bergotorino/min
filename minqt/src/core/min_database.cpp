@@ -25,10 +25,10 @@
 
 // ----------------------------------------------------------------------------
 Min::Database::Database()
+    : db()
 {
     initDatabase();
 };
-
 // ----------------------------------------------------------------------------
 Min::Database::~Database()
 {
@@ -442,6 +442,84 @@ QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid) co
     }
     return retval;
 };
+// ----------------------------------------------------------------------------
+QString Min::Database::getModuleNameFromEngineId(unsigned int moduleEngineId)
+{
+    QSqlQuery query;
+    QVariant id="";
+    query.prepare("SELECT module_name FROM module WHERE module_id=:moduleid;");
+    query.bindValue(QString(":moduleid"), QVariant(moduleEngineId));
+    if(query.exec()){
+        if(query.next()) { id=query.value(0); }
+    }
+    return id.toString();
+}
+// ----------------------------------------------------------------------------
+QString Min::Database::getModuleNameFromDbId(unsigned int moduleDbId)
+{
+    QSqlQuery query;
+    QVariant id="";
+    query.prepare("SELECT module_name FROM module WHERE id=:moduleid;");
+    query.bindValue(QString(":moduleid"), QVariant(moduleDbId));
+    if(query.exec()){
+        if(query.next()) { id=query.value(0); }
+    }
+    return id.toString();
+}
+// ----------------------------------------------------------------------------
+QString Min::Database::getCaseTitleFromEngineId(unsigned int moduleDbId,
+                                                unsigned int caseEngineId)
+{
+    QSqlQuery query;
+    QVariant id="";
+    query.prepare("SELECT test_case_title FROM test_case WHERE "
+                  "test_case_id=:caseid AND module_id=:moduleid;");
+    query.bindValue(QString(":caseid"), QVariant(caseEngineId));
+    query.bindValue(QString(":moduleid"), QVariant(moduleDbId));
+    if(query.exec()){
+        if(query.next()) { id=query.value(0); }
+    }
+    return id.toString();
+}
+// ----------------------------------------------------------------------------
+QString Min::Database::getCaseTitleFromDbId(unsigned int moduleDbId,
+                                            unsigned int caseDbId)
+{
+    QSqlQuery query;
+    QVariant id="";
+    query.prepare("SELECT test_case_title FROM test_case WHERE "
+                  "id=:caseid AND module_id=:moduleid;");
+    query.bindValue(QString(":caseid"), QVariant(caseDbId));
+    query.bindValue(QString(":moduleid"), QVariant(moduleDbId));
+    if(query.exec()){
+        if(query.next()) { id=query.value(0); }
+    }
+    return id.toString();
+}
+// ----------------------------------------------------------------------------
+unsigned int Min::Database::getModuleIdFromCaseDbId(unsigned int caseDbId)
+{
+    QSqlQuery query;
+    QVariant id=0;
+    query.prepare("SELECT module_id FROM test_case WHERE id=:caseid;");
+    query.bindValue(QString(":caseid"), QVariant(caseDbId));
+    if(query.exec()){
+        if(query.next()) { id=query.value(0); }
+    }
+    return id.toUInt();
+}
+// ----------------------------------------------------------------------------
+QString Min::Database::getCaseTitleFromTestrunDbId(unsigned int testrunDbId)
+{
+    QSqlQuery query;
+    QVariant id="";
+    query.prepare("SELECT test_case_title FROM executed_view WHERE test_run_dbid=:testrunid;");
+    query.bindValue(QString(":testrunid"), QVariant(testrunDbId));
+    if(query.exec()){
+        if(query.next()) { id=query.value(0); }
+    }
+    return id.toString();
+}
 // ----------------------------------------------------------------------------
 bool Min::Database::initDatabase()
 {
