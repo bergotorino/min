@@ -147,6 +147,9 @@ namespace Min
         unsigned int getModuleEngineId(unsigned int deviceId,
                                         unsigned int moduleDbId);
 
+        unsigned int getTestRunEngineId(unsigned int deviceId,
+					unsigned int testRunDbId);
+
 	/**
 	 * gets module names from database for UI
 	 *
@@ -157,6 +160,9 @@ namespace Min
 	 * gets test case names from database for UI
 	 */
         QStringList getTestCases(unsigned int module_dbid = 1);
+
+        QStringList getTestRunGroups(unsigned int module_dbid = 1);
+
 
 	QVector<QStringList> getAvailableView(unsigned int device_dbid = 1) const;
 

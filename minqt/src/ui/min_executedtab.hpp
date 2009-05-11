@@ -57,6 +57,7 @@ namespace Min
     private slots:
         /** Updates the view */
         void hideViewColumns();
+        void handleClick(const QModelIndex& index);
 
     private:
         /** Splitter/layout of the widget */

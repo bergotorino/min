@@ -98,6 +98,16 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
              executedCasesModel_,SLOT(updateModelData()));
     connect (executedCasesModel_,SIGNAL(layoutChanged()),
 	        this, SLOT(hideViewColumns()));
+    connect (executedTable_, SIGNAL(clicked(QModelIndex)),
+			    this, SLOT(handleClick(QModelIndex)));
+    connect (ongoingTable_, SIGNAL(clicked(QModelIndex)),
+			    this, SLOT(handleClick(QModelIndex)));
+    connect (passedTable_, SIGNAL(clicked(QModelIndex)),
+			    this, SLOT(handleClick(QModelIndex)));
+    connect (failedTable_, SIGNAL(clicked(QModelIndex)),
+			    this, SLOT(handleClick(QModelIndex)));
+    connect (abortedTable_, SIGNAL(clicked(QModelIndex)),
+			    this, SLOT(handleClick(QModelIndex)));
 }
 // -----------------------------------------------------------------------------
 Min::ExecutedTab::~ExecutedTab()
@@ -107,6 +117,25 @@ void Min::ExecutedTab::resizeEvent(QResizeEvent *event)
 {
     splitter_->resize(event->size());
     QWidget::resizeEvent(event);
+}
+
+// -----------------------------------------------------------------------------
+void Min::ExecutedTab::handleClick(const QModelIndex& index)
+{
+	const QTableView *tab=(QTableView*)executedCasesView_->currentWidget();
+	const QItemSelectionModel *selection=tab->selectionModel();
+	if(!selection->hasSelection()) return;
+
+	QModelIndexList runs = selection->selectedRows(8);
+	if(runs.size()==0) return;
+
+	QStringList printouts;
+
+	for(unsigned int i=0; i<runs.count(); i++) {
+		printouts << db_.getPrintoutView(runs[i].data().toUInt());
+	}
+
+	printMsgModel_->setStringList(printouts);
 }
 // -----------------------------------------------------------------------------
 void Min::ExecutedTab::hideViewColumns()

@@ -245,6 +245,20 @@ unsigned int Min::Database::getModuleDbId(unsigned int device_id,
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
+unsigned int Min::Database::getTestRunEngineId(unsigned int testRunDbId)
+{
+    QSqlQuery query;
+    QVariant id=0;
+    query.prepare("SELECT test_run_pid FROM module WHERE id=:trdbid;");
+    query.bindValue(QString(":trdbid"), QVariant(deviceId));
+    if(query.exec()){
+        if(query.next()) {
+            id=query.value(0);
+        }
+    }
+    return id.toUInt();
+}
+// ----------------------------------------------------------------------------
 unsigned int Min::Database::getModuleEngineId(unsigned int deviceId,
                                             unsigned int moduleDbId)
 {
@@ -469,13 +483,13 @@ bool Min::Database::initDatabase()
 	query.exec("INSERT INTO test_run VALUES(NULL, 12400, 3, 2, 1, 10, 100, 1, \"result of run\" );");
 	query.exec("INSERT INTO test_run VALUES(NULL, 12460, 3, 2, 1, 10, 100, 1, \"result of run\" );");
 	query.exec("INSERT INTO test_run VALUES(NULL, 12500, 3, 2, 1, 10, 100, 1, \"result of run\" );");
-*/
+
 	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 1\");");
 	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 2\");");
 	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 3\");");
 	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 4\");");
 	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 5\");");
-
+*/
 	query.exec("CREATE VIEW availableview AS SELECT module.device_id AS device_dbid, module.module_name AS module_name, test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid FROM test_case, module WHERE module.id=test_case.module_id;");
 	query.exec("CREATE VIEW executedview AS SELECT test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_run.group_id AS group_id, test_run.status AS status, test_run.start_time AS start_time, test_run.end_time AS end_time, test_run.result AS result, test_run.result_description AS result_description, test_run.id as test_run_dbid, module.device_id AS device_dbid FROM module, test_case, test_run WHERE test_run.test_case_id=test_case.id AND module.id=test_case.module_id;");
 //		qDebug("view creation failed");
