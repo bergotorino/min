@@ -20,15 +20,15 @@
                 </method>
 
                 <method name="min_pause_case">
-                        <arg type="t" name="testrunid"          direction="in"/>
+                        <arg type="i" name="testrunid"          direction="in"/>
                 </method>
 
                 <method name="min_resume_case">
-                        <arg type="t" name="testrunid"          direction="in"/>
+                        <arg type="i" name="testrunid"          direction="in"/>
                 </method>
 
                 <method name="min_abort_case">
-                        <arg type="t" name="testrunid"          direction="in"/>
+                        <arg type="i" name="testrunid"          direction="in"/>
                 </method>
 
                 <method name="min_fatal_error">

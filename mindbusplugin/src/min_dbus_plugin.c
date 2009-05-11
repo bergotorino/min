@@ -126,11 +126,11 @@ gboolean min_object_min_start_case(MinObject *obj,
 				   gint caseid,
                                    gint groupid);
 gboolean min_object_min_pause_case(MinObject *obj,
-				   long testrunid);
+				   gint testrunid);
 gboolean min_object_min_resume_case(MinObject *obj,
-				    long testrunid);
+				    gint testrunid);
 gboolean min_object_min_abort_case(MinObject *obj,
-				   long testrunid);
+				   gint testrunid);
 gboolean min_object_min_fatal_error(MinObject *obj,
                                         const char *what,
                                         const char *errorstring); 
@@ -204,19 +204,19 @@ static void min_object_class_init (MinObjectClass *klass)
                                         G_TYPE_NONE,1,G_TYPE_STRING);
         /* module_ready */
         klass->signals[2] = g_signal_new (SIGNAL_MODULE_READY,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,1,G_TYPE_UINT);
+					  G_OBJECT_CLASS_TYPE(klass),
+					  G_SIGNAL_RUN_LAST,
+					  0,NULL,NULL,
+					  g_cclosure_marshal_VOID__STRING,
+					  G_TYPE_NONE,1,G_TYPE_UINT);
         /* new_case */
         klass->signals[3] = g_signal_new (SIGNAL_NEW_TEST_CASE,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,3,
-                                        G_TYPE_UINT,G_TYPE_UINT,G_TYPE_STRING);
+					  G_OBJECT_CLASS_TYPE(klass),
+					  G_SIGNAL_RUN_LAST,
+					  0,NULL,NULL,
+					  g_cclosure_marshal_VOID__STRING,
+					  G_TYPE_NONE,3,
+					  G_TYPE_UINT,G_TYPE_UINT,G_TYPE_STRING);
         /* case_started */
         klass->signals[4] = g_signal_new (SIGNAL_CASE_STARTED,
                                         G_OBJECT_CLASS_TYPE(klass),
@@ -554,7 +554,7 @@ gboolean min_object_min_start_case(MinObject *obj,
 }
 /* ------------------------------------------------------------------------- */
 gboolean min_object_min_pause_case(MinObject *obj,
-                                long testrunid)
+				   gint testrunid)
 {
         /* Calls callback from MIN */
         if (min_clbk.pause_case) {
@@ -565,7 +565,7 @@ gboolean min_object_min_pause_case(MinObject *obj,
 }
 /* ------------------------------------------------------------------------- */
 gboolean min_object_min_resume_case(MinObject *obj,
-                                long testrunid)
+				    gint testrunid)
 {
         /* Calls callback from MIN */
         if (min_clbk.resume_case) {
@@ -577,7 +577,7 @@ gboolean min_object_min_resume_case(MinObject *obj,
 }
 /* ------------------------------------------------------------------------- */
 gboolean min_object_min_abort_case(MinObject *obj,
-                                  long testrunid)
+				   gint testrunid)
 {
         /* Calls callback from MIN */
         if (min_clbk.abort_case) {
