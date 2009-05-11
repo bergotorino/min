@@ -98,7 +98,9 @@ Min::RemoteControll::~RemoteControll()
 void Min::RemoteControll::minCaseMsg(int testrunid,
                                     const QString &message)
 {
-    qDebug("Min::RemoteControll::minCaseMsg\n",testrunid);
+    //qDebug("Min::RemoteControll::minCaseMsg\n",testrunid);
+    Min::Database &db = Min::Database::getInstance();
+    db.insertPrintout (db.getTestRunDbId(testrunid),message);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCasePaused(int testrunid)
