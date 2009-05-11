@@ -43,19 +43,19 @@ QString Min::DescriptionProvider::getTestCaseStatusDescription(int tcstatus)
 			return QString("None");
 			break;
 		case TP_RUNNING:
-			return QString("Running");
+			return QString("Test Case is Running");
 			break;
 		case TP_PAUSED:
-			return QString("Paused");
+			return QString("Test Case is currently Paused");
 			break;
 		case TP_ENDED:
-			return QString("Ended");
+			return QString("Test Case Ended normally");
 			break;
 		case TP_TIMEOUT:
 			return QString("Timeout");
 			break;
 		case TP_ABORTED:
-			return QString("Aborted");
+			return QString("Test Case has been Aborted");
 			break;
 		case TP_CANCELED:
 			return QString("Canceled");
@@ -69,19 +69,19 @@ QString Min::DescriptionProvider::getTestCaseResultDescription(int tcresult)
 {
 	switch(tcresult){
 		case TP_CRASHED:
-			return QString("Crashed");
+			return QString("Test Case has Crashed");
 			break;
 		case TP_TIMEOUTED:
-			return QString("Timeouted");
+			return QString("Test Case has been Timeouted");
 			break;
 		case TP_PASSED:
-			return QString("Passed");
+			return QString("Test Case is Passed");
 			break;
 		case TP_FAILED:
-			return QString("Failed");
+			return QString("Test Case is Failed");
 			break;
 		case TP_NC:
-			return QString("Not completed");
+			return QString("Test Case is Not completed");
 			break;
 		case TP_LEAVE:
 			return QString("Leaved");
