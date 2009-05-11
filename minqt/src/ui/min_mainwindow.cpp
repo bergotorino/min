@@ -43,7 +43,8 @@
 #include "min_aboutdialog.hpp"
 #include "min_remotecontroll.hpp"
 #include "min_database.hpp"
-#include "ui/min_addmoduledialog.hpp"
+#include "min_addmoduledialog.hpp"
+#include "min_statusbarprovider.hpp"
 
 // -----------------------------------------------------------------------------
 Min::MainWindow::MainWindow()
@@ -51,6 +52,10 @@ Min::MainWindow::MainWindow()
     , mainWidget_(new Min::MainWidget(this))
     , toolBar_(NULL)
 {
+    // Init statusbar provider
+    Min::StatusBarProvider &sbp = Min::StatusBarProvider::getInstance();
+    sbp.setStatusBar(statusBar());
+
     // Set-up UI
     setWindowTitle("MIN Test Framework Qt client");
     setGeometry(0,0,700,500);

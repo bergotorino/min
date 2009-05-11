@@ -31,6 +31,8 @@
 
 // Min includes
 #include "min_database.hpp"
+#include "min_statusbarprovider.hpp"
+#include "min_descriptionprovider.hpp"
 #include "min_common.h"
 #include "tmc_common.h"
 
@@ -107,6 +109,9 @@ void Min::RemoteControll::minCaseMsg(int testrunid,
     //qDebug("Min::RemoteControll::minCaseMsg\n",testrunid);
     Min::Database &db = Min::Database::getInstance();
     db.insertPrintout (db.getTestRunDbId(testrunid),message);
+
+    // Display stuff on status bar
+    Min::StatusBar::update("Recieved message from test case: "+message,3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCasePaused(int testrunid)
@@ -120,6 +125,9 @@ void Min::RemoteControll::minCasePaused(int testrunid)
 		     0,
 		     0,     
 		     NULL);
+
+    // Display stuff on status bar
+    Min::StatusBar::update("Running test case has been paused: ",3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseResult(int testrunid, int result,
@@ -144,6 +152,10 @@ void Min::RemoteControll::minCaseResult(int testrunid, int result,
 		     endtime,
 		     result,     
 		     desc);
+
+    // Display stuff on status bar
+    QString res = Min::DescriptionProvider::getTestCaseResultDescription(result);
+    Min::StatusBar::update("Recieved test case result: "+res,3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseResumed(int testrunid)
@@ -158,6 +170,9 @@ void Min::RemoteControll::minCaseResumed(int testrunid)
 		     0,
 		     0,     
 		     NULL);
+
+    // Display stuff on status bar
+    Min::StatusBar::update("Paused test case has been resumed: ",3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseStarted(uint moduleid,
@@ -181,11 +196,17 @@ void Min::RemoteControll::minCaseStarted(uint moduleid,
             exeRequest_.removeAt(i);
         }
     }
+
+    // Display stuff on status bar
+    Min::StatusBar::update("Started test case execution: ",3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minModuleReady(uint moduleid)
 {
-    qDebug("Min::RemoteControll::minModuleReady %d\n",moduleid);
+    //qDebug("Min::RemoteControll::minModuleReady %d\n",moduleid);
+
+    // Display stuff on status bar
+    Min::StatusBar::update("Module ready: ",3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
@@ -203,10 +224,11 @@ void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
             minAddTestCaseFile(moduleid,testCaseFiles_[i]);
         }
     }
-
     minAddTestCaseFile(moduleid,"");
+    testCaseFiles_.clear();
 
-    testCaseFiles_.clear(); 
+    // Display stuff on status bar
+    Min::StatusBar::update("Module loaded: "+modulename,3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
@@ -216,11 +238,17 @@ void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
     //      moduleid,caseid,casetitle.toStdString().c_str());
     Min::Database &db = Min::Database::getInstance();
     db.insertTestCase(db.getModuleDbId(1,moduleid),caseid,casetitle,"");
+
+    // Display stuff on status bar
+    Min::StatusBar::update("New test case: "+casetitle,3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNoModule(const QString &modulename)
 {
     qDebug("Min::RemoteControll::minNoModule\n");
+
+    // Display stuff on status bar
+    Min::StatusBar::update("Unable to load module: "+modulename,3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minTestFiles(const QString &files)
