@@ -68,6 +68,8 @@ namespace Min
          */
         QItemSelectionModel* getSelectionFromAvailableCasesView();
 
+        QItemSelectionModel* getSelectionFromOngoingCasesView();
+
     protected:
         /** Handles resize event that comes from the system. */
         void resizeEvent (QResizeEvent *event);
@@ -90,8 +92,8 @@ namespace Min
         /** Model that feeds available cases view with the data. */
         QAbstractItemModel *availableCasesModel_;
 
-	    /* Proxy model fo filterout available test cases */
-	    QSortFilterProxyModel *availableProxy_;
+	/** Proxy model fo filterout available test cases */
+	QSortFilterProxyModel *availableProxy_;
 
         /** Handler to the database */
         Min::Database &db_;

@@ -95,12 +95,23 @@ void Min::MainWindow::setupToolBar()
                                         "Run Selected Test Cases");
     QAction *addmoduleaction = toolBar_->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/db_add.png"),
                                             "Add Test Module");
+    QAction *pausecaseaction = toolBar_->addAction(QIcon("/home/jars/icons/agt_pause-queue.png "), "Pause Test Case");
+    QAction *resumecaseaction = toolBar_->addAction(QIcon("/home/jars/icons/agt_resume.png"), "Resume Test Case");
+    QAction *abortcaseaction = toolBar_->addAction(QIcon("/home/jars/icons/button_cancel.png"), "Abort Test Case");
 
     // Connect buttons with signals
     connect (runaction,SIGNAL(triggered(bool)),
             this,SLOT(handleRunTestCase()));
     connect (addmoduleaction,SIGNAL(triggered(bool)),
             this,SLOT(displayAddModuleDialog()));
+    connect (pausecaseaction,SIGNAL(triggered(bool)),
+            this,SLOT(handlePauseTestCase()));
+    connect (resumecaseaction,SIGNAL(triggered(bool)),
+            this,SLOT(handleResumeTestCase()));
+    connect (abortcaseaction,SIGNAL(triggered(bool)),
+            this,SLOT(handleAbortTestCase()));
+
+
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::toggleToolBar()
@@ -145,6 +156,44 @@ void Min::MainWindow::handleRunTestCase()
                         0); /* groupId to be extracted from database, for now just put 1 */
     }
 
+}
+// -----------------------------------------------------------------------------
+void Min::MainWindow::handlePauseTestCase()
+{
+    // Obtain selection model for ongoing test cases
+    const QItemSelectionModel *selection =
+    mainWidget_->getSelectedOngoingTestCases();
+    QModelIndexList ongoingCases   = selection->selectedRows(8);
+
+    qDebug("Pause test case");
+
+    if (!selection->hasSelection()) {
+	    qDebug("No selection");
+	    return;
+    }
+    Min::RemoteControll &rc = Min::RemoteControll::getInstance();
+
+    qDebug("Pause test case - has selection");
+    Min::Database &db = Min::Database::getInstance();
+
+    for (int i = 0; i < ongoingCases.count(); i++) {
+	    unsigned testrundbid = ongoingCases[i].data().toUInt();
+	    unsigned testrunid = db.getTestRunEngineId (1, testrundbid); 
+	    qDebug("Test run (db)id:  (%u)%u", testrundbid, testrunid);
+	    
+	    rc.minPauseCase (testrunid);
+    }
+    qDebug("Pause test case - 2");
+}
+// -----------------------------------------------------------------------------
+void Min::MainWindow::handleResumeTestCase()
+{
+	
+}
+// -----------------------------------------------------------------------------
+void Min::MainWindow::handleAbortTestCase()
+{
+	
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

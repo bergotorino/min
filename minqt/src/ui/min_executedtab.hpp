@@ -50,6 +50,8 @@ namespace Min
         /** Destructor. */
         ~ExecutedTab();
 
+        QItemSelectionModel* getSelectionFromOngoingCasesView();
+
     protected:
         /** Handles resize event that comes from the system. */
         void resizeEvent (QResizeEvent *event);

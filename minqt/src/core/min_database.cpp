@@ -245,7 +245,8 @@ unsigned int Min::Database::getModuleDbId(unsigned int device_id,
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
-unsigned int Min::Database::getTestRunEngineId(unsigned int testRunDbId)
+unsigned int Min::Database::getTestRunEngineId(unsigned int deviceId,
+					       unsigned int testRunDbId)
 {
     QSqlQuery query;
     QVariant id=0;

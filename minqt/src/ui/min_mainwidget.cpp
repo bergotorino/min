@@ -65,6 +65,11 @@ QItemSelectionModel* Min::MainWidget::getSelectedAvailableTestCases() const
     return mainPanel_->getSelectionFromAvailableCasesView();
 }
 // -----------------------------------------------------------------------------
+QItemSelectionModel* Min::MainWidget::getSelectedOngoingTestCases() const
+{
+    return mainPanel_->getSelectionFromOngoingCasesView();
+}
+// -----------------------------------------------------------------------------
 void Min::MainWidget::resizeEvent ( QResizeEvent * event )
 {
     splitter_->resize(event->size());

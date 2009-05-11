@@ -73,6 +73,11 @@ namespace Min
          */
         QItemSelectionModel* getSelectedAvailableTestCases() const;
 
+        /** Gets selection model for ongoing cases view 
+         *  @return pointer to selection model
+         */
+        QItemSelectionModel* getSelectedOngoingTestCases() const;
+
     protected:
         /** Handles resize event that comes from the system. */
         void resizeEvent (QResizeEvent *event);

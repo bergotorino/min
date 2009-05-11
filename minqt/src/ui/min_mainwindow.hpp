@@ -66,6 +66,13 @@ namespace Min
         void displayAddModuleDialog();
         /** Executes test cases. */
         void handleRunTestCase();
+        /** Pauses  test cases. */
+        void handlePauseTestCase();
+        /** Resumes  test cases. */
+        void handleResumeTestCase();
+        /** Aborts  test cases. */
+        void handleAbortTestCase();
+
     private:
         /** Initializes the menu bar. */
         void setupMenuBar();

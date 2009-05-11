@@ -120,6 +120,11 @@ void Min::ExecutedTab::resizeEvent(QResizeEvent *event)
 }
 
 // -----------------------------------------------------------------------------
+QItemSelectionModel* Min::ExecutedTab::getSelectionFromOngoingCasesView()
+{
+    return ongoingTable_->selectionModel();
+}
+// -----------------------------------------------------------------------------
 void Min::ExecutedTab::handleClick(const QModelIndex& index)
 {
 	const QTableView *tab=(QTableView*)executedCasesView_->currentWidget();

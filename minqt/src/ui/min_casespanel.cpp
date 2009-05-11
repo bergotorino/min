@@ -71,7 +71,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
     centralWidget_->addItem(executedTab_,QString("Executed Cases"));
     centralWidget_->addItem(new QLabel("Pie chart goes here!"),
-                                        QString("Summary"));
+			    QString("Summary"));
 
     // Signals and slots
     connect (&db_,SIGNAL(updated()),
@@ -86,6 +86,11 @@ QItemSelectionModel* Min::CasesPanel::getSelectionFromAvailableCasesView()
     return availableCasesView_->selectionModel();
 }
 // -----------------------------------------------------------------------------
+QItemSelectionModel* Min::CasesPanel::getSelectionFromOngoingCasesView()
+{
+    return executedTab_->getSelectionFromOngoingCasesView();
+}
+// -----------------------------------------------------------------------------
 void Min::CasesPanel::resizeEvent(QResizeEvent *event)
 {
     centralWidget_->resize(event->size());
@@ -94,7 +99,7 @@ void Min::CasesPanel::resizeEvent(QResizeEvent *event)
 // -----------------------------------------------------------------------------
 void Min::CasesPanel::updateAvailableView()
 {
-    qDebug("Updated!!!\n");
+    qDebug("Updated!!!\n"); 
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08
