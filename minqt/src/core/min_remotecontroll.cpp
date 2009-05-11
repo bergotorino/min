@@ -36,6 +36,7 @@ Min::RemoteControll::RemoteControll()
     : bus_(QDBusConnection::connectToBus(QDBusConnection::SessionBus,
                                         "org.maemo.MIN"))
     , obj_("org.maemo.MIN","/Min",bus_)
+    , testCaseFiles_()
 {
     // 1. Do error checking
     if (!bus_.isConnected()) {
@@ -150,6 +151,21 @@ void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
 {
     //qDebug("Min::RemoteControll::minNewModule %d\n",moduleid);
     Min::Database::getInstance().insertModule (1,moduleid,modulename);
+
+    // If module has been added by "Add module functionality" list of test 
+    // cases will be not empty
+    if (!testCaseFiles_.count()) return;
+
+    // First item is the path to the modulename
+    if (testCaseFiles_[0]==modulename) {
+        for (int i=1;i<testCaseFiles_.count();i++) {
+            minAddTestCaseFile(moduleid,testCaseFiles_[i]);
+        }
+    }
+
+    minAddTestCaseFile(moduleid,"");
+
+    testCaseFiles_.clear(); 
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
@@ -206,5 +222,10 @@ void Min::RemoteControll::minResumeCase(long testrunid)
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
 { obj_.min_start_case (moduleid,caseid,groupid); }
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::setTestCaseFiles(const QStringList &data)
+{
+    testCaseFiles_ = data;
+}
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

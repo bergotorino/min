@@ -34,7 +34,6 @@
 #include "core/min_remotecontroll.hpp"
 #include "core/min_database.hpp"
 
-
 // -----------------------------------------------------------------------------
 
 int main( int argc, char* argv[] )
@@ -44,6 +43,7 @@ int main( int argc, char* argv[] )
 
     Min::Database::getInstance();
     Min::RemoteControll &rc = Min::RemoteControll::getInstance();
+
 
 //    rc.minQueryTestFiles();
 //    rc.minQueryTestModules();

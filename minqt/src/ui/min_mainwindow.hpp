@@ -66,13 +66,14 @@ namespace Min
         void displayAddModuleDialog();
         /** Executes test cases. */
         void handleRunTestCase();
+        /** Handles acceptance of add module dialog. */
+        void handleAddModuleDialogAccepted(const QStringList &data);
         /** Pauses  test cases. */
         void handlePauseTestCase();
         /** Resumes  test cases. */
         void handleResumeTestCase();
         /** Aborts  test cases. */
         void handleAbortTestCase();
-
     private:
         /** Initializes the menu bar. */
         void setupMenuBar();

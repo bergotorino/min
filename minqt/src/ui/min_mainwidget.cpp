@@ -55,6 +55,9 @@ Min::MainWidget::MainWidget(QWidget *parent)
     // Layout items
     splitter_->addWidget(leftPanel_);
     splitter_->addWidget(mainPanel_);
+
+    // Hide for now
+    leftPanel_->hide();
 }
 // -----------------------------------------------------------------------------
 Min::MainWidget::~MainWidget()

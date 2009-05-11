@@ -43,6 +43,7 @@
 #include "min_aboutdialog.hpp"
 #include "min_remotecontroll.hpp"
 #include "min_database.hpp"
+#include "ui/min_addmoduledialog.hpp"
 
 // -----------------------------------------------------------------------------
 Min::MainWindow::MainWindow()
@@ -128,8 +129,24 @@ void Min::MainWindow::displayAboutDialog()
 // -----------------------------------------------------------------------------
 void Min::MainWindow::displayAddModuleDialog()
 {
-    qDebug("Add Module");
+    //qDebug("Add Module");
+    Min::AddModuleDialog dlg(this);
+    connect (&dlg,SIGNAL(moduleAndTestCaseFiles(const QStringList&)),
+            this,SLOT(handleAddModuleDialogAccepted(const QStringList&)));
+    dlg.exec();
+}
+// -----------------------------------------------------------------------------
+void Min::MainWindow::handleAddModuleDialogAccepted(const QStringList &data)
+{
+    //qDebug("Min::MainWindow::handleAddModuleDialogAccepted");
+    if (!data.count()) return;
+
     Min::RemoteControll &rc = Min::RemoteControll::getInstance();
+
+    rc.setTestCaseFiles(data);
+
+    // Add module
+    rc.minAddTestModule(data[0]);
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::handleRunTestCase()
@@ -145,12 +162,12 @@ void Min::MainWindow::handleRunTestCase()
     QModelIndexList cases   = selection->selectedRows(1);
 
     // For each selected, execute it!
-    for (unsigned int i = 0; i < modules.count(); i++) {
-        Min::Database &db = Min::Database::getInstance();
+    Min::RemoteControll &rc = Min::RemoteControll::getInstance();
+    for (int i = 0; i < modules.count(); i++) {
+        Min::Database &db       = Min::Database::getInstance();
         unsigned int moduleId   = db.getModuleDbId(1,modules[i].data().toString());
         unsigned int caseId     = db.getTestCaseDbId(moduleId,cases[i].data().toString());
 
-        Min::RemoteControll &rc = Min::RemoteControll::getInstance();
         rc.minStartCase(db.getModuleEngineId(1,moduleId),
                         db.getTestCaseEngineId(moduleId,caseId),
                         0); /* groupId to be extracted from database, for now just put 1 */

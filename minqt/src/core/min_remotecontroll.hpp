@@ -128,6 +128,9 @@ namespace Min
         void minStartCase(uint moduleid, uint caseid, uint groupid);
         /**@}*/
 
+        /** Sets list of test case files to be added to the module */
+        void setTestCaseFiles(const QStringList &data);
+
     private slots:
 
         /**@{ Signals from MinObject */
@@ -210,6 +213,9 @@ namespace Min
 
         /** Generated from DBus interface .xml MinObject */
         MinObject obj_;
+
+        /** Test case files to be added to the module. */
+        QStringList testCaseFiles_;
     };
     // -------------------------------------------------------------------------
 }; // namespace Min
