@@ -254,7 +254,7 @@ void Min::MainWindow::handleAbortTestCase()
 	    unsigned testrunid = db.getTestRunEngineId (testrundbid); 
 	    qDebug("Test run (db)id:  (%u)%u", testrundbid, testrunid);
 	    
-	    rc.minResumeCase (testrunid);
+	    rc.minAbortCase (testrunid);
     }
 
 	
