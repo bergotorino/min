@@ -36,9 +36,8 @@ namespace Min
      */
     class StatusBarProvider: public Min::Singleton<Min::StatusBarProvider>
     {
+    friend class Min::Singleton<Min::StatusBarProvider>;
     public:
-        /** Default C++ Constructor. */
-        StatusBarProvider();
 
         /** Destructor. */
         ~StatusBarProvider();
@@ -55,6 +54,8 @@ namespace Min
 
     protected:
     private:
+        /** Default C++ Constructor. */
+        StatusBarProvider();
         /** Copy Constructor. */
         StatusBarProvider( const Min::StatusBarProvider& c );
         /** Assignment operator. */
