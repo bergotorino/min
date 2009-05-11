@@ -205,11 +205,58 @@ void Min::MainWindow::handlePauseTestCase()
 // -----------------------------------------------------------------------------
 void Min::MainWindow::handleResumeTestCase()
 {
+    // Obtain selection model for ongoing test cases
+    const QItemSelectionModel *selection =
+    mainWidget_->getSelectedOngoingTestCases();
+    QModelIndexList ongoingCases   = selection->selectedRows(8);
+
+    qDebug("Resume test case");
+
+    if (!selection->hasSelection()) {
+	    qDebug("No selection");
+	    return;
+    }
+    Min::RemoteControll &rc = Min::RemoteControll::getInstance();
+
+    qDebug("Resume test case - has selection");
+    Min::Database &db = Min::Database::getInstance();
+
+    for (int i = 0; i < ongoingCases.count(); i++) {
+	    unsigned testrundbid = ongoingCases[i].data().toUInt();
+	    unsigned testrunid = db.getTestRunEngineId (testrundbid); 
+	    qDebug("Test run (db)id:  (%u)%u", testrundbid, testrunid);
+	    
+	    rc.minResumeCase (testrunid);
+    }
 	
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::handleAbortTestCase()
 {
+    // Obtain selection model for ongoing test cases
+    const QItemSelectionModel *selection =
+    mainWidget_->getSelectedOngoingTestCases();
+    QModelIndexList ongoingCases   = selection->selectedRows(8);
+
+    qDebug("Abort test case");
+
+    if (!selection->hasSelection()) {
+	    qDebug("No selection");
+	    return;
+    }
+    Min::RemoteControll &rc = Min::RemoteControll::getInstance();
+
+    qDebug("Abort test case - has selection");
+    Min::Database &db = Min::Database::getInstance();
+
+    for (int i = 0; i < ongoingCases.count(); i++) {
+	    unsigned testrundbid = ongoingCases[i].data().toUInt();
+	    unsigned testrunid = db.getTestRunEngineId (testrundbid); 
+	    qDebug("Test run (db)id:  (%u)%u", testrundbid, testrunid);
+	    
+	    rc.minResumeCase (testrunid);
+    }
+
 	
 }
 // -----------------------------------------------------------------------------

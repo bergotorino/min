@@ -199,6 +199,7 @@ bool Min::Database::updateTestRun(unsigned int dbid,
     // Return status of update
     return retval;
 };
+
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getDeviceDbId(unsigned int device_id)
 {
