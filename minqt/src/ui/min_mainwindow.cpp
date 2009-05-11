@@ -53,7 +53,7 @@ Min::MainWindow::MainWindow()
 {
     // Set-up UI
     setWindowTitle("MIN Test Framework Qt client");
-    setGeometry(0,0,500,500);
+    setGeometry(0,0,700,500);
     statusBar()->show();
     setupMenuBar();
     setupToolBar();

@@ -37,6 +37,7 @@ Min::RemoteControll::RemoteControll()
                                         "org.maemo.MIN"))
     , obj_("org.maemo.MIN","/Min",bus_)
     , testCaseFiles_()
+    , closed_(true)
 {
     // 1. Do error checking
     if (!bus_.isConnected()) {
@@ -94,7 +95,7 @@ bool Min::RemoteControll::isValid() const
 }
 // -----------------------------------------------------------------------------
 Min::RemoteControll::~RemoteControll()
-{ obj_.min_close(); }
+{ if (closed_) { obj_.min_close(); } }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseMsg(int testrunid,
                                     const QString &message)
@@ -240,9 +241,10 @@ void Min::RemoteControll::minResumeCase(long testrunid)
 void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
 { obj_.min_start_case (moduleid,caseid,groupid); }
 // -----------------------------------------------------------------------------
+void Min::RemoteControll::minClose()
+{ obj_.min_close(); closed_ = true; }
+// -----------------------------------------------------------------------------
 void Min::RemoteControll::setTestCaseFiles(const QStringList &data)
-{
-    testCaseFiles_ = data;
-}
+{ testCaseFiles_ = data; }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

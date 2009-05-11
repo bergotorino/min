@@ -131,6 +131,9 @@ namespace Min
         /** Sets list of test case files to be added to the module */
         void setTestCaseFiles(const QStringList &data);
 
+        /** Closes the interface, connection to DBus */
+        void minClose();
+
     private slots:
 
         /**@{ Signals from MinObject */
@@ -203,6 +206,7 @@ namespace Min
         void minTestModules(const QString &modules);
         /**@}*/
 
+
     private:
 
         /** Default C++ Constructor. */
@@ -216,6 +220,9 @@ namespace Min
 
         /** Test case files to be added to the module. */
         QStringList testCaseFiles_;
+
+        /** Indocates if inteface has been closed */
+        bool closed_;
     };
     // -------------------------------------------------------------------------
 }; // namespace Min

@@ -29,6 +29,8 @@
 // System includes
 #include <QWidget>
 
+// Min includes
+
 // Forward declarations
 class QListView;
 class QToolBox;

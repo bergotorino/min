@@ -92,8 +92,8 @@ namespace Min
         /** Model that feeds available cases view with the data. */
         QAbstractItemModel *availableCasesModel_;
 
-	/** Proxy model fo filterout available test cases */
-	QSortFilterProxyModel *availableProxy_;
+	    /** Proxy model fo filterout available test cases */
+	    QSortFilterProxyModel *availableProxy_;
 
         /** Handler to the database */
         Min::Database &db_;

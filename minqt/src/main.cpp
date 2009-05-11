@@ -53,7 +53,12 @@ int main( int argc, char* argv[] )
     mw.show();
 
     // 3. Run the application
-    return app.exec();
+    int retval = app.exec();
+
+    // Close the interface
+    rc.minClose();
+
+    return retval;
 }
 
 // -----------------------------------------------------------------------------

@@ -51,7 +51,7 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
     // Proxies for model
     ongoingProxy_->setSourceModel(executedCasesModel_);
     ongoingProxy_->setFilterKeyColumn(6);
-    ongoingProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_NC));
+    ongoingProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_RUNNING));
     passedProxy_->setSourceModel(executedCasesModel_);
     passedProxy_->setFilterKeyColumn(6);
     passedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_PASSED));
@@ -100,11 +100,11 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
     hideViewColumns();
 
     // Construct the executed cases view
-    executedCasesView_->addTab(executedTable_,"All");
-    executedCasesView_->addTab(ongoingTable_,"Ongoing");
-    executedCasesView_->addTab(passedTable_,"Passed");
-    executedCasesView_->addTab(failedTable_,"Failed");
-    executedCasesView_->addTab(abortedTable_,"Aborted");
+    executedCasesView_->addTab(executedTable_,"All cases");
+    executedCasesView_->addTab(ongoingTable_,"Ongoing cases");
+    executedCasesView_->addTab(passedTable_,"Passed cases");
+    executedCasesView_->addTab(failedTable_,"Failed cases");
+    executedCasesView_->addTab(abortedTable_,"Aborted/Crashed cases");
     executedCasesView_->setMinimumWidth(100);
 
     // Set-up Main pane

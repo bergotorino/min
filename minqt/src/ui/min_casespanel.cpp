@@ -37,6 +37,7 @@
 #include <QTreeView>
 #include <QSortFilterProxyModel>
 #include <QHeaderView>
+#include <QShortcut>
 
 // Min incudes
 #include "min_casesmodel.hpp"
