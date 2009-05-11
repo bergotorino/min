@@ -70,7 +70,6 @@ namespace Min
          *  [module] [tc file 1] [tc file 2] ... [tc file N]
          */
         void moduleAndTestCaseFiles(const QStringList data);
-
     private slots:
         /** Displays select file dialog */
         void selectModule();

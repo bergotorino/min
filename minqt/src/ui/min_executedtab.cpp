@@ -20,6 +20,7 @@
 #include <QSortFilterProxyModel>
 #include <QSplitter>
 #include <QListView>
+#include <QHeaderView>
 
 // Min includes
 #include "min_executedmodel.hpp"
@@ -68,14 +69,32 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
     // Executed cases view contents
     executedTable_->setModel(executedCasesModel_);
     executedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    executedTable_->resizeColumnsToContents();
+    executedTable_->horizontalHeader()->setStretchLastSection(true);
+
+    // Ongoing view
     ongoingTable_->setModel(ongoingProxy_);
     ongoingTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ongoingTable_->resizeColumnsToContents();
+    ongoingTable_->horizontalHeader()->setStretchLastSection(true);
+
+    // Passed view
     passedTable_->setModel(passedProxy_);
     passedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    passedTable_->resizeColumnsToContents();
+    passedTable_->horizontalHeader()->setStretchLastSection(true);
+
+    // Failed view
     failedTable_->setModel(failedProxy_);
     failedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    failedTable_->resizeColumnsToContents();
+    failedTable_->horizontalHeader()->setStretchLastSection(true);
+
+    // Aborted view
     abortedTable_->setModel(abortedProxy_);
     abortedTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    abortedTable_->resizeColumnsToContents();
+    abortedTable_->horizontalHeader()->setStretchLastSection(true);
    
     // Hide columns from user which he/she does not want to see (Min internal ids)
     hideViewColumns();
@@ -118,7 +137,6 @@ void Min::ExecutedTab::resizeEvent(QResizeEvent *event)
     splitter_->resize(event->size());
     QWidget::resizeEvent(event);
 }
-
 // -----------------------------------------------------------------------------
 QItemSelectionModel* Min::ExecutedTab::getSelectionFromOngoingCasesView()
 {

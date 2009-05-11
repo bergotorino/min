@@ -59,8 +59,9 @@ Min::MainWindow::MainWindow()
     setupToolBar();
 
     // Shortcuts
-    QShortcut *menuBarShortcut =  new QShortcut(QKeySequence("Ctrl+M"),this);
-    QShortcut *runCasesShortcut = new QShortcut(QKeySequence("Ctrl+R"),this);
+    QShortcut *menuBarShortcut       = new QShortcut(QKeySequence("Ctrl+M"),this);
+    QShortcut *runCasesShortcut      = new QShortcut(QKeySequence("Ctrl+R"),this);
+    QShortcut *addTestModuleShortcut = new QShortcut(QKeySequence("Ctrl+O"),this);
 
     // Add the real window
     setCentralWidget(mainWidget_);
@@ -71,7 +72,8 @@ Min::MainWindow::MainWindow()
              this,SLOT(toggleToolBar()));
     connect (runCasesShortcut,SIGNAL(activated()),
              this,SLOT(handleRunTestCase()));
-
+    connect (addTestModuleShortcut,SIGNAL(activated()),
+             this,SLOT(displayAddModuleDialog()));
 }
 // -----------------------------------------------------------------------------
 Min::MainWindow::~MainWindow()
@@ -111,8 +113,6 @@ void Min::MainWindow::setupToolBar()
             this,SLOT(handleResumeTestCase()));
     connect (abortcaseaction,SIGNAL(triggered(bool)),
             this,SLOT(handleAbortTestCase()));
-
-
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::toggleToolBar()

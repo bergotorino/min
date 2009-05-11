@@ -36,6 +36,7 @@
 #include <QAbstractItemModel>
 #include <QTreeView>
 #include <QSortFilterProxyModel>
+#include <QHeaderView>
 
 // Min incudes
 #include "min_casesmodel.hpp"
@@ -66,6 +67,8 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     availableCasesView_->setShowGrid(false);
     availableCasesView_->setSelectionBehavior(QAbstractItemView::SelectRows);
     availableCasesView_->setModel(availableProxy_);
+    availableCasesView_->setColumnWidth(0,200);
+    availableCasesView_->horizontalHeader()->setStretchLastSection(true);
 
     // Main pane
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
