@@ -147,8 +147,7 @@ namespace Min
         unsigned int getModuleEngineId(unsigned int deviceId,
                                         unsigned int moduleDbId);
 
-        unsigned int getTestRunEngineId(unsigned int deviceId,
-					unsigned int testRunDbId);
+        unsigned int getTestRunEngineId(unsigned int testRunDbId);
 
 	/**
 	 * gets module names from database for UI

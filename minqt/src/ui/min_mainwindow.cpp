@@ -178,7 +178,7 @@ void Min::MainWindow::handlePauseTestCase()
 
     for (int i = 0; i < ongoingCases.count(); i++) {
 	    unsigned testrundbid = ongoingCases[i].data().toUInt();
-	    unsigned testrunid = db.getTestRunEngineId (1, testrundbid); 
+	    unsigned testrunid = db.getTestRunEngineId (testrundbid); 
 	    qDebug("Test run (db)id:  (%u)%u", testrundbid, testrunid);
 	    
 	    rc.minPauseCase (testrunid);

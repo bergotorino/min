@@ -245,13 +245,12 @@ unsigned int Min::Database::getModuleDbId(unsigned int device_id,
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
-unsigned int Min::Database::getTestRunEngineId(unsigned int deviceId,
-					       unsigned int testRunDbId)
+unsigned int Min::Database::getTestRunEngineId(unsigned int testRunDbId)
 {
     QSqlQuery query;
     QVariant id=0;
-    query.prepare("SELECT test_run_pid FROM module WHERE id=:trdbid;");
-    query.bindValue(QString(":trdbid"), QVariant(deviceId));
+    query.prepare("SELECT test_run_pid FROM test_run WHERE id=:trdbid;");
+    query.bindValue(QString(":trdbid"), QVariant(testRunDbId));
     if(query.exec()){
         if(query.next()) {
             id=query.value(0);
