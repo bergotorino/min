@@ -1,1 +1,17 @@
-MIN Qt is Graphical User Interface (GUI) to use with MIN Test Framework.
+MIN Qt is Graphical User Interface (GUI) to use with MIN Test Framework via DBus
+plugin. MIN Qt provides simple and clear look-and-feel (see figure below)
+with functionality of classic ncurses MIN interface. 
+
+@ifinfo
+@image{images/minqt_gui,15cm,,MIN Qt Interface,txt}
+@end ifinfo
+@ifplaintext
+@image{images/minqt_gui,15cm,,MIN Qt Interface,txt}
+@end ifplaintext
+@ifhtml
+@image{images/minqt_gui,15cm,,MIN Qt Interface,png}
+@end ifhtml
+@iftex
+@image{images/minqt_gui,15cm,,MIN Qt Interface,png}
+@end iftex
+
