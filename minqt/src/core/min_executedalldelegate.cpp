@@ -31,11 +31,9 @@ void Min::ExecutedAllDelegate::paint(QPainter *painter,
     // specific data
     // This is mesy way to get column 6 data which describes the result. For
     // UserRole it returnts test case result enum value
-    int tmp = index.model()->data(index.sibling(index.row(),6),Qt::UserRole).toInt();
+    //int tmp = index.model()->data(index.sibling(index.row(),6),Qt::UserRole).toInt();
+    // SOmehow the above did not worked, used result description and lookin for phrase
     QString f = index.model()->data(index.sibling(index.row(),6),Qt::DisplayRole).toString();
-
-//    qDebug("LALA: %s",f.toStdString().c_str());
-
 /*
         TP_CRASHED = -2,        
         TP_TIMEOUTED = -1,      
