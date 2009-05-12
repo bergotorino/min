@@ -32,6 +32,9 @@ void Min::ExecutedAllDelegate::paint(QPainter *painter,
     // This is mesy way to get column 6 data which describes the result. For
     // UserRole it returnts test case result enum value
     int tmp = index.model()->data(index.sibling(index.row(),6),Qt::UserRole).toInt();
+    QString f = index.model()->data(index.sibling(index.row(),6),Qt::DisplayRole).toString();
+
+//    qDebug("LALA: %s",f.toStdString().c_str());
 
 /*
         TP_CRASHED = -2,        
@@ -41,15 +44,15 @@ void Min::ExecutedAllDelegate::paint(QPainter *painter,
         TP_NC = 2,            
         TP_LEAVE = 3
 */
-/*
-    if (tmp==TP_PASSED) {
+
+    if (f.contains("Passed")) {
         if (option.state &QStyle::State_Selected) {
             painter->fillRect(option.rect,QBrush(QColor("green")));
         } else {
             painter->fillRect(option.rect,QBrush(QColor("lime")));
         }
         painter->drawText(option.rect,Qt::AlignVCenter,QString(" ")+index.data().toString());
-    } else if (tmp==TP_FAILED) {
+    } else if (f.contains("Failed")||f.contains("Crashed")) {
         if (option.state &QStyle::State_Selected) {
             painter->fillRect(option.rect,QBrush(QColor("darksalmon")));
         } else {
@@ -59,8 +62,8 @@ void Min::ExecutedAllDelegate::paint(QPainter *painter,
     } else {
         QItemDelegate::paint(painter,option,index);
     }
-*/
-    QItemDelegate::paint(painter,option,index);
+
+//    QItemDelegate::paint(painter,option,index);
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08
