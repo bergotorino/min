@@ -81,7 +81,7 @@ QString Min::DescriptionProvider::getTestCaseResultDescription(int tcresult)
 			return QString("Test Case is Failed");
 			break;
 		case TP_NC:
-			return QString("Test Case is Not completed");
+			return QString("Test Case is Not Completed");
 			break;
 		case TP_LEAVE:
 			return QString("Leaved");

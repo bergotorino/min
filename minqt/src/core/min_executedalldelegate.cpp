@@ -41,27 +41,26 @@ void Min::ExecutedAllDelegate::paint(QPainter *painter,
         TP_NC = 2,            
         TP_LEAVE = 3
 */
-    if (tmp==TP_PASSED||tmp==TP_FAILED) {
-        switch (tmp) {
-        case TP_PASSED:
-            if (option.state &QStyle::State_Selected) {
-                painter->fillRect(option.rect,QBrush(QColor("green")));
-            } else {
-                painter->fillRect(option.rect,QBrush(QColor("lime")));
-            }
-            break;
-        case TP_FAILED:
-            if (option.state &QStyle::State_Selected) {
-                painter->fillRect(option.rect,QBrush(QColor("darksalmon")));
-            } else {
-                painter->fillRect(option.rect,QBrush(QColor("salmon")));
-            }
-            break;
+/*
+    if (tmp==TP_PASSED) {
+        if (option.state &QStyle::State_Selected) {
+            painter->fillRect(option.rect,QBrush(QColor("green")));
+        } else {
+            painter->fillRect(option.rect,QBrush(QColor("lime")));
+        }
+        painter->drawText(option.rect,Qt::AlignVCenter,QString(" ")+index.data().toString());
+    } else if (tmp==TP_FAILED) {
+        if (option.state &QStyle::State_Selected) {
+            painter->fillRect(option.rect,QBrush(QColor("darksalmon")));
+        } else {
+            painter->fillRect(option.rect,QBrush(QColor("salmon")));
         }
         painter->drawText(option.rect,Qt::AlignVCenter,QString(" ")+index.data().toString());
     } else {
         QItemDelegate::paint(painter,option,index);
     }
+*/
+    QItemDelegate::paint(painter,option,index);
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

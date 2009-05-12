@@ -63,6 +63,7 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
     abortedProxy_->setFilterKeyColumn(6);
     //  abortedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_CRASHED));
     abortedProxy_->setFilterRegExp("[nrNR]");
+
     // Prints
     printMsgModel_->setStringList(db_.getPrintoutView(1));
     printMsgView_->setModel(printMsgModel_);
