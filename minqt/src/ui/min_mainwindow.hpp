@@ -72,8 +72,10 @@ namespace Min
         void handlePauseTestCase();
         /** Resumes  test cases. */
         void handleResumeTestCase();
-        /** Aborts  test cases. */
+        /** Aborts test cases. */
         void handleAbortTestCase();
+        /** Handles click on Settings->DBus connection */
+        void handleSettingsSelectDBusConMenu();
     private:
         /** Initializes the menu bar. */
         void setupMenuBar();

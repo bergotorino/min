@@ -45,6 +45,7 @@
 #include "min_database.hpp"
 #include "min_addmoduledialog.hpp"
 #include "min_statusbarprovider.hpp"
+#include "min_dbusconnectiondialog.hpp"
 
 // -----------------------------------------------------------------------------
 Min::MainWindow::MainWindow()
@@ -65,8 +66,11 @@ Min::MainWindow::MainWindow()
 
     // Shortcuts
     QShortcut *menuBarShortcut       = new QShortcut(QKeySequence("Ctrl+M"),this);
-    QShortcut *runCasesShortcut      = new QShortcut(QKeySequence("Ctrl+R"),this);
+    QShortcut *runCasesShortcut      = new QShortcut(QKeySequence("Ctrl+S"),this);
     QShortcut *addTestModuleShortcut = new QShortcut(QKeySequence("Ctrl+O"),this);
+    QShortcut *pauseTestModuleShortcut = new QShortcut(QKeySequence("Ctrl+P"),this);
+    QShortcut *resumeTestModuleShortcut = new QShortcut(QKeySequence("Ctrl+R"),this);
+    QShortcut *abortTestModuleShortcut = new QShortcut(QKeySequence("Ctrl+C"),this);
 
     // Add the real window
     setCentralWidget(mainWidget_);
@@ -79,6 +83,12 @@ Min::MainWindow::MainWindow()
              this,SLOT(handleRunTestCase()));
     connect (addTestModuleShortcut,SIGNAL(activated()),
              this,SLOT(displayAddModuleDialog()));
+    connect (pauseTestModuleShortcut,SIGNAL(activated()),
+             this,SLOT(handlePauseTestCase()));
+    connect (resumeTestModuleShortcut,SIGNAL(activated()),
+             this,SLOT(handleResumeTestCase()));
+    connect (abortTestModuleShortcut,SIGNAL(activated()),
+             this,SLOT(handleAbortTestCase()));
 }
 // -----------------------------------------------------------------------------
 Min::MainWindow::~MainWindow()
@@ -87,13 +97,17 @@ Min::MainWindow::~MainWindow()
 void Min::MainWindow::setupMenuBar()
 {
     QMenu *file_menu = menuBar()->addMenu (tr("&File"));
+    QMenu *settingsMenu = menuBar()->addMenu (tr("&Settings"));
     QMenu *help_menu = menuBar()->addMenu (tr("&Help"));
     QAction *exit_action = file_menu->addAction(tr("Exit"));
     QAction *about_action = help_menu->addAction(tr("About"));
+    QAction *dbus_host = settingsMenu->addAction(tr("select DBus host"));
     connect (about_action,SIGNAL(triggered(bool)),
             this,SLOT(displayAboutDialog()));
     connect (exit_action, SIGNAL(triggered(bool)),
 	    QCoreApplication::instance(), SLOT(quit()));
+    connect (dbus_host, SIGNAL(triggered(bool)),
+	    this, SLOT(handleSettingsSelectDBusConMenu()));
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::setupToolBar()
@@ -103,9 +117,9 @@ void Min::MainWindow::setupToolBar()
                                         "Run Selected Test Cases");
     QAction *addmoduleaction = toolBar_->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/db_add.png"),
                                             "Add Test Module");
-    QAction *pausecaseaction = toolBar_->addAction(QIcon("/home/jars/icons/agt_pause-queue.png "), "Pause Test Case");
-    QAction *resumecaseaction = toolBar_->addAction(QIcon("/home/jars/icons/agt_resume.png"), "Resume Test Case");
-    QAction *abortcaseaction = toolBar_->addAction(QIcon("/home/jars/icons/button_cancel.png"), "Abort Test Case");
+    QAction *pausecaseaction = toolBar_->addAction(QIcon("/home/user/icons/agt_pause-queue.png "), "Pause Test Case");
+    QAction *resumecaseaction = toolBar_->addAction(QIcon("/home/user/icons/agt_resume.png"), "Resume Test Case");
+    QAction *abortcaseaction = toolBar_->addAction(QIcon("/home/user/icons/button_cancel.png"), "Abort Test Case");
 
     // Connect buttons with signals
     connect (runaction,SIGNAL(triggered(bool)),
@@ -263,6 +277,12 @@ void Min::MainWindow::handleAbortTestCase()
     }
 
 	
+}
+// -----------------------------------------------------------------------------
+void Min::MainWindow::handleSettingsSelectDBusConMenu()
+{
+        Min::DBusConnectionDialog dlg(this);
+        dlg.exec();
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

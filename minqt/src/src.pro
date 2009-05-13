@@ -22,6 +22,7 @@ SOURCES     +=  main.cpp                                \
                 ui/min_aboutdialog.cpp			        \
                 ui/min_executedtab.cpp                  \
                 ui/min_addmoduledialog.cpp              \
+                ui/min_dbusconnectiondialog.cpp         \
                 core/min_executedmodel.cpp              \
                 core/min_casesmodel.cpp                 \
                 core/min_availablecasestreemodel.cpp    \
@@ -41,6 +42,7 @@ HEADERS     +=  ui/min_mainwidget.hpp                   \
 		        ui/min_aboutdialog.hpp			        \
                 ui/min_executedtab.hpp                  \
                 ui/min_addmoduledialog.hpp              \
+                ui/min_dbusconnectiondialog.hpp         \
 		        core/min_executedmodel.hpp              \
                 core/min_casesmodel.hpp                 \
                 core/min_availablecasestreemodel.hpp    \
