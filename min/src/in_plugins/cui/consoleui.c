@@ -125,7 +125,7 @@ LOCAL void      init_ncurses (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      quit (void);
 /* ------------------------------------------------------------------------- */
-LOCAL void      wCenterTitle (WINDOW * pwin, const char *title);
+LOCAL void      cui_print_title (WINDOW * pwin, const char *title);
 /* ------------------------------------------------------------------------- */
 LOCAL void      init_main_window (void);
 /* ------------------------------------------------------------------------- */
@@ -135,7 +135,7 @@ LOCAL void      delete_menu (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      create_menu (callback_s * cb, const char *string);
 /* ------------------------------------------------------------------------- */
-LOCAL void      wclreoln (WINDOW * pwin, int y, int x);
+LOCAL void      cui_clear_from_pos (WINDOW * pwin, int y, int x);
 /* ------------------------------------------------------------------------- */
 LOCAL void      restore_focus_pos (void);
 /* ------------------------------------------------------------------------- */
@@ -205,7 +205,7 @@ LOCAL void quit ()
         int             i = 0;
 	void           *tmp = NULL;
 
-	popup_window ("Exiting MIN...", 1);
+	display_info ("Exiting MIN...", 1);
 
         if (min_clbk_.min_close) min_clbk_.min_close ();
 
@@ -252,7 +252,7 @@ LOCAL void quit ()
  *  @param y y-coordinate of the cursor
  *  @param x x-coordinate of the cursor
  */
-LOCAL void wclreoln (WINDOW * pwin, int y, int x)
+LOCAL void cui_clear_from_pos (WINDOW * pwin, int y, int x)
 {
         int             maxx = 0;
         int             maxy = 0;
@@ -271,18 +271,13 @@ LOCAL void wclreoln (WINDOW * pwin, int y, int x)
  *  @param pwin pointer to window
  *  @param title text to add
  */
-LOCAL void wCenterTitle (WINDOW * pwin, const char *title)
+LOCAL void cui_print_title (WINDOW * pwin, const char *title)
 {
-        int             x = 0;
-        int             maxy = 0;
-        int             maxx = 0;
-        int             stringsize = 0;
+        int             maxx;
+	unsigned        x;
 
-        /* get dimensions of the window */
-        getmaxyx (pwin, maxy, maxx);
-
-        stringsize = 2 + strlen (title);
-        x = (maxx - stringsize) / 2;
+	maxx = getmaxx (pwin);
+        x = (maxx - (strlen (title) + 2)) / 2;
 
         /* write center title to window's top line */
         mvwaddch (pwin, 0, x, ' ');
@@ -322,7 +317,7 @@ LOCAL void create_main_window (int ysize, int xsize)
 
         /* print a border around the main window and print a title */
         box (main_window, 0, 0);
-        wCenterTitle (main_window, "MIN TEST FRAMEWORK");
+        cui_print_title (main_window, "MIN TEST FRAMEWORK");
 
         /* make cursor invisible */
         curs_set (0);
@@ -406,7 +401,7 @@ LOCAL void create_menu (callback_s * cb, const char *string)
         set_menu_mark (my_menu, "*");
 
         /* place string at y,x */
-        wclreoln (main_window, 1, 1);
+        cui_clear_from_pos (main_window, 1, 1);
         mvwaddstr (main_window, 1, 1, string);
 
         /* display the menu */
@@ -630,7 +625,7 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
                 }
                 dl_list_free(&found_tcase_files);
 		min_clbk_.add_test_case_file (moduleid,"\0");
-		popup_window ("Module added", 1);
+		display_info ("Module added", 1);
 
         }
 	return;
@@ -643,7 +638,7 @@ LOCAL void pl_module_ready (unsigned moduleid)
 
         ready_module_count_ ++;
 	if (ready_module_count_ == dl_list_size (available_modules)) {
-	        popup_window ("All cases loaded", 1);
+	        display_info ("All cases loaded", 1);
 	}
 }
 
@@ -662,7 +657,7 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
         if (case_list_==INITPTR) case_list_ = dl_list_create();
 
         MIN_DEBUG ("moduleid = %d, caseid = %d, casetitle = %s",
-                moduleid,caseid,casetitle);
+		   moduleid,caseid,casetitle);
 
         ccd = NEW(CUICaseData);
         ccd->moduleid_ = moduleid;
@@ -944,12 +939,12 @@ void cui_refresh_view ()
 
 
 /* ------------------------------------------------------------------------- */
-/** Creates and shows popup window for showing information to user
- *  @param string text to print on the popup window
- *  @param time time in seconds to show popup window, or -1 if user has to 
- * press some key to continue
+/** Creates and shows an info window 
+ *  @param string text to print on the window
+ *  @param time time in seconds to show window, or -1 if user has to 
+ *   press some key to continue
  */
-void popup_window (char *string, int time)
+void display_info (char *string, int time)
 {
         WINDOW         *small_win;
         int             x = 0;
@@ -977,7 +972,7 @@ void popup_window (char *string, int time)
         small_win = newwin (height, width, y, x);
         cui_clear_win (small_win);
         box (small_win, 0, 0);
-        wCenterTitle (small_win, "Info");
+        cui_print_title (small_win, "Info");
         mvwaddstr (small_win, 1, 2, string);
 
         if (time == -1) {

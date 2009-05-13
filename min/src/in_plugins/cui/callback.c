@@ -614,7 +614,6 @@ LOCAL int get_log_messages (void)
 	DLListIterator it;
         int howmany = 0;
         Text *tx = INITPTR;
-	
 
         /* free memory allocated for callback structure */
         free_cbs (cb_log_menu);
@@ -2131,7 +2130,7 @@ LOCAL void start_test_set_sequentially ()
 							        c->caseid_,
 								groupid);
 	}
-	popup_window ("Start sequential test set execution", 1);
+	display_info ("Start sequential test set execution", 1);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -2150,7 +2149,7 @@ LOCAL void start_test_set_parallel ()
 								0);
 	}
 	
-	popup_window ("Start parallel test set execution", 1);
+	display_info ("Start parallel test set execution", 1);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -2273,7 +2272,7 @@ LOCAL void save_test_set ()
         strcpy (string, str);
         strcat (string, filename);
 
-        popup_window (string, -1);
+        display_info (string, -1);
         DELETE (string);
 }
 
