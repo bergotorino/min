@@ -110,8 +110,8 @@ LOCAL int eapi_add_test_module (char *modulepath)
         if (tm_add (modules, modinfo) != INITPTR) {
 		MIN_DEBUG ("Number of plugins %d", 
 			   dl_list_size (get_plugin_list()));
-                MINAPI_PLUGIN_CALL(new_module,new_module(modulepath,
-                                              modinfo->module_id_));
+                MINAPI_PLUGIN_CALL(new_module,new_module (modulepath,
+							  modinfo->module_id_));
 		ret = 0;
         } else {
                 MIN_WARN ("failed to add module");
@@ -170,7 +170,7 @@ LOCAL int eapi_start_test_case (unsigned module_id, unsigned case_id,
 		return 1;
 	}
 	module = (test_module_info_s *)dl_list_data (mod_it);
-	case_it = tc_find_by_case_id (module->test_case_list_, case_id);
+	case_it = tc_find_by_id (module->test_case_list_, case_id);
 	if (case_it == INITPTR) {
 		MIN_WARN ("No case by id %d found", case_id);
 		return 1;

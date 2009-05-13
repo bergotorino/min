@@ -171,7 +171,7 @@ typedef struct {
 	**         1 in case of error
 	*/
         int (*start_case) (unsigned moduleid, unsigned caseid, 
-			    unsigned groupid);
+			   unsigned groupid);
 	/* --------------------------------------------------------------------
 	** Pause test case
 	** returns 0 if the async operation was started succesfully

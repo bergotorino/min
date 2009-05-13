@@ -68,6 +68,8 @@ typedef struct {
         int             tc_id_;
     /** Test Case run time ID */
         long            tc_run_id_;
+    /** Test Case Id shared outside the engine */
+        long            tc_ext_id_;
     /** Test Case group ID */
         int             tc_group_id_;
     /** Pointer to Test Module Info which includes this Test Case */
@@ -95,8 +97,8 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
                            filename_t tc_cfg_filename,
                            title_string_t tc_title);
 
-DLListIterator  tc_find_by_case_id (DLList * list_handle,
-				    int test_case_id);
+DLListIterator  tc_find_by_id (DLList * list_handle,
+			       int test_id);
 
 void            tc_remove (DLListIterator tc_data_item);
 
@@ -105,6 +107,8 @@ void            tc_delete (test_case_s * test_case);
 /* ------------------------------------------------------------------------- */
 
 int             tc_get_id (DLListIterator tc_data_item);
+
+int             tc_get_ext_id (DLListIterator tc_data_item);
 
 long            tc_get_run_id (DLListIterator tc_data_item);
 

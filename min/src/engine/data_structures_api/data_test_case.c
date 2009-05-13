@@ -126,7 +126,9 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
 
                 /* Test Case basic initialization data */
                 tc_data->tc_id_ = 0;
+		tc_data->tc_ext_id_ = 0;
                 tc_data->tc_group_id_ = 0;
+
                 tc_data->status_ = TEST_CASE_IDLE;
                 tc_data->priority_ = 0;
                 tc_data->test_result_list_ = dl_list_create ();
@@ -154,8 +156,8 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
  *          or returns INITPTR if operation failed.  
  *
  */
-DLListIterator  tc_find_by_case_id (DLList * list_handle, 
-				    int test_case_id)
+DLListIterator  tc_find_by_id (DLList * list_handle, 
+			       int test_id)
 {
         DLListIterator  it;
         
@@ -163,8 +165,8 @@ DLListIterator  tc_find_by_case_id (DLList * list_handle,
 
         for (it = dl_list_head (list_handle); it != INITPTR;
              it = dl_list_next(it)) {
-                if (((test_case_s    *)dl_list_data(it))->tc_id_ ==
-                    test_case_id) {
+                if (((test_case_s    *)dl_list_data(it))->tc_ext_id_ ==
+                    test_id) {
                         pthread_mutex_unlock (&TC_MUTEX);
                         return it;
                 }
@@ -240,6 +242,34 @@ int tc_get_id (DLListIterator tc_data_item)
 
         if ((test_case != INITPTR) && (test_case != NULL))
                 tc_id = test_case->tc_id_;
+        else
+                tc_id = -1;
+
+        pthread_mutex_unlock (&TC_MUTEX);
+
+        return tc_id;
+}
+
+/* ------------------------------------------------------------------------- */
+
+/** Gets the external ID value of specific Test Case data item
+ *  @param tc_data_item pointer to Test Case data item.
+ *  @return positive integer value of ID, or -1 if get ID failed.
+ *
+ *  Possible errors:
+ *  -1 if Test Case data item not exists.
+ */
+int tc_get_ext_id (DLListIterator tc_data_item)
+{
+        pthread_mutex_lock (&TC_MUTEX);
+
+        int             tc_id;
+        test_case_s    *test_case;
+
+        test_case = (test_case_s *) dl_list_data (tc_data_item);
+
+        if ((test_case != INITPTR) && (test_case != NULL))
+                tc_id = test_case->tc_ext_id_;
         else
                 tc_id = -1;
 
