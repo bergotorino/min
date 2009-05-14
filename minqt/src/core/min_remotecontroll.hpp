@@ -134,6 +134,18 @@ namespace Min
         /** Closes the interface, connection to DBus */
         void minClose();
 
+    public slots:
+
+        /** Opens connection to the DBus subsystem
+         *  @param address is the address of the bus to which connect to
+         *
+         *  Address understanding:
+         *  - if contains no ':' and equals to localhost then direct connection
+         *    to dbus is used
+         *  - if contains ':' then we assume tcp connection
+         */
+        void open(const QString &address);
+
     private slots:
 
         /**@{ Signals from MinObject */
@@ -224,10 +236,10 @@ namespace Min
         RemoteControll();
 
         /** Connection to the DBus */
-        QDBusConnection bus_;
+        QDBusConnection *bus_;
 
         /** Generated from DBus interface .xml MinObject */
-        MinObject obj_;
+        MinObject *obj_;
 
         /** Test case files to be added to the module. */
         QStringList testCaseFiles_;

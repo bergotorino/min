@@ -33,6 +33,7 @@
 #include "ui/min_mainwindow.hpp"
 #include "core/min_remotecontroll.hpp"
 #include "core/min_database.hpp"
+#include "ui/min_dbusconnectiondialog.hpp"
 
 // -----------------------------------------------------------------------------
 
@@ -44,18 +45,23 @@ int main( int argc, char* argv[] )
     Min::Database::getInstance();
     Min::RemoteControll &rc = Min::RemoteControll::getInstance();
 
+    // 2. Dialog that selects DBus connection
+    Min::DBusConnectionDialog dlg(0);
+    QObject::connect (&dlg,SIGNAL(selectedDBusConnection(const QString &)),
+                    &rc,SLOT(open(const QString&)));
+    if (!dlg.exec()||!rc.isValid()) {
+        qDebug("Exiting - bye!");
+        return EXIT_SUCCESS;
+    }        
 
-//    rc.minQueryTestFiles();
-//    rc.minQueryTestModules();
-
-    // 2. Create window
+    // 4. Create window
     Min::MainWindow mw;
     mw.show();
 
-    // 3. Run the application
+    // 5. Run the application
     int retval = app.exec();
 
-    // Close the interface
+    // 6. Close the interface
     rc.minClose();
 
     return retval;

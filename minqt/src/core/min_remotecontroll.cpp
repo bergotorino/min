@@ -38,70 +38,94 @@
 
 // -----------------------------------------------------------------------------
 Min::RemoteControll::RemoteControll()
-    : bus_(QDBusConnection::connectToBus(QDBusConnection::SessionBus,
-                                        "org.maemo.MIN"))
-    , obj_("org.maemo.MIN","/Min",bus_)
+    : obj_(0)
     , testCaseFiles_()
     , exeRequest_()
     , closed_(true)
+{ ; }
+// -----------------------------------------------------------------------------
+Min::RemoteControll::~RemoteControll()
 {
-    // 1. Do error checking
-    if (!bus_.isConnected()) {
-        qDebug("Error: %s",bus_.lastError().message().toStdString().c_str());
-    }
-
-    if (!obj_.isValid()) {
-        qDebug("Error: %s",obj_.lastError().message().toStdString().c_str());
-    }
-
-    // 2. Connect signals
-    connect (&obj_,SIGNAL(min_case_msg(int, const QString &)),
-            this,SLOT(minCaseMsg(int, const QString &)));
-
-    connect (&obj_,SIGNAL(min_case_paused(int)),
-            this,SLOT(minCasePaused(int)));
-
-    connect (&obj_,SIGNAL(min_case_result(int, int, const QString &,
-                                            int, int)),
-            this,SLOT(minCaseResult(int, int, const QString &,
-                                    int, int)));
-
-    connect (&obj_,SIGNAL(min_case_resumed(int)),
-            this,SLOT(minCaseResumed(int)));
-
-    connect (&obj_,SIGNAL(min_case_started(uint, uint, int)),
-            this,SLOT(minCaseStarted(uint, uint, int)));
-
-    connect (&obj_,SIGNAL(min_module_ready(uint)),
-            this,SLOT(minModuleReady(uint)));
-
-    connect (&obj_,SIGNAL(min_new_module(const QString &, uint)),
-            this,SLOT(minNewModule(const QString &, uint)));
-
-    connect (&obj_,SIGNAL(min_new_test_case(uint, uint, const QString &)),
-            this,SLOT(minNewTestCase(uint, uint, const QString &)));
-
-    connect (&obj_,SIGNAL(min_no_module(const QString &)),
-            this,SLOT(minNoModule(const QString &)));
-
-    connect (&obj_,SIGNAL(min_test_files(const QString &)),
-            this,SLOT(minTestFiles(const QString &)));
-            
-    connect (&obj_,SIGNAL(min_test_modules(const QString &)),
-            this,SLOT(minTestModules(const QString &)));
-
-    // 3. Open plugin
-    obj_.min_open();
+    if (!closed_&&obj_) obj_->min_close();
+    if (obj_) delete obj_;
 }
 // -----------------------------------------------------------------------------
 bool Min::RemoteControll::isValid() const
 {
-    if (bus_.isConnected() && obj_.isValid()) return true;
-    else return false;
+    //if (obj_->isValid()) return true;
+    //else return false;
+    return true;
 }
 // -----------------------------------------------------------------------------
-Min::RemoteControll::~RemoteControll()
-{ if (closed_) { obj_.min_close(); } }
+void Min::RemoteControll::open(const QString &address)
+{
+    if (address=="") return;
+
+    // Open connection to the DBus
+    if (address.contains(':')) {
+        QString dbusAddress = address;
+        dbusAddress.replace(":",",port=");
+        dbusAddress.prepend("tcp:host=");
+        QDBusConnection bus =
+                QDBusConnection::connectToBus(dbusAddress,
+                                            "org.maemo.MIN");
+        if (!bus.isConnected()) {
+            qDebug("Bus Error: %s",bus.lastError().message().toStdString().c_str());
+            return;
+        }
+        // 3. Open plugin
+        obj_= new MinObject("org.maemo.MIN","/Min",bus);
+    } else {
+        QDBusConnection bus =
+                QDBusConnection::connectToBus(QDBusConnection::SessionBus,
+                                            "org.maemo.MIN");
+        if (!bus.isConnected()) {
+            qDebug("Bus Error: %s",bus.lastError().message().toStdString().c_str());
+            return;
+        }
+        // 3. Open plugin
+        obj_= new MinObject("org.maemo.MIN","/Min",bus);
+    }
+
+    // 3.2. Connect signals
+    connect (obj_,SIGNAL(min_case_msg(int, const QString &)),
+            this,SLOT(minCaseMsg(int, const QString &)));
+
+    connect (obj_,SIGNAL(min_case_paused(int)),
+            this,SLOT(minCasePaused(int)));
+
+    connect (obj_,SIGNAL(min_case_result(int, int, const QString &,
+                                            int, int)),
+            this,SLOT(minCaseResult(int, int, const QString &,
+                                    int, int)));
+
+    connect (obj_,SIGNAL(min_case_resumed(int)),
+            this,SLOT(minCaseResumed(int)));
+
+    connect (obj_,SIGNAL(min_case_started(uint, uint, int)),
+            this,SLOT(minCaseStarted(uint, uint, int)));
+
+    connect (obj_,SIGNAL(min_module_ready(uint)),
+            this,SLOT(minModuleReady(uint)));
+
+    connect (obj_,SIGNAL(min_new_module(const QString &, uint)),
+            this,SLOT(minNewModule(const QString &, uint)));
+
+    connect (obj_,SIGNAL(min_new_test_case(uint, uint, const QString &)),
+            this,SLOT(minNewTestCase(uint, uint, const QString &)));
+
+    connect (obj_,SIGNAL(min_no_module(const QString &)),
+            this,SLOT(minNoModule(const QString &)));
+
+    connect (obj_,SIGNAL(min_test_files(const QString &)),
+            this,SLOT(minTestFiles(const QString &)));
+            
+    connect (obj_,SIGNAL(min_test_modules(const QString &)),
+            this,SLOT(minTestModules(const QString &)));
+
+    // 3.3 Open MinDBusPlugin
+    obj_->min_open();
+}
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseMsg(int testrunid,
                                     const QString &message)
@@ -273,30 +297,30 @@ void Min::RemoteControll::minTestModules(const QString &modules)
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minAbortCase(long testrunid)
-{ obj_.min_abort_case (testrunid); }
+{ obj_->min_abort_case (testrunid); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minAddTestCaseFile(uint moduleid,
                                             const QString &testcasefile)
-{ obj_.min_add_test_case_file (moduleid, testcasefile); }
+{ obj_->min_add_test_case_file (moduleid, testcasefile); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minAddTestModule(const QString &modulepath)
-{ obj_.min_add_test_module (modulepath); }
+{ obj_->min_add_test_module (modulepath); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minFatalError(const QString &what,
                                         const QString &errorstring)
-{ obj_.min_fatal_error (what,errorstring); }
+{ obj_->min_fatal_error (what,errorstring); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minPauseCase(long testrunid)
-{ obj_.min_pause_case (testrunid); }
+{ obj_->min_pause_case (testrunid); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minQueryTestFiles()
-{ obj_.min_query_test_files (); }
+{ obj_->min_query_test_files (); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minQueryTestModules()
-{ obj_.min_query_test_modules (); }
+{ obj_->min_query_test_modules (); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minResumeCase(long testrunid)
-{ obj_.min_resume_case (testrunid); }
+{ obj_->min_resume_case (testrunid); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
 {
@@ -307,11 +331,11 @@ void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
     tmp->caseid_ = caseid;
     tmp->groupid_ = groupid;
     exeRequest_.append(tmp);
-    obj_.min_start_case (moduleid,caseid,0);
+    obj_->min_start_case (moduleid,caseid,0);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minClose()
-{ obj_.min_close(); closed_ = true; }
+{ obj_->min_close(); closed_ = true; }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::setTestCaseFiles(const QStringList &data)
 { testCaseFiles_ = data; }

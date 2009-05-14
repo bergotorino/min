@@ -25,6 +25,7 @@ Min::DBusConnectionDialog::DBusConnectionDialog(QWidget *parent)
 {
     // Set-up
     comboBox_->setEditable(true);
+    comboBox_->addItem("localhost");
     
     // Layout
     layout_->addWidget(selectText_,0,0,1,2);
@@ -32,9 +33,19 @@ Min::DBusConnectionDialog::DBusConnectionDialog(QWidget *parent)
     layout_->addWidget(okButton_,2,0);
     layout_->addWidget(cancelButton_,2,1);
 
+    connect (okButton_,SIGNAL(clicked(bool)),
+             this,SLOT(accept()));
+    connect (cancelButton_,SIGNAL(clicked(bool)),
+             this,SLOT(reject()));
 }
 // -----------------------------------------------------------------------------
 Min::DBusConnectionDialog::~DBusConnectionDialog()
 { ; }
+// -----------------------------------------------------------------------------
+void Min::DBusConnectionDialog::accept()
+{
+    emit selectedDBusConnection(comboBox_->currentText());
+    QDialog::accept();
+}
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

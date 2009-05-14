@@ -45,7 +45,6 @@
 #include "min_database.hpp"
 #include "min_addmoduledialog.hpp"
 #include "min_statusbarprovider.hpp"
-#include "min_dbusconnectiondialog.hpp"
 
 // -----------------------------------------------------------------------------
 Min::MainWindow::MainWindow()
@@ -97,17 +96,13 @@ Min::MainWindow::~MainWindow()
 void Min::MainWindow::setupMenuBar()
 {
     QMenu *file_menu = menuBar()->addMenu (tr("&File"));
-    QMenu *settingsMenu = menuBar()->addMenu (tr("&Settings"));
     QMenu *help_menu = menuBar()->addMenu (tr("&Help"));
     QAction *exit_action = file_menu->addAction(tr("Exit"));
     QAction *about_action = help_menu->addAction(tr("About"));
-    QAction *dbus_host = settingsMenu->addAction(tr("select DBus host"));
     connect (about_action,SIGNAL(triggered(bool)),
             this,SLOT(displayAboutDialog()));
     connect (exit_action, SIGNAL(triggered(bool)),
 	    QCoreApplication::instance(), SLOT(quit()));
-    connect (dbus_host, SIGNAL(triggered(bool)),
-	    this, SLOT(handleSettingsSelectDBusConMenu()));
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::setupToolBar()
@@ -277,12 +272,6 @@ void Min::MainWindow::handleAbortTestCase()
     }
 
 	
-}
-// -----------------------------------------------------------------------------
-void Min::MainWindow::handleSettingsSelectDBusConMenu()
-{
-        Min::DBusConnectionDialog dlg(this);
-        dlg.exec();
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

@@ -39,6 +39,17 @@ namespace Min
 
         /** Destructor. */
         ~DBusConnectionDialog();
+
+    public slots:
+        /** Dialog has been accepted */
+        void accept();
+
+    signals:
+        /** Fired when user selects accept. It transmits the host and port
+         *  in the form host:port
+         */
+        void selectedDBusConnection(const QString &address);
+
     protected:
     private:
         /** Layout for the dialog */
