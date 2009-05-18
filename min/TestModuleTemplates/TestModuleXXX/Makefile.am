@@ -1,15 +1,15 @@
 METASOURCES=Auto
 AM_FLAGS=-fPIC
-pkglib_LTLIBRARIES = TestModuleXXXTestModule.la
+pkglib_LTLIBRARIES = TestModuleXXX.la
 TESTS_ENVIRONMENT = min --console --execute
 TESTS = $(DESTDIR)/usr/lib/TestModuleXXXTestModule/TestModuleXXXTestModule.so
 DESTDIR=$(PWD)/tmp
 TOPDIR=.
 
-TestModuleXXXTestModule_la_CFLAGS = -I$(TOPDIR)/src
-TestModuleXXXTestModule_la_LDFLAGS = -shared -module
-TestModuleXXXTestModule_la_SOURCES = $(TOPDIR)/src/TestModuleXXX.c $(TOPDIR)/src/TestModuleXXXCases.c
-TestModuleXXXTestModule_la_LIBADD = -lminutils -lmintmapi -lminevent
+TestModuleXXX_la_CFLAGS = -I$(TOPDIR)/src
+TestModuleXXX_la_LDFLAGS = -shared -module
+TestModuleXXX_la_SOURCES = $(TOPDIR)/src/TestModuleXXX.c $(TOPDIR)/src/TestModuleXXXCases.c
+TestModuleXXX_la_LIBADD = -lminutils -lmintmapi -lminevent
 
 group_files = `ls -a ./ | grep -v CVS | grep -v debian | grep -v src | grep -v createmodule | grep -v group | grep -v Makefile.am | grep -v ^\\[.\\]*$$`
 
@@ -17,7 +17,7 @@ install-data-local:
 		mkdir -p $(HOME)/.min
 		cp ./tmp/usr/lib/TestModuleXXXTestModule/* $(HOME)/.min
 
-		exec patchminconf.sh '$(HOME)/.min/min.conf' 'TestModuleXXXTestModule'
+		exec patchminconf.sh '$(HOME)/.min/min.conf' 'TestModuleXXX'
 
 
 oldstyle:

@@ -1,14 +1,14 @@
 METASOURCES=Auto
 AM_FLAGS=-fPIC
-pkglib_LTLIBRARIES = TemplateScriptXXXTestModule.la
+pkglib_LTLIBRARIES = TemplateScriptXXX.la
 
 TOPDIR=.
 DESTDIR=$(PWD)/tmp
 
-TemplateScriptXXXTestModule_la_CFLAGS = -I$(TOPDIR)/src
-TemplateScriptXXXTestModule_la_LDFLAGS = -shared -module
-TemplateScriptXXXTestModule_la_SOURCES = $(TOPDIR)/src/TemplateScriptXXX.c $(TOPDIR)/src/TemplateScriptXXXCases.c
-TemplateScriptXXXTestModule_la_LIBADD =  -lminutils -lmintmapi -lminevent
+TemplateScriptXXX_la_CFLAGS = -I$(TOPDIR)/src
+TemplateScriptXXX_la_LDFLAGS = -shared -module
+TemplateScriptXXX_la_SOURCES = $(TOPDIR)/src/TemplateScriptXXX.c $(TOPDIR)/src/TemplateScriptXXXCases.c
+TemplateScriptXXX_la_LIBADD =  -lminutils -lmintmapi -lminevent
 
 group_files = `ls -a ./ | grep -v CVS | grep -v debian | grep -v src | grep -v createtestclass | grep -v group | grep -v Makefile.am | grep -v ^\\[.\\]*$$`
 
