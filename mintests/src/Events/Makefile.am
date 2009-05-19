@@ -21,5 +21,5 @@ EventsTestModule_la_LIBADD  = $(top_builddir)/../min/src/utils/libminutils.la \
 			      $(top_builddir)/../min/src/services/event_system/libminevent.la
 
 install-data-local:
-	cp .libs/EventsTestModule.so $(DESTDIR)/usr/share/min-tests
+	cp .libs/EventsTestModule.so $(DESTDIR)/usr/lib/min-tests
 

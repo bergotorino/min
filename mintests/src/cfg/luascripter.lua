@@ -2,8 +2,8 @@
 -- GLOBAL VARIABLES
 -- =============================================================================
 
-MOD="/usr/share/min-tests/LuaTestClass.so";
-MOD2="/usr/share/min-tests/HardCoded.so";
+MOD="/usr/lib/min-tests/LuaTestClass.so";
+MOD2="/usr/lib/min-tests/HardCoded.so";
 
 -- =============================================================================
 -- TEST CASES
