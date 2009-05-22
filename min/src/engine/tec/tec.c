@@ -2401,6 +2401,8 @@ int ec_configure ()
                 ec_read_module_confdir ();
         ec_settings_send ();
 
+        min_log_open ("MIN", 3);
+
         return 0;
 }
 
@@ -2497,7 +2499,6 @@ void ec_min_init (char *envp_[], int operation_mode)
 #ifndef MIN_EXTIF
 	in->send_rcp = socket_send_rcp;
 #endif /* MIN_EXTIF */
-        min_log_open ("MIN", debug_lev);
 
 	MIN_DEBUG ("available_modules %x", available_modules);
         /* results = dl_list_create ( ); */
