@@ -48,6 +48,7 @@ install: build
 	dh_clean
 	dh_installdirs -A etc usr/lib/min/ 
 	mkdir -p $(CURDIR)/debian/tmp/usr/lib/min
+	mkdir -p $(CURDIR)/debian/tmp/usr/lib/min-tests
 	for FILE in "$(SUBDIRS)"; do \
 		cd "$$FILE"; \
 		$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp; \

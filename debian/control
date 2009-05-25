@@ -35,7 +35,7 @@ Package: min-tests
 Section: tests
 Priority: optional
 Architecture: any
-Depends: min (>= 2009w16)
+Depends: min (>= 2009w22)
 Description: MIN Basic Acceptance Tests.
 
 Package: mindbusplugin
