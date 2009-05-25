@@ -1,24 +1,24 @@
 METASOURCES=Auto
 AM_FLAGS=-fPIC
-pkglib_LTLIBRARIES = MINUnitXXXTestModule.la
+pkglib_LTLIBRARIES = MINUnitXXX.la
 DESTDIR = $(PWD)/tmp
 TOPDIR=.
 TESTS_ENVIRONMENT = min --console --execute
-TESTS = $(DESTDIR)/usr/lib/MINUnitXXXTestModule/MINUnitXXXTestModule.so
+TESTS = $(DESTDIR)/usr/lib/MINUnitXXX/MINUnitXXX.so
 CASESFILE=MINUnitXXXCases.c
 
-MINUnitXXXTestModule_la_CFLAGS = -I$(TOPDIR)/src -DCASES_FILE='"$(CASESFILE)"'
+MINUnitXXX_la_CFLAGS = -I$(TOPDIR)/src -DCASES_FILE='"$(CASESFILE)"'
 #MINUnitXXXTestModule_la_CXXFLAGS = $(MINUnitXXXTestModule_la_CFLAGS)
-MINUnitXXXTestModule_la_LDFLAGS = -shared -module
-MINUnitXXXTestModule_la_SOURCES = $(TOPDIR)/src/MINUnitXXX.c
-MINUnitXXXTestModule_la_LIBADD =  -lminutils -lmintmapi -lminevent  -lmininterference -lpthread
+MINUnitXXX_la_LDFLAGS = -shared -module
+MINUnitXXX_la_SOURCES = $(TOPDIR)/src/MINUnitXXX.c
+MINUnitXXX_la_LIBADD =  -lminutils -lmintmapi -lminevent  -lmininterference -lpthread
 
 group_files = `ls -a ./ | grep -v CVS | grep -v debian | grep -v src | grep -v createminunitmodule | grep -v group | grep -v Makefile.am | grep -v ^\\[.\\]*$$`
 
 install-data-local:
 		mkdir -p $(HOME)/.min
 		cp ./tmp/usr/lib/MINUnitXXXTestModule/* $(HOME)/.min
-		exec patchminconf.sh '$(HOME)/.min/min.conf' 'MINUnitXXXTestModule' 
+		exec patchminconf.sh '$(HOME)/.min/min.conf' 'MINUnitXXX' 
 
 oldstyle:
 		mkdir group
