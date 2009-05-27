@@ -37,6 +37,7 @@ Priority: optional
 Architecture: any
 Depends: min (>= 2009w22)
 Description: MIN Basic Acceptance Tests.
+ Tests of MIN
 
 Package: mindbusplugin
 Section: devel
