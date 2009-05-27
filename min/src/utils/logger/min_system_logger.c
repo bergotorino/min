@@ -59,7 +59,6 @@
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
-unsigned int min_debug_level = 0;
 MinLogger *__logger__ = INITPTR;
 Text *__component_name__ = INITPTR;
 
@@ -191,9 +190,6 @@ int min_debug (const char *func, unsigned int lineno, const char *file_name,
 {
         char            fmt[FMT_MAX_SIZE];
         va_list         ap, ap2;
-
-        if (min_debug_level == 0)
-                return 1;
 
         sprintf (fmt, "%s:%d:%s():%s", file_name, lineno, func, format);
         va_start (ap, format);
