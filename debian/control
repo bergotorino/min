@@ -44,6 +44,7 @@ Priority: extra
 Architecture: any
 Depends: ${shlibs:Depends}, min
 Description: DBus plugin for MIN
+ Allows interaction with MIN through DBus intreface.
 
 Package: min-qt
 Section: devel
@@ -51,6 +52,7 @@ Priority: extra
 Architecture: any
 Depends: ${shlibs:Depends}, min
 Description: Qt GUI for MIN
+ MIN graphical user interface written in Qt
 
 Package: min-all
 Section: devel
