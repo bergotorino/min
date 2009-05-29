@@ -89,7 +89,7 @@ LOCAL int min_unit_wrapper (int __action__, const char *__cfg_file__,
 #define TEST_VAR_DECLARATIONS
 #include "min_unit_selftest_cases.c"
 #undef  TEST_VAR_DECLARATIONS
-        MIN_DEBUG3 ("%s id = %d\n", __FUNCTION__, __id__);
+        MIN_DEBUG ("%s id = %d\n", __FUNCTION__, __id__);
         if (__action__ == RUN_CASE)
                 __action__ = RUN_SETUP;
       min_unit_again:

@@ -145,7 +145,9 @@ START_TEST (test_debug)
  {
      int log_retval = 0;
 
-     MIN_DEBUG1 ("testing debug");
+        log_retval =  min_debug (__FUNCTION__, __LINE__, __FILE__,
+     	           "testing debug");
+
      fail_unless (log_retval == 0, "failed to log");
 }
 END_TEST
