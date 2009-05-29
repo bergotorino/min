@@ -139,8 +139,7 @@ LOCAL void display_help ()
                 "[:configuration_file:... ]\n\t\t\t"
                 "\tExecute test cases from test_module "
                 "(with configuration file(s))\n");
-        printf (" -p,  --plugin plugin"
-                "[:plugin2:... ]\n\t\t\t"
+        printf (" -p,  --plugin plugin\n\t\t\t"
                 "\tLoad input plugin for MIN, by default cui plugin "
                 "is loaded\n");
         printf ("\nReport bugs to:\n");

@@ -11,3 +11,4 @@ Priority: extra
 Architecture: any
 Depends: ${shlibs:Depends}, min
 Description: DBus plugin for MIN
+ Allows interaction with MIN through DBus subsystem
