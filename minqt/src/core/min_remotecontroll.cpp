@@ -66,7 +66,6 @@ void Min::RemoteControll::open(const QString &address)
         QString dbusAddress = address;
         dbusAddress.replace(":",",port=");
         dbusAddress.prepend("tcp:host=");
-        qDebug("Addr: %s\n",dbusAddress.toStdString().c_str());
         QDBusConnection bus =
                 QDBusConnection::connectToBus(dbusAddress,
                                             "org.maemo.MIN");

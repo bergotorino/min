@@ -162,11 +162,7 @@ START_TEST(exec_case_success)
         int cont_flag = 0;
         DLListIterator work_case_item = DLListNULLIterator;
         int result = 0;
-
-        printf("Sleeping pid: %d\n",getpid());
-        sleep(60);
-
-
+        
         ec_min_init(envp_,0);
         ec_configure();
         ec_start_modules();
@@ -848,7 +844,7 @@ Suite* mintfwif_suite()
         tcase_add_test ( tc_core, add_module_with_invalid_tc_file_ok );
         tcase_add_test ( tc_core, add_module_with_valid_tc_file_ok );
         tcase_add_test ( tc_core, add_invalid_module );
-        tcase_set_timeout ( tc_core, 5*60);
+        tcase_set_timeout ( tc_core, 10);
         suite_add_tcase (s, tc_core);
 
         return s;
