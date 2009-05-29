@@ -36,6 +36,7 @@ class QTableView;
 class QAbstractItemModel;
 class QItemSelectionModel;
 class QSortFilterProxyModel;
+class QTreeView;
 
 // -----------------------------------------------------------------------------
 /**
@@ -81,7 +82,7 @@ namespace Min
         /** Main area on the window. */
         QToolBox *centralWidget_;
 
-        /** Will display modules and cases we can run. */
+	/** Will display modules and cases we can run. */
         QTableView *availableCasesView_;
 
         /** Executed tab. Will display executed cases view and list
@@ -92,8 +93,13 @@ namespace Min
         /** Model that feeds available cases view with the data. */
         QAbstractItemModel *availableCasesModel_;
 
+        /** Model that feeds available cases view with the data. */
+        QAbstractItemModel *testRunsModel_;
+
 	    /** Proxy model fo filterout available test cases */
 	    QSortFilterProxyModel *availableProxy_;
+
+	QTreeView *testRunTree_;
 
         /** Handler to the database */
         Min::Database &db_;

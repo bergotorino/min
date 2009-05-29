@@ -25,7 +25,7 @@ SOURCES     +=  main.cpp                                \
                 ui/min_dbusconnectiondialog.cpp         \
                 core/min_executedmodel.cpp              \
                 core/min_casesmodel.cpp                 \
-                core/min_availablecasestreemodel.cpp    \
+                core/min_testruntreemodel.cpp    \
                 core/min_object.cpp                     \
                 core/min_remotecontroll.cpp             \
 		        core/min_database.cpp                   \
@@ -45,7 +45,7 @@ HEADERS     +=  ui/min_mainwidget.hpp                   \
                 ui/min_dbusconnectiondialog.hpp         \
 		        core/min_executedmodel.hpp              \
                 core/min_casesmodel.hpp                 \
-                core/min_availablecasestreemodel.hpp    \
+                core/min_testruntreemodel.hpp    \
                 core/min_object.h                       \
                 core/min_remotecontroll.hpp             \
 		        core/min_database.hpp                   \

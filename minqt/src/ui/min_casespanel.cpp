@@ -39,10 +39,11 @@
 #include <QHeaderView>
 #include <QShortcut>
 #include <QPalette>
+#include <QTreeView>
 
 // Min incudes
 #include "min_casesmodel.hpp"
-#include "min_availablecasestreemodel.hpp"
+#include "min_testruntreemodel.hpp"
 #include "min_executedmodel.hpp"
 
 #include "min_availablemodel.hpp"
@@ -59,8 +60,10 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     , availableCasesView_(new QTableView(this))
     , executedTab_(new Min::ExecutedTab(this))
     , availableCasesModel_(new Min::AvailableModel(this))
+    , testRunsModel_(new Min::TestRunTreeModel(this))
     , availableProxy_(new QSortFilterProxyModel(this))
     , db_(Min::Database::getInstance())
+    , testRunTree_(new QTreeView(this))
 {
     // Proxies
     availableProxy_->setSourceModel(availableCasesModel_);
@@ -80,12 +83,16 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     // Main pane
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
     centralWidget_->addItem(executedTab_,QString("Executed Cases"));
-    centralWidget_->addItem(new QLabel("Pie chart goes here!"),
+    centralWidget_->addItem(testRunTree_,
 			    QString("Summary"));
+
+    testRunTree_->setModel(testRunsModel_);
 
     // Signals and slots
     connect (&db_,SIGNAL(updated()),
              availableCasesModel_,SLOT(updateModelData()));
+
+    connect (&db_, SIGNAL(updated()), testRunsModel_, SLOT(updateModelData()));
 }
 // -----------------------------------------------------------------------------
 Min::CasesPanel::~CasesPanel()

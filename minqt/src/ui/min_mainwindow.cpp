@@ -174,17 +174,18 @@ void Min::MainWindow::handleRunTestCase()
     // We obtain list of indexes that describe selected rows
     QModelIndexList modules = selection->selectedRows(0);
     QModelIndexList cases   = selection->selectedRows(1);
+    Min::Database &db       = Min::Database::getInstance();
+    unsigned int groupId = db.getGroup();
 
     // For each selected, execute it!
     Min::RemoteControll &rc = Min::RemoteControll::getInstance();
     for (int i = 0; i < modules.count(); i++) {
-        Min::Database &db       = Min::Database::getInstance();
         unsigned int moduleId   = db.getModuleDbId(1,modules[i].data().toString());
         unsigned int caseId     = db.getTestCaseDbId(moduleId,cases[i].data().toString());
 
         rc.minStartCase(db.getModuleEngineId(1,moduleId),
                         db.getTestCaseEngineId(moduleId,caseId),
-                        0); /* groupId to be extracted from database, for now just put 1 */
+                        groupId); /* groupId to be extracted from database, for now just put 1 */
     }
 
 }

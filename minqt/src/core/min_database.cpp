@@ -28,11 +28,17 @@ Min::Database::Database()
     : db()
 {
     initDatabase();
+    this->groupCounter = 0;
 };
 // ----------------------------------------------------------------------------
 Min::Database::~Database()
 {
 	db.close();
+};
+// ----------------------------------------------------------------------------
+unsigned int Min::Database::getGroup()
+{
+	return ++(this->groupCounter);
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::insertDevice(unsigned int device_id)
@@ -383,6 +389,20 @@ QStringList Min::Database::getTestCases(unsigned int module_dbid)
 
 };
 // ----------------------------------------------------------------------------
+QList<unsigned int> Min::Database::getTestRunGroups()
+{
+    QSqlQuery query;
+    QList<unsigned int> retval;
+    query.prepare("SELECT DISTINCT group_id FROM test_run;");
+    if(query.exec()){
+        while(query.next()) {
+            retval.append(query.value(0).toUInt());
+        }
+    }
+    return retval;
+
+};
+// ----------------------------------------------------------------------------
 QVector<QStringList> Min::Database::getAvailableView(unsigned int devid) const
 {
     QSqlQuery query;
@@ -417,6 +437,33 @@ QStringList Min::Database::getPrintoutView(unsigned int test_run_dbid) const
     return retval;
 };
 // ----------------------------------------------------------------------------
+QVector<QStringList> Min::Database::getTestRunsInGroup(unsigned int device_dbid, unsigned int group_id) const
+{
+    QSqlQuery query;
+    QVector<QStringList> retval;
+    QStringList row;
+    query.prepare("SELECT * FROM executedview WHERE device_dbid=:devdbid AND group_id=:grpid;");
+    query.bindValue(QString(":grpid"), QVariant(group_id));
+    query.bindValue(QString(":devdbid"), QVariant(device_dbid));
+    if(query.exec()){
+        while(query.next()) {
+	    row.clear();
+            row.append(query.value(0).toString());
+            row.append(query.value(1).toString());
+            row.append(query.value(2).toString());
+            row.append(query.value(3).toString());
+            row.append(query.value(4).toString());
+            row.append(query.value(5).toString());
+            row.append(query.value(6).toString());
+            row.append(query.value(7).toString());
+            row.append(query.value(8).toString());
+            row.append(query.value(9).toString());
+	    retval.append(row);
+        }
+    }
+    return retval;
+};
+/// ----------------------------------------------------------------------------
 QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid) const
 {
     QSqlQuery query;

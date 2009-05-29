@@ -50,6 +50,8 @@ namespace Min
          */
         ~Database();
 
+	unsigned int getGroup();
+
         /**
          * device insertion to database
          * @param device_id - device ID in MIN
@@ -160,7 +162,9 @@ namespace Min
         /** Gets test case names from database for UI */
         QStringList getTestCases(unsigned int module_dbid = 1);
 
-        QStringList getTestRunGroups(unsigned int module_dbid = 1);
+        QList<unsigned int> getTestRunGroups();
+
+	QVector<QStringList> getTestRunsInGroup(unsigned int device_dbid = 1, unsigned int group_id = 0) const;
 
         QVector<QStringList> getAvailableView(unsigned int device_dbid = 1) const;
 
@@ -185,6 +189,7 @@ namespace Min
         void updated();
 
     private:
+	unsigned int groupCounter;
         /** Initializes database:
          *  Connects to the SQLite subsystem and so on
          *  Creates tables

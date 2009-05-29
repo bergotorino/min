@@ -148,7 +148,7 @@ QItemSelectionModel* Min::ExecutedTab::getSelectionFromOngoingCasesView()
 // -----------------------------------------------------------------------------
 void Min::ExecutedTab::handleClick(const QModelIndex& index)
 {
-	const QTableView *tab=(QTableView*)executedCasesView_->currentWidget();
+	const QTableView *tab=static_cast<QTableView*>(executedCasesView_->currentWidget());
 	const QItemSelectionModel *selection=tab->selectionModel();
 	if(!selection->hasSelection()) return;
 
