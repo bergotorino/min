@@ -1126,8 +1126,8 @@ int ec_msg_sndrcv_handler (MsgBuffer * message)
 {
         char           *hex;
 	Text *tx;
-
-	tx = tx_create (message->message_);
+	tx = tx_create ("sendreceive ");
+	tx_c_append (tx, message->message_);
 	tx_c_append (tx, "=");
 	tx_c_append (tx, message->desc_);
         hex = writehex (own_id, 0);
