@@ -1,0 +1,33 @@
+METASOURCES=Auto
+AM_FLAGS=-fPIC
+pkglib_LTLIBRARIES = MINUnitXXX.la
+DESTDIR = $(PWD)/tmp
+TOPDIR=.
+TESTS_ENVIRONMENT = min --console --execute
+TESTS = $(DESTDIR)/usr/lib/MINUnitXXX/MINUnitXXX.so
+CASESFILE=MINUnitXXXCases.cpp
+
+MINUnitXXX_la_CXXFLAGS = -I$(TOPDIR)/src -DCASES_FILE='"$(CASESFILE)"'
+MINUnitXXX_la_LDFLAGS = -shared -module
+MINUnitXXX_la_SOURCES = $(TOPDIR)/src/MINUnitXXX.cpp
+MINUnitXXX_la_LIBADD =  -lminutils -lmintmapi -lminevent  -lmininterference -lpthread
+
+group_files = `ls -a ./ | grep -v CVS | grep -v debian | grep -v src | grep -v createminunitmodule | grep -v group | grep -v Makefile.am | grep -v ^\\[.\\]*$$`
+
+install-data-local:
+		mkdir -p $(HOME)/.min
+		cp ./tmp/usr/lib/MINUnitXXXTestModule/* $(HOME)/.min
+		exec patchminconf.sh '$(HOME)/.min/min.conf' 'MINUnitXXX' 
+
+oldstyle:
+		mkdir group
+		make distclean
+		mv $(group_files) ./group
+		cat Makefile.am | sed s/^TOPDIR=./TOPDIR=../g > ./group/Makefile.am
+		rm Makefile.am
+
+newstyle:
+		make distclean
+		mv $(group_files) ../
+		cat Makefile.am | sed s/^TOPDIR=../TOPDIR=./g > ../Makefile.am
+		cd .. && rm -rf group

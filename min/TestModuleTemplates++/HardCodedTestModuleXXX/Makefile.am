@@ -1,0 +1,32 @@
+METASOURCES=Auto
+AM_FLAGS=-fPIC
+pkglib_LTLIBRARIES = HardCodedTestModuleXXX.la
+TESTS_ENVIRONMENT = min --console --execute
+DESTDIR = $(PWD)/tmp
+TESTS = $(DESTDIR)/usr/lib/HardCodedTestModuleXXX/HardCodedTestModuleXXX.so
+TOPDIR=.
+CC=g++
+
+HardCodedTestModuleXXX_la_LDFLAGS = -shared -module
+HardCodedTestModuleXXX_la_SOURCES = $(TOPDIR)/src/HardCodedTestModuleXXX.cpp $(TOPDIR)/src/HardCodedTestModuleXXXCases.cpp
+HardCodedTestModuleXXX_la_LIBADD = -lminutils -lmintmapi -lminevent -lmininterference -lpthread
+
+group_files = `ls -a ./ | grep -v CVS | grep -v debian | grep -v src | grep -v createhardcodedmodule | grep -v group | grep -v Makefile.am | grep -v ^\\[.\\]*$$`
+
+install-data-local:
+		mkdir -p $(HOME)/.min
+		cp ./tmp/usr/lib/HardCodedTestModuleXXX/* $(HOME)/.min
+		exec patchminconf.sh '$(HOME)/.min/min.conf' 'HardCodedTestModuleXXX' 
+
+oldstyle:
+		mkdir group
+		make distclean
+		mv $(group_files) ./group
+		cat Makefile.am | sed s/^TOPDIR=./TOPDIR=../g > ./group/Makefile.am
+		rm Makefile.am
+
+newstyle:
+		make distclean
+		mv $(group_files) ../
+		cat Makefile.am | sed s/^TOPDIR=../TOPDIR=./g > ../Makefile.am
+		cd .. && rm -rf group
