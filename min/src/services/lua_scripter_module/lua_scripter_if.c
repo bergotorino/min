@@ -801,7 +801,7 @@ LOCAL int ls_free_slave(lua_State *l)
                             ", expected slave handler");
                 return 0;
         }
-        MIN_DEBUG1("");
+        MIN_DEBUG("");
         STRCPY(msg.message_,slave->name_,MaxMsgSize);
         mqid=mq_open_queue('a');
         mq_send_message(mqid,&msg);
