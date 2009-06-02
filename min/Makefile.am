@@ -17,6 +17,18 @@ install-data-local:
 	cp ./src/utils/lua-5.1.3/src/luaconf.h $(DESTDIR)/usr/share/min/TestModuleTemplates/TemplateLuaScriptXXX/src
 	find $(DESTDIR)/usr/share/min/TestModuleTemplates -name .svn | xargs rm -rf
 	cp  TestModuleTemplates/createtestmodule $(DESTDIR)/usr/bin
+	mkdir -p $(DESTDIR)/usr/share/min/TestModuleTemplates++
+	cp -r TestModuleTemplates++/*  $(DESTDIR)/usr/share/min/TestModuleTemplates++
+	cp ./src/utils/lua-5.1.3/src/lua.h $(DESTDIR)/usr/share/min/TestModuleTemplates++/TemplateLuaScriptXXX/src
+	cp ./src/utils/lua-5.1.3/src/lstate.h $(DESTDIR)/usr/share/min/TestModuleTemplates++/TemplateLuaScriptXXX/src
+	cp ./src/utils/lua-5.1.3/src/lobject.h $(DESTDIR)/usr/share/min/TestModuleTemplates++/TemplateLuaScriptXXX/src
+	cp ./src/utils/lua-5.1.3/src/lzio.h $(DESTDIR)/usr/share/min/TestModuleTemplates++/TemplateLuaScriptXXX/src
+	cp ./src/utils/lua-5.1.3/src/ltm.h $(DESTDIR)/usr/share/min/TestModuleTemplates++/TemplateLuaScriptXXX/src
+	cp ./src/utils/lua-5.1.3/src/lmem.h $(DESTDIR)/usr/share/min/TestModuleTemplates++/TemplateLuaScriptXXX/src
+	cp ./src/utils/lua-5.1.3/src/llimits.h $(DESTDIR)/usr/share/min/TestModuleTemplates++/TemplateLuaScriptXXX/src
+	cp ./src/utils/lua-5.1.3/src/luaconf.h $(DESTDIR)/usr/share/min/TestModuleTemplates++/TemplateLuaScriptXXX/src
+	find $(DESTDIR)/usr/share/min/TestModuleTemplates++ -name .svn | xargs rm -rf
+	cp  TestModuleTemplates++/createtestmodule++ $(DESTDIR)/usr/bin
 
 tags:	
 	 find . -name '*'.c | xargs etags -o TAGS  --declarations --members
