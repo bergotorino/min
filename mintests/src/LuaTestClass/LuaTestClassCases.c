@@ -91,6 +91,7 @@ int ts_get_test_cases( DLList** list )
          * Second is the actual implementation function. */ 
         ENTRYTC(*list,"Example",ExampleTest);
         /* ADD NEW ENTRY HERE */
+	return 0;
 }
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */

@@ -21,7 +21,7 @@
  * GLOBAL VARIABLES SECTION
  */
 #ifdef TEST_VAR_DECLARATIONS
-minEventIf *e;
+minEventIf *e = NULL;
 #endif                          /* TEST_VAR_DECLARATIONS */
 /**
  * END OF GLOBAL VARIABLES SECTION
