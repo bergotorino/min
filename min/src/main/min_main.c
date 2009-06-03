@@ -374,7 +374,7 @@ int main (int argc, char *argv[], char *envp[])
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
      
-		c = getopt_long (argc, argv, "nchvi:x:s:m:",
+		c = getopt_long (argc, argv, "nchvi:x:s:p:m:",
 				 min_options, &option_index);
      
 		/* Detect the end of the options. */
