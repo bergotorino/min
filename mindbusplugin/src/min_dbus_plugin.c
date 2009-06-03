@@ -138,6 +138,9 @@ gboolean min_object_min_open(MinObject *obj);
 gboolean min_object_min_close(MinObject *obj);
 gboolean min_object_min_query_test_modules(MinObject *obj);
 gboolean min_object_min_query_test_files(MinObject *obj);
+gboolean min_object_min_register_slave(MinObject *obj,
+				       gchar *host,
+				       gchar *slavetype);
 
 G_DEFINE_TYPE(MinObject, min_object, G_TYPE_OBJECT);
 
@@ -638,6 +641,20 @@ gboolean min_object_min_query_test_files(MinObject *obj)
         }
         return FALSE;
 }
+/* ------------------------------------------------------------------------- */
+gboolean min_object_min_register_slave(MinObject *obj,
+				       gchar *host,
+				       gchar *slavetype)
+{
+        /* Calls callback from MIN */
+        if (min_clbk.register_slave) {
+		min_clbk.register_slave (host, slavetype);
+                return TRUE;
+        }
+        return FALSE;
+
+}
+
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

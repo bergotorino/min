@@ -48,6 +48,11 @@
                 <method name="min_query_test_files">
                 </method>
 
+		<method name="min_register_slave">
+                  <arg type="s" name="host"       direction="in"/>
+                  <arg type="s" name="slavetype"  direction="in"/>
+                </method>
+
                 <!-- Signals -->
                 <!-- Result for min_query_test_modules -->
                 <signal name="min_test_modules">
