@@ -356,7 +356,7 @@ LOCAL int eapi_query_test_files(char **filelist)
 {
         char *files = INITPTR;
         char *tmpfiles = INITPTR;
-        char *case_file = INITPTR;
+        char *case_file = INITPTR, *p;
         TSBool addcasefile = ESTrue;
         char *dir = INITPTR;
         struct dirent **namelist;
@@ -418,7 +418,7 @@ LOCAL int eapi_query_test_files(char **filelist)
                                                         != NULL) {
                                                         free (shell_io);
                                                         shell_io = malloc (sizeof(char) * 5);
-                                                        fgets (shell_io, 5, shell_pipe);
+                                                        p = fgets (shell_io, 5, shell_pipe);
                                                         *(shell_io+4)=0x00;
                                                         if (strcmp(shell_io, "text" ) != 0) {
                                                                 /* don't add file if not text*/
