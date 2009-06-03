@@ -2182,7 +2182,9 @@ LOCAL int ec_read_module_confdir ()
                         modfile = mp_create ("/etc/min.d/",
                                              dirent->d_name, ENoComments);
                         ec_read_module_section (modfile);
-
+#ifndef MIN_EXTIF
+			ec_read_slaves_section (modfile);
+#endif
                 }
                 dirent = readdir (dir);
         }
@@ -2472,7 +2474,6 @@ void ec_min_init (char *envp_[], int operation_mode)
 #ifndef MIN_EXTIF
         pthread_t       socket_thread;
 #endif
-        unsigned int    debug_lev = 3;  
 	long            tmp = 0;
   
         ec_settings.operation_mode_ = operation_mode;
