@@ -108,13 +108,13 @@ void Min::MainWindow::setupMenuBar()
 void Min::MainWindow::setupToolBar()
 {
     toolBar_ = addToolBar("Min actions");
-    QAction *runaction = toolBar_->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/clicknrun.png"),
-                                        "Run Selected Test Cases");
-    QAction *addmoduleaction = toolBar_->addAction(QIcon("/home/user/work/gmo/min/trunk/minqt/icons/db_add.png"),
+    QAction *runaction = toolBar_->addAction(QIcon(":icons/agt_runit.png"),
+					     "Run Selected Test Cases");
+    QAction *addmoduleaction = toolBar_->addAction(QIcon(":icons/db_add.png"),
                                             "Add Test Module");
-    QAction *pausecaseaction = toolBar_->addAction(QIcon("/home/user/icons/agt_pause-queue.png "), "Pause Test Case");
-    QAction *resumecaseaction = toolBar_->addAction(QIcon("/home/user/icons/agt_resume.png"), "Resume Test Case");
-    QAction *abortcaseaction = toolBar_->addAction(QIcon("/home/user/icons/button_cancel.png"), "Abort Test Case");
+    QAction *pausecaseaction = toolBar_->addAction(QIcon(":icons/agt_pause_queue.png"), "Pause Test Case");
+    QAction *resumecaseaction = toolBar_->addAction(QIcon(":icons/agt_resume.png"), "Resume Test Case");
+    QAction *abortcaseaction = toolBar_->addAction(QIcon(":icons/agt_stop1.png"), "Abort Test Case");
 
     // Connect buttons with signals
     connect (runaction,SIGNAL(triggered(bool)),

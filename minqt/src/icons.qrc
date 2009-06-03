@@ -1,0 +1,9 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource>
+        <file>icons/agt_resume.png</file>
+        <file>icons/agt_runit.png</file>
+        <file>icons/agt_stop1.png</file>
+        <file>icons/db_add.png</file>
+        <file>icons/agt_pause_queue.png</file>
+  </qresource>
+</RCC>
