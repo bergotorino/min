@@ -61,7 +61,7 @@
 		tx = tx_create (__str__); \
 		tx_c_append (tx, " ");	     \
 		tx_c_append (tx, __arg__); \
-		syslog (LOG_INFO, tx_share_buf (tx)); \
+		syslog (LOG_INFO, "%s", tx_share_buf (tx));	\
 		tx_destroy (&tx);\
 	} while (0)
 
@@ -244,8 +244,13 @@ int main (int argc, char *argv[], char *envp[])
 	int retval;
 	Text *tx;
 
-	daemon (0, 0);
+	retval = daemon (0, 0);
 	openlog ("MIND", LOG_PID | LOG_CONS, LOG_LOCAL0);
+	if (retval < 0) {
+		MIND_LOG ("daemon() failed! %s", strerror (errno));
+		return retval;
+	}
+
         sl_set_sighandler (SIGINT,  handle_sigint);
         sl_set_sighandler (SIGHUP,  handle_sigint);
         retval = poll_sockets (envp);
