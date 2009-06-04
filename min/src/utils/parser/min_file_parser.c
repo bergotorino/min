@@ -418,6 +418,7 @@ LOCAL void mfp_pop_from_file_stack (MinFileParser * sfp)
         DLListIterator  it2 = DLListNULLIterator;
         TSChar          file[4096];
         TSChar          buf[64];
+	ssize_t         rval;
 
         if (sfp == INITPTR) {
                 errno = EINVAL;
@@ -437,8 +438,10 @@ LOCAL void mfp_pop_from_file_stack (MinFileParser * sfp)
 
         /* Lets get filename associated with this descriptor */
         sprintf (buf, "/proc/self/fd/%d", fileno (sfp->current_file_));
-        readlink (buf, &file[0], 4095);
-
+        rval = readlink (buf, &file[0], 4095);
+	if (rval < 0) {
+		return;
+	}
         /* Remove from file names list */
         it2 = dl_list_find (dl_list_head (sfp->file_names_)
                             , dl_list_tail (sfp->file_names_)
@@ -462,7 +465,8 @@ LOCAL void mfp_pop_from_file_stack (MinFileParser * sfp)
         memset (file, 0x0, 4096);
         memset (buf, 0x0, 64);
         sprintf (buf, "/proc/self/fd/%d", fileno (sfp->current_file_));
-        readlink (buf, &file[0], 4095);
+        rval = readlink (buf, &file[0], 4095);
+
       EXIT:
         return;
 }
@@ -521,6 +525,7 @@ MinFileParser *mfp_create (FILE * file, TUnicode is_unicode,
         MinFileParser *tmp = INITPTR;
         TSChar          path[4096];
         TSChar          buf[64];
+	ssize_t         rval;
 
         if (file == INITPTR) {
                 errno = EINVAL;
@@ -551,7 +556,10 @@ MinFileParser *mfp_create (FILE * file, TUnicode is_unicode,
 
         /* Lets get filename associated with this descriptor */
         sprintf (buf, "/proc/self/fd/%d", fileno (file));
-        readlink (buf, &path[0], 4095);
+        rval = readlink (buf, &path[0], 4095);
+	if (rval < 0) {
+		return NULL;
+	}
 
         /* Add base file to the file names array */
         dl_list_add (tmp->file_names_, path);
