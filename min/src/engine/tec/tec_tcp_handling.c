@@ -252,7 +252,7 @@ LOCAL void socket_write_rcp (slave_info *slave)
 	len_buff[0] = strlen (tx_share_buf(tx));
         len_buff[1] = strlen (tx_share_buf(tx)) >> 8;
         
-        write (slave->fd_, &len_buff, 2);
+        ret = write (slave->fd_, &len_buff, 2);
 
 	MIN_DEBUG ("SENDING TO EXTIF :%s", tx_share_buf (tx));
         ret = write (slave->fd_, tx_share_buf (tx), strlen (tx_share_buf (tx)));
@@ -425,8 +425,6 @@ int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
 	       return -1;
        }
 
-     
-
        for (rp = slave->addrinfo_; rp != NULL; rp = rp->ai_next) {
 	       sfd = socket(rp->ai_family, rp->ai_socktype,
 			    rp->ai_protocol);
@@ -561,8 +559,9 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
                 mq_send_message (mq_id, &ipc_message);
                 /*slave released, remove it from ms_assoc */
                 splithex (srcid, &slave_id, &case_id);
-		
-		if (slave_entry->status_ & SLAVE_STAT_RESULT) {
+		MIN_DEBUG ("slave_entry = %x, run count = %d",
+			   slave_entry, slave_entry->run_cnt_);
+		if (slave_entry->run_cnt_ == 0) {
 			/* we have a result - can close */
 			tcp_slave_close (slave_entry);
 		} else
@@ -603,8 +602,7 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
 				if (slave_entry != INITPTR && 
 				    slave_entry->status_ 
 				    & SLAVE_STAT_RESERVED) {
-					slave_entry->status_ |= 
-						SLAVE_STAT_RESULT;
+				        slave_entry->run_cnt_ -= 1; 
 					
 				} else {
 					/* we have are free - can close */
@@ -625,8 +623,7 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
 				if (slave_entry != INITPTR &&
 				    slave_entry->status_ & 
 				    SLAVE_STAT_RESERVED) {
-					slave_entry->status_ |= 
-						SLAVE_STAT_RESULT;
+				        slave_entry->run_cnt_ -= 1; 
 
 				} else {
 					/* we have are free - can close */

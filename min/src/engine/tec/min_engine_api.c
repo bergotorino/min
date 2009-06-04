@@ -250,10 +250,10 @@ LOCAL int eapi_error (const char *what, const char *msg)
 
 LOCAL int eapi_open ()
 {
-    MIN_DEBUG ("Opening");
+	MIN_DEBUG ("Opening");
 	//assert (open == 0);
 	open = 1;
-    ec_configure ();
+	ec_configure ();
 	return ec_start_modules();
 }
 

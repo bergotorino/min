@@ -66,8 +66,10 @@ typedef struct {
 	/** reserved flag */
 #define SLAVE_STAT_FREE 0x0
 #define SLAVE_STAT_RESERVED 0x1
-#define SLAVE_STAT_RESULT 0x2
 	int             status_;
+  
+        /** number of ongoing remote runs */
+        int             run_cnt_;
 	
 	/** socket for communicating with the slave */
 	int             fd_;

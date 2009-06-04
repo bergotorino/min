@@ -1111,6 +1111,11 @@ send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
 			      slave_entry->fd_);
                 break;
         case ERemoteSlave:
+	  if (!strncmp (message, "run", 3))  {
+		        slave_entry->run_cnt_++;
+		}
+		MIN_DEBUG ("slave_entry = %x, run count = %d",
+			   slave_entry, slave_entry->run_cnt_);
 		in->send_rcp ("remote", "deadbeef", hex, message,
 			      slave_entry->fd_);
                 break;
@@ -1175,6 +1180,7 @@ int ec_msg_ms_handler (MsgBuffer * message)
 		memset (slave_entry, 0x0, sizeof (slave_info));
 		slave_entry->slave_name_ = tx_create (message->message_);
                 slave_entry->slave_id_ = 0;
+		slave_entry->run_cnt_ = 0;
                 dl_list_add (ms_assoc, (void *)slave_entry);
 #else
 		if (allocate_ip_slave (message->desc_, message->message_,
@@ -1357,6 +1363,7 @@ int tec_add_ip_slave_to_pool (struct addrinfo **ai, char *slavetype)
        slave = NEW(slave_info);
        slave->status_ = SLAVE_STAT_FREE;
        slave->slave_id_ = 0;
+       slave->run_cnt_ = 0;
        slave->addrinfo_ = *ai;
        slave->slave_type_ = tx_create (slavetype);
        slave->slave_name_ = INITPTR;
