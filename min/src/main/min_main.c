@@ -472,9 +472,11 @@ int main (int argc, char *argv[], char *envp[])
                 eapi_init (in, out);
                 /* Perform application start-up */
                 ec_min_init (envp, oper_mode);
-		out->min_open();
-		if (!slave_mode)
+		if (!slave_mode) {
+			out->min_open();
 			ec_start_modules();
+		} else
+			ec_configure();
 		if (add_command_line_modules (modulelist) ||
 		    add_ip_slaves (slavelist))
 			exit (-1);
@@ -526,7 +528,7 @@ int main (int argc, char *argv[], char *envp[])
     }
 	
     dl_list_free (&modulelist);
-	dl_list_free (&slavelist);
+    dl_list_free (&slavelist);
     return retval;
 }
 
