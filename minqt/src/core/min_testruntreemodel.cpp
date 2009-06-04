@@ -224,7 +224,7 @@ void Min::TestRunTreeModel::setupModelData()
 	QListIterator<unsigned int> it(parentData);
 	while(it.hasNext()){
 		unsigned int current = it.next();
-		qDebug("current: %d ", current);
+		//qDebug("current: %d ", current);
 //		if (parents.last()->childCount() > 0) {
 //	        	parents << parents.last()->child(parents.last()->childCount()-1);
 //	     	}
@@ -234,7 +234,7 @@ void Min::TestRunTreeModel::setupModelData()
 			QStringList row = iit.next();
 			QList<QVariant> row2;
 			foreach(QString s, row){
-				qDebug("%s", s.toStdString().c_str());
+				//qDebug("%s", s.toStdString().c_str());
 				row2 << s;
 			}
              		parents.last()->appendChild(new TreeItem(row2, parents.last()));

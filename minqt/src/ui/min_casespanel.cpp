@@ -74,6 +74,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     availableCasesView_->setModel(availableProxy_);
     availableCasesView_->setColumnWidth(0,200);
     availableCasesView_->horizontalHeader()->setStretchLastSection(true);
+    hideViewColumns();
 /*
     availableCasesView_->setAutoFillBackground(true);
     QPalette pal = availableCasesView_->palette();
@@ -91,7 +92,8 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     // Signals and slots
     connect (&db_,SIGNAL(updated()),
              availableCasesModel_,SLOT(updateModelData()));
-
+    connect (availableCasesModel_,SIGNAL(layoutChanged()),
+                this, SLOT(hideViewColumns()));
     connect (&db_, SIGNAL(updated()), testRunsModel_, SLOT(updateModelData()));
 }
 // -----------------------------------------------------------------------------
@@ -118,5 +120,13 @@ void Min::CasesPanel::updateAvailableView()
 {
     qDebug("Updated!!!\n"); 
 }
+
+void Min::CasesPanel::hideViewColumns()
+{
+	    availableCasesView_->setColumnHidden(2, true);
+	    availableCasesView_->setColumnHidden(3, true);
+	    availableCasesView_->setColumnHidden(4, true);
+}
+
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

@@ -48,7 +48,7 @@ int Min::AvailableModel::rowCount(const QModelIndex &parent) const
 int Min::AvailableModel::columnCount(const QModelIndex &parent) const
 {
     /** we are removing description for now, at future it will be 3 */
-    return 2;
+    return 5;
 }
 // -----------------------------------------------------------------------------
 QVariant Min::AvailableModel::data(const QModelIndex &index, int role) const
@@ -59,7 +59,7 @@ QVariant Min::AvailableModel::data(const QModelIndex &index, int role) const
     int column = index.column();
 
     if (role==Qt::DisplayRole) {
-        if (row < data_.count() && column < 2 ) {
+        if (row < data_.count() && column < 5 ) {
             return data_[row][column];
         } else return "Nothing";
     }
@@ -76,6 +76,7 @@ QVariant Min::AvailableModel::headerData(int section,
             if (section==1) return "Test Case Name";
             if (section==2) return "Description";
             if (section==3) return "Tags";
+            if (section==4) return "ModuleDbId";
         }
         return QVariant();
     } else {

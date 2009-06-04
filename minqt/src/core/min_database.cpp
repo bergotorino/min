@@ -301,6 +301,7 @@ unsigned int Min::Database::getTestCaseDbId(unsigned int module_dbid,
 unsigned int Min::Database::getTestCaseDbId(unsigned int module_id,
                                         const QString &test_case_name)
 {
+
     QSqlQuery query;
     QVariant id(0);
     query.prepare("SELECT id FROM test_case WHERE module_id=:modid AND test_case_title=:casename;");
@@ -408,7 +409,7 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int devid) const
     QSqlQuery query;
     QVector<QStringList> retval;
     QStringList row;
-    query.prepare("SELECT module_name, test_case_title, test_case_description, test_case_dbid FROM availableview WHERE device_dbid=:devdbid;");
+    query.prepare("SELECT module_name, test_case_title, test_case_description, test_case_dbid, module_dbid FROM availableview WHERE device_dbid=:devdbid;");
     query.bindValue(QString(":devdbid"), QVariant(devid));
     if(query.exec()){
         while(query.next()) {
@@ -417,6 +418,7 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int devid) const
             row.append(query.value(1).toString());
             row.append(query.value(2).toString());
             row.append(query.value(3).toString());
+            row.append(query.value(4).toString());
 	    retval.append(row);
         }
     }
@@ -616,7 +618,7 @@ bool Min::Database::initDatabase()
 	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 4\");");
 	query.exec("INSERT INTO printout VALUES (NULL, 1, \"printout 5\");");
 */
-	query.exec("CREATE VIEW availableview AS SELECT module.device_id AS device_dbid, module.module_name AS module_name, test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid FROM test_case, module WHERE module.id=test_case.module_id;");
+	query.exec("CREATE VIEW availableview AS SELECT module.device_id AS device_dbid, module.module_name AS module_name, test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_case.id AS test_case_dbid, test_case.module_id as module_dbid FROM test_case, module WHERE module.id=test_case.module_id;");
 	query.exec("CREATE VIEW executedview AS SELECT test_case.test_case_title AS test_case_title, test_case.test_case_description AS test_case_description, test_run.group_id AS group_id, test_run.status AS status, test_run.start_time AS start_time, test_run.end_time AS end_time, test_run.result AS result, test_run.result_description AS result_description, test_run.id as test_run_dbid, module.device_id AS device_dbid FROM module, test_case, test_run WHERE test_run.test_case_id=test_case.id AND module.id=test_case.module_id;");
 //		qDebug("view creation failed");
 	

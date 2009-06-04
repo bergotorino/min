@@ -78,6 +78,7 @@ namespace Min
     private slots:
         /** Updates the view */
         void updateAvailableView();
+        void hideViewColumns();
     private:
         /** Main area on the window. */
         QToolBox *centralWidget_;
