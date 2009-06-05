@@ -73,124 +73,33 @@ LOCAL void emptycallback3(char* text,int len)
 
 void setup (void)
 {
-	eapi_init (&in_str, &out_str);
+	min_if_open (emptycallback1,emptycallback2,emptycallback3,NULL,envp_);
 }
 
 void teardown (void)
 {
+	min_if_close();
 
 }
 
 /* ------------------------------------------------------------------------- */
 /* ============================= TESTS ===================================== */
 /* ------------------------------------------------------------------------- */
-START_TEST(open_success)
-{
-        int result = 0;
-
-        result = min_if_open(emptycallback1,emptycallback2,emptycallback3,NULL,envp_);
-        fail_unless(mq_id >= 0,"Failed to create message queue");
-        fail_unless(result == 0,"Failed to open min");
-        ec_cleanup();
-}
-END_TEST
-/* ------------------------------------------------------------------------- */
-START_TEST(close_success)
-{
-        DLListIterator work_module_item = DLListNULLIterator;
-        int status;
-        int result = 0;
-        int cont_flag = 0;
-
-        ec_min_init(envp_, 0);
-
-        while( cont_flag == 0 ) {
-                cont_flag = 1;
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-
-        result = min_if_close();
-        fail_unless(result == 0,"Failed to close min");
-}
-END_TEST
 
 START_TEST(exec_case_inv_arg)
 {
-        DLListIterator work_module_item = DLListNULLIterator;
-        int status;
-        int cont_flag = 0;
-        DLListIterator work_case_item = DLListNULLIterator;
-        int result = 0;
-        ec_min_init(envp_,0);
-        ec_configure();
-        ec_start_modules();
-        
-        while( cont_flag == 0 ) {
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-        
-        work_module_item = dl_list_head( instantiated_modules );
-        work_case_item = dl_list_head(tm_get_tclist(work_module_item));
-        result = min_if_exec_case("DemoTestModule.so",0);
-        
-        usleep(200000);
-        ec_cleanup();
-        fail_unless( result == -1 ,"wrong return value: %d",result);
+        int result = min_if_exec_case("DemoTestModule.so",0);
+        fail_unless( result == 1 ,"wrong return value: %d",result);
 }
 END_TEST
-
-
 /* ------------------------------------------------------------------------- */
-START_TEST(exec_case_success)
+START_TEST(module_add_fail)
 {
-        DLListIterator work_module_item = DLListNULLIterator;
-        int status;
-        int cont_flag = 0;
-        DLListIterator work_case_item = DLListNULLIterator;
-        int result = 0;
-        
-        ec_min_init(envp_,0);
-        ec_configure();
-        ec_start_modules();
-        
-        while( cont_flag == 0 ) {
-                cont_flag = 1;
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-        
-        work_module_item = dl_list_head( instantiated_modules );
-        work_case_item = dl_list_at(tm_get_tclist(work_module_item),1);
-        result = min_if_exec_case("minDemoModule",1);
-        usleep(50000);
+	int result = min_if_module_add ("_should_not_exist_", "");
+        fail_if( result == 0 ,"wrong return value: %d",result);
 
-        work_case_item = dl_list_at(selected_cases,0);
-        fail_unless ( (tc_get_status(work_case_item)) == TEST_CASE_ONGOING , "Case status not set");
-        fail_unless( result == 0 ,"wrong return value: %d",result);
-        min_if_close();
 }
 END_TEST
-
 /* ------------------------------------------------------------------------- */
 START_TEST(cancel_case_inv_arg)
 {
@@ -220,10 +129,10 @@ START_TEST(cancel_case_inv_arg)
         result = min_if_cancel_case (7);
         usleep(200000);
         ec_cleanup();
-        fail_unless( result == -3 ,"wrong return value: %d",result);
+        fail_unless( result == 1 ,"wrong return value: %d",result);
 }
 END_TEST
-
+/* ------------------------------------------------------------------------- */
 START_TEST(cancel_case_not_running)
 {
         
@@ -255,11 +164,11 @@ START_TEST(cancel_case_not_running)
         result = min_if_cancel_case(0);
 
         ec_cleanup();
-        fail_unless( result == -1 ,"wrong return value: %d",result);
+        fail_unless( result == 1 ,"wrong return value: %d",result);
 
 }
 END_TEST
-
+/* ------------------------------------------------------------------------- */
 START_TEST(cancel_case_cancelled)
 {
         
@@ -298,51 +207,25 @@ START_TEST(cancel_case_cancelled)
         fail_unless ( (tc_get_status(work_case_item)) == TEST_CASE_TERMINATED , "Case status changed");
         
         ec_cleanup();
-        fail_unless( result == -1 ,"wrong return value: %d",result);
+        fail_unless( result == 1 ,"wrong return value: %d",result);
 
 }
 END_TEST
-
 /* ------------------------------------------------------------------------- */
 START_TEST(cancel_case_success)
 {
-        DLListIterator work_module_item = DLListNULLIterator;
-        int status;
-        int cont_flag = 0;
-        DLListIterator work_case_item = DLListNULLIterator;
-        int result = 0;
+        unsigned int result = 0;
+	
+	result = min_if_module_add ("minDemoModule", "");
         
-        ec_min_init(envp_,0);
-        ec_configure();
-        ec_start_modules();
+	result = min_if_exec_case ("minDemoModule", 2);
         
-        while( cont_flag == 0 ) {
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
+	result = min_if_cancel_case (result);
+        fail_unless ( result == 0, "Cancel case failed");
         
-        work_module_item = dl_list_head( instantiated_modules );
-        work_case_item = dl_list_at(tm_get_tclist(work_module_item),1);
-        ec_exec_test_case ( work_case_item );
-        usleep(200000);
-        
-        result = min_if_cancel_case (0);
-        
-        work_case_item = dl_list_at(selected_cases,0);
-        usleep(200000);
-        fail_unless ( (tc_get_status(work_case_item)) == TEST_CASE_TERMINATED , "Case status not set");
-        
-        ec_cleanup();
-        fail_unless( result == 0 ,"wrong return value: %d",result);
 }
 END_TEST
-
+/* ------------------------------------------------------------------------- */
 START_TEST(pause_case_inv_arg)
 {
         
@@ -371,11 +254,11 @@ START_TEST(pause_case_inv_arg)
         ec_exec_test_case(work_case_item);
         result = min_if_pause_case (7);
         ec_cleanup();
-        fail_unless( result == -3 ,"wrong return value: %d",result);
+        fail_unless( result == 1 ,"wrong return value: %d",result);
 
 }
 END_TEST
-
+/* ------------------------------------------------------------------------- */
 START_TEST(pause_case_not_running)
 {
         
@@ -407,11 +290,11 @@ START_TEST(pause_case_not_running)
         result = min_if_pause_case (0);
 
         ec_cleanup();
-        fail_unless( result == -2 ,"wrong return value: %d",result);
+        fail_unless( result == 1 ,"wrong return value: %d",result);
 
 }
 END_TEST
-
+/* ------------------------------------------------------------------------- */
 START_TEST(pause_case_paused)
 {
         
@@ -450,53 +333,25 @@ START_TEST(pause_case_paused)
         fail_unless ( (tc_get_status(work_case_item)) == TEST_CASE_PAUSED , "Case status changed");
         
         ec_cleanup();
-        fail_unless( result == -1 ,"wrong return value: %d",result);
+        fail_unless( result == 1 ,"wrong return value: %d",result);
 
 }
 END_TEST
-
-
+/* ------------------------------------------------------------------------- */
 START_TEST(pause_case_success)
 {
+        unsigned int result = 0;
+	
+	result = min_if_module_add ("minDemoModule", "");
         
-        DLListIterator work_module_item = DLListNULLIterator;
-        int status;
-        int cont_flag = 0;
-        DLListIterator work_case_item = DLListNULLIterator;
-        int result = 0;
+	result = min_if_exec_case ("minDemoModule", 2);
         
-        ec_min_init(envp_,0);
-        ec_configure();
-        ec_start_modules();
+	result = min_if_pause_case (result);
+        fail_unless ( result == 0, "pause case failed");
         
-        while( cont_flag == 0 ) {
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-        
-        work_module_item = dl_list_head( instantiated_modules );
-        work_case_item = dl_list_at(tm_get_tclist(work_module_item),1);
-        ec_exec_test_case ( work_case_item );
-        usleep(200000);
-        
-        result = min_if_pause_case (0);
-        
-        work_case_item = dl_list_at(selected_cases,0);
-        usleep(200000);
-        fail_unless ( (tc_get_status(work_case_item)) == TEST_CASE_PAUSED , "Case status not set");
-        
-        ec_cleanup();
-        fail_unless( result == 0 ,"wrong return value: %d",result);
-
 }
 END_TEST
-
+/* ------------------------------------------------------------------------- */
 START_TEST(resume_case_inv_arg)
 {
         
@@ -525,11 +380,11 @@ START_TEST(resume_case_inv_arg)
         ec_exec_test_case(work_case_item);
         result = min_if_resume_case (7);
         ec_cleanup();
-        fail_unless( result == -3 ,"wrong return value: %d",result);
+        fail_unless( result == 1 ,"wrong return value: %d",result);
 
 }
 END_TEST
-
+/* ------------------------------------------------------------------------- */
 START_TEST(resume_case_not_paused)
 {
         
@@ -559,55 +414,28 @@ START_TEST(resume_case_not_paused)
         result = min_if_resume_case ( 0 );
         
         ec_cleanup();
-        fail_unless( result == -1 ,"wrong return value: %d",result);
+        fail_unless( result == 1 ,"wrong return value: %d",result);
 
 }
 END_TEST
-
+/* ------------------------------------------------------------------------- */
 START_TEST(resume_case_paused)
 {
+        unsigned int result = 0, run_id;
+	
+	result = min_if_module_add ("minDemoModule", "");
         
-        DLListIterator work_module_item = DLListNULLIterator;
-        int status;
-        int cont_flag = 0;
-        DLListIterator work_case_item = DLListNULLIterator;
-        int result = 0;
-        ec_min_init(envp_,0);
-        ec_configure();
-        ec_start_modules();
+	run_id = min_if_exec_case ("minDemoModule", 2);
         
-        while( cont_flag == 0 ) {
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
+	result = min_if_pause_case (run_id);
+        fail_unless ( result == 0, "pause case failed");
         
-        work_module_item = dl_list_head( instantiated_modules );
-        work_case_item = dl_list_at ( tm_get_tclist ( work_module_item ) , 1 );
-        ec_exec_test_case(work_case_item);
-        sleep ( 2 );
-        min_if_pause_case ( 0 );
-        sleep ( 1 );
-        result = min_if_resume_case ( 0 );
-        usleep(50000);
-        work_case_item = dl_list_at(selected_cases,0);
+	result = min_if_resume_case (run_id);
+        fail_unless ( result == 0, "resume case failed");
         
-        fail_unless ( (tc_get_status(work_case_item)) == TEST_CASE_ONGOING , "Case status not set");
-        
-        sleep ( 4 );
-        
-        fail_unless ( (tc_get_status(work_case_item)) == TEST_CASE_TERMINATED , "Case not finished");
-        ec_cleanup();
-        fail_unless( result == 0 ,"wrong return value: %d",result);
-
 }
 END_TEST
-
+/* ------------------------------------------------------------------------- */
 START_TEST(resume_case_not_running)
 {
         
@@ -639,11 +467,11 @@ START_TEST(resume_case_not_running)
         result = min_if_resume_case (0);
 
         ec_cleanup();
-        fail_unless( result == -2 ,"wrong return value: %d",result);
+        fail_unless( result == 1 ,"wrong return value: %d",result);
 
 }
 END_TEST
-
+/* ------------------------------------------------------------------------- */
 START_TEST(get_cases_success)
 {
         int result = 0;
@@ -653,161 +481,31 @@ START_TEST(get_cases_success)
         DLListIterator work_module_item = DLListNULLIterator;
         int status;
         
-        ec_min_init(envp_,0);
-        ec_configure();
-        ec_start_modules();
-        while( cont_flag == 0 ) {
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-        result = min_if_get_cases(&av_mods);
+	result = min_if_module_add ("minDemoModule", "");
+        fail_unless(result == 0 ,"Module add failed");
+        result = min_if_get_cases (&av_mods);
+        fail_unless(result == 1, "wrong number of modules");
 
-        ec_cleanup();
-        fail_unless(result == 3,"Wrong number of modules");
-        fail_if(strstr(av_mods[0].module_name_,"minDemoModule") == NULL,"Wrong module name");
-        fail_unless(av_mods[0].num_test_cases_ == 2,"Wrong number of test cases");
-        fail_unless(strcmp(av_mods[0].test_cases_[0].case_name_,"Demo_1") == 0,"Wrong case title");
-        fail_unless(av_mods[0].test_cases_[0].case_id_ == 0,"wrong case id, %d",av_mods[0].test_cases_[0].case_id_);
-        fail_unless(strcmp(av_mods[0].test_cases_[1].case_name_,"Demo_2") == 0,"Wrong case title");
-        fail_unless(av_mods[0].test_cases_[1].case_id_ == 1,"wrong case id, %d",av_mods[0].test_cases_[1].case_id_);
+        fail_if(strstr(av_mods[0].module_name_,"minDemoModule") == NULL,
+		"Wrong module name");
+        fail_unless(av_mods[0].num_test_cases_ == 4,
+		    "Wrong number of test cases %d", 
+		    av_mods[0].num_test_cases_);
+        fail_unless(strcmp(av_mods[0].test_cases_[0].case_name_,
+			   "Demo_1") == 0,"Wrong case title");
+        fail_unless(av_mods[0].test_cases_[0].case_id_ == 1,
+		    "wrong case id, %d",av_mods[0].test_cases_[0].case_id_);
+        fail_unless(strcmp(av_mods[0].test_cases_[1].case_name_,
+			   "Demo_2") == 0,"Wrong case title");
+        fail_unless(av_mods[0].test_cases_[1].case_id_ == 2,
+		    "wrong case id, %d",av_mods[0].test_cases_[1].case_id_);
 }
 END_TEST
-
-START_TEST( add_module_without_tcfile )
+/* ------------------------------------------------------------------------- */
+START_TEST(add_module_without_tcfile)
 {
-
-        int result = 0;
-        int result2 = 0;
-        module_info* av_mods;
-        int cont_flag = 0;
-        DLListIterator work_case_item = DLListNULLIterator;
-        DLListIterator work_module_item = DLListNULLIterator;
-        int status;
-        ec_min_init(envp_,1);
-        ec_configure();
-        ec_start_modules();
-        while( cont_flag == 0 ) {
-                cont_flag = 1;
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-
-        min_if_module_add("minDemoModule",NULL);
-        result = min_if_get_cases(&av_mods);
-        fail_unless(result==1,"module not started");
-        min_if_close();
-
-}
-END_TEST
-
-START_TEST( add_module_with_invalid_tc_file_ok )
-{
-
-        int result = 0;
-        int result2 = 0;
-        module_info* av_mods;
-        int cont_flag = 0;
-        DLListIterator work_case_item = DLListNULLIterator;
-        DLListIterator work_module_item = DLListNULLIterator;
-        int status;
-        ec_min_init(envp_,1);
-        ec_configure();
-        ec_start_modules();
-        while( cont_flag == 0 ) {
-                cont_flag = 1;
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-
-        min_if_module_add("minDemoModule","yaddayadda");
-        result = min_if_get_cases(&av_mods);
-        fail_unless(result==0,"module started : modules = %d",result);
-        min_if_close();
-
-}
-END_TEST
-
-
-START_TEST( add_module_with_valid_tc_file_ok )
-{
-
-        int result = 0;
-        int result2 = 0;
-        module_info* av_mods;
-        int cont_flag = 0;
-        DLListIterator work_case_item = DLListNULLIterator;
-        DLListIterator work_module_item = DLListNULLIterator;
-        int status;
-        ec_min_init(envp_,1);
-        ec_configure();
-        ec_start_modules();
-        while( cont_flag == 0 ) {
-                cont_flag = 1;
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-
-        min_if_module_add("scripter","ps2.conf");
-        result = min_if_get_cases(&av_mods);
-        fail_unless(result==1,"module not started : modules = %d",result);
-        min_if_close();
-
-}
-END_TEST
-
-START_TEST( add_invalid_module )
-{
-
-        int result = 0;
-        int result2 = 0;
-        module_info* av_mods;
-        int cont_flag = 0;
-        DLListIterator work_case_item = DLListNULLIterator;
-        DLListIterator work_module_item = DLListNULLIterator;
-        int status;
-        ec_min_init(envp_,1);
-        ec_configure();
-        ec_start_modules();
-        while( cont_flag == 0 ) {
-                cont_flag = 1;
-                usleep(100000);
-                work_module_item = dl_list_head(instantiated_modules);
-                while( work_module_item != DLListNULLIterator ) {
-                        status = tm_get_status(work_module_item);
-                        if (status == TEST_MODULE_READY) cont_flag = cont_flag | 1;
-                        else                             cont_flag = 0;
-                        work_module_item = dl_list_next(work_module_item);
-                }
-        }
-
-        min_if_module_add("scrrrripter","ps2.conf");
-        result = min_if_get_cases(&av_mods);
-        fail_unless(result==0,"module seen as started ?");
-        min_if_close();
+	int result = min_if_module_add ("minDemoModule", "");
+        fail_unless( result == 0 ,"wrong return value: %d",result);
 
 }
 END_TEST
@@ -823,13 +521,12 @@ Suite* mintfwif_suite()
         TCase *tc_core = tcase_create ("Core");
 	tcase_add_checked_fixture (tc_core, setup, teardown);
 
-        tcase_add_test ( tc_core, open_success );
-        tcase_add_test ( tc_core, close_success );
+        tcase_add_test ( tc_core, module_add_fail );
+
         tcase_add_test ( tc_core, exec_case_inv_arg );
-        tcase_add_test ( tc_core, exec_case_success );
         tcase_add_test ( tc_core, cancel_case_inv_arg );
-        tcase_add_test ( tc_core, cancel_case_not_running );
-        tcase_add_test ( tc_core, cancel_case_success );
+        tcase_add_test ( tc_core, cancel_case_not_running ); 
+        tcase_add_test ( tc_core, cancel_case_success ); 
         tcase_add_test ( tc_core, cancel_case_cancelled );
         tcase_add_test ( tc_core, pause_case_inv_arg );
         tcase_add_test ( tc_core, pause_case_not_running );
@@ -841,9 +538,6 @@ Suite* mintfwif_suite()
         tcase_add_test ( tc_core, resume_case_not_running );
         tcase_add_test ( tc_core, get_cases_success );
         tcase_add_test ( tc_core, add_module_without_tcfile );
-        tcase_add_test ( tc_core, add_module_with_invalid_tc_file_ok );
-        tcase_add_test ( tc_core, add_module_with_valid_tc_file_ok );
-        tcase_add_test ( tc_core, add_invalid_module );
         tcase_set_timeout ( tc_core, 10);
         suite_add_tcase (s, tc_core);
 
@@ -860,7 +554,7 @@ int mintfwif_tests(char *envp[])
         s  = mintfwif_suite ();
         sr = srunner_create (s);
 	
-  //      srunner_set_fork_status (sr,CK_NOFORK);
+        // srunner_set_fork_status (sr,CK_NOFORK);
         srunner_run_all(sr, CK_NORMAL);
         number_failed = srunner_ntests_failed(sr);
         srunner_free(sr);
