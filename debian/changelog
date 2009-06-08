@@ -1,3 +1,21 @@
+min-all (2009w24) unstable; urgency=low
+  * Ninth MIN Release
+  * Fixed: MIN variable transmission between master and slave doesn't work on tpc/ip version (4145)
+  * Fixed: Slave cannot execute test case when multiple test case files are defined (4146) 
+  * Fixed: Bug in commandline option parsing --plugin does not accept short form (-p) (4148)
+  * Fixed: MIN Qt does not work when module is configured twice (4177)
+  * Added: createtestmodule++, Support C++ in Test Module Template Wizard 
+  * Added: IP slave registration to dbus plugin
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   08 Jun 2009 11:12:15 +0100
+
+min-all (2009w19) unstable; urgency=low
+  * Seventh MIN Release
+  * Fixed: Console-ui doesn't show all the test cases on first view
+  * Fixed: undefined g_cclosure__VOID_STRING occuring on armel.
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   04 May 2009 08:37:10 +0100
+
 min-all (2009w22) unstable; urgency=low
   * Eight MIN Release
   * Fixed: ELF binaries from mintest package go to /usr/lib/min-tests instead of /usr/share/min-tests
