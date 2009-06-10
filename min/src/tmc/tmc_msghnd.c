@@ -439,6 +439,11 @@ void gu_handle_message (TMC_t * tmc, const MsgBuffer * msg)
                 break;
 
         case MSG_EXE:
+		/*
+		** Initialize to not complete
+		*/
+                globaltcr.result_ = TP_NC;
+                strcpy (globaltcr.desc_, "Test Case Not completed");
                 gu_handle_exe (tmc, msg->param_, msg->message_);
                 break;
 
