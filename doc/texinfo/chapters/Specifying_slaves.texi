@@ -1,4 +1,4 @@
-Before running the master/slave case, the slaves must be introduced to master. This can be done with command line swith @code{--slave hostname[slave_type]}. The hostname (or ip address) is mandatory, if slave type is not given, it defaults to ``phone''. It is also possible to configure slaves in @code{min.conf} file.
+Before running the master/slave case, the slaves must be introduced to master. This can be done with command line swith @code{--slave hostname[slave_type]}. The hostname (or ip address) is mandatory, if slave type is not given, it defaults to ``phone''. It is also possible to configure slaves in @code{min.conf} file, or into a file residing in @code{/etc/min.d/} directory.
 
 @example
 [Slaves]
