@@ -118,6 +118,7 @@ void            ec_set_read (DLList * set_cases_list, char *setname);
 int             ec_run_set_seq (DLList * work_cases_list);
 int             ec_run_set_par (DLList * work_cases_list);
 int             ec_read_settings (char *engine_ini);
+void            ec_reinit();
 void            ec_cleanup ();
 /*write test set with default name */
 int             ec_set_write (DLList * cases_list);
@@ -125,13 +126,16 @@ int             ec_set_write (DLList * cases_list);
 int             ec_set_write_file (DLList * cases_list, char *filename);
 /*add module at any time */
 int             ec_add_module (TSChar * mod_name, DLList * testcase_files,
-                               unsigned id);
+                               unsigned id, int report);
 /*create path to test set from current date/hour */
 char           *create_path ();
 /*search for file in defined search paths */
 int             ec_search_lib (char *mod_name);
 /* reads config files and do reports new modules (uses eapi) */
-int ec_configure ();
+int             ec_configure ();
+/** attaches a test case title fitler to engine */
+void            ec_add_title_filter (char *filter_str);
+
 /* -------------------------------------------------------------------------*/
 
 #endif                          /* TEC_H */

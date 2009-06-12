@@ -1,4 +1,4 @@
-;/*
+/*
  * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
  * and/or its subsidiary(-ies).
  * Contact: Juha Perala
@@ -65,7 +65,6 @@ bool            continue_ = true;
 
 eapiIn_t        out_clbk_;
 eapiOut_t       min_clbk_;
-
 
 /* List available of cases */
 DLList *case_list_ = INITPTR;
@@ -641,7 +640,6 @@ LOCAL void pl_module_ready (unsigned moduleid)
 	        display_info ("All cases loaded", 1);
 	}
 }
-
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_no_module (char *modulename)
 {

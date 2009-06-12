@@ -489,7 +489,7 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
 	min_if_module_add (module, !strcmp (casefile, "dummy.cfg") ?
 			   "" : temp_string);
 #else
-        ec_add_module (module, conf_list, 0);
+        ec_add_module (module, conf_list, 0, 0);
 #endif
         /*wait for module to return testcases */
 MODULE_PRESENT:

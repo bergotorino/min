@@ -44,6 +44,7 @@
 /* EXTERNAL GLOBAL VARIABLES */
 extern char* optarg;
 extern eapiIn_t in_str;
+extern int min_return_value;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
@@ -234,7 +235,7 @@ LOCAL int add_command_line_modules (DLList * modulelist)
                         return 1;
                 }
                 fclose (f);
-                ec_add_module (path, configs_list, 0);
+                ec_add_module (path, configs_list, 0, 1);
                 DELETE (path);
         }
 
@@ -244,7 +245,7 @@ LOCAL int add_command_line_modules (DLList * modulelist)
 LOCAL int add_ip_slaves (DLList * slavelist)
 {
  
-       char *command, *p = NULL;
+	char *command, *p = NULL;
         DLListIterator it;
 
 
@@ -324,7 +325,7 @@ LOCAL pthread_t load_plugin (const char *plugin_name)
 int main (int argc, char *argv[], char *envp[])
 {
         int             cont_flag, status, c, oper_mode, exit_flag;
-        int             no_cui_flag, help_flag, version_flag, retval;
+        int             no_cui_flag, help_flag, version_flag;
 	int 	        slave_mode = 0, master_socket = -1;
         DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
@@ -359,22 +360,22 @@ int main (int argc, char *argv[], char *envp[])
                         {"execute", required_argument, NULL, 'x'},
 			{"slave", required_argument, NULL, 's'},
                         {"plugin",required_argument, NULL,'p'},
+                        {"title-filter",required_argument, NULL,'t'},
                         {"masterfd",required_argument, NULL,'m'},
-
 		};
 
         modulelist = dl_list_create();
 	    slavelist = dl_list_create();
 	work_module_item = DLListNULLIterator;
 	oper_mode = no_cui_flag = help_flag = version_flag = cont_flag = 0;
-        retval = exit_flag = 0;
+        exit_flag = 0;
         
         /* Detect commandline arguments */
 	while (1) {
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
      
-		c = getopt_long (argc, argv, "nchvi:x:s:p:m:",
+		c = getopt_long (argc, argv, "nchvi:x:s:p:m:t:",
 				 min_options, &option_index);
      
 		/* Detect the end of the options. */
@@ -388,6 +389,7 @@ int main (int argc, char *argv[], char *envp[])
 	       
 		case 'n':
 		case 'c':
+			tx_c_copy (plugin, "cli");
 			no_cui_flag = 1;
 			break;
 			
@@ -427,6 +429,9 @@ int main (int argc, char *argv[], char *envp[])
 			oper_mode = 0;
 			master_socket = atoi (optarg);
 			break;
+		case 't':
+			ec_add_title_filter (optarg);
+			break;
 		default:
 			abort ();
              }
@@ -465,12 +470,12 @@ int main (int argc, char *argv[], char *envp[])
         }
 
 
-
+/*
 	if (no_cui_flag) {
                 in = &in_str;
                 out = &out_str;
                 eapi_init (in, out);
-                /* Perform application start-up */
+                / Perform application start-up /
                 ec_min_init (envp, oper_mode);
 		if (!slave_mode) {
 			out->min_open();
@@ -502,34 +507,49 @@ int main (int argc, char *argv[], char *envp[])
 			return 0;
 		}
 	} else {
-                /* Perform application start-up */
-                ec_min_init (envp, oper_mode);
+*/
+	/* Perform application start-up */
+	ec_min_init (envp, oper_mode);
 
-                c2 = tx_get_buf(plugin);
-                do {
-                        c3 = strchr (c2,':');
-                        if (c3!=NULL) (*c3) = '\0';
-                        plugin_thread[0] = load_plugin(c2);
-                        num_of_plugins++;
+	if (slave_mode) {
+                in = &in_str;
+                out = &out_str;
+                eapi_init (in, out);
+		ec_configure();
+		new_tcp_master (master_socket);
+		while (slave_exit == 0)
+			usleep (500000);
+		ec_cleanup();
+		return 0;
+
+	}
+	/**
+	 *  Load plugin and go
+	 */
+	c2 = tx_get_buf(plugin);
+	do {
+		c3 = strchr (c2,':');
+		if (c3!=NULL) (*c3) = '\0';
+		plugin_thread[0] = load_plugin(c2);
+		num_of_plugins++;
                         /* Multiple plugins not supported yet by engine.
                          * FIXME: remove in future following line. */
-                        break;
-                        if (c3==NULL) break;
-                        c2 = c3+1;
-                } while (c3!=NULL);
-                tx_destroy (&plugin);
-
-		if (add_command_line_modules (modulelist) ||
-		    add_ip_slaves (slavelist)) {
-			    exit (-1);
+		break;
+		if (c3==NULL) break;
+		c2 = c3+1;
+	} while (c3!=NULL);
+	tx_destroy (&plugin);
+	if (add_command_line_modules (modulelist) ||
+	    add_ip_slaves (slavelist)) {
+		exit (-1);
         }
-		
-	        pthread_join (plugin_thread[0], &tmp);
-    }
+	
+	pthread_join (plugin_thread[0], &tmp);
+
 	
     dl_list_free (&modulelist);
     dl_list_free (&slavelist);
-    return retval;
+    return min_return_value;
 }
 
 /* ------------------------------------------------------------------------- */

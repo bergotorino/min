@@ -256,7 +256,7 @@ testInterference *ti_start_interference_timed (TInterferenceType aType,
         testInterference *interf_controller = INITPTR;
         pid_t           ins_pid = 0;
         FILE           *output = NULL;
-        int             num = 0;
+        int             num = 0, ret;
         char          **exec_args = NULL;
         pthread_t       watcher;
         void           *(*controller) (void *) = NULL;
@@ -338,8 +338,11 @@ testInterference *ti_start_interference_timed (TInterferenceType aType,
                            doesn't stop the memory from being taken */
                         exit (0);
                 case (EIOLoad):
-                        system
+                        ret = system
                             ("dd if=/dev/zero of=/tmp/workfile count=128 bs=128");
+			if (ret < 0) {
+				break;
+			}
                         exec_args[0] = "/usr/bin/ioload";
                         exec_args[1] = "/tmp/workfile";
                         exec_args[2] = NULL;

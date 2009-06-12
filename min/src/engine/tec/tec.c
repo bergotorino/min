@@ -58,6 +58,8 @@ struct logger_settings_t logger_settings;
 eapiIn_t in_str;
 eapiIn_t *in = &in_str;
 DLList   *available_modules = INITPTR;   /*list of available test modules */
+DLList   *filters = INITPTR;
+int min_return_value = 0;
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
  */
@@ -340,6 +342,34 @@ LOCAL void ec_settings_send ()
         }
 
         sm_detach (sh_mem_handle);
+}
+
+/* ------------------------------------------------------------------------- */
+/** Function used check test case title agains filters
+ * @param test case title string
+ * @return 0 if the test case matches filter, 1 if not
+ */
+LOCAL int 
+ec_filter_it(char *title)
+{
+	DLListIterator it;
+	Text *filt;
+
+	if (filters == INITPTR)
+		return 0;
+
+	/*
+	** We have filters specified, see if the case should be filtered
+	*/
+	for (it = dl_list_head(filters);
+	     it != DLListNULLIterator;
+	     it = dl_list_next(it)) {
+		filt = dl_list_data (it);
+		if (!strcmp (title, tx_share_buf (filt)))
+			return 0;
+	}
+
+	return 1;
 }
 
 
@@ -905,32 +935,31 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
 
         switch (message->param_) {
         case TP_CRASHED:
-
+		min_return_value ++;
                 tr_set_result_type (work_result_item, TEST_RESULT_CRASHED);
                 break;
 
         case TP_TIMEOUTED:
-
+		min_return_value ++;
                 tr_set_result_type (work_result_item, TEST_RESULT_TIMEOUT);
                 break;
 
         case TP_PASSED:
-
                 tr_set_result_type (work_result_item, TEST_RESULT_PASSED);
                 break;
 
         case TP_FAILED:
-
+		min_return_value ++;
                 tr_set_result_type (work_result_item, TEST_RESULT_FAILED);
                 break;
 
         case TP_NC:
-
+		min_return_value ++;
                 tr_set_result_type (work_result_item, TEST_RESULT_NOT_RUN);
                 break;
 
         case TP_LEAVE:
-
+		min_return_value ++;
                 tr_set_result_type (work_result_item, TEST_RESULT_FAILED);
                 break;
 
@@ -1402,7 +1431,8 @@ LOCAL int ec_msg_tcd_handler (MsgBuffer * message)
                 }
         }
 
-        if (work_module_status == TEST_MODULE_TC_SENDING) {
+        if (work_module_status == TEST_MODULE_TC_SENDING &&
+	    !ec_filter_it(message->message_)) {
                 work_case =
                     tc_create (work_module_item, message->desc_,
                                message->message_);
@@ -1611,10 +1641,11 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
         }
 	
 	/*if (in->module_prints) in->module_prints (message->sender_, 
-						  message->message_);*/
+						  message->message_);
 	MINAPI_PLUGIN_CALL (module_prints, module_prints (message->sender_, 
 							  message->message_));
-
+	Why twice ??
+	*/
         work_list = tr_get_priontouts_list (work_result_item);
         work_printout_item = dl_list_head (work_list);
         while (work_printout_item != DLListNULLIterator) {
@@ -2329,7 +2360,6 @@ err_exit:
         
         return -1;
 }
-
 /** Function reads config files in following order : MIN_CONF_DIR/min.conf, 
  * $HOME/.min/min.conf, ./min.conf. Settings with single value are 
  * overwritten, module and search paths are appended.
@@ -2732,10 +2762,10 @@ int ec_abort_test_case (DLListIterator work_case_item)
         return result;
 }
 /* ------------------------------------------------------------------------- */
-/** Function that takes care of removal of all created objects, freeing
- * memory and so on.
+/** Function for freeing the "session" 
  */
-void ec_cleanup ()
+
+void ec_reinit()
 {
         long            address;
         DLListIterator  work_module_item;
@@ -2745,8 +2775,6 @@ void ec_cleanup ()
         test_case_s    *work_case = INITPTR;
         DLList         *work_list;
 	
-        event_system_cleanup ();
-	rcp_handling_cleanup ();
         work_module_item = dl_list_head (instantiated_modules);
 	/*shutdown all running tmcs and free list*/
         while (work_module_item != DLListNULLIterator) {
@@ -2760,9 +2788,6 @@ void ec_cleanup ()
                 work_module_item = work_module_item2;
         }
 
-        /*
-	 * now free all memory used for data
-	 */
         work_module_item = dl_list_head (instantiated_modules);
         while (work_module_item != DLListNULLIterator) {
                 work_module_item2 = dl_list_next (work_module_item);
@@ -2780,38 +2805,29 @@ void ec_cleanup ()
                 tm_remove (work_module_item);
                 work_module_item = work_module_item2;
         }
-        dl_list_free (&instantiated_modules);
-
-        work_module_item = dl_list_head (available_modules);
-        while (work_module_item != DLListNULLIterator) {
-                work_module_item2 = dl_list_next (work_module_item);
-                work_list = tm_get_tclist (work_module_item);
-                work_case_item = dl_list_head (work_list);
-                while (work_case_item != DLListNULLIterator) {
-                        work_case_item2 = dl_list_next (work_case_item);
-                        tc_delete ((test_case_s *)
-                                   dl_list_data (work_case_item));
-                        work_case =
-                            (test_case_s *) dl_list_data (work_case_item);
-                        tc_remove (work_case_item);
-                        work_case_item = work_case_item2;
-                }
-                tm_delete ((test_module_info_s *)
-                           dl_list_data (work_module_item));
-                tm_remove (work_module_item);
-                work_module_item = work_module_item2;
-        }
-        dl_list_free (&available_modules);
-
-        work_case_item = dl_list_head (selected_cases);
+        
+	work_case_item = dl_list_head (selected_cases);
         while (work_case_item != DLListNULLIterator) {
                 work_case = (test_case_s *) dl_list_data (work_case_item);
                 tc_remove (work_case_item);
                 tc_delete (work_case);
                 work_case_item = dl_list_head (selected_cases);
         }
-        dl_list_free (&selected_cases);
+        
+}
+/* ------------------------------------------------------------------------- */
+/** Function that takes care of removal of all created objects, freeing
+ * memory and so on.
+ */
+void ec_cleanup ()
+{
+        event_system_cleanup ();
+	rcp_handling_cleanup ();
+	ec_reinit();
 
+        dl_list_free (&instantiated_modules);
+        dl_list_free (&available_modules);
+        dl_list_free (&selected_cases);
 
         dl_list_free_data (&ec_settings.search_dirs);
         dl_list_free (&ec_settings.search_dirs);
@@ -2914,7 +2930,7 @@ int ec_run_cases_par (DLList * work_cases_list)
  * that kind would  be failure to start case from that module later.
  */
 int ec_add_module (TSChar * mod_name, DLList * testcase_files, 
-                   test_module_id_t  id)
+                   test_module_id_t  id, int report)
 {
         DLListIterator  work_module_item = DLListNULLIterator;
         test_module_info_s *work_module = INITPTR;
@@ -2932,6 +2948,13 @@ int ec_add_module (TSChar * mod_name, DLList * testcase_files,
                 tm_add (instantiated_modules, work_module);
                 pthread_mutex_unlock (&tec_mutex_);
                 retval = 0;
+		if (report) {
+			MINAPI_PLUGIN_CALL(new_module,
+					   new_module (mod_name, 
+						       work_module->module_id_)
+				);
+
+		}
         } else {
                 retval = -1;
         }
@@ -2971,7 +2994,20 @@ int ec_search_lib (char *mod_name)
 
         return retval;
 }
+/* ------------------------------------------------------------------------- */
+void
+ec_add_title_filter (char *filter_str)
+{
+	Text *filter;
 
+	filter = tx_create (filter_str);
+
+	if (filters == INITPTR) filters = dl_list_create();
+
+	dl_list_add (filters, filter);
+
+	return;
+}
 /* ------------------------------------------------------------------------- */
 int ec_read_settings (char *engine_ini)
 {

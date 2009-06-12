@@ -147,7 +147,8 @@ LOCAL int eapi_add_test_case_file (unsigned module_id, char *testcasefile)
                    so we can add the module into engine */
                 if(ec_add_module (modinfo->module_filename_, 
 				  modinfo->cfg_filename_list_,
-				  modinfo->module_id_))
+				  modinfo->module_id_,
+				  0))
 			return 1;
         } 
 	return 0;
@@ -263,7 +264,7 @@ LOCAL int eapi_open ()
 LOCAL int eapi_close (char *what, char *msg)
 {
         MIN_DEBUG ("Closing");
-	ec_cleanup();
+	ec_reinit();
         MIN_DEBUG ("Closed");
 	open = 0;
 	return 0;
