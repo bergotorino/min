@@ -25,10 +25,10 @@
 
 /* ------------------------------------------------------------------------- */
 /* INCLUDE FILES */
-#include <string.h>             /* for strlen() */
-#include <stdlib.h>             /* for calloc() */
-#include <unistd.h>             /* for usleep() */
-#include <pthread.h>            /* for mutex */
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
 
 #include <min_system_logger.h>
 #include <min_plugin_interface.h>
@@ -69,23 +69,99 @@ eapiOut_t min_clbk_;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
-/* None */
+/* ------------------------------------------------------------------------- */
+/** Search a case by id from the case_list_, used with dl_list_find()
+ *  @param a pointer to DLListIterator
+ *  @param b pointer to search key
+ *  @return 0 if found, greater or less than zero if not
+ */ 
+LOCAL int _find_case_by_id (const void *a, const void *b);
+/* ------------------------------------------------------------------------- */
+/** Search a module by id from the available_modules, used with dl_list_find()
+ *  @param a pointer to DLListIterator
+ *  @param b pointer to search key
+ *  @return 0 if found, greater or less than zero if not
+ */ 
+LOCAL int _find_mod_by_id (const void *a, const void *b);
+/* ------------------------------------------------------------------------- */
+/** Get the ExecutedTestCase struture by test run identifier 
+ *  @param testrunid search key
+ *  @return pointer to ExecutedTestCase matching the id or INITPTR
+ */ 
+LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
+/* ------------------------------------------------------------------------- */
+/** Engine calls this for each module it is configured with
+ *  @param modulename name of the module
+ *  @param moduleid module id
+ */ 
+LOCAL void pl_new_module (char *modulename, unsigned moduleid);
+/* ------------------------------------------------------------------------- */
+/** Engine calls this when module adding fails
+ *  @param modulename name of the module
+ */ 
+LOCAL void pl_no_module (char *modulename);
+/* ------------------------------------------------------------------------- */
+/** Engine calls this when all the cases for module are reported
+ *  @param moduleid module id
+ */ 
+LOCAL void pl_module_ready (unsigned moduleid);
+/* ------------------------------------------------------------------------- */
+/** Engine calls this for each new test case
+ *  @param moduleid id of the module this test case belongs to
+ *  @param caseid id of the test case
+ *  @param casetitle test case title
+ */ 
+LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
+/* ------------------------------------------------------------------------- */
+/** Engine calls this when test case has been started
+ *  @param moduleid id of the module this test case belongs to
+ *  @param caseid id of the test case
+ *  @param testrunid identifier for the test run
+ */ 
+LOCAL void pl_case_started (unsigned moduleid,
+			    unsigned caseid,
+			    long testrunid);
+/* ------------------------------------------------------------------------- */
+/** Engine calls this when it when test case has finnished
+ *  @param testrunid identifier for the test run
+ *  @param result test case result
+ *  @param desc test result description
+ *  @param starttime starting timestamp
+ *  @param endtime time the test case has finnished
+ */ 
+LOCAL void pl_case_result (long testrunid, int result, char *desc,
+			   long starttime, long endtime);
+/* ------------------------------------------------------------------------- */
+/** Engine calls this when it when test case has sent print data
+ *  @param testrunid identifier for the test run
+ *  @param message the test case message
+ */ 
+LOCAL void pl_msg_print (long testrunid, char *message);
+/* ------------------------------------------------------------------------- */
+/** Engine calls this when it when test case/module sends error message
+ *  @param error the message
+ */ 
+LOCAL void pl_error_report (char *error);
+/* ------------------------------------------------------------------------- */
+/** Function that checks if we have ran all the cases and can finnish
+ */
+LOCAL int  all_done();
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
-
+/** Test module */
 typedef struct {
         unsigned moduleid_;
         Text *modulename_;
 } CLIModuleData;
-
+/** Test case */
 typedef struct {
         unsigned moduleid_;
         unsigned caseid_;
         Text *casetitle_;
 	CLIModuleData *module_;
 } CLICaseData;
-
+/** Executed test case */
 typedef struct {
 	long runid_;
 #define TCASE_STATUS_INVALID   0
@@ -111,7 +187,6 @@ LOCAL int _find_case_by_id (const void *a, const void *b)
 {
         CLICaseData * tmp1 = (CLICaseData*)a;
         unsigned * tmp2 = (unsigned*)b;
-	//printf ("%s\n", __FUNCTION__);
 
         if (tmp1->caseid_==(*tmp2)) return 0;
         else return -1;
@@ -130,7 +205,6 @@ LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 {
 	DLListIterator it;
 	ExecutedTestCase *etc;
-	//printf ("%s\n", __FUNCTION__);
 
 	for (it = dl_list_head (executed_case_list_);
 	     it != INITPTR;
@@ -146,7 +220,6 @@ LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 {
 	CLIModuleData *cld = INITPTR;
-	//printf ("%s\n", __FUNCTION__);
 
 	if (available_modules == INITPTR) available_modules = dl_list_create();
 	
@@ -161,18 +234,14 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_no_module (char *modulename)
 {
-  //printf ("%s\n", __FUNCTION__);
 
         fprintf (stderr, "Module %s has not been loaded", modulename);        
 }
-
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_module_ready (unsigned moduleid)
 {
 	DLListIterator it;
 	CLICaseData *c;
-
-	// printf ("%s\n", __FUNCTION__);
 
         ready_module_count_ ++;
 		
@@ -208,8 +277,6 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 		return;
 	}
 	
-	printf ("%s:%s\n", __FUNCTION__, casetitle);
-
 	available_case_count_++;
 
         ccd = NEW(CLICaseData);
@@ -230,7 +297,6 @@ LOCAL void pl_case_started (unsigned moduleid,
         DLListIterator begin = DLListNULLIterator;
 	CLICaseData *ccd;
 
-	//printf ("%s\n", __FUNCTION__);
         /* Case has been started, add it to the executed cases list and set
          *  its status to ongoing.
 	 */
@@ -271,14 +337,12 @@ LOCAL void pl_case_started (unsigned moduleid,
 }
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
-			   long starttime, long endtime)
-{
+			   long starttime, long endtime){
+
 	ExecutedTestCase *etc;
         Text             *txt = tx_create(" ");
         struct tm        *timeinfo = INITPTR;
 	char              end_time [20];
-
-	//printf ("%s\n", __FUNCTION__);
 
 	etc = get_executed_tcase_with_runid (testrunid);
 	if (etc == INITPTR) {
@@ -355,6 +419,10 @@ LOCAL int all_done()
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Plugin attach function, sets the callbacks.
+ *  @param out_callback callbacks called by the engine
+ *  @param in_callback callbacks towards the engine
+ */
 void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
 {
         /* Binds the callbacks */
@@ -374,6 +442,9 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         return;
 }
 /* ------------------------------------------------------------------------- */
+/** Plugin open function 
+ *  @param arg not used
+ */
 void pl_open_plugin (void *arg)
 {
         if (min_clbk_.min_open) min_clbk_.min_open ();
@@ -386,12 +457,3 @@ void pl_open_plugin (void *arg)
         return;
 }
 /* ------------------------------------------------------------------------- */
-void pl_close_plugin ()
-{
-        return;
-}
-/* ------------------------------------------------------------------------- */
-void pl_detach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
-{
-        return;
-}
