@@ -356,7 +356,6 @@ ec_filter_it(char *title)
 {
 	DLListIterator it;
 	Text *filt;
-	regex_t   re;
 
 	if (filters == INITPTR)
 		return 0;
@@ -368,13 +367,9 @@ ec_filter_it(char *title)
 	     it != DLListNULLIterator;
 	     it = dl_list_next(it)) {
 		filt = dl_list_data (it);
-		
-		if (regcomp(&re, tx_share_buf (filt), REG_EXTENDED))
-			continue;
-		if (!regexec(&re, title, 0, NULL, 0))
+		if (!strcmp (title, tx_share_buf (filt)))
 			return 0;
 	}
-	regfree( &re);
 
 	return 1;
 }
@@ -2779,9 +2774,11 @@ void ec_reinit()
         DLListIterator  work_module_item2;
         DLListIterator  work_case_item;
         DLListIterator  work_case_item2;
+	DLListIterator  filter_item;
         test_case_s    *work_case = INITPTR;
         DLList         *work_list;
-	
+	Text           *tx;
+
         work_module_item = dl_list_head (instantiated_modules);
 	/*shutdown all running tmcs and free list*/
         while (work_module_item != DLListNULLIterator) {
@@ -2820,6 +2817,13 @@ void ec_reinit()
                 tc_delete (work_case);
                 work_case_item = dl_list_head (selected_cases);
         }
+
+	filter_item = dl_list_head (filters);
+	while (filter_item != DLListNULLIterator) {
+		tx = (Text *) dl_list_data (filter_item);
+		tx_destroy (&tx);
+		filter_item = dl_list_head (filters);
+	}
         
 }
 /* ------------------------------------------------------------------------- */
@@ -2835,7 +2839,7 @@ void ec_cleanup ()
         dl_list_free (&instantiated_modules);
         dl_list_free (&available_modules);
         dl_list_free (&selected_cases);
-
+	dl_list_free (&filters);
         dl_list_free_data (&ec_settings.search_dirs);
         dl_list_free (&ec_settings.search_dirs);
 
