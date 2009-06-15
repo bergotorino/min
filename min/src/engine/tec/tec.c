@@ -33,6 +33,8 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <regex.h>
 
 #include <min_parser.h>
 #include <tec.h>
@@ -354,6 +356,7 @@ ec_filter_it(char *title)
 {
 	DLListIterator it;
 	Text *filt;
+	regex_t   re;
 
 	if (filters == INITPTR)
 		return 0;
@@ -365,9 +368,13 @@ ec_filter_it(char *title)
 	     it != DLListNULLIterator;
 	     it = dl_list_next(it)) {
 		filt = dl_list_data (it);
-		if (!strcmp (title, tx_share_buf (filt)))
+		
+		if (regcomp(&re, tx_share_buf (filt), REG_EXTENDED))
+			continue;
+		if (!regexec(&re, title, 0, NULL, 0))
 			return 0;
 	}
+	regfree( &re);
 
 	return 1;
 }
