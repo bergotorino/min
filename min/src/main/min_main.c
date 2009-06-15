@@ -31,7 +31,6 @@
 #include <tec.h>
 #include <tec_tcp_handling.h>
 #include <data_api.h>
-#include <ext_interface.h>
 #include <min_engine_api.h>
 #include <dllist.h>
 #include <tllib.h>
