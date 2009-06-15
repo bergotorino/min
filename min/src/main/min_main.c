@@ -137,11 +137,19 @@ LOCAL void display_help ()
                 "Print details about test_module and exits\n");
         printf (" -x,  --execute test_module"
                 "[:configuration_file:... ]\n\t\t\t"
-                "\tExecute test cases from test_module "
-                "(with configuration file(s))\n");
+                "\tExecute test cases from test_module"
+                "\n\t\t\t\t(with configuration file(s))\n");
+        printf (" -t,  --title title"
+                "\t\tShow/execute test cases with title\n");
+        printf (" -r,  --title-regex regular_experession"
+                "\n\t\t\t\tShow/execute test cases with title matching"
+		"\n\t\t\t\tregular_expression\n");
+	printf (" -s,  --slave host[:slave_type]"
+                "\n\t\t\t\tRegister host (with type slave_type) for"
+		"\n\t\t\t\tmaster/slave testing\n");
         printf (" -p,  --plugin plugin"
                 "[:plugin2:... ]\n\t\t\t"
-                "\tLoad input plugin for MIN, by default cui plugin "
+                "\tLoad input plugin for MIN,\n\t\t\t\tby default cui plugin "
                 "is loaded\n");
         printf ("\nReport bugs to:\n");
         printf ("DG.MIN-Support@nokia.com\n");
@@ -359,6 +367,7 @@ int main (int argc, char *argv[], char *envp[])
 			{"slave", required_argument, NULL, 's'},
                         {"plugin", required_argument, NULL,'p'},
                         {"title", required_argument, NULL, 't'},
+			{"title-regex", required_argument, NULL, 'r'}, 
                         {"masterfd", required_argument, NULL,'m'}
 		};
 
@@ -373,7 +382,7 @@ int main (int argc, char *argv[], char *envp[])
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
      
-		opt_char = getopt_long (argc, argv, "hvci:x:s:p:t:m:",
+		opt_char = getopt_long (argc, argv, "hvci:x:s:p:t:r:m:",
 					min_options, &option_index);
      
 		/* Detect the end of the options. */
@@ -427,7 +436,11 @@ int main (int argc, char *argv[], char *envp[])
 			break;
 
 		case 't':
-			ec_add_title_filter (optarg);
+			ec_add_title_filter (optarg, 0);
+			break;
+
+		case 'r':
+			ec_add_title_filter (optarg, 1);
 			break;
 		default:
 			abort ();

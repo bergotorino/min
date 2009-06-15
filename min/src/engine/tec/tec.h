@@ -134,7 +134,7 @@ int             ec_search_lib (char *mod_name);
 /* reads config files and do reports new modules (uses eapi) */
 int             ec_configure ();
 /** attaches a test case title fitler to engine */
-void            ec_add_title_filter (char *filter_str);
+void            ec_add_title_filter (char *filter_str, int regexp);
 
 /* -------------------------------------------------------------------------*/
 

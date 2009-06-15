@@ -99,7 +99,10 @@ extern int      event_system_cleanup (void);
 /* ----------------------------------------------------------------------------
  * MODULE DATA STRUCTURES
  */
-/* None */
+typedef struct {
+	Text *filter_;
+	int regexp_;
+} title_filter;
 
 /* ----------------------------------------------------------------------------
  * LOCAL FUNCTION PROTOTYPES
@@ -355,7 +358,9 @@ LOCAL int
 ec_filter_it(char *title)
 {
 	DLListIterator it;
-	Text *filt;
+	title_filter *filt;
+	regex_t   re;
+	int val;
 
 	if (filters == INITPTR)
 		return 0;
@@ -367,8 +372,22 @@ ec_filter_it(char *title)
 	     it != DLListNULLIterator;
 	     it = dl_list_next(it)) {
 		filt = dl_list_data (it);
-		if (!strcmp (title, tx_share_buf (filt)))
+		if (filt->regexp_ == 0 && !strcmp (title, 
+						   tx_share_buf 
+						   (filt->filter_)))
 			return 0;
+		if (filt->regexp_) {
+			val = regcomp (&re, tx_share_buf (filt->filter_), 
+				       REG_EXTENDED);
+			if (val) {
+				regfree (&re);
+				continue; /* regcomp failed */
+			}
+			val = regexec (&re, title, 0, NULL, 0);
+			regfree (&re);
+			if (val == 0)
+				return 0; /* Match */
+		}
 	}
 
 	return 1;
@@ -2777,7 +2796,7 @@ void ec_reinit()
 	DLListIterator  filter_item;
         test_case_s    *work_case = INITPTR;
         DLList         *work_list;
-	Text           *tx;
+	title_filter   *filter;
 
         work_module_item = dl_list_head (instantiated_modules);
 	/*shutdown all running tmcs and free list*/
@@ -2820,8 +2839,10 @@ void ec_reinit()
 
 	filter_item = dl_list_head (filters);
 	while (filter_item != DLListNULLIterator) {
-		tx = (Text *) dl_list_data (filter_item);
-		tx_destroy (&tx);
+		filter = (title_filter *) dl_list_data (filter_item);
+		tx_destroy (&filter->filter_);
+		DELETE (filter);
+		dl_list_remove_it (filter_item);
 		filter_item = dl_list_head (filters);
 	}
         
@@ -3007,11 +3028,13 @@ int ec_search_lib (char *mod_name)
 }
 /* ------------------------------------------------------------------------- */
 void
-ec_add_title_filter (char *filter_str)
+ec_add_title_filter (char *filter_str, int regexp)
 {
-	Text *filter;
+	title_filter *filter;
+	filter = NEW (title_filter);
 
-	filter = tx_create (filter_str);
+	filter->filter_ = tx_create (filter_str);
+	filter->regexp_ = regexp;
 
 	if (filters == INITPTR) filters = dl_list_create();
 

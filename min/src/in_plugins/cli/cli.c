@@ -367,11 +367,26 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 		  timeinfo);
 	tx_c_prepend (txt, end_time);
 	switch (result) {
+	case TP_TIMEOUTED:
+		tx_c_append (txt, "Timeouted  ");
+		break;
+	case TP_CRASHED:
+		tx_c_append (txt, "Crashed    ");
+		break;
 	case TP_PASSED:
-		tx_c_append (txt, "Passed  ");
+		tx_c_append (txt, "Passed     ");
 		break;
 	case TP_FAILED:
-		tx_c_append (txt, "Failed  ");
+		tx_c_append (txt, "Failed     ");
+		break;
+        case TP_NC:
+		tx_c_append (txt, "Incomplete ");
+		break;
+	case TP_LEAVE:
+		tx_c_append (txt, "Leave      ");
+		break;
+	default:
+		tx_c_append (txt, "<Unknown>  ");
 		break;
 	}
 	tx_c_append (txt, tx_share_buf (etc->case_->module_->modulename_));
