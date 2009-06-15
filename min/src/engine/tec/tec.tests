@@ -654,7 +654,7 @@ START_TEST(add_module)
         int result = 0;
         ec_min_init(envp_,0);
         
-        ec_add_module("minDemoModule",empty_list,0);
+        ec_add_module("minDemoModule",empty_list,0, 0);
         usleep(5000);
         result = dl_list_size(instantiated_modules);
         fail_unless(result != 1,"Module not added");
@@ -667,7 +667,7 @@ START_TEST(add_module_full_path)
         int result = 0;
         ec_min_init(envp_,0);
         
-        ec_add_module("/usr/lib/min/minDemoModule.so",empty_list,0);
+        ec_add_module("/usr/lib/min/minDemoModule.so",empty_list,0,0);
         ec_start_modules();
 
         usleep(5000);

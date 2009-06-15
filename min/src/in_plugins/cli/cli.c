@@ -53,9 +53,6 @@
 /* None */
 
 /* ------------------------------------------------------------------------- */
-/* LOCAL FUNCTION PROTOTYPES */
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
 DLList   *available_modules = INITPTR;
 DLList   *case_list_ = INITPTR;
@@ -66,9 +63,18 @@ unsigned  available_case_count_ = 0;
 unsigned  case_result_count_ = 0;
 unsigned  exit_ = 0;
 eapiOut_t min_clbk_;
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* ------------------------------------------------------------------------- */
+struct ExecutedTestCase;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
+/* ------------------------------------------------------------------------- */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
 /** Search a case by id from the case_list_, used with dl_list_find()
  *  @param a pointer to DLListIterator
@@ -88,7 +94,7 @@ LOCAL int _find_mod_by_id (const void *a, const void *b);
  *  @param testrunid search key
  *  @return pointer to ExecutedTestCase matching the id or INITPTR
  */ 
-LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
+LOCAL struct ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
 /* ------------------------------------------------------------------------- */
 /** Engine calls this for each module it is configured with
  *  @param modulename name of the module
@@ -162,7 +168,7 @@ typedef struct {
 	CLIModuleData *module_;
 } CLICaseData;
 /** Executed test case */
-typedef struct {
+struct ExecutedTestCase {
 	long runid_;
 #define TCASE_STATUS_INVALID   0
 #define TCASE_STATUS_ONGOING   1
@@ -173,12 +179,8 @@ typedef struct {
         long starttime_;
         long endtime_;
         CLICaseData *case_;
-} ExecutedTestCase;
+};
 
-/* ------------------------------------------------------------------------- */
-/* FORWARD DECLARATIONS */
-/* ------------------------------------------------------------------------- */
-/* None */
 
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
@@ -201,15 +203,15 @@ LOCAL int _find_mod_by_id (const void *a, const void *b)
         else return -1;
 }
 /* ------------------------------------------------------------------------- */
-LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
+LOCAL struct ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 {
 	DLListIterator it;
-	ExecutedTestCase *etc;
+	struct ExecutedTestCase *etc;
 
 	for (it = dl_list_head (executed_case_list_);
 	     it != INITPTR;
 	     it = dl_list_next (it)) {
-		etc = (ExecutedTestCase *)dl_list_data (it);
+		etc = (struct ExecutedTestCase *)dl_list_data (it);
 		if (etc->runid_ == testrunid)
 			return etc;
 	}
@@ -292,7 +294,7 @@ LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid)
 {
-        ExecutedTestCase *tmp = INITPTR;
+        struct ExecutedTestCase *tmp = INITPTR;
         DLListIterator it = DLListNULLIterator;
         DLListIterator begin = DLListNULLIterator;
 	CLICaseData *ccd;
@@ -307,7 +309,7 @@ LOCAL void pl_case_started (unsigned moduleid,
         /* Running test case details, also pointer to test case details should
            be added here.
         */
-        tmp = NEW2(ExecutedTestCase,1);
+        tmp = NEW2(struct ExecutedTestCase,1);
         tmp->status_ = 1;
         tmp->result_ = -1;
         tmp->resultdesc_ = INITPTR;
@@ -339,7 +341,7 @@ LOCAL void pl_case_started (unsigned moduleid,
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
 			   long starttime, long endtime){
 
-	ExecutedTestCase *etc;
+	struct ExecutedTestCase *etc;
         Text             *txt = tx_create(" ");
         struct tm        *timeinfo = INITPTR;
 	char              end_time [20];
@@ -389,7 +391,7 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_msg_print (long testrunid, char *message)
 {
-	ExecutedTestCase *etc;
+	struct ExecutedTestCase *etc;
 
 	etc = get_executed_tcase_with_runid (testrunid);
 

@@ -8,8 +8,7 @@ METASOURCES = AUTO
 bin_PROGRAMS = min.bin mind
 bin_SCRIPTS = min 
 min_bin_SOURCES = min_main.c
-min_bin_LDADD = $(top_builddir)/src/ext_interface/libminlibextinterface.a \
-	$(top_builddir)/src/engine/tec/libmintec.a \
+min_bin_LDADD =	$(top_builddir)/src/engine/tec/libmintec.a \
 	$(top_builddir)/src/engine/data_structures_api/libmindsa.la \
 	$(top_builddir)/src/engine/treport_log/libmintreport.la \
 	$(top_builddir)/src/utils/libminutils.la \

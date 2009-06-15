@@ -323,7 +323,7 @@ LOCAL pthread_t load_plugin (const char *plugin_name)
 /* ------------------------------------------------------------------------- */
 int main (int argc, char *argv[], char *envp[])
 {
-        int             cont_flag, status, c, oper_mode, exit_flag;
+        int             cont_flag, status, opt_char, oper_mode, exit_flag;
         int             no_cui_flag, help_flag, version_flag;
 	int 	        slave_mode = 0, master_socket = -1;
         DLList         *modulelist, *slavelist;
@@ -351,20 +351,19 @@ int main (int argc, char *argv[], char *envp[])
 
 	struct option min_options[] =
 		{
-			{"no-cui", no_argument, &no_cui_flag, 1},
-			{"console", no_argument, &no_cui_flag, 1},
 			{"help", no_argument, &help_flag, 1},
 			{"version", no_argument, &version_flag, 1},
+			{"console", no_argument, &no_cui_flag, 1},
 			{"info", required_argument, NULL, 'i'},
                         {"execute", required_argument, NULL, 'x'},
 			{"slave", required_argument, NULL, 's'},
-                        {"plugin",required_argument, NULL,'p'},
-                        {"title-filter",required_argument, NULL,'t'},
-                        {"masterfd",required_argument, NULL,'m'},
+                        {"plugin", required_argument, NULL,'p'},
+                        {"title", required_argument, NULL, 't'},
+                        {"masterfd", required_argument, NULL,'m'}
 		};
 
         modulelist = dl_list_create();
-	    slavelist = dl_list_create();
+	slavelist = dl_list_create();
 	work_module_item = DLListNULLIterator;
 	oper_mode = no_cui_flag = help_flag = version_flag = cont_flag = 0;
         exit_flag = 0;
@@ -374,21 +373,19 @@ int main (int argc, char *argv[], char *envp[])
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
      
-		c = getopt_long (argc, argv, "nchvi:x:s:p:m:t:",
-				 min_options, &option_index);
+		opt_char = getopt_long (argc, argv, "hvci:x:s:p:t:m:",
+					min_options, &option_index);
      
 		/* Detect the end of the options. */
-		if (c == -1)
+		if (opt_char == -1)
 			break;
      
-		switch (c)
+		switch (opt_char)
 		{
 		case 0:
 			break;
 	       
-		case 'n':
 		case 'c':
-			tx_c_copy (plugin, "cli");
 			no_cui_flag = 1;
 			break;
 			
@@ -428,6 +425,7 @@ int main (int argc, char *argv[], char *envp[])
 			oper_mode = 0;
 			master_socket = atoi (optarg);
 			break;
+
 		case 't':
 			ec_add_title_filter (optarg);
 			break;
@@ -439,7 +437,9 @@ int main (int argc, char *argv[], char *envp[])
         /* Handle options. */
 	if (!no_cui_flag) {
 		display_license();
-	}
+	} else
+		tx_c_copy (plugin, "cli");
+
 
 	if (optind < argc) {
 		printf ("unknown options: ");
@@ -468,45 +468,6 @@ int main (int argc, char *argv[], char *envp[])
                 exit (0);
         }
 
-
-/*
-	if (no_cui_flag) {
-                in = &in_str;
-                out = &out_str;
-                eapi_init (in, out);
-                / Perform application start-up /
-                ec_min_init (envp, oper_mode);
-		if (!slave_mode) {
-			out->min_open();
-			ec_start_modules();
-		} else
-			ec_configure();
-		if (add_command_line_modules (modulelist) ||
-		    add_ip_slaves (slavelist))
-			exit (-1);
-		while (cont_flag == 0) {
-			cont_flag = 1;
-			usleep (500000);
-			work_module_item = dl_list_head (instantiated_modules);
-			while (work_module_item != DLListNULLIterator) {
-				status = tm_get_status (work_module_item);
-				if (status != TEST_MODULE_READY)
-					cont_flag = 0;
-				work_module_item = 
-					dl_list_next (work_module_item);
-			}
-		}
-		if (!slave_mode)
-			retval = ext_if_exec ();
-		else {
-			new_tcp_master (master_socket);
-			while (slave_exit == 0)
-				usleep (500000);
-			ec_cleanup();
-			return 0;
-		}
-	} else {
-*/
 	/* Perform application start-up */
 	ec_min_init (envp, oper_mode);
 
