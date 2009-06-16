@@ -1,7 +1,7 @@
 INCLUDES = -I. -I../src -I../src/utils/dllist -I../src/utils/text -I../src/utils/logger -I../src/utils/ipc -I../src/engine/data_structures_api/  -I../src/tmc -I../src/tmc/test_module_api -I../src/utils/lib_loader -I../src/services/event_system -I../src/utils/parser -I../src/mintfwif -I../src/engine/tec -I../src/consoleui -I../src/services/scripter_module
 METASOURCES = AUTO
 
-TESTS = check_dsa check_logger check_utils check_tmapi check_tec check_minunit check_services check_parser check_mintfwif check_min_lego_interface check_scripter_dsa check_text check_libloader 
+TESTS = check_dsa check_logger check_utils check_tmapi check_tec check_minunit check_services check_parser check_mintfwif check_min_lego_interface check_scripter_dsa check_text check_libloader check_cli.sh
 check_PROGRAMS =  check_dsa check_utils check_logger check_tmapi check_tec check_minunit check_services check_parser check_mintfwif check_integration check_min_lego_interface check_scripter_dsa check_text check_libloader 
 
 
