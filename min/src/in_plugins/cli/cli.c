@@ -30,10 +30,12 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#include <cli.h>
 #include <min_system_logger.h>
 #include <min_plugin_interface.h>
 #include <min_text.h>
 #include <min_logger.h>
+#include <tllib.h>
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -57,7 +59,7 @@
 DLList   *available_modules = INITPTR;
 DLList   *case_list_ = INITPTR;
 DLList   *executed_case_list_ = INITPTR;
-
+cli_opts  cliopts;
 unsigned  ready_module_count_ = 0;
 unsigned  available_case_count_ = 0;
 unsigned  case_result_count_ = 0;
@@ -152,7 +154,15 @@ LOCAL void pl_error_report (char *error);
 /** Function that checks if we have ran all the cases and can finnish
  */
 LOCAL int  all_done();
-
+/* ------------------------------------------------------------------------- */
+LOCAL void test_module_info(char *libname);
+/* ------------------------------------------------------------------------- */
+LOCAL char *patch_path (char *p);
+/* ------------------------------------------------------------------------- */
+/** Displays information of test module library 
+ *  @param libname the test module name coming from commandline
+ */
+LOCAL void test_module_info(char *libname);
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
 /** Test module */
@@ -244,20 +254,37 @@ LOCAL void pl_module_ready (unsigned moduleid)
 {
 	DLListIterator it;
 	CLICaseData *c;
-
+	CLIModuleData *m;
         ready_module_count_ ++;
-		
+	
+	if (cliopts.display_info_) {
+		it = dl_list_find (dl_list_head (available_modules),
+				   dl_list_tail (available_modules),
+				   _find_mod_by_id,
+				   (void *)&moduleid);
+		if (it == DLListNULLIterator) {
+			fprintf (stderr, "No module with id %d",
+				 moduleid);
+			return;
+		}
+		m = dl_list_data (it);
+		test_module_info (tx_share_buf (m->modulename_));
+	}
 	for (it = dl_list_head (case_list_); it != INITPTR;
 	     it = dl_list_next (it)) {
 		c  = (CLICaseData*)dl_list_data(it);
-		if (c->moduleid_ == moduleid)
-			if (min_clbk_.start_case) 
+		if (c->moduleid_ == moduleid) {
+			if (cliopts.display_info_)
+				printf ("%s\n", 
+					tx_share_buf (c->casetitle_));
+			else if (min_clbk_.start_case) 
 				min_clbk_.start_case 
 					(c->moduleid_,
 					 c->caseid_,
 					 1);
+		}
 	}
-
+		
 }
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
@@ -426,13 +453,66 @@ LOCAL void pl_error_report (char *error) {
 LOCAL int all_done()
 {
 	if (ready_module_count_ == dl_list_size (available_modules) &&
-	    available_case_count_  == case_result_count_)	    
+	    (cliopts.display_info_ == 1 ||
+	     available_case_count_  == case_result_count_))	    
 	{
 		return 1;
 	}
 
 	return 0;
 }
+/* ------------------------------------------------------------------------- */
+LOCAL char *patch_path (char *p)
+{
+        Text *path, *cwd;
+        char *retval;
+
+        path = tx_create (p);
+        if (*p != '/') { /* relative path have to prepend with pwd */
+                cwd = tx_create (getenv ("PWD"));
+                tx_c_append (cwd, "/");
+                tx_append (cwd, path);
+                retval = tx_get_buf (cwd);
+                tx_destroy (&cwd);
+        } else
+                retval = tx_get_buf (path);
+        tx_destroy (&path);
+
+        return retval;
+}
+/* ------------------------------------------------------------------------- */
+LOCAL void test_module_info(char *libname)
+{
+        test_libl_t tlibl;
+        int ret;
+        static int first = 1;
+        char *fullpath;
+
+        fullpath = patch_path (libname);
+
+        ret = tl_open (&tlibl, fullpath);
+
+        if( (ret != ENOERR) && (tlibl.test_library_==INITPTR) ) {
+                printf("Error when looking for test module %s\n",libname);
+                DELETE (fullpath);
+                return;
+        }
+        if (first) {
+                printf ("Module Type:\tModule Version:\t\tBuild date:\n");
+                first = 0;
+        }
+        printf ("%-11s\t%4d\t\t\t%s %s\n", 
+                tlibl.type_, 
+                tlibl.version_, 
+                tlibl.date_, 
+                tlibl.time_);
+	printf ("Cases:\n");
+        tl_close (&tlibl);
+        DELETE (fullpath);
+	
+        return;
+}
+
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
@@ -462,8 +542,9 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
 /** Plugin open function 
  *  @param arg not used
  */
-void pl_open_plugin (void *arg)
+void pl_open_plugin (void *opts)
 {
+	memcpy (&cliopts, (cli_opts*)opts, sizeof (cli_opts));
         if (min_clbk_.min_open) min_clbk_.min_open ();
 	while (!all_done()) {
 		usleep (50000);
