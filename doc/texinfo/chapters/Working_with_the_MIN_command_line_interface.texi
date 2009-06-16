@@ -1,30 +1,26 @@
 MIN can execute test cases also directly from the command line.  User can tell MIN not to start the console UI with @code{--console} (or @code{-c}) command line switch. If @code{-c} is the only switch MIN executes all the test cases in all the modules configured in the @code{min.conf} file. MIN can also be instructed to omit the module definitions in @code{min.conf} and execute the cases from a test module specified on the command line with switch @code{--execute} (or @code{-x}). 
 
 @example
-maemo@@maemo:~$ min --console --execute /usr/lib/min/minDemoModule.so\
---execute /usr/lib/min/scripter.so:.min/script.cfg 
-Checking for active min processes...
-Checking for active tmc processes...
-Checking for MQ left behind...
-Checking for SHM left behind...
-SHM 4063270 removed from the system...
-SHM 4096039 removed from the system...
-MIN Test Framework, © Nokia 2008, All rights reserved,
-licensed under the Gnu General Public License version 2,
-Contact: Antti Heimola, DG.MIN-Support@@nokia.com
-
-Test case gathering...1 
-2009-02-20 14:22:20 Passed  minDemoModule.so Demo_1 PASSED
-2009-02-20 14:22:20 Passed  minDemoModule.so Demo_2 PASSED
-2009-02-20 14:22:20 FAILED  scripter.so bail on error example Test \
-Method call "f. fail5th"  FAILED
-2009-02-20 14:22:20 FAILED  scripter.so loop and break Test Method \
-call "rtc. FailingOne"  FAILED (4 other errors/failures)
+$ min --console --execute /usr/lib/min/minDemoModule.so
+         message from "Demo_1": this is from the Demo module
+02:34:36 Passed     /usr/lib/min/minDemoModule.so:"Demo_1" - PASSED
+         message from "Demo_2": this is from case Demo_2
+02:34:41 Passed     /usr/lib/min/minDemoModule.so:"Demo_2" - PASSED
 @end example
 
-Note that it's possible to pass also one or more configuration files to the test module from command line (as in the example above). 
+Note that it's possible to pass also one or more configuration files to the test module from command line. 
 
-MIN does not show the printouts from test module on the screen, when the @code{-c} switch is specified. It only shows the test case that is running and the result of the test case when it is completed.
+In case there are printouts from test case, those are also shown.
 
 If the @code{-x} switch is used without the @code{-c} switch the console UI is started, but only the test module specified on the command line is visible in the menus.
+
+Similarly with switches @code{-t} and @code{-r}, only the test cases with title matching the given title or regular expression are shown.
+
+@example
+$ min -cr Demo_[1-2]
+message from "Demo_1": this is from the Demo module
+02:40:22 Passed     minDemoModule.so:"Demo_1" - PASSED
+         message from "Demo_2": This is from case Demo_2
+02:40:28 Passed     minDemoModule.so:"Demo_2" - PASSED
+@end example
 

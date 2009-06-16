@@ -1,16 +1,23 @@
-MIN startup script has several command line parameters.
+MIN has several command line parameters.
 @table @b
 @item --version, -v
 prints version information.
 @item --help, -h
 prints help screen with usage description.
 @item --console, -c
-starts  MIN without the console UI. All test cases defined in min.conf are executed sequentially (unless specified with -x switch)
-@item -f
-forces MIN to kill already running MIN instance without prompting user.
+starts  MIN without the console UI. All test cases defined in min.conf are executed sequentially (unless specified with -x and/or -t switch)
 @item --info, -i
 print info about given test module.
 @item --execute, -x
 loads MIN with given test module (and optional configuration file(s)
+@item --title, -t
+loads only test cases matching the given title
+@item --title-regex, -r
+loads only test cases with title matching the given regular expression
+@item --slave, -s
+registers slave device (with optional slave type), that can then be used in master/slave test cases
+@item --plugin, -p
+loads the given input plugin for MIN. The default plugins are ``cli'' for commandline use and ``cui'' for consoleUI. 
+
 @end table
 

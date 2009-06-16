@@ -1,15 +1,17 @@
 All test module templates have their version and type compiled-in. It is possible, by using a command line switch, to have that data printed on the screen.
 
 @example
-maemo@@maemo:~$ min --info /home/maemo/.min/SUnitTestModule.so
-Module type: MINUnit
-Module version: 200832
-Build date: Jul 31 2008 13:43:24
+$ min --info .min/mutestmodule.so
+Module Type:	Module Version:		Build date:
+MINUnit    	200830			Jun 16 2009 14:48:21
+Cases:
+mutestmodule_1
+mutestmodule_2
 @end example
 
 Similar information can be also seen from the syslog output when the module is loaded
 
-@code{Aug  1 16:08:28 maemo TMC[27027]: tllib.c:136:tl_open():Module: MINUnit, Version: 200832, Build: Jul 31 2008 13:43:24}
+@code{Jun 16 14:48:54 ubuntu [24392]: INFO     MIN 024392 tllib.c:0213:tl_open() Module: MINUnit, Version: 200830, Build: Jun 16 2009 14:48:21}
 
 @itemize @bullet
 @item Module type indicates the type of the module.
