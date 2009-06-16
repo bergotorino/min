@@ -27,7 +27,9 @@
 #include <getopt.h>
 
 #include <min_common.h>
+#include <cli.h>
 #include <consoleui.h>
+#include <cli.h>
 #include <tec.h>
 #include <tec_tcp_handling.h>
 #include <data_api.h>
@@ -87,11 +89,6 @@ LOCAL void      display_help ();
  * @return the absolute path
  */
 LOCAL char     *patch_path (char *p);
-/* ------------------------------------------------------------------------- */
-/** Displays information of test module library 
- *  @param libname the test module name coming from commandline
- */
-LOCAL void test_module_info(char *libname);
 /* ------------------------------------------------------------------------- */
 /** Adds the modules and configuration files given from commandline
  *  @param modulelist list of module and filenames 
@@ -174,38 +171,6 @@ LOCAL char *patch_path (char *p)
         return retval;
 }
 
-LOCAL void test_module_info(char *libname)
-{
-        test_libl_t tlibl;
-        int ret;
-        static int first = 1;
-        char *fullpath;
-
-        fullpath = patch_path (libname);
-
-        ret = tl_open (&tlibl, fullpath);
-
-        if( (ret != ENOERR) && (tlibl.test_library_==INITPTR) ) {
-                printf("Error when looking for test module %s\n",libname);
-                DELETE (fullpath);
-                return;
-        }
-        if (first) {
-                printf ("Module Type:\tModule Version:\t\tBuild date:\n");
-                first = 0;
-        }
-        printf ("%s\t%d\t\t\t%s %s\n", 
-                tlibl.type_, 
-                tlibl.version_, 
-                tlibl.date_, 
-                tlibl.time_);
-
-        tl_close (&tlibl);
-        DELETE (fullpath);
-
-        return;
-}
-
 LOCAL int add_command_line_modules (DLList * modulelist)
 {
 
@@ -274,14 +239,13 @@ LOCAL int add_ip_slaves (DLList * slavelist)
 }
 
 
-LOCAL pthread_t load_plugin (const char *plugin_name)
+LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
 {
         void *pluginhandle = INITPTR;
         void (*pl_attach) (eapiIn_t **out_callback, 
 		           eapiOut_t *in_callback);
         void (*pl_open) (void *arg);
         pthread_t plugin_thread;
-        void *tmp = INITPTR;
         int retval = 0;
 
         /* Construct plugin name */
@@ -311,7 +275,7 @@ LOCAL pthread_t load_plugin (const char *plugin_name)
 
         /* Run the plugin */
         retval = pthread_create (&plugin_thread, NULL, (void *)pl_open,
-                                 &tmp);
+                                 plugin_conf);
 
         /* In this fancy way we do display legal and contact information on
          * consoleUI. */
@@ -332,30 +296,19 @@ LOCAL pthread_t load_plugin (const char *plugin_name)
 int main (int argc, char *argv[], char *envp[])
 {
         int             cont_flag, status, opt_char, oper_mode, exit_flag;
-        int             no_cui_flag, help_flag, version_flag;
+        int             no_cui_flag, help_flag, version_flag, info_flag;
 	int 	        slave_mode = 0, master_socket = -1;
         DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
         pthread_t       plugin_thread[10];
+	void           *plugin_opts = NULL;
+	cli_opts        cli_opts;
         void *tmp;
         char *c2 = INITPTR;
         char *c3 = INITPTR;
         unsigned int num_of_plugins = 0;
         Text *plugin = tx_create("cui");
-
-/*        FILE *fp = INITPTR;
-        int ii=0;
-*/
-
-        /* Detect if DBus plugin has been installed */
-        /* To be included in the future when engine can
-         * hande multiple plugins.
-         * INFO: removed due to problems with exiting min
-        fp = fopen("/usr/lib/min/min_dbus.so","r");
-        if (fp) {
-                tx_c_prepend (plugin,"dbus:");
-                fclose (fp);
-        }*/
+	memset (&cli_opts, 0x0, sizeof (cli_opts));
 
 	struct option min_options[] =
 		{
@@ -375,7 +328,7 @@ int main (int argc, char *argv[], char *envp[])
 	slavelist = dl_list_create();
 	work_module_item = DLListNULLIterator;
 	oper_mode = no_cui_flag = help_flag = version_flag = cont_flag = 0;
-        exit_flag = 0;
+        info_flag = exit_flag = 0;
         
         /* Detect commandline arguments */
 	while (1) {
@@ -416,8 +369,10 @@ int main (int argc, char *argv[], char *envp[])
 			break;
 
                 case 'i':
-                        test_module_info (optarg);
-                        exit_flag = 1;
+                        oper_mode = 1;
+                        dl_list_add (modulelist, optarg);
+			no_cui_flag = 1;
+			cli_opts.display_info_ = 1;
                         break;
 
                 case 'p':
@@ -450,9 +405,10 @@ int main (int argc, char *argv[], char *envp[])
         /* Handle options. */
 	if (!no_cui_flag) {
 		display_license();
-	} else
+	} else {
+		plugin_opts = (void *)&cli_opts;
 		tx_c_copy (plugin, "cli");
-
+	}
 
 	if (optind < argc) {
 		printf ("unknown options: ");
@@ -503,7 +459,7 @@ int main (int argc, char *argv[], char *envp[])
 	do {
 		c3 = strchr (c2,':');
 		if (c3!=NULL) (*c3) = '\0';
-		plugin_thread[0] = load_plugin(c2);
+		plugin_thread[0] = load_plugin(c2, plugin_opts);
 		num_of_plugins++;
                         /* Multiple plugins not supported yet by engine.
                          * FIXME: remove in future following line. */
@@ -522,6 +478,8 @@ int main (int argc, char *argv[], char *envp[])
 	
     dl_list_free (&modulelist);
     dl_list_free (&slavelist);
+    ec_cleanup ();
+
     return min_return_value;
 }
 

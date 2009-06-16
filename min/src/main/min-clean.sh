@@ -40,7 +40,7 @@ destroy_mq() {
 
                                 # If MQ exists we need to destroy it
                                 if [ $mq != $mqid ]; then
-                                        sudo ipcrm -q $mq
+                                        ipcrm -q $mq
                                         echo "Queue "$mq" removed from the system..."
                                 fi
                         fi
@@ -84,7 +84,7 @@ kill_min() {
 
                                 echo "Checking for active min processes..."
 
-                                var=`ps aux | grep min"."bin | wc -l`
+                                var=`ps aux | grep min | wc -l`
 
                                 # One process is grep min, second this script
                                 # any other is The MIN, and needs to be killed.
@@ -103,20 +103,20 @@ kill_min() {
                                         Y="Y"
                                         if [ $ANSWER = "$Y" ]; then
                                                 echo "Attempting to kill gently MIN..."
-                                                sudo killall min.bin
+                                                killall min
                                                 sleep 3
                                         fi
                                 fi
 
                                 # 2. Force
-                                var=`ps aux | grep min"."bin | wc -l`
+                                var=`ps aux | grep min | wc -l`
 
                                 # One process is grep min, second this script
                                 # any other is The MIN, and needs to be killed.
                                 if [ $var -gt 1 ]; then
                                         if [ $ANSWER = "$Y" ]; then
                                                 echo "Attempting to force kill of MIN..."
-                                                sudo killall -9 min.bin
+                                                killall -9 min
                                                 sleep 3
                                         fi
                                 fi
@@ -135,7 +135,7 @@ kill_min() {
                                 if [ $var -gt $yksi ]; then
                                         if [ $ANSWER = "$Y" ]; then
                                                 echo "Attempting to kill gently TMCs..."
-                                                sudo killall tmc
+                                                killall tmc
                                                 sleep 3
                                         fi
                                 fi
@@ -148,7 +148,7 @@ kill_min() {
                                 if [ $var -gt 1 ]; then
                                         if [ $ANSWER = "$Y" ]; then
                                                 echo "Attempting to force kill of TMCs..."
-                                                sudo killall -9 tmc
+                                                killall -9 tmc
                                                 sleep 3
                                         fi
                                 fi
@@ -194,8 +194,9 @@ if [ $realrun -eq 1 ]; then
         destroy_mq
         destroy_shm
 fi
-        
+
+ 
 # -- Running MIN
-min.bin $CMDLN_ARGS
+#min.bin $CMDLN_ARGS
 
 # ------------------------------------------------------------------------------
