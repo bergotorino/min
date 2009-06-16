@@ -1249,12 +1249,12 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         switch (message->param_) {
 
         case TP_CRASHED:
-
+		min_return_value ++;
                 tr_set_result_type (work_result_item, TEST_RESULT_CRASHED);
                 break;
 
         case TP_TIMEOUTED:
-
+		min_return_value ++;
                 tr_set_result_type (work_result_item, TEST_RESULT_TIMEOUT);
                 break;
 
@@ -1264,17 +1264,17 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
                 break;
 
         case TP_FAILED:
-
+		min_return_value ++;
                 tr_set_result_type (work_result_item, TEST_RESULT_FAILED);
                 break;
 
         case TP_NC:
-
+		min_return_value ++;
                 tr_set_result_type (work_result_item, TEST_RESULT_ABORTED);
                 break;
 
         case TP_LEAVE:
-
+		min_return_value ++;
                 tr_set_result_type (work_result_item, TEST_RESULT_FAILED);
                 break;
 

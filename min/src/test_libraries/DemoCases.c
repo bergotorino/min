@@ -66,7 +66,7 @@ MIN_TESTDEFINE (Demo_1)
 MIN_TESTDEFINE (Demo_2)
 {
         sleep (5);
-        tm_printf (0, "", "(2) from the combined module");
+        tm_printf (0, "", "This is from the case Demo_2");
         MIN_ASSERT_EQUALS (0, 0);
 }
 

@@ -36,6 +36,7 @@ dllist_tests_la_LIBADD = \
 		      $(top_builddir)/src/services/event_system/libminevent.la
 
 check-local: 
+	min-clean.sh -f; \
 	if [ ! -d ~/.min ]; then \
 		mkdir ~/.min; \
 	fi; \

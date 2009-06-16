@@ -1,6 +1,6 @@
 #!/bin/sh
 failures=0
-
+min-clean.sh -f
 min -h
 failures=`expr $failures + $?`
 min --help

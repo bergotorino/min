@@ -146,8 +146,8 @@ LOCAL void display_help ()
 		"\n\t\t\t\tmaster/slave testing\n");
         printf (" -p,  --plugin plugin"
                 "[:plugin2:... ]\n\t\t\t"
-                "\tLoad input plugin for MIN,\n\t\t\t\tby default cui plugin "
-                "is loaded\n");
+                "\tLoad input plugin for MIN,\n\t\t\t\tby default cli or cui "
+		"plugin is loaded\n");
         printf ("\nReport bugs to:\n");
         printf ("DG.MIN-Support@nokia.com\n");
 }
@@ -279,7 +279,7 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
 
         /* In this fancy way we do display legal and contact information on
          * consoleUI. */
-        if (in->error_report) {
+        if (!strcmp (plugin_name, "cui") &&  in->error_report) {
                 usleep (100000);
                 in->error_report ("Contact: Antti Heimola, "
                                   "DG.MIN-Support@nokia.com");
@@ -403,9 +403,8 @@ int main (int argc, char *argv[], char *envp[])
         }
 
         /* Handle options. */
-	if (!no_cui_flag) {
+	if (no_cui_flag) {
 		display_license();
-	} else {
 		plugin_opts = (void *)&cli_opts;
 		tx_c_copy (plugin, "cli");
 	}
