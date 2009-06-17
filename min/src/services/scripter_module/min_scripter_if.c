@@ -391,6 +391,12 @@ LOCAL TSBool _execute_script ()
         struct timeval  now;
         unsigned long   elapsed = 0;    /* in [ms] */
 
+	/* If an error has occured do not investigate further,
+	 * otherwise we might get stuck (e.g. remote run + event)
+	 */
+	if (scripter_mod.error_occured)
+                return ESTrue;
+	
         /* Execute script only if its not finished */
         if (scripter_mod.script_finished)
                 return ESFalse;
@@ -883,11 +889,13 @@ LOCAL void uengine_handle_extif_response (int result, int caseid)
 {
         ScriptedTestProcessDetails *stpd = INITPTR;
         int            *tmp = INITPTR;
-
         /* check if na error occured - if there is an error then
          * break script execution, if not then resume it. */
         if (result != ENOERR) {
-                scripter_mod.script_finished = ESTrue;
+		MIN_WARN ("remote run error: %d", result); 
+		SCRIPTER_RTERR ("Remote run error");
+		scripter_mod.extif_pending = ESFalse;
+
                 goto EXIT;
         }
 

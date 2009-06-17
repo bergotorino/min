@@ -326,13 +326,25 @@ LOCAL void ec_settings_send ()
                 }
         }
         /*create shared memory segment */
+	shared_segm_id =
+		sm_create ('a', sizeof (struct logger_settings_t) + paths_size);
+	/*
+	** Try to clean up
+	*/
+        if (shared_segm_id < 0) {
+		MIN_WARN ("failed to create shared memory segment "
+			  " - trying to clean up");
+		system ("/usr/bin/min-clean.sh");
+	}
+
+
         shared_segm_id =
             sm_create ('a', sizeof (struct logger_settings_t) + paths_size);
         if (shared_segm_id < 0) {
                 MIN_FATAL ("Failed to create shared memory segment: %s",
                             strerror (errno));
                 min_log_close ();
-                exit (0);
+                exit (-1);
         }
 
         ec_settings.sh_mem_id_ = shared_segm_id;
@@ -1509,9 +1521,7 @@ LOCAL int ec_msg_event_handler (MsgBuffer * message)
                         break;
                 case EWaitEvent:
                         MIN_DEBUG ("Indication Event: WAIT");
-                        ind_event_handle_wait (&param, &esrc
-                                               , &status
-                            );
+                        ind_event_handle_wait (&param, &esrc, &status);
                         break;
                 case ERelEvent:
                         MIN_DEBUG ("Indication Event: RELEASE");
@@ -1994,7 +2004,7 @@ LOCAL pid_t ec_start_tmc (DLListIterator work_module_item)
                 execve (exec_args[0], exec_args, envp);
                 MIN_FATAL ("Failed to load test module controller app :%s",
                              strerror (errno));
-                exit (0);
+                exit (-1);
                 break;
         default:
                 break;
@@ -2377,7 +2387,7 @@ LOCAL int ec_read_conf (MinParser * inifile, int operation_mode)
         return 0;
 err_exit:
         ec_cleanup();
-        exit (1);
+        exit (-1);
         
         return -1;
 }
@@ -2500,7 +2510,7 @@ LOCAL void create_local_confdir ()
 err_exit:
         tx_destroy (&confpath);
         ec_cleanup ();
-        exit (1);
+        exit (-1);
         return;
 }
 
@@ -2560,16 +2570,26 @@ void ec_min_init (char *envp_[], int operation_mode)
 
                 MIN_FATAL ("Not enough memory to create list");
                 min_log_close ();
-                exit (0);
+                exit (-1);
 
         }
 
         mq_id = mq_open_queue ('a');
+	/*
+	** Try to clean up
+	*/
+        if (mq_id < 0) {
+		MIN_WARN ("failed to create message queue "
+			  " - trying to clean up");
+		system ("/usr/bin/min-clean.sh");
+	}
+
+	mq_id = mq_open_queue ('a');
         if (mq_id < 0) {
                 MIN_WARN ("Failed to create message queue: %s",
                            strerror (errno));
                 min_log_close ();
-                exit (0);
+                exit (-1);
         }
         event_system_init ();
 
@@ -2595,7 +2615,7 @@ void ec_min_init (char *envp_[], int operation_mode)
                 }
                 MIN_FATAL ("%s", fault_text);
                 min_log_close ();
-                exit (0);
+                exit (-1);
         }
 #ifndef MIN_EXTIF
         thread_creation_result =
@@ -2616,7 +2636,7 @@ void ec_min_init (char *envp_[], int operation_mode)
                 }
                 MIN_FATAL ("%s", fault_text);
                 min_log_close ();
-                exit (0);
+                exit (-1);
         }
 
 #endif
@@ -2635,7 +2655,7 @@ LOCAL void handle_sigsegv (int signum)
 LOCAL void handle_sigquit (int signum)
 {
         ec_cleanup ();
-        exit (1);
+        exit (-1);
 }
 
 LOCAL void handle_sigbus (int signum)

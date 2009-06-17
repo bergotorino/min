@@ -166,31 +166,10 @@ force_opt="-f"
 ii=0
 opt=$()
 realrun=1
-for i in $CMDLN_ARGS; do
-        if [ $i = $FORCE_opt ]; then
-                FORCE=1
-        elif [ $i = $force_opt ]; then
-                FORCE=1
-        fi
-
-        if [ $i = "-h" ]; then
-                realrun=0
-        elif [ $i = "--help" ]; then
-                realrun=0
-        elif [ $i = "-i" ]; then
-                realrun=0
-        elif [ $i = "--info" ]; then
-                realrun=0
-        elif [ $i = "-v" ]; then
-                realrun=0
-        elif [ $i = "--version" ]; then
-                realrun=0
-        fi
-done
 
 # -- Cleaning stuff
 if [ $realrun -eq 1 ]; then
-        kill_min
+        # kill_min
         destroy_mq
         destroy_shm
 fi

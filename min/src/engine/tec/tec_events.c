@@ -288,7 +288,8 @@ LOCAL void do_set_on_ind_reg (void *data)
                                                    event_name_,
                                                    REM_E_STAT_SET,
                                                    EIndication);
-                registration_state_change (ereg, ereg_unset_registered);
+		else
+			registration_state_change (ereg, ereg_unset_registered);
                 break;
         case ereg_unset_registered:
                 registration_state_change (ereg, ereg_set_registered);
@@ -316,7 +317,8 @@ LOCAL void do_set_on_state_reg (void *data)
                         remote_event_req_response (ereg->backp_->descr_.
                                                    event_name_,
                                                    REM_E_STAT_SET, EState);
-                registration_state_change (ereg, ereg_set_registered);
+		else
+			registration_state_change (ereg, ereg_set_registered);
                 break;
         case ereg_unset_registered:
                 registration_state_change (ereg, ereg_set_registered);
