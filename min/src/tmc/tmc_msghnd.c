@@ -451,13 +451,15 @@ void gu_handle_message (TMC_t * tmc, const MsgBuffer * msg)
                 globaltcr.result_ = msg->param_;
                 STRCPY (globaltcr.desc_, msg->message_,
                         MaxTestResultDescription + 1);
-
-                retval = kill (tp_pid (&tmc->tpc_), SIGUSR2);
-                if (retval == -1)
-                        MIN_ERROR ("RET: Cannot kill child process");
-                else
-                        MIN_DEBUG ("RET: Killed child process");
-                break;
+		if (tp_pid (&tmc->tpc_)) {
+			retval = kill (tp_pid (&tmc->tpc_), SIGUSR2);
+			if (retval == -1)
+				MIN_ERROR ("RET: Cannot kill child process");
+			else
+				MIN_DEBUG ("RET: Killed child process");
+		} else
+			MIN_DEBUG ("RET: already killed child process");
+		break;
 
         case MSG_END:
                 gu_handle_end (tmc);
