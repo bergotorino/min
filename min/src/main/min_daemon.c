@@ -87,7 +87,7 @@ int exit_ = 0;
  */
 LOCAL int create_listen_socket();
 /* ------------------------------------------------------------------------- */
-/** Listens and accepts connections. Forks and execves min.bin for each 
+/** Listens and accepts connections. Forks and execves min for each 
  *  new connection
  * @param envp the environment passed to main()
  */
@@ -158,7 +158,7 @@ LOCAL int poll_sockets (char *envp[])
 	args [0] = NEW2 (char, 100);
 	args [1] = NEW2 (char, 100);
 
-	sprintf (args [0], "%s", "/usr/bin/min.bin");
+	sprintf (args [0], "%s", "/usr/bin/min");
 	while (exit_ == 0 && rcp_listen_socket > 0) {
 		FD_ZERO (&rd);
 		FD_ZERO (&wr);
