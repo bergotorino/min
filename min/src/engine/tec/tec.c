@@ -39,7 +39,6 @@
 #include <min_parser.h>
 #include <tec.h>
 #include <min_common.h>
-#include <treport_log.h>
 #include <consoleui.h>
 #include <data_api.h>
 #include <tec_events.h>
@@ -222,27 +221,6 @@ void log_summary ()
 
 }
 
-int log_summary_stdout ()
-{
-        DLListIterator  mod_it, case_it;
-        filename_t      mod_name;
-        int             num_failed = 0;
-
-        min_test_report_begin ();
-
-        for (mod_it = dl_list_head (available_modules);
-             mod_it != DLListNULLIterator; mod_it = dl_list_next (mod_it)) {
-                tm_get_module_filename (mod_it, mod_name);
-                for (case_it = dl_list_head (tm_get_tclist (mod_it));
-                     case_it != DLListNULLIterator;
-                     case_it = dl_list_next (case_it)) {
-                        num_failed += min_test_report_result (case_it, 
-                                                               mod_name);
-                }
-        }
-        
-        return num_failed;
-}
 
 /**Function used to select test case for execution - passed test case is 
  * copied, and then copied case is added to  "selected" list. As this function 

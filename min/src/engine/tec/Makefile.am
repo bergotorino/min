@@ -1,7 +1,7 @@
 INCLUDES = 	-I. -I../.. -I../../utils/dllist  \
 		-I../../utils/ipc -I../../utils/logger \
 		-I../../utils/parser -I../../in_plugins/cui \
-		-I../data_structures_api -I../treport_log \
+		-I../data_structures_api \
 		-I../../services/event_system \
 		-I../../services/scripter_module -I../../utils/text \
 		-I../../mintfwif
@@ -20,8 +20,7 @@ noinst_HEADERS =  tec_events.h
 include_HEADERS = tec.h tec_rcp_handling.h min_engine_api.h
 
 libmintec_a_LIBADD = $(top_builddir)/src/utils/libminutils.la \
-	              $(top_builddir)/src/engine/data_structures_api/libmindsa.la \
-		      $(top_builddir)/src/engine/treport_log/libmintreport.la 
+	              $(top_builddir)/src/engine/data_structures_api/libmindsa.la 
 
 libmintectest_a_SOURCES = tec.c \
 			  tec_events.c \
