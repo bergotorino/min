@@ -27,7 +27,6 @@ AC_OUTPUT(\
         src/engine/Makefile \
         src/mintfwif/Makefile \
         src/engine/data_structures_api/Makefile \
-        src/engine/treport_log/Makefile \
         src/tmc/Makefile \
         src/tmc/test_module_api/Makefile \
         src/utils/Makefile \
