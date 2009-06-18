@@ -331,6 +331,7 @@ LOCAL void ec_settings_send ()
 	/*
 	** Try to clean up
 	*/
+
         if (shared_segm_id < 0) {
 		MIN_WARN ("failed to create shared memory segment "
 			  " - trying to clean up");
@@ -344,6 +345,9 @@ LOCAL void ec_settings_send ()
                 MIN_FATAL ("Failed to create shared memory segment: %s",
                             strerror (errno));
                 min_log_close ();
+#ifdef MIN_UNIT_TEST
+		exit (0);
+#endif
                 exit (-1);
         }
 

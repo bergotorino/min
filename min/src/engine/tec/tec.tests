@@ -64,7 +64,7 @@ START_TEST(write_modules_list)
         fname = first_module->module_filename_;
         char* result = strstr(fname,"minDemoModule");
         fail_unless( result != NULL,
-		    "wrong data in modules list:");
+		     "wrong data in modules list:%s", fname);
         mq_close_queue(mq_id);
 }
 
