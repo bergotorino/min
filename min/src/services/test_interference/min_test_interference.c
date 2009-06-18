@@ -340,9 +340,6 @@ testInterference *ti_start_interference_timed (TInterferenceType aType,
                 case (EIOLoad):
                         ret = system
                             ("dd if=/dev/zero of=/tmp/workfile count=128 bs=128");
-			if (ret < 0) {
-				break;
-			}
                         exec_args[0] = "/usr/bin/ioload";
                         exec_args[1] = "/tmp/workfile";
                         exec_args[2] = NULL;
