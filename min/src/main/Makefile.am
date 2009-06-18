@@ -10,7 +10,6 @@ bin_SCRIPTS = min-clean.sh
 min_SOURCES = min_main.c
 min_LDADD =	$(top_builddir)/src/engine/tec/libmintec.a \
 	$(top_builddir)/src/engine/data_structures_api/libmindsa.la \
-	$(top_builddir)/src/engine/treport_log/libmintreport.la \
 	$(top_builddir)/src/utils/libminutils.la \
 	-lncurses -lmenu -lpthread 
 
