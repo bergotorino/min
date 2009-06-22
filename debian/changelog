@@ -1,3 +1,10 @@
+min-all (2009w26) unstable; urgency=low
+  * Tenth MIN Release
+  * Fixed: Remote run error not handled properly on master side
+  * Fixed: MIN events are not working properly when looping
+  * Added: CLI interface plugin
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   22 Jun 2009 12:26:56 +0100
+
 min-all (2009w24) unstable; urgency=low
   * Ninth MIN Release
   * Fixed: MIN variable transmission between master and slave doesn't work on tpc/ip version (4145)

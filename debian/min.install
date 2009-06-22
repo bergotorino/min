@@ -12,8 +12,8 @@ usr/lib/libminevent*
 usr/lib/libmintmapi*
 usr/lib/libmininterference*
 usr/bin/mind
-usr/bin/min.bin
 usr/bin/tmc
+usr/bin/min-clean.sh
 usr/bin/patchminconf.sh 
 usr/bin/mindelmod.pl 
 etc/min.conf
