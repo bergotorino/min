@@ -100,10 +100,11 @@ namespace Min
 	    /** Proxy model fo filterout available test cases */
 	    QSortFilterProxyModel *availableProxy_;
 
-	QTreeView *testRunTree_;
+      Min::Database &db_;
+
+      QTreeView *testRunTree_;
 
         /** Handler to the database */
-        Min::Database &db_;
     };
     // -------------------------------------------------------------------------
 }; // namespace Min

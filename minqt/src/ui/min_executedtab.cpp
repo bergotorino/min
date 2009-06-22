@@ -157,7 +157,7 @@ void Min::ExecutedTab::handleClick(const QModelIndex& index)
 
 	QStringList printouts;
 
-	for(unsigned int i=0; i<runs.count(); i++) {
+	for(int i=0; i<runs.count(); i++) {
 		printouts << db_.getPrintoutView(runs[i].data().toUInt());
 	}
 
