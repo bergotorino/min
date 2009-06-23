@@ -15,6 +15,8 @@ min -console --title Demo_1
 failures=`expr $failures + $?`
 min --console --execute /usr/lib/min/minDemoModule.so
 failures=`expr $failures + $?`
+min --info /usr/lib/min/minDemoModule.so
+failures=`expr $failures + $?`
 min -cx /usr/lib/min/minDemoModule.so
 failures=`expr $failures + $?`
 min -cr Demo
