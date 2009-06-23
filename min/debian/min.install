@@ -10,9 +10,9 @@ usr/lib/libminutils*
 usr/lib/libminevent*
 usr/lib/libmintmapi*
 usr/lib/libmininterference*
-usr/bin/min
+usr/bin/min-clean.sh
 usr/bin/mind
-usr/bin/min.bin
+usr/bin/min
 usr/bin/tmc
 usr/bin/patchminconf.sh 
 usr/bin/mindelmod.pl 
