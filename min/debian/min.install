@@ -5,6 +5,7 @@ usr/lib/min/luascripter*
 usr/lib/min/scripter*
 usr/lib/min/minDemoModule*
 usr/lib/min/min_cui*
+usr/lib/min/min_cli*
 usr/lib/pkgconfig/min.pc
 usr/lib/libminutils*
 usr/lib/libminevent*
