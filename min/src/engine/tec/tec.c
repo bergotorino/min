@@ -163,7 +163,7 @@ LOCAL int       ec_read_module_section (MinParser * inifile);
  *  @return 1 if the directory /etc/min.d does not exists or an error occurs,
  *          0 otherwise
  */
-LOCAL int       ec_read_module_confdir (void);
+LOCAL int       ec_read_module_confdir (int op_mode);
 
 /* -------------------------------------------------------------------------
  * FORWARD DECLARATIONS
@@ -2206,7 +2206,7 @@ LOCAL int ec_read_slaves_section (MinParser * inifile)
         return 0;
 }
 #endif /* ndef MIN_EXTIF */
-LOCAL int ec_read_module_confdir ()
+LOCAL int ec_read_module_confdir (int op_mode)
 {
 
         DIR            *dir;
@@ -2225,7 +2225,8 @@ LOCAL int ec_read_module_confdir ()
                 if (dirent->d_type == DT_LNK || dirent->d_type == DT_REG) {
                         modfile = mp_create ("/etc/min.d/",
                                              dirent->d_name, ENoComments);
-                        ec_read_module_section (modfile);
+			if (op_mode == 0)
+				ec_read_module_section (modfile);
 #ifndef MIN_EXTIF
 			ec_read_slaves_section (modfile);
 #endif
@@ -2442,8 +2443,7 @@ int ec_configure ()
         /*
          ** Read module definitions from /etc/min.d/
          */
-        if (op_mode == 0)
-                ec_read_module_confdir ();
+	ec_read_module_confdir (op_mode);
         ec_settings_send ();
 
         min_log_open ("MIN", 3);
