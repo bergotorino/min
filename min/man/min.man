@@ -58,7 +58,7 @@ Report bugs to DG.MIN\-Support@nokia.com
 .SH COPYRIGHT
 MIN Test Framework, © Nokia 2008,
 licensed under the Gnu General Public License version 2,
-Contact: Antti Heimola, DG.MIN-Support@nokia.com
+Contact: Pekka Nuotio, DG.MIN-Support@nokia.com
 
 .SH "SEE ALSO"
 .BR createtestmodule (1),
