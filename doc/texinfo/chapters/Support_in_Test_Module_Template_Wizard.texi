@@ -14,7 +14,7 @@ Checking for MQ left behind...
 Checking for SHM left behind...
 MIN Test Framework,  Nokia 2008, All rights reserved,
 licensed under the Gnu General Public License version 2,
-Contact: Antti Heimola, DG.MIN-Support@@nokia.com
+Contact: Pekka Nuotio, DG.MIN-Support@@nokia.com
 
 Test case gathering...1 
   2008-10-13 04:18:10
