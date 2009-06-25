@@ -259,7 +259,6 @@ Project home page: http://garage.maemo.org/projects/min/
 * ti_stop_interference: ti_stop_interference.
 * Using test interference in scripted test cases: Using test interference in scripted test cases.
 * Compiling C++ test modules: Compiling C++ test modules.
-* Enabling C++ in MINUnit or HardCoded test module: Enabling C++ in MINUnit or HardCoded test module.
 * MIN DBus interface: MIN DBus interface.
 * GNU Free Documentation License: GNU Free Documentation License.
 @end menu
@@ -1032,7 +1031,7 @@ Project home page: http://garage.maemo.org/projects/min/
 @section Using test interference in scripted test cases
 @include chapters/Using_test_interference_in_scripted_test_cases.texi
 
-@node Compiling C++ test modules, Enabling C++ in MINUnit or HardCoded test module, Using test interference in scripted test cases, Top
+@node Compiling C++ test modules, MIN DBus interface, Using test interference in scripted test cases, Top
 @chapter Compiling C++ test modules
 @include chapters/Compiling_Cplusplus_test_modules.texi
 
