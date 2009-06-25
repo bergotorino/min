@@ -31,7 +31,7 @@
 // Min incudes
 /* MIN Test Framework, (c) Nokia 2008, All rights reserved,
  * licensed under the Gnu General Public License version 2,
- * Contact: Antti Heimola, DG.MIN-Support@nokia.com
+ * Contact: Pekka Nuotio, DG.MIN-Support@nokia.com
  *
  */
 
@@ -68,7 +68,7 @@ Min::AboutDialog::AboutDialog(QWidget * parent) : QDialog(parent)
 	this->label_2->setText(
 		"MIN Test Framework, (c) Nokia 2008, All rights reserved,\n"
 		"licensed under the Gnu General Public License version 2,\n"
-		"Contact: Antti Heimola, DG.MIN-Support@nokia.com\n"
+		"Contact: Pekka Nuotio, DG.MIN-Support@nokia.com\n"
 		"or visit: http://min.sourceforge.net/");
 
 	QObject::connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
