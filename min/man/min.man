@@ -31,6 +31,16 @@ Print details about test_module and exit
 .TP
 \fB\-x\fR,  \fB\-\-execute\fR test_module[:configuration_file:... ]
 Execute test cases from test_module (with configuration file(s))
+.TP
+\fB\-t\fR,  \fB\-\-title\fR title
+Show/execute test cases with title
+.TP
+\fB\-r\fR,  \fB\-\-title-regex\fR regular_expression
+Show/execute test cases with title matching regular_expression
+\fB\-s\fR,  \fB\-\-slave\fR host[:slave_type]
+Register host (with type slave_type) for master/slave testing
+\fB\-p\fR,  \fB\-\-plugin\fR  plugin[:plugin2:... ]
+Load input plugin for MIN, by default cli or cui plugin is loaded
 
 .SH FILES
 .I /etc/min.conf
@@ -40,7 +50,7 @@ The system wide configuration file. See
 for further details.
 
 .SH AUTHOR
-Written by Robert Galkowski, Marko Hyyppä, Juha Perälä, Sampo Saaristo and Konrad Marek Zapalowicz.
+Written by Robert Galkowski, Marko Hyyppä, Maciej Jablonski, Juha Perälä, Sampo Saaristo and Konrad Marek Zapalowicz.
 
 .SH "REPORTING BUGS"
 Report bugs to DG.MIN\-Support@nokia.com
