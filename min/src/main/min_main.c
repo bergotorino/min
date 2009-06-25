@@ -112,7 +112,7 @@ LOCAL void display_license ()
 {
         printf ("MIN Test Framework, © Nokia 2008, All rights reserved,\n"
                 "licensed under the Gnu General Public License version 2,\n"
-                "Contact: Antti Heimola, DG.MIN-Support@nokia.com\n\n");
+                "Contact: Pekka Nuotio, DG.MIN-Support@nokia.com\n\n");
 
 }
 
@@ -281,7 +281,7 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
          * consoleUI. */
         if (!strcmp (plugin_name, "cui") &&  in->error_report) {
                 usleep (100000);
-                in->error_report ("Contact: Antti Heimola, "
+                in->error_report ("Contact: Pekka Nuotio, "
                                   "DG.MIN-Support@nokia.com");
                 in->error_report ("licensed under the Gnu General "
                                   "Public License version 2,");
