@@ -64,10 +64,13 @@ DLList         *interference_handles = INITPTR;/**<test interference "instances"
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */
+/* None */
+
 /** Reports scripter run time error with one argumen 
  * @param __errstr__ the error string
  * @param __errarg__ error argument string
  */
+
 #define SCRIPTER_RTERR_ARG(__errstr__,__errarg__) \
 do {									   \
         MIN_ERROR (__errstr__,__errarg__);			           \
@@ -110,6 +113,8 @@ struct scripter_mod_ {
         TSBool          script_finished; /**< Set when script end  noticed   */
         TSBool          tclass_exec;     /**< Set while class func running   */
         TSBool          paused;          /**< Set when paused from the cui   */
+        unsigned long   blocking_timeout;/**< Timeout for blocking commands  */ 
+        struct timeval  blocking_since;  /**< Used to handle block timeouts  */
         TSBool          extif_pending;   /**< Waiting resp to ext cont. msg  */
         TSBool          event_pending;   /**< Waiting for event ind          */
 	TSBool          error_occured;   /**< Run time error flag            */
@@ -353,7 +358,6 @@ LOCAL int _findallowedresult (const void *a, const void *b)
         else
                 return 1;
 }
-
 /* ------------------------------------------------------------------------- */
 LOCAL TSBool _pending_tests ()
 {
@@ -396,7 +400,28 @@ LOCAL TSBool _execute_script ()
 	 */
 	if (scripter_mod.error_occured)
                 return ESTrue;
-	
+
+
+        /* Check if we are waiting for the 
+         * response to external controller message 
+	 * or en event indication 
+	 */
+        if (scripter_mod.extif_pending || scripter_mod.event_pending) {
+		/* Check for timeout of blocking commands */
+		/* .. if we have not set the timeout to none */
+		if (scripter_mod.blocking_timeout == 0)
+			return ESFalse;
+                gettimeofday (&now, NULL);
+                substract_timeval (&res, &now, &scripter_mod.blocking_since);
+
+                elapsed = (unsigned long)res.tv_sec;
+		MIN_INFO ("Elapsed = %u", elapsed);
+		if (elapsed >= scripter_mod.blocking_timeout) {
+			SCRIPTER_RTERR ("Timeout for blocking command");
+		}
+                return ESFalse;
+	}
+
         /* Execute script only if its not finished */
         if (scripter_mod.script_finished)
                 return ESFalse;
@@ -407,11 +432,6 @@ LOCAL TSBool _execute_script ()
 
         /* ...and if we are not paused from the cui */
         if (scripter_mod.paused)
-                return ESFalse;
-
-        /* ...and if we  are not waiting for the 
-         * a response to external controller message */
-        if (scripter_mod.extif_pending)
                 return ESFalse;
 
         /* ...and if we are not waiting for the test to be completed */
@@ -433,10 +453,6 @@ LOCAL TSBool _execute_script ()
                         return ESFalse;
                 }
         }
-
-        /* ...and we are not waiting EVENT_IND */
-        if (scripter_mod.event_pending)
-                return ESFalse;
 
         return ESTrue;
 }
@@ -1832,6 +1848,7 @@ int event_request (char *eventname, int is_state)
             min_event_create (eventname, is_state ? EState : EIndication);
         event->dont_block_ = ESTrue;
         scripter_mod.event_pending = ESTrue;
+        gettimeofday (&scripter_mod.blocking_since, NULL);
         event->SetType (event, EReqEvent);
         Event (event);
 
@@ -1865,6 +1882,7 @@ int event_wait (char *eventname)
          */
         event->SetType (event, EWaitEvent);
         scripter_mod.event_pending = ESTrue;
+        gettimeofday (&scripter_mod.blocking_since, NULL);
         Event (event);
 
         if (event->event_status_ == EventStatOK) {
@@ -1898,6 +1916,7 @@ int event_release (char *eventname)
          */
         event->SetType (event, ERelEvent);
         scripter_mod.event_pending = ESTrue;
+        gettimeofday (&scripter_mod.blocking_since, NULL);
         Event (event);
 
         if (event->event_status_ == EventStatOK) {
@@ -1921,6 +1940,7 @@ int event_set (char *eventname, int is_state)
         event->dont_block_ = ESTrue;
         event->SetType (event, ESetEvent);
         scripter_mod.event_pending = ESTrue;
+        gettimeofday (&scripter_mod.blocking_since, NULL);
         Event (event);
         if (event->event_status_ == EventStatOK) {
                 retval = ENOERR;
@@ -1945,6 +1965,7 @@ int event_unset (char *eventname)
         event->dont_block_ = ESTrue;
         event->SetType (event, EUnsetEvent);
         scripter_mod.event_pending = ESTrue;
+        gettimeofday (&scripter_mod.blocking_since, NULL);
         Event (event);
         if (event->event_status_ == EventStatOK) {
                 retval = ENOERR;
@@ -2067,6 +2088,7 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
 	scripter_mod.error_occured = ESFalse;
         scripter_mod.sleep = 0;
         scripter_mod.expected_var = INITPTR;
+	scripter_mod.blocking_timeout = DEFAULT_BLOCKING_TIMEOUT;
         scripter_mod.shm_id = shmget (getpid(), 4096, 
                                       IPC_CREAT | 0660);
 
@@ -2617,6 +2639,8 @@ int test_allocate_slave (const char *slave_type, const char *slave_name)
 
 	/* Stop execution till response comes */
 	scripter_mod.extif_pending = ESTrue;
+        gettimeofday (&scripter_mod.blocking_since, NULL);
+
       EXIT:
         return retval;
 }
@@ -2644,6 +2668,8 @@ int test_free_slave (const char *slave_name)
 
         /* Stop execution till response comes */
         scripter_mod.extif_pending = ESTrue;
+        gettimeofday (&scripter_mod.blocking_since, NULL);
+
       EXIT:
         return retval;
 }
@@ -2703,9 +2729,11 @@ int test_remote_exe (const char *slave_name, MinItemParser * mip)
         case EKeywordRun:
                 /* Stop execution till response comes */
                 scripter_mod.extif_pending = ESTrue;
+		gettimeofday (&scripter_mod.blocking_since, NULL);
                 break;
         case EKeywordExpect:
                 scripter_mod.extif_pending = ESTrue;
+		gettimeofday (&scripter_mod.blocking_since, NULL);
                 mip_get_next_string (mip, &scripter_mod.expected_var);
                 MIN_DEBUG ("master expecting variable %s",
                              scripter_mod.expected_var);
@@ -2784,6 +2812,12 @@ int testclass_test_sleep (unsigned long interval)
         MIN_DEBUG ("Starting sleep: [%d] miliseconds", interval);
         return ENOERR;
 }
+/* ------------------------------------------------------------------------- */
+int  set_block_timeout (unsigned long timeout)
+{
+	scripter_mod.blocking_timeout = timeout;
+	return ENOERR;
+}
 
 /* ------------------------------------------------------------------------- */
 int declare_var (char *name, TSBool initialize, char *val)
@@ -2861,6 +2895,8 @@ int sendreceive_slave_expect (char *variable)
 
         scripter_mod.expected_var = variable;
         scripter_mod.extif_pending = ESTrue;
+        gettimeofday (&scripter_mod.blocking_since, NULL);
+
         STRCPY (msg.message_, "master", MaxMsgSize);
         sprintf (msg.desc_, "expect %s", variable);
         mq_send_message (scripter_mod.mqid, &msg);

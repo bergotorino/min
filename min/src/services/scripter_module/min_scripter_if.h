@@ -50,7 +50,7 @@
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */
-/* None */
+#define DEFAULT_BLOCKING_TIMEOUT 600 /** Default value for blocking timeout */
 
 /* ------------------------------------------------------------------------- */
 /* DATA TYPES */
@@ -385,6 +385,14 @@ int             test_interference(MinItemParser* args);
  * @return ESTrue or ESFalse
  */
 TSBool          eval_if (char *condition);
+
+/* ------------------------------------------------------------------------- */
+/** Sets a new blocking timeout for test case
+ * @param timeout [in] variable name or value to be evaluated
+ *  NOTE: syntax which does the call: "blockingtimeout <timeout>"  
+ */
+int             set_block_timeout (unsigned long timeout);
+
 /* ------------------------------------------------------------------------- */
 #endif                          /* MIN_SCRIPTER_IF_H */
 

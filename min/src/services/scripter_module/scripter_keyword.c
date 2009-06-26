@@ -162,6 +162,8 @@ TScripterKeyword get_keyword (const char *label)
                 retval = EKeywordEndif;
         } else if (strcmp (label, "breakloop") == 0){
                 retval = EKeywordBreakloop;
+	} else if (strcmp (label, "blocktimeout") == 0){
+		retval = EKeywordBlocktimeout;
         } else {
                 retval = EKeywordClassName;
         }

@@ -460,6 +460,7 @@ void mli_create (MinSectionParser * msp)
                 case EKeywordVar:
                 case EKeywordExpect:
                 case EKeywordSendreceive:
+		case EKeywordBlocktimeout:
                         tmp =
                             (LegoBasicType *) mli_create_active (keyword,
                                                                  mip);

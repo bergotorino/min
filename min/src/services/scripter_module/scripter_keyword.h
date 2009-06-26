@@ -84,6 +84,7 @@ typedef enum {
         EKeywordElse,           /**< keyword "else"                     */
         EKeywordEndif,          /**< keyword "endif"                    */
         EKeywordBreakloop,      /**< keyword "breakloop"                */
+        EKeywordBlocktimeout,   /**< keyword "blocktimeout"             */
         EKeywordUnknown         /**< unknown keyword                    */
 } TScripterKeyword;
 /* ------------------------------------------------------------------------- */

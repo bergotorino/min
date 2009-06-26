@@ -220,6 +220,18 @@ LOCAL int       check_timeout_line (MinItemParser * line, int line_number,
 LOCAL int       check_sleep_line (MinItemParser * line, int line_number,
 				  char * tc_title);
 /* ------------------------------------------------------------------------- */
+/** Checks validity of line with "blockingtimeout" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
+LOCAL int       check_blockingtimeout_line (MinItemParser * line, 
+					    int line_number,
+					    char * tc_title);
+/* ------------------------------------------------------------------------- */
 /** Checks validity of line with "testinterference" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
@@ -486,8 +498,15 @@ LOCAL void interpreter_handle_keyword (TScripterKeyword keyword,
                 token = INITPTR;
                 break;
         case EKeywordInterference:
+                MIN_DEBUG ("EKeywordInterference");
                 test_interference (mip);
                 break;
+	case EKeywordBlocktimeout:
+		MIN_DEBUG ("EKeywordBlocktimeout");
+                mip_get_next_int (mip, &ival);
+                set_block_timeout ((unsigned long)ival);
+		break;
+
         case EKeywordUnknown:
                 MIN_WARN ("Unknown keyword [INITPTR]");
                 break;
@@ -1101,6 +1120,37 @@ LOCAL int check_sleep_line (MinItemParser * line, int line_number,
         if (tmp < 1) {
                 SCRIPTER_SYNTAX_ERROR ("sleep",
 				       "invalid interval value");
+                retval = -1;
+                goto EXIT;
+        }
+      EXIT:
+        return retval;
+}
+/* ------------------------------------------------------------------------- */
+LOCAL int check_blockingtimeout_line (MinItemParser * line, int line_number, 
+				      char * tc_title)
+{
+        int             retval = ENOERR;
+        int             tmp = 0;
+
+        if (line == INITPTR) {
+                retval = -1;
+                errno = EINVAL;
+                goto EXIT;
+        }
+
+        retval = mip_get_next_int (line, &tmp);
+
+        /* check syntax */
+        if (retval != ENOERR) {
+                SCRIPTER_SYNTAX_ERROR ("blockingtimeout",
+				       "timeout is not definced");
+                retval = -1;
+                goto EXIT;
+        }
+        if (tmp < 0) {
+                SCRIPTER_SYNTAX_ERROR ("blockingtimeout",
+				       "invalid timeout value");
                 retval = -1;
                 goto EXIT;
         }
@@ -1817,6 +1867,20 @@ char           *validate_test_case (MinSectionParser * testcase)
                         }
                         nest_level--;
                         mip_destroy (&line);
+                        line = mmp_get_next_item_line (testcase);
+                        continue;
+                        break;
+                case EKeywordBlocktimeout:
+                        check_result = check_blockingtimeout_line (line, 
+								   line_number,
+								   tc_title);
+                        mip_destroy (&line);
+
+                        if (check_result != ENOERR) {
+				errors ++;
+                                goto EXIT_VALIDATE;
+                        }
+
                         line = mmp_get_next_item_line (testcase);
                         continue;
                         break;
