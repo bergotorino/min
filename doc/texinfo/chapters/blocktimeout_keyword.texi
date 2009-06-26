@@ -1,0 +1,16 @@
+The @code{blocktimeout} keyword is used to give a timeout value for blocking scipter commands (for example @code{allocate}, @code{expect}, @code{wait}). The timeout value is given in seconds. Value @code {0} means no timeout, unless the blocking timeout is specified in test script, it defaults to 10 minutes.
+
+@table @b
+@item @b{Argument}
+@item Timeout value
+The bloking timeout value in seconds.
+@end table
+
+The blocktimeout keyword can be used, for example, in the following way (timeout 10 seconds):
+@example
+# accept 5 minute timeout for event E
+blocktimeout 300 
+wait E
+# no timeout 
+blocktimeout 0
+@end example

@@ -1,7 +1,7 @@
-The @code{timeout} keyword is used to give a timeout value for a test case. The timeout value is given as an argument for the @code{timeout} keyword, as described in Table 9-5 below.
+The @code{timeout} keyword is used to give a timeout value for a test case. The timeout value is given as an argument for the @code{timeout} keyword, as shown below.
 
-@b{Argument}
 @table @b
+@item @b{Argument}
 @item Timeout value
 The timeout value in milliseconds.
 @end table

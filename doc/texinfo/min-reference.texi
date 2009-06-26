@@ -165,6 +165,7 @@ Project home page: http://garage.maemo.org/projects/min/
 * General keywords: General keywords.
 * title keyword: title keyword.
 * timeout keyword: timeout keyword.
+* blocktimeout keyword: blocktimeout keyword.
 * print keyword: print keyword.
 * var keyword: var keyword.
 * Test Case control: Test Case control.
@@ -441,6 +442,7 @@ Project home page: http://garage.maemo.org/projects/min/
 * General keywords: General keywords.
 * title keyword: title keyword.
 * timeout keyword: timeout keyword.
+* blocktimeout keyword: blocktimeout keyword.
 * print keyword: print keyword.
 * var keyword: var keyword.
 * Test Case control: Test Case control.
@@ -500,6 +502,7 @@ Project home page: http://garage.maemo.org/projects/min/
 @menu
 * title keyword: title keyword.
 * timeout keyword: timeout keyword.
+* blocktimeout keyword: blocktimeout keyword.
 * print keyword: print keyword.
 * var keyword: var keyword.
 @end menu
@@ -508,9 +511,13 @@ Project home page: http://garage.maemo.org/projects/min/
 @subsection title keyword
 @include chapters/title_keyword.texi
 
-@node timeout keyword, print keyword, title keyword, General keywords
+@node timeout keyword, blocktimeout keyword, title keyword, General keywords
 @subsection timeout keyword
 @include chapters/timeout_keyword.texi
+
+@node blocktimeout keyword, print keyword, timeout keyword, General keywords
+@subsection blocktimeout keyword
+@include chapters/blocktimeout_keyword.texi
 
 @node print keyword, var keyword, timeout keyword, General keywords
 @subsection print keyword
