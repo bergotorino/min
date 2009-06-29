@@ -174,7 +174,9 @@ LOCAL int       ec_read_module_confdir (int op_mode);
 /* ------------------------------------------------------------------------- */
 LOCAL void wait_for_pid (void *arg)
 {
-        //int* pid = (int*)arg;
+        int* pid = (int*)arg;
+        waitpid ( *pid, NULL, 0); 
+
         pthread_exit (0);
 }
 
@@ -790,7 +792,6 @@ LOCAL int ec_remove_module_temp (DLListIterator work_module_item)
 
         mq_send_message2 (mq_id, address, MSG_END, 0, "Shut down !");
 #ifndef MIN_UNIT_TEST
-        /*waitpid ( address, NULL, 0); */
         pthread_create (&threadid, NULL, (void *)&wait_for_pid,
                         (void *)&address);
 #endif
@@ -1286,13 +1287,6 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         tc_set_status (work_case_item, TEST_CASE_TERMINATED);
         group_id = tc_get_group_id (work_case_item);
 
-	/*if (in->case_result) in->case_result (tc_get_run_id (work_case_item), 
-					      message->param_, 
-					      message->message_,
-					      tr_get_start_time
-					      (work_result_item),
-					      tr_get_end_time
-					      (work_result_item));*/
 	MINAPI_PLUGIN_CALL (case_result,
 			    case_result (tc_get_run_id (work_case_item), 
 					 message->param_, 
@@ -1397,10 +1391,6 @@ LOCAL int ec_msg_tcd_handler (MsgBuffer * message)
 				 * and can be removed - at least in current 
 				 * design 
 				 */
-				/*if (in->module_ready) 
-					in->module_ready 
-						(tm_get_module_id 
-						 (work_module_item));*/
 				MINAPI_PLUGIN_CALL (module_ready,
 						    module_ready
 						    (tm_get_module_id 
@@ -1418,10 +1408,6 @@ LOCAL int ec_msg_tcd_handler (MsgBuffer * message)
                                 tm_set_status (work_module_item,
                                                TEST_MODULE_READY);
                                 result = 0;
-				/*if (in->module_ready) 
-					in->module_ready 
-						(tm_get_module_id 
-						 (work_module_item));*/
                                 MINAPI_PLUGIN_CALL (module_ready, 
 						    module_ready 
 						    (tm_get_module_id 
@@ -1590,7 +1576,6 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
 	** Messages with descriction __error_console__ have a special handling
 	*/
 	if (!strcmp (message->desc_, "__error_console__")) {
-		/*if (in->error_report) in->error_report (message->message_);*/
 		MINAPI_PLUGIN_CALL (error_report,
 				    error_report (message->message_));
 		tr_remove_printout (print_msg);
@@ -1653,12 +1638,6 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
                 work_result_item = dl_list_next (work_result_item);
         }
 	
-	/*if (in->module_prints) in->module_prints (message->sender_, 
-						  message->message_);
-	MINAPI_PLUGIN_CALL (module_prints, module_prints (message->sender_, 
-							  message->message_));
-	Why twice ??
-	*/
         work_list = tr_get_priontouts_list (work_result_item);
         work_printout_item = dl_list_head (work_list);
         while (work_printout_item != DLListNULLIterator) {
@@ -1671,9 +1650,6 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
         }
         //dl_list_add_at (work_list, ( void* ) print_msg, it);
         dl_list_add (work_list, (void *)print_msg);
-	/*if (in->module_prints)
-		in->module_prints (tc_get_run_id (work_case_item),
-				   message->message_);*/
 	MINAPI_PLUGIN_CALL(module_prints,
 			   module_prints (tc_get_run_id (work_case_item),
 					  message->message_));
@@ -2103,9 +2079,6 @@ LOCAL int ec_read_module_section (MinParser * inifile)
                 work_list = dl_list_create ();
                 module = tm_create (bin_path, work_list, 0);
                 module_item = tm_add (available_modules, module);
-                /*if (in->new_module) {
-                        in->new_module (bin_path, module->module_id_);
-                }*/
                 MINAPI_PLUGIN_CALL(new_module,
 				   new_module (bin_path, module->module_id_));
 
@@ -2701,8 +2674,6 @@ int ec_pause_test_case (DLListIterator work_case_item)
                 result = mq_send_message2 (mq_id, addr, MSG_PAUSE, 0, "\0");
                 if (result == 0)
                         tc_set_status (work_case_item, TEST_CASE_PAUSED);
-		/*if (in->case_paused) in->case_paused 
-					     (tc_get_run_id (work_case_item));*/
                 MINAPI_PLUGIN_CALL (case_paused,case_paused 
 				    (tc_get_run_id (work_case_item)));
                 break;
