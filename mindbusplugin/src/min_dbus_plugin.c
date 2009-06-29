@@ -49,7 +49,7 @@ GType min_object_get_type(void);
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-/* None */
+GMainLoop *mainloop = NULL;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -446,7 +446,6 @@ void pl_open_plugin ()
         DBusGConnection *bus = NULL;
         DBusGProxy *busProxy = NULL;
         MinObject *minObj = NULL;
-        GMainLoop *mainloop = NULL;
         guint result = 0;
         GError *error = NULL;
         gboolean tmp = FALSE;
@@ -617,8 +616,11 @@ gboolean min_object_min_close(MinObject *obj)
         /* Calls callback from MIN */
         if (min_clbk.min_close) {
                 min_clbk.min_close();
+		g_main_loop_quit (mainloop);
                 return TRUE;
         }
+        g_main_loop_quit (mainloop);
+
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
