@@ -180,14 +180,18 @@ void Min::MainWindow::handleRunTestCase()
     // For each selected, execute it!
     Min::RemoteControll &rc = Min::RemoteControll::getInstance();
     for (int i = 0; i < modules.count(); i++) {
-	unsigned int moduleId = modules[i].data().toUInt();
-        unsigned int caseId     = db.getTestCaseDbId(moduleId,cases[i].data().toString());
-
-        rc.minStartCase(db.getModuleEngineId(1,moduleId),
-                        db.getTestCaseEngineId(moduleId,caseId),
-                        groupId); /* groupId to be extracted from database, for now just put 1 */
+	    unsigned int moduleId = modules[i].data().toUInt();
+	    unsigned int caseId   = db.getTestCaseDbId(moduleId,cases[i].data().toString());
+//	    qDebug("handleRunTestCase: moduleId = %u, caseId = %u",
+	    //	   moduleId, caseId);
+	    if (caseId != 0)
+		    rc.minStartCase(db.getModuleEngineId(1,moduleId),
+				    db.getTestCaseEngineId(moduleId,caseId),
+				    groupId); 
+	    else
+		    qDebug ("handleRunTestCase: caseId == 0, not starting");
     }
-
+    
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::handlePauseTestCase()

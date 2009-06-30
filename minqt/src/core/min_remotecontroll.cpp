@@ -159,6 +159,7 @@ void Min::RemoteControll::minCaseResult(int testrunid, int result,
                                         const QString &desc,
                                         int starttime, int endtime)
 {
+    unsigned int dbid;
     Min::Database &db = Min::Database::getInstance();
     int status = TP_ENDED;
     switch (result) {
@@ -171,7 +172,13 @@ void Min::RemoteControll::minCaseResult(int testrunid, int result,
     default:
 	    break;
     }
-    db.updateTestRun(db.getTestRunDbId(testrunid),
+    dbid = db.getTestRunDbId(testrunid);
+    if (dbid == 0) {
+	    qDebug  ("minCaseResult: dbid == 0 .. bad");
+	    return;
+    }
+
+    db.updateTestRun(dbid,
 		     status, 
 		     starttime,  
 		     endtime,
@@ -203,12 +210,15 @@ void Min::RemoteControll::minCaseResumed(int testrunid)
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseStarted(uint moduleid,
-                                        uint caseid,
-                                        int testrunid)
+					 uint caseid,
+					 int testrunid)
 {
     //qDebug("Min::RemoteControll::minCaseStarted\n");
     Min::Database &db = Min::Database::getInstance();
-
+    //qDebug ("minCaseStarted: moduleid=%u, caseid = %u, testrunid = %d,"
+    //    "requestCount=%d",
+    //    moduleid, caseid, testrunid, exeRequest_.count());
+    
     for (int i=0;i<exeRequest_.count();i++) {
         Min::RemoteControll::ExeRequestData *tmp;
         tmp = exeRequest_[i];
@@ -220,7 +230,9 @@ void Min::RemoteControll::minCaseStarted(uint moduleid,
                             TP_RUNNING,    // status
                             0);            // start time FIXME: should be actual
             delete tmp;
+	    //qDebug ("minCaseStarted: removing request index %d", i);
             exeRequest_.removeAt(i);
+	    break;
         }
     }
 
@@ -267,8 +279,8 @@ void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
 void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
                     const QString &casetitle)
 {
-    //qDebug("Min::RemoteControll::minNewTestCase %d %d %s\n",
-    //      moduleid,caseid,casetitle.toStdString().c_str());
+    qDebug("Min::RemoteControll::minNewTestCase %d %d %s\n",
+	   moduleid,caseid,casetitle.toStdString().c_str());
     Min::Database &db = Min::Database::getInstance();
     db.insertTestCase(db.getModuleDbId(1,moduleid),caseid,casetitle,"");
 

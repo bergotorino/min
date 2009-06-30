@@ -1,4 +1,4 @@
 TEMPLATE    =   subdirs
 SUBDIRS     =   src
-QT += sql
+QT += sql 
 

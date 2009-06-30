@@ -56,6 +56,7 @@ unsigned int Min::Database::insertDevice(unsigned int device_id)
     query.bindValue(":devid", QVariant(device_id));
     unsigned int retval = 0;
     if (query.exec()) retval = query.lastInsertId().toUInt();
+    query.finish();
 
     // Notify
     if (retval) emit updated();
@@ -88,15 +89,16 @@ unsigned int Min::Database::insertModule(unsigned int device_dbid,
 
     // Notify
     if (retval) emit updated();
+    query.finish();
 
     // Return id of last insert
     return retval;
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::insertTestCase(unsigned int module_dbid,
-                unsigned int test_case_id,
-                const QString &test_case_title,
-		const QString &test_case_description)
+					   unsigned int test_case_id,
+					   const QString &test_case_title,
+					   const QString &test_case_description)
 {
     // Check if test case with this id exists
     QSqlQuery query;
@@ -117,6 +119,7 @@ unsigned int Min::Database::insertTestCase(unsigned int module_dbid,
     query.bindValue(QString(":descr"), QVariant(test_case_description));
     unsigned int retval = 0;
     if (query.exec()) retval = query.lastInsertId().toUInt();
+    query.finish();
 
     // Notify
     if (retval) emit updated();
@@ -126,13 +129,16 @@ unsigned int Min::Database::insertTestCase(unsigned int module_dbid,
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::insertTestRun(unsigned int test_case_dbid,
-                                        unsigned int test_run_pid,
-                                        unsigned int group_id,
-                                        int status,
-                                        unsigned long start_time)
+					  unsigned int test_run_pid,
+					  unsigned int group_id,
+					  int status,
+					  unsigned long start_time)
 {
     // Insert test run
     QSqlQuery query;
+    //    qDebug ("insertTestRun: dbid = %u, test_run_id = %u, group_id = %u, "
+    //    "status = %d, start_time = %lu",
+    //    test_case_dbid, test_run_pid, group_id, status, start_time);
     query.prepare("INSERT INTO test_run(test_run_pid, test_case_id, group_id, status, start_time)  VALUES (:runpid, :caseid, :groupid, :status, :starttime);");
     query.bindValue(QString(":caseid"), QVariant(test_case_dbid));
     query.bindValue(QString(":runpid"), QVariant(test_run_pid));
@@ -141,10 +147,10 @@ unsigned int Min::Database::insertTestRun(unsigned int test_case_dbid,
     query.bindValue(QString(":starttime"), QVariant( (qlonglong)start_time));
     unsigned int retval = 0;
     if (query.exec()) retval = query.lastInsertId().toUInt();
+    query.finish();
 
     // Notify
     if (retval) emit updated();
-
     // Return id of last insert
     return retval;
 };
@@ -158,13 +164,16 @@ unsigned int Min::Database::insertPrintout(unsigned int test_run_dbid,
     query.bindValue(QString(":content"), QVariant(content));
     if (query.exec()) {
         // Notify
+        query.finish();
         emit updated();
         return query.lastInsertId().toUInt();
     }
     else return 0;
+    query.finish();
 
     // Notify
     emit updated();
+    return 1;
 };
 
 // ----------------------------------------------------------------------------
@@ -179,6 +188,9 @@ bool Min::Database::updateTestRun(unsigned int dbid,
     // Update existing test run
     QSqlQuery query;
     QString raw_query("");
+    //qDebug ("updateTestRun: %u %d %ld %ld %d %s",
+    //    dbid, status, start_time, end_time, result, 
+    //    result_description.toStdString().c_str());
     raw_query.append("UPDATE test_run SET status=");
     raw_query.append(QString::number(status));
     if (0!=start_time) {
@@ -198,10 +210,11 @@ bool Min::Database::updateTestRun(unsigned int dbid,
     raw_query.append(QString::number(dbid));
     raw_query.append(" ;");
     bool retval = query.exec(raw_query);
-
+    if (!retval)
+      qDebug ("query failed! %s", query.lastQuery().toStdString().c_str());
     // Notify
     if (retval) emit updated();
-
+    query.finish();
     // Return status of update
     return retval;
 };
@@ -216,6 +229,8 @@ unsigned int Min::Database::getDeviceDbId(unsigned int device_id)
     if(query.exec()){
         if(query.next()) id=query.value(0);
     }
+    query.finish();
+
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
@@ -231,8 +246,9 @@ unsigned int Min::Database::getModuleDbId(unsigned int device_id,
         if(query.next()) {
             id=query.value(0);
         }
-
     }
+    query.finish();
+
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
@@ -249,6 +265,8 @@ unsigned int Min::Database::getModuleDbId(unsigned int device_id,
             id=query.value(0);
         }
     }
+    query.finish();
+
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
@@ -263,6 +281,8 @@ unsigned int Min::Database::getTestRunEngineId(unsigned int testRunDbId)
             id=query.value(0);
         }
     }
+    query.finish();
+
     return id.toUInt();
 }
 // ----------------------------------------------------------------------------
@@ -279,11 +299,13 @@ unsigned int Min::Database::getModuleEngineId(unsigned int deviceId,
             id=query.value(0);
         }
     }
+    query.finish();
+
     return id.toUInt();
 }
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getTestCaseDbId(unsigned int module_dbid,
-                                        unsigned int test_case_id)
+					    unsigned int test_case_id)
 {
     QSqlQuery query;
     QVariant id=0;
@@ -295,11 +317,13 @@ unsigned int Min::Database::getTestCaseDbId(unsigned int module_dbid,
             id=query.value(0);
         }
     }
+    query.finish();
+
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getTestCaseDbId(unsigned int module_id,
-                                        const QString &test_case_name)
+					    const QString &test_case_name)
 {
 
     QSqlQuery query;
@@ -307,11 +331,20 @@ unsigned int Min::Database::getTestCaseDbId(unsigned int module_id,
     query.prepare("SELECT id FROM test_case WHERE module_id=:modid AND test_case_title=:casename;");
     query.bindValue(QString(":modid"), QVariant(module_id));
     query.bindValue(QString(":casename"), QVariant(test_case_name));
+
+//     QMapIterator<QString, QVariant> i(query.boundValues());
+//     while (i.hasNext()) {
+//        i.next();
+//        qDebug ("getTestCaseDbId: %s:%s", i.key().toAscii().data(),
+// 	       i.value().toString().toAscii().data());
+//     }
+
     if(query.exec()){
         if(query.next()) {
             id=query.value(0);
-        }
+        } 
     }
+    query.finish();
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
@@ -328,6 +361,8 @@ unsigned int Min::Database::getTestCaseEngineId(unsigned int moduleDbId,
             id=query.value(0);
         }
     }
+    query.finish();
+
     return id.toUInt();
 }
 // ----------------------------------------------------------------------------
@@ -337,16 +372,18 @@ unsigned int Min::Database::getTestRunDbId(unsigned int test_run_pid)
     QVariant id=0;
     query.prepare("SELECT id FROM test_run WHERE test_run_pid=:runpid;");
     query.bindValue(QString(":runpid"), QVariant(test_run_pid));
+
     if(query.exec()){
         if(query.next()) {
             id=query.value(0);
         }
     }
+    query.finish();
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getTestRunDbId(unsigned int test_case_id,
-                                        unsigned int test_run_pid)
+					   unsigned int test_run_pid)
 {
     QSqlQuery query;
     QVariant id=0;
@@ -358,6 +395,7 @@ unsigned int Min::Database::getTestRunDbId(unsigned int test_case_id,
             id=query.value(0);
         }
     }
+    query.finish();
     return id.toUInt();
 };
 // ----------------------------------------------------------------------------
@@ -372,6 +410,7 @@ QStringList Min::Database::getModules(unsigned int device_dbid)
             retval.append(query.value(0).toString());
         }
     }
+    query.finish();
     return retval;
 };
 // ----------------------------------------------------------------------------
@@ -386,6 +425,7 @@ QStringList Min::Database::getTestCases(unsigned int module_dbid)
             retval.append(query.value(0).toString());
         }
     }
+    query.finish();
     return retval;
 
 };
@@ -400,6 +440,8 @@ QList<unsigned int> Min::Database::getTestRunGroups()
             retval.append(query.value(0).toUInt());
         }
     }
+    query.finish();
+
     return retval;
 
 };
@@ -422,6 +464,8 @@ QVector<QStringList> Min::Database::getAvailableView(unsigned int devid) const
 	    retval.append(row);
         }
     }
+    query.finish();
+
     return retval;
 };
 // ----------------------------------------------------------------------------
@@ -436,6 +480,8 @@ QStringList Min::Database::getPrintoutView(unsigned int test_run_dbid) const
             retval.append(query.value(0).toString());
         }
     }
+    query.finish();
+
     return retval;
 };
 // ----------------------------------------------------------------------------
@@ -463,6 +509,8 @@ QVector<QStringList> Min::Database::getTestRunsInGroup(unsigned int device_dbid,
 	    retval.append(row);
         }
     }
+    query.finish();
+
     return retval;
 };
 /// ----------------------------------------------------------------------------
@@ -489,6 +537,8 @@ QVector<QStringList> Min::Database::getExecutedView(unsigned int device_dbid) co
 	    retval.append(row);
         }
     }
+    query.finish();
+
     return retval;
 };
 // ----------------------------------------------------------------------------
@@ -501,6 +551,8 @@ QString Min::Database::getModuleNameFromEngineId(unsigned int moduleEngineId)
     if(query.exec()){
         if(query.next()) { id=query.value(0); }
     }
+    query.finish();
+
     return id.toString();
 }
 // ----------------------------------------------------------------------------
@@ -513,6 +565,8 @@ QString Min::Database::getModuleNameFromDbId(unsigned int moduleDbId)
     if(query.exec()){
         if(query.next()) { id=query.value(0); }
     }
+    query.finish();
+
     return id.toString();
 }
 // ----------------------------------------------------------------------------
@@ -528,6 +582,8 @@ QString Min::Database::getCaseTitleFromEngineId(unsigned int moduleDbId,
     if(query.exec()){
         if(query.next()) { id=query.value(0); }
     }
+    query.finish();
+
     return id.toString();
 }
 // ----------------------------------------------------------------------------
@@ -543,6 +599,8 @@ QString Min::Database::getCaseTitleFromDbId(unsigned int moduleDbId,
     if(query.exec()){
         if(query.next()) { id=query.value(0); }
     }
+    query.finish();
+
     return id.toString();
 }
 // ----------------------------------------------------------------------------
@@ -555,6 +613,8 @@ unsigned int Min::Database::getModuleIdFromCaseDbId(unsigned int caseDbId)
     if(query.exec()){
         if(query.next()) { id=query.value(0); }
     }
+    query.finish();
+
     return id.toUInt();
 }
 // ----------------------------------------------------------------------------
@@ -567,6 +627,8 @@ QString Min::Database::getCaseTitleFromTestrunDbId(unsigned int testrunDbId)
     if(query.exec()){
         if(query.next()) { id=query.value(0); }
     }
+    query.finish();
+
     return id.toString();
 }
 // ----------------------------------------------------------------------------
@@ -624,6 +686,7 @@ bool Min::Database::initDatabase()
 	
 
 //	query.exec("CREATE VIEW availableview AS SELECT module.module_name AS module_name, test_case.test_case_title AS test_case_title, \"descr\" AS test_case_description, test_case.id AS test_case_dbid FROM test_case, module WHERE module.id=test_case.module_id;");
+	query.finish();
 
         return true;
     }
