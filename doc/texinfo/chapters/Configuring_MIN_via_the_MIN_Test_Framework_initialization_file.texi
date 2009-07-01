@@ -5,10 +5,16 @@ An example of the initialization file is shown below.
 [Engine_Defaults]
 ModSearchPath=/usr/lib/min
 ModSearchPath=$HOME/.min
+Debugger=gdbtui
 [End_Defaults]
+
 [New_Module]
 ModuleName=/home/user/.min/exampleModule.so
 TestCaseFile=/home/user/.min/Example.cfg
+[End_Module]
+
+[New_Module]
+ModuleName=example2
 [End_Module]
 
 [Logger_Defaults]
@@ -33,6 +39,9 @@ Table below shows the possible settings in the min.conf file.
 @tab Required
 @item ConfigFile@*TestCaseFile
 @tab A configuration / test case file where the test cases are defined.@*There can be several configuration / test case files for one test module
+@tab Optional
+@item Debugger
+@tab Debugger used for test case debugging.@*Defaults to @code{gdb}, if not specified.
 @tab Optional
 @end multitable
 
