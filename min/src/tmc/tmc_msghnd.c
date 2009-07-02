@@ -79,10 +79,13 @@ void            gu_handle_gtc (TMC_t * tmc, TSBool send);
  *  @param tmc adress of the TMC entity.
  *  @param id test case id
  *  @param cfg_file name of the configuration file.
+ *  @param delay flag stating if we should wait for few secs before starting the
+ *         test function
  *
  *  Executes a test case of a given id.
  */
-LOCAL void      gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file);
+LOCAL void      gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file,
+	                       int delay);
 /* ------------------------------------------------------------------------- */
 /** MSG_END handler
  *  @param tmc adress of the TMC entity.
@@ -154,8 +157,11 @@ void            gu_handle_sigusr2 (int sig);
  *  @param tmc adress of the test module controller
  *  @param id id of the test case to be executed
  *  @param cfg_file config file
+ *  @param delay flag stating if we should wait for few secs before starting the
+ *         test function
  */
-LOCAL void      gu_create_tp (TMC_t * tmc, int id, const char *cfg_file);
+LOCAL void      gu_create_tp (TMC_t * tmc, int id, const char *cfg_file, 
+			      int delay);
 /* ------------------------------------------------------------------------- */
 /** MSG_EXT handler 
  *  @param tmc adress of the test module controller
@@ -178,7 +184,7 @@ void            dummy_handler (int sig);
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
-LOCAL void gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file)
+LOCAL void gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file, int delay)
 {
         long            tmp = -1;
 	MsgBuffer msg;
@@ -190,7 +196,7 @@ LOCAL void gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file)
                 min_log_open ("TestProcess", 3);
                 sl_set_sighandler (SIGCHLD, dummy_handler);
                 usleep (50000);
-                gu_create_tp (tmc, id, cfg_file);
+                gu_create_tp (tmc, id, cfg_file, delay);
         } else if (tmp > 0) {
                 MIN_INFO ("Test Process created [%d]", tmp);
                 tp_set_pid (&tmc->tpc_, tmp);
@@ -271,20 +277,20 @@ LOCAL void gu_handle_extif (TMC_t * tmc, const MsgBuffer * msg)
         case EFreeSlave:
         case ERemoteSlave:
                 MIN_DEBUG ("EXTIF command: Scripter --> Engine: [%d]",
-                             msg->extif_msg_type_);
+			   msg->extif_msg_type_);
                 send_msg.receiver_ = getppid ();
                 mq_send_message (tmc->tmcipi_.mqid_, &send_msg);
                 break;
         case EResponseSlave:
         case ERemoteSlaveResponse:
                 MIN_DEBUG ("EXTIF command: Engine --> Scripter: [%d]",
-                             msg->extif_msg_type_);
+			   msg->extif_msg_type_);
                 send_msg.receiver_ = tmc->tpc_.tp_pid_;
                 mq_send_message (tmc->tmcipi_.mqid_, &send_msg);
                 break;
         default:
                 MIN_WARN ("Unknown type of EXTIF command: [%d]",
-                             msg->extif_msg_type_);
+			  msg->extif_msg_type_);
         }
 }
 
@@ -335,6 +341,7 @@ void dummy_handler (int sig)
 /* ------------------------------------------------------------------------- */
 void gu_handle_sigsegv (int sig)
 {
+	MIN_DEBUG ("SIGSEGV!");
         ip_send_ret (&ptmc->tmcipi_, TP_CRASHED, "Crashed");
         sleep (1);
         exit (TP_EXIT_FAILURE);
@@ -349,13 +356,15 @@ void gu_handle_sigusr2 (int sig)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL void gu_create_tp (TMC_t * tmc, int id, const char *cfg_file)
+LOCAL void gu_create_tp (TMC_t * tmc, int id, const char *cfg_file, int delay)
 {
         TestCaseResult  tcr;
         ip_init (&tmc->tmcipi_, getppid ());
 
         sl_set_sighandler (SIGSEGV, gu_handle_sigsegv);
         sl_set_sighandler (SIGUSR2, gu_handle_sigusr2);
+	if (delay) 
+		sleep (5);
         tmc->lib_loader_.run_case_fun_ (id, cfg_file, &tcr);
 
         ip_send_ret (&tmc->tmcipi_, tcr.result_, tcr.desc_);
@@ -433,18 +442,21 @@ void gu_read_message (TMC_t * tmc, MsgBuffer * input_buffer)
 void gu_handle_message (TMC_t * tmc, const MsgBuffer * msg)
 {
         int             retval;
+	int             delay = 0;
         switch (msg->type_) {
         case MSG_GTC:
                 gu_handle_gtc (tmc, msg->special_);
                 break;
-
+	case MSG_EXE_DLD:
+	        delay = 1;
+		/* fall through */
         case MSG_EXE:
 		/*
 		** Initialize to not complete
 		*/
                 globaltcr.result_ = TP_NC;
                 strcpy (globaltcr.desc_, "Test Case Not completed");
-                gu_handle_exe (tmc, msg->param_, msg->message_);
+                gu_handle_exe (tmc, msg->param_, msg->message_, delay);
                 break;
 
         case MSG_RET:

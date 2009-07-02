@@ -42,6 +42,7 @@
 typedef struct {
 	int parallel_mode_;
 	int display_info_;
+        int debug_;
 } cli_opts;
 
 /* ------------------------------------------------------------------------- */

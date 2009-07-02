@@ -190,7 +190,12 @@ LOCAL void free_case (void *);
 LOCAL void init_ncurses ()
 {
         initscr ();             /* start ncurses mode */
-        cbreak ();              /* line buffering disabled, pass on */
+	start_color();
+	init_pair(1, COLOR_CYAN, COLOR_BLACK);
+	init_pair(2, COLOR_GREEN, COLOR_BLACK);
+	init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+
+	cbreak ();              /* line buffering disabled, pass on */
         /* everything to me */
         noecho ();              /* don't echo while we do getch */
         keypad (stdscr, TRUE);  /* enables reading arrow keys */
@@ -320,7 +325,6 @@ LOCAL void create_main_window (int ysize, int xsize)
 
         /* make cursor invisible */
         curs_set (0);
-
         /* update screen contents */
         touchwin (main_window);
         wrefresh (main_window);
@@ -373,16 +377,17 @@ LOCAL void create_menu (callback_s * cb, const char *string)
 
         /* create the menu */
         my_menu = new_menu ((ITEM **) my_items);
+	set_menu_fore(my_menu, COLOR_PAIR(1));
+	set_menu_back(my_menu, COLOR_PAIR(2));
+	set_menu_grey(my_menu, COLOR_PAIR(3));
 
         /* set up window for the menu's user interface */
         menu_window = derwin (main_window,
                               menu_win_height,
                               menu_win_width, MENU_WIN_Y, MENU_WIN_X);
-
         /* clears menu window */
         cui_clear_win (menu_window);
-
-        /* associate these windows with the menu */
+	/* associate these windows with the menu */
         set_menu_win (my_menu, main_window);
         set_menu_sub (my_menu, menu_window);
 
@@ -969,6 +974,8 @@ void display_info (char *string, int time)
         /* create and display the small window */
         small_win = newwin (height, width, y, x);
         cui_clear_win (small_win);
+	wattron(small_win, COLOR_PAIR(3));
+
         box (small_win, 0, 0);
         cui_print_title (small_win, "Info");
         mvwaddstr (small_win, 1, 2, string);

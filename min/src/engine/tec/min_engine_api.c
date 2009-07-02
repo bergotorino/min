@@ -500,8 +500,34 @@ LOCAL int eapi_register_slave (char *host, char *slavetype)
        return tec_add_ip_slave_to_pool (&result, 
 					slavetype ? slavetype : "phone");
 }
-
 /* ------------------------------------------------------------------------- */
+LOCAL int eapi_debug_test_case (unsigned module_id, unsigned case_id)
+{
+        int             result = 0, stat;
+	DLListIterator mod_it, case_it, case_it2;
+        test_module_info_s *module;
+	
+        pthread_mutex_lock (&tec_mutex_);
+
+	mod_it = tm_find_by_module_id (instantiated_modules, module_id);
+	if (mod_it == INITPTR) {
+		MIN_WARN ("No module by id %d found", module_id);
+		return 1;
+	}
+	module = (test_module_info_s *)dl_list_data (mod_it);
+	case_it = tc_find_by_id (module->test_case_list_, case_id);
+	if (case_it == INITPTR) {
+		MIN_WARN ("No case by id %d found", case_id);
+		return 1;
+	}
+
+	pthread_mutex_unlock (&tec_mutex_);
+	case_it = ec_select_case (case_it, 0);
+
+	result = ec_debug_case (case_it);
+
+        return result;
+}
 
 
 /* ======================== FUNCTIONS ====================================== */
@@ -527,6 +553,7 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 
 	out->register_slave     = eapi_register_slave;
 	out->receive_rcp        = eapi_receive_rcp;
+	out->debug_case         = eapi_debug_test_case;
 }
 
 /* ------------------------------------------------------------------------- */

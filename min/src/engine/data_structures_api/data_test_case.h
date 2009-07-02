@@ -86,6 +86,8 @@ typedef struct {
         DLList         *test_result_list_;
     /** Flag for IP based m/s operation */
         int             ip_slave_case_;
+    /** Flag stating if this case should be started with debugger */
+        int             debug_case_;
 } test_case_s;
 
 /* ------------------------------------------------------------------------- */

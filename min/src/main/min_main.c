@@ -130,6 +130,8 @@ LOCAL void display_help ()
         printf (" -v,  --version\t\t\t"
                 "Display version information and exits\n");
         printf (" -c,  --console\t\t\tStart MIN without consoleui\n");
+	printf (" -d,  --debug\t\t\tAttach a debugger to test case(s)\n");
+	printf ("\t\t\t\tNote implies -c\n");
         printf (" -i,  --info test_module\t"
                 "Print details about test_module and exits\n");
         printf (" -x,  --execute test_module"
@@ -309,7 +311,6 @@ int main (int argc, char *argv[], char *envp[])
         unsigned int num_of_plugins = 0;
         Text *plugin = tx_create("cui");
 	memset (&cli_opts, 0x0, sizeof (cli_opts));
-
 	struct option min_options[] =
 		{
 			{"help", no_argument, &help_flag, 1},
@@ -335,7 +336,7 @@ int main (int argc, char *argv[], char *envp[])
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
      
-		opt_char = getopt_long (argc, argv, "hvci:x:s:p:t:r:m:",
+		opt_char = getopt_long (argc, argv, "hvcdi:x:s:p:t:r:m:",
 					min_options, &option_index);
      
 		/* Detect the end of the options. */
@@ -373,6 +374,10 @@ int main (int argc, char *argv[], char *envp[])
                         dl_list_add (modulelist, optarg);
 			no_cui_flag = 1;
 			cli_opts.display_info_ = 1;
+                        break;
+                case 'd':
+			no_cui_flag = 1;
+			cli_opts.debug_ = 1;
                         break;
 
                 case 'p':
@@ -475,11 +480,11 @@ int main (int argc, char *argv[], char *envp[])
 	pthread_join (plugin_thread[0], &tmp);
 
 	
-    dl_list_free (&modulelist);
-    dl_list_free (&slavelist);
-    ec_cleanup ();
+	dl_list_free (&modulelist);
+	dl_list_free (&slavelist);
+	ec_cleanup ();
 
-    return min_return_value;
+	return min_return_value;
 }
 
 /* ------------------------------------------------------------------------- */

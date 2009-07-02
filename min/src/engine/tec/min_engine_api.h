@@ -233,6 +233,14 @@ typedef struct {
 	** returns 0 on success 1 on error
 	*/
 	int (*register_slave) (char *host, char *slavetype);
+	/* --------------------------------------------------------------------
+	** Signals engine to start executing test case with caseid from module 
+	** with moduleid. Just before case is started a debugger is attached 
+	** to it. returns 0 if the async operation was started succesfully
+	**                1 in case of error
+	*/
+        int (*debug_case) (unsigned moduleid, unsigned caseid);
+
 } eapiOut_t;
 
 /* ----------------------------------------------------------------------------

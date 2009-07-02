@@ -415,7 +415,6 @@ LOCAL TSBool _execute_script ()
                 substract_timeval (&res, &now, &scripter_mod.blocking_since);
 
                 elapsed = (unsigned long)res.tv_sec;
-		MIN_INFO ("Elapsed = %u", elapsed);
 		if (elapsed >= scripter_mod.blocking_timeout) {
 			SCRIPTER_RTERR ("Timeout for blocking command");
 		}

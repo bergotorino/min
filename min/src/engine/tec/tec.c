@@ -679,7 +679,7 @@ LOCAL void ec_init_logger_settings ()
  * where argument should be taken.
  * @param work_case_item pointer to item from "selected_cases" containing 
  *        test case to be executed.
- *  @return result of operation (TBD)
+ *  @return -1 on error, otherwise 0
  */
 int ec_exec_case (DLListIterator work_case_item)
 {
@@ -722,6 +722,76 @@ int ec_exec_case (DLListIterator work_case_item)
                 tr_set_start_time (test_result_item, time (NULL));
                 tr_set_priontouts_list (test_result_item, dl_list_create ());
                 message.type_ = MSG_EXE;
+                message.sender_ = ec_settings.engine_pid_;
+                message.receiver_ = tm_get_pid (work_module_item);
+                message.param_ = tc_get_id (work_case_item);
+                STRCPY (message.desc_, "\0", MaxDescSize);
+                tc_get_cfg_filename (work_case_item, message.message_);
+                res = mq_send_message (mq_id, &message);
+                break;
+
+        case TEST_MODULE_BUSY:
+                ec_start_module_temp (work_case_item);
+                res = 0;
+                break;
+
+        default:
+                MIN_WARN ("module status fault");
+                res = -1;
+
+        }
+EXIT:
+        return res;
+}
+
+/** Function called to debug one test case. Prequisite: before calling this
+ * function, case should be put in "selected_cases" list, and that's from 
+ * where argument should be taken.
+ * @param work_case_item pointer to item from "selected_cases" containing 
+ *        test case to be executed.
+ *  @return -1 on error, otherwise 0
+ */
+int ec_debug_case (DLListIterator work_case_item)
+{
+
+        DLList         *work_result_list = tc_get_tr_list (work_case_item);
+        DLListIterator  test_result_item;
+        int             work_module_status;
+        test_case_s    *work_case = INITPTR;
+        MsgBuffer       message;
+        int             res = -1;
+        DLListIterator  work_module_item =
+            tc_get_test_module_ptr (work_case_item);
+
+        if (work_module_item == INITPTR) {
+                MIN_DEBUG ("debug case %x", work_case_item);
+                MIN_WARN ("Faulty test case data");
+                goto EXIT;
+
+        }
+
+        work_case = dl_list_data (work_case_item);
+	work_case->debug_case_ = 1;
+        if (work_case == DLListNULLIterator) {
+
+                MIN_WARN ("Faulty test case data (2)");
+                goto EXIT;
+
+        }
+        work_module_status = tm_get_status (work_module_item);
+
+        switch (work_module_status) {
+
+        case TEST_MODULE_READY:
+                tm_set_status (work_module_item, TEST_MODULE_BUSY);
+                tc_set_status (work_case_item, TEST_CASE_ONGOING);
+                test_result_item = dl_list_head (work_result_list);
+                /* it is enough to get "head of the list, since item in 
+		 * selected list is just a copy of test case containing one 
+		 * result in the list */
+                tr_set_start_time (test_result_item, time (NULL));
+                tr_set_priontouts_list (test_result_item, dl_list_create ());
+                message.type_ = MSG_EXE_DLD;
                 message.sender_ = ec_settings.engine_pid_;
                 message.receiver_ = tm_get_pid (work_module_item);
                 message.param_ = tc_get_id (work_case_item);
@@ -842,7 +912,10 @@ LOCAL int ec_exec_case_temp (DLListIterator work_module_item)
         tr_set_priontouts_list (work_result_item, dl_list_create ());
 
         /*create and send message */
-        message.type_ = MSG_EXE;
+	if (work_case->debug_case_)
+		message.type_ = MSG_EXE_DLD;
+	else
+		message.type_ = MSG_EXE;
         message.sender_ = ec_settings.engine_pid_;
         message.receiver_ = tm_get_pid (work_module_item);
         message.param_ = tc_get_id (work_case_item);
@@ -1668,7 +1741,8 @@ LOCAL int ec_msg_run_id_handler (MsgBuffer * message)
         DLListIterator  work_module_item = DLListNULLIterator;
         DLListIterator  work_case_item = DLListNULLIterator;
         test_case_s    *work_case = INITPTR;
-
+	char            buf [20];
+	Text           *cmd;
 
         work_module_item =
             tm_get_ptr_by_pid (instantiated_modules, message->sender_);
@@ -1696,7 +1770,18 @@ LOCAL int ec_msg_run_id_handler (MsgBuffer * message)
 					tc_get_ext_id (work_case_item),
 					tc_get_run_id (work_case_item)));
 				      
-	
+	/*
+	** This case is flagged for debugging ->
+	** attach a debugger
+	*/
+	if (work_case->debug_case_) {
+		cmd = tx_create(ec_settings.debugger_);
+		tx_c_append (cmd, " tmc ");
+		sprintf (buf, "%u", message->param_);
+		tx_c_append (cmd, buf);
+		system (tx_share_buf (cmd));
+		tx_destroy (&cmd);
+	}
         result = 0;
 EXIT:
 	return result;
@@ -2223,6 +2308,7 @@ LOCAL int ec_read_conf (MinParser * inifile, int operation_mode)
         char           *search_path = INITPTR;
         char           *path_string = NULL;
         char           *bin_path = INITPTR;
+	char           *debugger_cmd = INITPTR;
         char           *locdir = NULL;
         char           *home_d = getenv ("HOME");
         /*int res = 0;for checking funtion return values */
@@ -2235,23 +2321,34 @@ LOCAL int ec_read_conf (MinParser * inifile, int operation_mode)
                 MIN_FATAL ("For information about mandatory min.conf"
 			     " contents refer to manual");
         }
-
+	
+        line_item = mmp_get_item_line(engine_def,
+                                      "Debugger",
+                                      ESTag);
+        mip_get_string(line_item,
+                       "Debugger",
+                       &debugger_cmd);
+	/*
+	** Default to gdb
+	*/
+        if (debugger_cmd != INITPTR) {
+		if (ec_settings.debugger_ != NULL)
+			DELETE (ec_settings.debugger_);
+		ec_settings.debugger_ = debugger_cmd;
+        }
+	MIN_DEBUG ("Debugger = %s", debugger_cmd);
 
         line_item = mmp_get_item_line(engine_def,
                                       "TmcBinPath",
                                       ESTag);
-
         mip_get_string(line_item,
                        "TmcBinPath",
                        &bin_path);
-
-
         if (bin_path == INITPTR) {
                 bin_path = NEW2(char, 
                                 strlen(MIN_BIN_DIR) + strlen("/tmc") + 1 );
                 sprintf (bin_path, "%s/tmc", MIN_BIN_DIR);
         }
-        
         /*
         ** Check if tmc lies in the specified place
         */
@@ -2413,6 +2510,12 @@ int ec_configure ()
                            "min.conf from .");
         }
 
+	/* 
+	** Default to gdb
+	*/
+	if (ec_settings.debugger_ == NULL) {
+		ec_settings.debugger_ = "gdb";
+	}
         /*
          ** Read module definitions from /etc/min.d/
          */

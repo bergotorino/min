@@ -47,6 +47,7 @@
 
 typedef struct {
         filename_t      tmc_app_path_;
+	char           *debugger_;
         long            engine_pid_;
         DLList         *search_dirs;
         int             operation_mode_;
@@ -107,6 +108,7 @@ DLListIterator  ec_select_case (DLListIterator work_case_item, int group_id);
 void            log_summary ();
 int             log_summary_stdout ();
 int             ec_exec_case (DLListIterator work_case_item);
+int             ec_debug_case (DLListIterator work_case_item);
 int             ec_exec_test_case (DLListIterator work_case_item);
 int             ec_pause_test_case (DLListIterator work_case_item);
 int             ec_resume_test_case (DLListIterator work_case_item);

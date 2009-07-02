@@ -1684,6 +1684,7 @@ LOCAL void quit_program ()
 LOCAL void toggle_menu_item ()
 {
         menu_driver (my_menu, REQ_TOGGLE_ITEM);
+	
 }
 
 /* ------------------------------------------------------------------------- */

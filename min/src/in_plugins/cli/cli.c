@@ -277,7 +277,12 @@ LOCAL void pl_module_ready (unsigned moduleid)
 			if (cliopts.display_info_)
 				printf ("%s\n", 
 					tx_share_buf (c->casetitle_));
-			else if (min_clbk_.start_case) 
+			else if (cliopts.debug_ &&
+				 min_clbk_.debug_case) {
+				min_clbk_.debug_case 
+					(c->moduleid_,
+					 c->caseid_);
+			} else if (min_clbk_.start_case) 
 				min_clbk_.start_case 
 					(c->moduleid_,
 					 c->caseid_,
