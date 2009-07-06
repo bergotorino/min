@@ -131,7 +131,7 @@ LOCAL void display_help ()
                 "Display version information and exits\n");
         printf (" -c,  --console\t\t\tStart MIN without consoleui\n");
 	printf (" -d,  --debug\t\t\tAttach a debugger to test case(s)\n");
-	printf ("\t\t\t\tNote implies -c\n");
+	printf ("\t\t\t\tNote: implies -c\n");
         printf (" -i,  --info test_module\t"
                 "Print details about test_module and exits\n");
         printf (" -x,  --execute test_module"
