@@ -2336,7 +2336,6 @@ LOCAL int ec_read_conf (MinParser * inifile, int operation_mode)
 			DELETE (ec_settings.debugger_);
 		ec_settings.debugger_ = debugger_cmd;
         }
-	MIN_DEBUG ("Debugger = %s", debugger_cmd);
 
         line_item = mmp_get_item_line(engine_def,
                                       "TmcBinPath",
