@@ -32,7 +32,6 @@ check_tmapi_LDADD =  $(top_builddir)/src/tmc/test_module_api/libmintmapitest.a \
 check_tmapi_SOURCES = check_tmapi.c
 
 check_tec_LDADD = $(top_builddir)/src/engine/tec/libmintectest.a \
-		  $(top_builddir)/src/engine/treport_log/libmintreport.la \
 		  $(top_builddir)/src/engine/data_structures_api/libmindsa.la \
 		  $(top_builddir)/src/utils/libminutils.la \
 		  -lpthread -lcheck
@@ -52,12 +51,10 @@ check_parser_SOURCES = check_parser.c
 check_mintfwif_SOURCES = check_mintfwif.c
 check_mintfwif_LDADD = $(top_builddir)/src/mintfwif/libmintfwiftest.a \
 	$(top_builddir)/src/engine/tec/libmintecext.la $(top_builddir)/src/utils/libminutils.la \
-	$(top_builddir)/src/engine/data_structures_api/libmindsa.la $(top_builddir)/src/engine/treport_log/libmintreport.la \
 	-lpthread -lcheck
 
 check_integration_SOURCES = check_integration.c integration.tests
 check_integration_LDADD = $(top_builddir)/src/engine/tec/libmintecext.la \
-	$(top_builddir)/src/engine/data_structures_api/libmindsa.la $(top_builddir)/src/engine/treport_log/libmintreport.la \
 	$(top_builddir)/src/mintfwif/libmintfwif.la  $(top_builddir)/src/utils/libminutils.la \
 	 -lpthread -lcheck
 
