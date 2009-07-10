@@ -55,7 +55,7 @@ typedef struct _TestProcessController TestProcessController;
 /** Structure that holds Test Process related stuff */
 struct _TestProcessController {
         pid_t           tp_pid_;        /**< Test Process PID */
-        MINTPStatus    tp_status_;     /**< Test Process status */
+        MINTPStatus     tp_status_;     /**< Test Process status */
         int             tp_timeout_;    /**< Timeout of the Test Process */
 };
 /* ------------------------------------------------------------------------- */

@@ -81,6 +81,8 @@ LOCAL void      test_set_menu (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      start_new_case_menu (void);
 /* ------------------------------------------------------------------------- */
+LOCAL void      debug_case_menu (void);
+/* ------------------------------------------------------------------------- */
 LOCAL void      run_multiple_tests_menu (void);
 /* ------------------------------------------------------------------------- */
 LOCAL void      ongoing_cases_menu (void);
@@ -119,6 +121,8 @@ DLList         *test_set_files = INITPTR;
 
 /** focus position for main menu */
 focus_pos_s    main_menu_focus = { 0,0 };
+/** flag set when we leave the ncurses temporarily */
+int not_in_curses = 0;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -143,6 +147,8 @@ LOCAL callback_s cb_case_menu[] = {
         {"Start new case", NULL, start_new_case_menu, main_menu, NULL, NULL},
         {"Run multiple tests", NULL, run_multiple_tests_menu, main_menu,
          NULL, NULL},
+        {"Start case in debugger", NULL, debug_case_menu, main_menu, 
+	 NULL, NULL},
         {"Ongoing cases", NULL, ongoing_cases_menu, main_menu, NULL, NULL},
         {"Executed cases", NULL, executed_cases_menu, main_menu, NULL, NULL},
         {"Passed cases", NULL, passed_cases_menu, main_menu, NULL, NULL},
@@ -160,6 +166,9 @@ LOCAL callback_s *cb_start_new_case_menu = INITPTR;
 
 /* run multiple tests callback structure */
 LOCAL callback_s *cb_run_multiple_tests_menu = INITPTR;
+
+/* pointer to debug case menu callback structure */
+LOCAL callback_s *cb_debug_case_menu = INITPTR;
 
 /* ongoing cases menu callback structure */
 LOCAL callback_s *cb_ongoing_cases_menu = INITPTR;
@@ -227,6 +236,7 @@ LOCAL focus_pos_s       remove_tcs_from_test_set_menu_focus = { 0,0 };
 LOCAL focus_pos_s       add_test_case_files_menu_focus = { 0,0 };
 LOCAL focus_pos_s       module_menu_focus = { 0,0 };
 LOCAL focus_pos_s       start_new_case_menu_focus = { 0,0 };
+LOCAL focus_pos_s       debug_case_menu_focus = { 0,0 };
 LOCAL focus_pos_s       run_multiple_tests_menu_focus = { 0,0 };
 LOCAL focus_pos_s       add_tcs_to_test_set_menu_focus = { 0,0 };
 LOCAL focus_pos_s       load_test_set_menu_focus = { 0,0 };
@@ -245,6 +255,8 @@ LOCAL unsigned groupid = 0;
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
 LOCAL void      start_one_tc (void *p);
+/* ------------------------------------------------------------------------- */
+LOCAL void      debug_test_case (void *p);
 /* ------------------------------------------------------------------------- */
 LOCAL void      toggle_menu_item (void);
 /* ------------------------------------------------------------------------- */
@@ -860,6 +872,63 @@ LOCAL int get_tcs_for_start_new_case ()
         return 0;
 }
 
+
+/* ------------------------------------------------------------------------- */
+/** Gets test cases for populating start new case menu
+ *  @return 0 in case of success, returns -1 in case of failure.
+ */
+LOCAL int get_tcs_for_debug_case ()
+{
+        DLListItem     *dl_item_tc = INITPTR;
+        CUICaseData    *tc = INITPTR;
+        int             n = 0;
+        int             i = 0;
+
+        /* free memory allocated for callback structure */
+        free_cbs (cb_debug_case_menu);
+
+        /* count the number of all test cases */
+        n = dl_list_size (case_list_);
+
+        if (n > 0) {
+                /* allocate memory for n+1 items */
+                cb_debug_case_menu = NEW2(callback_s,n+1);
+		memset (cb_debug_case_menu, 0x0, 
+			(n+1)*sizeof (callback_s));
+
+                if (cb_debug_case_menu == NULL) return -1;
+
+                dl_item_tc = dl_list_head(case_list_);
+                while (dl_item_tc!=DLListNULLIterator) {
+                        /* get tc title and so on */
+                        tc = (CUICaseData*)dl_list_data (dl_item_tc);
+                        if (tc == INITPTR || tc->casetitle_ == INITPTR) {
+                                continue;
+                        }
+                        /* fill callback structure with data */
+                        set_cbs (&cb_debug_case_menu[i],
+                                tx_share_buf (tc->casetitle_),
+                                NULL,case_menu, case_menu, debug_test_case,
+                                dl_item_tc, 0);
+                        i++;
+                        dl_item_tc = dl_list_next(dl_item_tc);
+                }
+        } else {
+                /* allocate memory for empty menu */
+                cb_debug_case_menu = NEW2 (callback_s, 2);
+                if (cb_debug_case_menu == NULL) return -1;
+                i = 0;
+                set_cbs (&cb_debug_case_menu[i],
+                         "", NULL, NULL, case_menu, NULL, NULL, 0);
+                i++;
+        }
+
+        /* last menu item should be NULL one */
+        null_cbs (&cb_debug_case_menu[i]);
+
+        return 0;
+}
+
 /* ------------------------------------------------------------------------- */
 /** Gets test cases for populating run multiple tests menu
  *  @return 0 in case of success, returns -1 in case of failure.
@@ -1332,6 +1401,18 @@ LOCAL void start_new_case_menu ()
 }
 
 /* ------------------------------------------------------------------------- */
+/** Shows debug case menu
+ */
+LOCAL void debug_case_menu ()
+{
+        if (get_tcs_for_debug_case () != -1)
+                /* Show new menu */
+                update_menu (cb_debug_case_menu, "Debug case", 1,
+                             &debug_case_menu_focus);
+}
+
+
+/* ------------------------------------------------------------------------- */
 /** Shows run multiple tests menu
  */
 LOCAL void run_multiple_tests_menu ()
@@ -1748,6 +1829,21 @@ LOCAL void start_one_tc (void *p)
         if (min_clbk_.start_case) min_clbk_.start_case(c->moduleid_,
 						       c->caseid_,
 						       0);
+}
+
+/* ------------------------------------------------------------------------- */
+/** Starts test case in debugger
+ */
+LOCAL void debug_test_case (void *p)
+{
+        DLListIterator it = (DLListIterator)p;
+        CUICaseData *c = (CUICaseData*)dl_list_data(it);
+	def_prog_mode();		/* Save the tty modes		  */
+	endwin();			/* End curses mode temporarily	  */
+	not_in_curses = 1;
+
+        if (min_clbk_.debug_case) min_clbk_.debug_case(c->moduleid_,
+						       c->caseid_);
 }
 
 /* ------------------------------------------------------------------------- */

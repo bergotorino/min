@@ -35,14 +35,14 @@
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
-TestCaseResult  globaltcr;
-
+/* None */
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
 extern void     gu_handle_sigchld (int);
 extern void     gu_handle_sigalrm (int);
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
+TestCaseResult  globaltcr; 
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */

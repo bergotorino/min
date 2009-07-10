@@ -44,6 +44,7 @@ extern TestCaseResult  globaltcr;
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
+/** global exit flag, set when SIGUSR2 signal is received */
 TSBool tp_exit_flag = ESFalse;
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -68,111 +69,32 @@ TSBool tp_exit_flag = ESFalse;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** MSG_GTC handler
- *  @param tmc adress of the TMC entity.
- *
- *  Sends MSG_TCD messages to the engine.
- */
-void            gu_handle_gtc (TMC_t * tmc, TSBool send);
+LOCAL void      gu_handle_gtc (TMC_t * tmc, TSBool send);
 /* ------------------------------------------------------------------------- */
-/** MSG_EXE handler
- *  @param tmc adress of the TMC entity.
- *  @param id test case id
- *  @param cfg_file name of the configuration file.
- *  @param delay flag stating if we should wait for few secs before starting the
- *         test function
- *
- *  Executes a test case of a given id.
- */
 LOCAL void      gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file,
 	                       int delay);
 /* ------------------------------------------------------------------------- */
-/** MSG_END handler
- *  @param tmc adress of the TMC entity.
- *
- *  Exits from the main event loop.
- */
 LOCAL void      gu_handle_end (TMC_t * tmc);
 /* ------------------------------------------------------------------------- */
-/** MSG_PAUSE handler
- *  @param tmc adress of the TMC entity.
- *
- *  Pauses Test Process - if any.
- */
 LOCAL void      gu_handle_pause (TMC_t * tmc);
 /* ------------------------------------------------------------------------- */
-/** MSG_RESUME handler
- *  @param tmc adress of the TMC entity.
- *
- *  Resumes Test Process - if paused.
- */
 LOCAL void      gu_handle_resume (TMC_t * tmc);
 /* ------------------------------------------------------------------------- */
-/** MSG_STOP handler
- *  @param tmc adress of the TMC entity.
- *
- *  Abort Test Process - if any.
- */
 LOCAL void      gu_handle_stop (TMC_t * tmc);
 /* ------------------------------------------------------------------------- */
-/** MSG_USR handler
- *  @param tmc adress of the TMC entity.
- *  @param msg recieved message from test process which is forwarded to engine.
- *
- *  Forwards message to the engine.
- */
-void            gu_handle_usr (TMC_t * tmc, const MsgBuffer * msg);
+LOCAL void      gu_handle_usr (TMC_t * tmc, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** MSG_EVENT handler
- *  @param tmc adress of the TMC entity.
- *
- *  Forwards message to the engine.
- */
 LOCAL void      gu_handle_event (TMC_t * tmc, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** SIGCHLD handler
- *  @param sig number of the signal
- *
- *  Handles Test Process termination event. Called async. by the system.
- */
-void            gu_handle_sigchld (int sig);
+LOCAL void      gu_handle_sigsegv (int sig);
 /* ------------------------------------------------------------------------- */
-/** SIGSEGV handler
- *  @param sig number of the signal
- *
- *  Handles Test Process crashing event. Called async. by the system.
- */
-void            gu_handle_sigsegv (int sig);
+LOCAL void      gu_handle_sigusr2 (int sig);
 /* ------------------------------------------------------------------------- */
-/** SIGUSR2 handler
- *  @param sig number of the signal
- *
- *  Handles SIGUSR2 sent by the TMC. The SIGUSR2 is used instead of SIGKILL
- *  for killing the Test Process, because SIGKILL is not always received
- *  by the TP (FFS).
- */
-void            gu_handle_sigusr2 (int sig);
-/* ------------------------------------------------------------------------- */
-/** Creates a test process
- *  @param tmc adress of the test module controller
- *  @param id id of the test case to be executed
- *  @param cfg_file config file
- *  @param delay flag stating if we should wait for few secs before starting the
- *         test function
- */
 LOCAL void      gu_create_tp (TMC_t * tmc, int id, const char *cfg_file, 
 			      int delay);
 /* ------------------------------------------------------------------------- */
-/** MSG_EXT handler 
- *  @param tmc adress of the test module controller
- *  @param msg [in] message that came through IPC 
- */
 LOCAL void      gu_handle_extif (TMC_t * tmc, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** MSG_SNDRCV handler 
- *  @param tmc adress of the test module controller
- *  @param msg [in] message that came through IPC 
- */
 LOCAL void      gu_handle_sndrcv (TMC_t * tmc, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
 /** Dummy sigchld handler*/
@@ -184,6 +106,15 @@ void            dummy_handler (int sig);
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** MSG_EXE handler
+ *  @param tmc adress of the TMC entity.
+ *  @param id test case id
+ *  @param cfg_file name of the configuration file.
+ *  @param delay flag stating if we should wait for few secs before starting the
+ *         test function
+ *
+ *  Executes a test case of a given id.
+ */
 LOCAL void gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file, int delay)
 {
         long            tmp = -1;
@@ -212,9 +143,12 @@ LOCAL void gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file, int delay)
                 MIN_ERROR ("Test Process not created");
         }
 }
-
-
 /* ------------------------------------------------------------------------- */
+/** MSG_END handler
+ *  @param tmc adress of the TMC entity.
+ *
+ *  Exits from the main event loop.
+ */
 LOCAL void gu_handle_end (TMC_t * tmc)
 {
         if (tp_status (&tmc->tpc_) == TP_ENDED) {
@@ -228,26 +162,43 @@ LOCAL void gu_handle_end (TMC_t * tmc)
         }
         tmc->run_ = 0;
 }
-
 /* ------------------------------------------------------------------------- */
+/** MSG_PAUSE handler
+ *  @param tmc adress of the TMC entity.
+ *
+ *  Pauses Test Process - if any.
+ */
 LOCAL void gu_handle_pause (TMC_t * tmc)
 {
         tp_pause (&tmc->tpc_);
 }
-
 /* ------------------------------------------------------------------------- */
+/** MSG_RESUME handler
+ *  @param tmc adress of the TMC entity.
+ *
+ *  Resumes Test Process - if paused.
+ */
 LOCAL void gu_handle_resume (TMC_t * tmc)
 {
         tp_resume (&tmc->tpc_);
 }
-
 /* ------------------------------------------------------------------------- */
+/** MSG_STOP handler
+ *  @param tmc adress of the TMC entity.
+ *
+ *  Abort Test Process - if any.
+ */
 LOCAL void gu_handle_stop (TMC_t * tmc)
 {
         tp_abort (&tmc->tpc_);
 }
-
 /* ------------------------------------------------------------------------- */
+/** MSG_EVENT handler
+ *  @param tmc adress of the TMC entity.
+ *  @param msg recieved message from test process which is forwarded to engine.
+ *
+ *  Forwards message to the engine.
+ */
 LOCAL void gu_handle_event (TMC_t * tmc, const MsgBuffer * msg)
 {
         int             retval = -1;
@@ -258,8 +209,11 @@ LOCAL void gu_handle_event (TMC_t * tmc, const MsgBuffer * msg)
         if (retval == -1)
                 MIN_WARN ("EVENT: Cannot send message");
 }
-
 /* ------------------------------------------------------------------------- */
+/** MSG_EXT handler 
+ *  @param tmc adress of the test module controller
+ *  @param msg [in] message that came through IPC 
+ */
 LOCAL void gu_handle_extif (TMC_t * tmc, const MsgBuffer * msg)
 {
         MsgBuffer send_msg;
@@ -293,8 +247,11 @@ LOCAL void gu_handle_extif (TMC_t * tmc, const MsgBuffer * msg)
 			  msg->extif_msg_type_);
         }
 }
-
 /* ------------------------------------------------------------------------- */
+/** MSG_SNDRCV handler 
+ *  @param tmc adress of the test module controller
+ *  @param msg [in] message that came through IPC 
+ */
 LOCAL void gu_handle_sndrcv (TMC_t * tmc, const MsgBuffer * msg)
 {
         int             retval = -1;
@@ -310,35 +267,20 @@ LOCAL void gu_handle_sndrcv (TMC_t * tmc, const MsgBuffer * msg)
 }
 
 /* ------------------------------------------------------------------------- */
-void gu_handle_sigchld (int sig)
-{
-        int             status;
-        int             reason = TP_NONE;
-        int             pid;
-        while ((pid = waitpid (-1, &status, 0)) > 0) {
-                tp_set_pid (&ptmc->tpc_, 0);
-                reason = tp_status (&ptmc->tpc_);
-                tp_set_status (&ptmc->tpc_, TP_NONE);
-        }
-        if (reason == TP_TIMEOUT) {
-                globaltcr.result_ = TP_TIMEOUTED;
-                strcpy (globaltcr.desc_, "Timeouted");
-        } else if (reason == TP_ABORTED) {
-                globaltcr.result_ = TP_NC;
-                strcpy (globaltcr.desc_, "Aborted");
-        } 
-        ptmc->send_ret_ = ESTrue;
-
-        return;
-}
-
-/* ------------------------------------------------------------------------- */
+/** Signal handler that does nothing
+ *  @param sig number of the signal
+ *
+ */
 void dummy_handler (int sig)
 {
         ;
 }
-
 /* ------------------------------------------------------------------------- */
+/** SIGSEGV handler
+ *  @param sig number of the signal
+ *
+ *  Handles Test Process crashing event. Called async. by the system.
+ */
 void gu_handle_sigsegv (int sig)
 {
 	MIN_DEBUG ("SIGSEGV!");
@@ -349,13 +291,26 @@ void gu_handle_sigsegv (int sig)
 }
 
 /* ------------------------------------------------------------------------- */
+/** SIGUSR2 handler
+ *  @param sig number of the signal
+ *
+ *  Handles SIGUSR2 sent by the TMC. The SIGUSR2 is used instead of SIGKILL
+ *  for killing the Test Process, because SIGKILL is not always received
+ *  by the TP (FFS).
+ */
 void gu_handle_sigusr2 (int sig)
 {
         tp_exit_flag = ESTrue;
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Creates a test process
+ *  @param tmc adress of the test module controller
+ *  @param id id of the test case to be executed
+ *  @param cfg_file config file
+ *  @param delay flag stating if we should wait for few secs before starting the
+ *         test function
+ */
 LOCAL void gu_create_tp (TMC_t * tmc, int id, const char *cfg_file, int delay)
 {
         TestCaseResult  tcr;
@@ -512,6 +467,12 @@ void gu_handle_message (TMC_t * tmc, const MsgBuffer * msg)
 }
 
 /* ------------------------------------------------------------------------- */
+/** MSG_GTC handler
+ *  @param tmc adress of the TMC entity.
+ *  @param send flag stating wheter we should actually send the test cases 
+ *         (temporary TMC does not)
+ *  Sends MSG_TCD messages to the engine.
+ */
 void gu_handle_gtc (TMC_t * tmc, TSBool send)
 {
         DLList         *list = INITPTR;
@@ -540,7 +501,13 @@ void gu_handle_gtc (TMC_t * tmc, TSBool send)
 }
 
 /* ------------------------------------------------------------------------- */
-void gu_handle_usr (TMC_t * tmc, const MsgBuffer * msg)
+/** MSG_USR handler
+ *  @param tmc adress of the TMC entity.
+ *  @param msg recieved message from test process which is forwarded to engine.
+ *
+ *  Forwards message to the engine.
+ */
+LOCAL void gu_handle_usr (TMC_t * tmc, const MsgBuffer * msg)
 {
         int             retval = -1;
         MsgBuffer      *tmp = (MsgBuffer *) msg;
@@ -549,6 +516,34 @@ void gu_handle_usr (TMC_t * tmc, const MsgBuffer * msg)
         retval = mq_send_message (tmc->tmcipi_.mqid_, tmp);
         if (retval == -1)
                 MIN_WARN ("USR: Cannot send message");
+}
+
+/* ------------------------------------------------------------------------- */
+/** SIGCHLD handler
+ *  @param sig number of the signal
+ *
+ *  Handles Test Process termination event. Called async. by the system.
+ */
+void gu_handle_sigchld (int sig)
+{
+        int             status;
+        int             reason = TP_NONE;
+        int             pid;
+        while ((pid = waitpid (-1, &status, 0)) > 0) {
+                tp_set_pid (&ptmc->tpc_, 0);
+                reason = tp_status (&ptmc->tpc_);
+                tp_set_status (&ptmc->tpc_, TP_NONE);
+        }
+        if (reason == TP_TIMEOUT) {
+                globaltcr.result_ = TP_TIMEOUTED;
+                strcpy (globaltcr.desc_, "Timeouted");
+        } else if (reason == TP_ABORTED) {
+                globaltcr.result_ = TP_NC;
+                strcpy (globaltcr.desc_, "Aborted");
+        } 
+        ptmc->send_ret_ = ESTrue;
+
+        return;
 }
 
 /* ------------------------------------------------------------------------- */

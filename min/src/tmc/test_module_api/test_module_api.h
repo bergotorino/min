@@ -323,35 +323,10 @@ void            tm_finalize ();
 /* ------------------------------------------------------------------------- */
 int             compare_id (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Gives the ability to print messages to the UI.
- *  @param priority message importance.
- *  @param desc short description.
- *  @param format message format.
- *  @param ... format parameters.
- *  @return 0, or -1 in case of failure.
- *
- *  NOTE: see: man 2 printf
- */
 int             tm_printf (int priority, char *desc, char *format, ...);
-
-/** Prints error messages 
- *  @param format message format.
- *  @param ... format parameters.
- *  @return 0, or -1 in case of failure.
- *
- *  NOTE: see: man 2 printf
- */
-int             tm_print_err (char *format, ...);
-
 /* ------------------------------------------------------------------------- */
-/** Logs the error produced by using one of TL macros.
- *  @param macro_type the type of macro that has been used.
- *  @param file name of the file in which error has occured.
- *  @param function name of the function in which error has occured.
- *  @param line number of the line in which error has occured.
- *  @param result the result that occurred.
- *  @param expectedN expeced value of the result
- */
+int             tm_print_err (char *format, ...);
+/* ------------------------------------------------------------------------- */
 void            tm_macro_error (unsigned int macro_type, const char *file,
                                 const char *function, unsigned int line,
                                 int result, int expected1, int expected2,

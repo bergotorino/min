@@ -54,8 +54,7 @@ typedef struct _TMCIPCInterface TMCIPCInterface;
 struct _TMCIPCInterface {
         int             mqid_;  /**< Mesage Queue id */
         long            sender_;/**< PID of the message sende */
-        long            receiver_;
-                                /**< PID of the recieving process */
+        long            receiver_; /**< PID of the recieving process */
         MsgBuffer       in_;    /**< Buffer for the incoming messages */
 };
 /* ------------------------------------------------------------------------- */

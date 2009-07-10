@@ -44,7 +44,7 @@ extern DLList  *test_set_files;
 extern focus_pos_s main_menu_focus;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
-/* None */
+extern int not_in_curses;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
@@ -241,9 +241,10 @@ LOCAL void quit ()
         curs_set (1);
 
         /* update screen contents */
-        touchwin (stdscr);
-        wrefresh (stdscr);
-
+	if (!not_in_curses) {
+		touchwin (stdscr);
+		wrefresh (stdscr);
+	}
         /* end ncurses */
         endwin ();
 }
@@ -326,8 +327,10 @@ LOCAL void create_main_window (int ysize, int xsize)
         /* make cursor invisible */
         curs_set (0);
         /* update screen contents */
-        touchwin (main_window);
-        wrefresh (main_window);
+	if (!not_in_curses) {
+		touchwin (main_window);
+		wrefresh (main_window);
+	}
 }
 
 /* ------------------------------------------------------------------------- */
@@ -348,8 +351,10 @@ LOCAL void create_log_window ()
         box (log_window, 0, 0);
 
         /* update screen contents */
-        touchwin (log_window);
-        wrefresh (log_window);
+	if (!not_in_curses) {
+		touchwin (log_window);
+		wrefresh (log_window);
+	}
 }
 
 
@@ -505,7 +510,12 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
         etc->result_ = result;
         etc->starttime_ = starttime;
         etc->endtime_ = endtime;
-
+	
+	if (not_in_curses) {
+		reset_prog_mode();
+		refresh();
+		// not_in_curses = 0;
+	}
         cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
@@ -888,9 +898,10 @@ void cui_exec ()
                 my_row = top_row (my_menu);
 
                 /* update screen contents */
-                touchwin (main_window);
-                wrefresh (main_window);
-
+		if (!not_in_curses) {
+			touchwin (main_window);
+			wrefresh (main_window);
+		}
                 /* release cui mutex */
                 pthread_mutex_unlock (&CUI_MUTEX);
         }
@@ -930,8 +941,10 @@ void cui_refresh_view ()
                         }
 
                         /* refresh main window */
-                        touchwin (main_window);
-                        wrefresh (main_window);
+			if (!not_in_curses) {
+				touchwin (main_window);
+				wrefresh (main_window);
+			}
                 }
 
         }
@@ -1025,8 +1038,10 @@ void cui_refresh_log_view ()
 				    maxx - 2);
 			
 		}
-		touchwin (log_window);
-		wrefresh (log_window);
+		if (!not_in_curses) {
+			touchwin (log_window);
+			wrefresh (log_window);
+		}
         }
 
 }
