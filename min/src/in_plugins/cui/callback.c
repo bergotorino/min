@@ -2378,7 +2378,7 @@ LOCAL void save_test_set ()
 
 LOCAL CUICaseData *setgetcase (char *module, char *title)
 {
-        DLListIterator  module_it = dl_list_head (available_modules);
+        DLListIterator  module_it = DLListNULLIterator;
         DLListIterator  case_it = DLListNULLIterator;
 	CUIModuleData  *mod;
 	CUICaseData    *c;
