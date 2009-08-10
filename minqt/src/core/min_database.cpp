@@ -169,11 +169,6 @@ unsigned int Min::Database::insertPrintout(unsigned int test_run_dbid,
         return query.lastInsertId().toUInt();
     }
     else return 0;
-    query.finish();
-
-    // Notify
-    emit updated();
-    return 1;
 };
 
 // ----------------------------------------------------------------------------
