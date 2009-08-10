@@ -2327,29 +2327,29 @@ LOCAL int set_write_file (DLList * cases_list, char *filename)
 
 LOCAL char *create_path ()
 {
-        int             p_lenghth;
         char           *work_path, *c_dir;
         char            name[23], hour[6];
         time_t          now;
         struct tm      *info_now;
+	Text           *tx;
 
         c_dir = getenv ("HOME");
         now = time (NULL);
         info_now = localtime (&now);
-
+	tx = tx_create (c_dir);
         /*create string for filename - current
            date and hour */
-        sprintf (hour, "%d:%d", info_now->tm_hour, info_now->tm_min);
-        sprintf (name, "%d-%d-%d", info_now->tm_year + 1900,
-                 info_now->tm_mon + 1, info_now->tm_mday);
-        strcat (name, "_");
-        strcat (name, hour);
-        p_lenghth = strlen (c_dir) + strlen (name) + 13;
-        work_path = NEW2 (char, p_lenghth);
-        sprintf (work_path, "%s", c_dir);
-        strcat (work_path, "/.min/");
-        strcat (work_path, name);
-        strcat (work_path, ".set");
+        snprintf (hour, 6, "%d:%d", info_now->tm_hour, info_now->tm_min);
+        snprintf (name, 23,"%d-%d-%d", info_now->tm_year + 1900,
+		  info_now->tm_mon + 1, info_now->tm_mday);
+	tx_c_append (tx, "/.min/");
+	tx_c_append (tx, name);
+	tx_c_append (tx, "_");
+	tx_c_append (tx, hour);
+	tx_c_append (tx, ".set");
+
+	work_path = tx_get_buf (tx);
+	tx_destroy (&tx);
 
         return work_path;
 }
