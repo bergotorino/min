@@ -490,8 +490,8 @@ int main (int argc, char *argv[], char *envp[])
                         /* Multiple plugins not supported yet by engine.
                          * FIXME: remove in future following line. */
 		break;
-		if (c3==NULL) break;
-		c2 = c3+1;
+		/* if (c3==NULL) break;
+		   c2 = c3+1;*/
 	} while (c3!=NULL);
 	tx_destroy (&plugin);
 	if (add_command_line_modules (modulelist) ||
