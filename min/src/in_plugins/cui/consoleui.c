@@ -514,9 +514,16 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 	if (not_in_curses) {
 		reset_prog_mode();
 		refresh();
-		// not_in_curses = 0;
-	}
-        cui_refresh_view();
+		touchwin (main_window);
+		wrefresh (main_window);
+		touchwin (menu_window);
+		wrefresh (menu_window);
+		touchwin (log_window);
+		wrefresh (log_window);
+		not_in_curses = 0;
+	} 
+	cui_refresh_view();
+	  
 }
 /* ------------------------------------------------------------------------- */
 LOCAL int _find_case_by_id (const void *a, const void *b)

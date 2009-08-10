@@ -1839,11 +1839,14 @@ LOCAL void debug_test_case (void *p)
         DLListIterator it = (DLListIterator)p;
         CUICaseData *c = (CUICaseData*)dl_list_data(it);
 	def_prog_mode();		/* Save the tty modes		  */
+	echo();
 	endwin();			/* End curses mode temporarily	  */
 	not_in_curses = 1;
 
         if (min_clbk_.debug_case) min_clbk_.debug_case(c->moduleid_,
 						       c->caseid_);
+	while (not_in_curses)
+	  usleep (10000);
 }
 
 /* ------------------------------------------------------------------------- */
