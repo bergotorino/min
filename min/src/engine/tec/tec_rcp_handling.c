@@ -1420,13 +1420,8 @@ void
 tcp_master_report (int run_id, int execution_result, int test_result, 
 		   char *desc)
 {
-        DLListIterator  finished_case_item = DLListNULLIterator;
-        DLListIterator  work_module_item = DLListNULLIterator;
         char           *extifmessage;
 
-        /*let's get module pid from finished case */
-        finished_case_item = dl_list_at (selected_cases, run_id);
-        work_module_item = tc_get_test_module_ptr (finished_case_item);
         extifmessage = NEW2 (char, 30);
         sprintf (extifmessage, "remote run ready result=%d", test_result);
         send_to_master (run_id + 1, extifmessage);

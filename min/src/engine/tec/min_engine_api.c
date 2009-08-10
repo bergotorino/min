@@ -420,8 +420,9 @@ LOCAL int eapi_query_test_files(char **filelist)
                                                         free (shell_io);
                                                         shell_io = malloc (sizeof(char) * 5);
                                                         p = fgets (shell_io, 5, shell_pipe);
-                                                        *(shell_io+4)=0x00;
-                                                        if (strcmp(shell_io, "text" ) != 0) {
+							if (p != NULL)
+								*(shell_io+4)=0x00;
+                                                        if (p && strcmp(shell_io, "text" ) != 0) {
                                                                 /* don't add file if not text*/
                                                                 addcasefile=ESFalse;
                                                         }

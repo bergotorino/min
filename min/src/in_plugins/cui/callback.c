@@ -1168,7 +1168,7 @@ LOCAL int _find_mod_by_name (const void *a, const void *b)
 LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
 {
         DLListIterator it = DLListNULLIterator;
-        DLListIterator begin = dl_list_head (executed_case_list_);
+        DLListIterator begin = DLListNULLIterator;
         DLList *passed_cases = dl_list_create(); /* for passed cases */
         DLList *failed_cases = dl_list_create(); /* for failed cases */
         DLList *abocra_cases = dl_list_create(); /* for aborted/crashed cases */
