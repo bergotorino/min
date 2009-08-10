@@ -113,6 +113,8 @@ LOCAL int mq_wrapper_around_msgsnd (int msqid, MsgBuffer * buf)
                 goto EXIT;
         }
 
+	memset (&ibuf, 0x0, sizeof (struct _MIBuff));
+
         /* lets try to send some buffered first, buffer has to be FIFO */
         result = 0;
         it = dl_list_head (msg_buffer);

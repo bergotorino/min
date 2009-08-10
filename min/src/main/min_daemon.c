@@ -114,6 +114,7 @@ LOCAL int create_listen_socket()
 	struct sockaddr_in in_addr;
         Text *tx;
 
+	memset (&in_addr, 0x0, sizeof (struct sockaddr_in));
         in_addr.sin_port = htons (MIN_TCP_PORT); 
 	in_addr.sin_family = AF_INET;
 	in_addr.sin_addr.s_addr = INADDR_ANY;
