@@ -359,7 +359,7 @@ static PyObject *p_tm_event_request (PyObject * self, PyObject * Args)
 {
 
         minEventIf    *event = NULL;
-        char           *event_name;
+        char           *event_name = NULL;
         char           *state_flag = NULL;
         PyObject       *result;
         int             result_c = 0;
