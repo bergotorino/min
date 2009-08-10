@@ -386,6 +386,7 @@ int mq_send_message_block (int msqid, MsgBuffer * buf)
         unsigned int    length = sizeof (struct _MIBuff) - sizeof (long);
         struct _MIBuff  ibuf;
 
+	memset (&ibuf, 0x0, sizeof (struct _MIBuff));
         mq_msgbuf_to_internal (&ibuf, buf);
 
         MIN_DEBUG ("%d -> %d [%d]\n", ibuf.sender_, ibuf.receiver_,
