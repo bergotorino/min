@@ -270,7 +270,7 @@ void test_1 (TestCaseResult * tcr)
 {
         sleep (1);
         tcr->result_ = 0;
-        strncpy (tcr->desc_, "FAILED", 255);
+        strncpy (tcr->desc_, "FAILED", MaxTestResultDescription - 1);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -280,7 +280,7 @@ void test_2 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_3 (TestCaseResult * tcr)
@@ -289,7 +289,7 @@ void test_3 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_4 (TestCaseResult * tcr)
@@ -298,7 +298,7 @@ void test_4 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_5 (TestCaseResult * tcr)
@@ -307,7 +307,7 @@ void test_5 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_6 (TestCaseResult * tcr)
@@ -316,7 +316,7 @@ void test_6 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_7 (TestCaseResult * tcr)
@@ -325,7 +325,7 @@ void test_7 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_8 (TestCaseResult * tcr)
@@ -334,7 +334,7 @@ void test_8 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_9 (TestCaseResult * tcr)
@@ -343,7 +343,7 @@ void test_9 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_10 (TestCaseResult * tcr)
@@ -352,7 +352,7 @@ void test_10 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_11 (TestCaseResult * tcr)
@@ -361,7 +361,7 @@ void test_11 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_12 (TestCaseResult * tcr)
@@ -370,7 +370,7 @@ void test_12 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_13 (TestCaseResult * tcr)
@@ -379,7 +379,7 @@ void test_13 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_14 (TestCaseResult * tcr)
@@ -388,7 +388,7 @@ void test_14 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_15 (TestCaseResult * tcr)
@@ -397,7 +397,7 @@ void test_15 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_16 (TestCaseResult * tcr)
@@ -406,7 +406,7 @@ void test_16 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_17 (TestCaseResult * tcr)
@@ -415,7 +415,7 @@ void test_17 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_18 (TestCaseResult * tcr)
@@ -424,7 +424,7 @@ void test_18 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_19 (TestCaseResult * tcr)
@@ -433,7 +433,7 @@ void test_19 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_20 (TestCaseResult * tcr)
@@ -442,7 +442,7 @@ void test_20 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_21 (TestCaseResult * tcr)
@@ -451,7 +451,7 @@ void test_21 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_22 (TestCaseResult * tcr)
@@ -460,7 +460,7 @@ void test_22 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_23 (TestCaseResult * tcr)
@@ -469,7 +469,7 @@ void test_23 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_24 (TestCaseResult * tcr)
@@ -478,7 +478,7 @@ void test_24 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_25 (TestCaseResult * tcr)
@@ -487,7 +487,7 @@ void test_25 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_26 (TestCaseResult * tcr)
@@ -496,7 +496,7 @@ void test_26 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_27 (TestCaseResult * tcr)
@@ -505,7 +505,7 @@ void test_27 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_28 (TestCaseResult * tcr)
@@ -514,7 +514,7 @@ void test_28 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_29 (TestCaseResult * tcr)
@@ -523,7 +523,7 @@ void test_29 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_30 (TestCaseResult * tcr)
@@ -532,7 +532,7 @@ void test_30 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_31 (TestCaseResult * tcr)
@@ -541,7 +541,7 @@ void test_31 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_32 (TestCaseResult * tcr)
@@ -550,7 +550,7 @@ void test_32 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_33 (TestCaseResult * tcr)
@@ -559,7 +559,7 @@ void test_33 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_34 (TestCaseResult * tcr)
@@ -568,7 +568,7 @@ void test_34 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_35 (TestCaseResult * tcr)
@@ -577,7 +577,7 @@ void test_35 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_36 (TestCaseResult * tcr)
@@ -586,7 +586,7 @@ void test_36 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_37 (TestCaseResult * tcr)
@@ -595,7 +595,7 @@ void test_37 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_38 (TestCaseResult * tcr)
@@ -604,7 +604,7 @@ void test_38 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_39 (TestCaseResult * tcr)
@@ -613,7 +613,7 @@ void test_39 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_40 (TestCaseResult * tcr)
@@ -622,7 +622,7 @@ void test_40 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_41 (TestCaseResult * tcr)
@@ -631,7 +631,7 @@ void test_41 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_42 (TestCaseResult * tcr)
@@ -640,7 +640,7 @@ void test_42 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_43 (TestCaseResult * tcr)
@@ -649,7 +649,7 @@ void test_43 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_44 (TestCaseResult * tcr)
@@ -658,7 +658,7 @@ void test_44 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_45 (TestCaseResult * tcr)
@@ -667,7 +667,7 @@ void test_45 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_46 (TestCaseResult * tcr)
@@ -676,7 +676,7 @@ void test_46 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_47 (TestCaseResult * tcr)
@@ -685,7 +685,7 @@ void test_47 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_48 (TestCaseResult * tcr)
@@ -694,7 +694,7 @@ void test_48 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_49 (TestCaseResult * tcr)
@@ -703,7 +703,7 @@ void test_49 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_50 (TestCaseResult * tcr)
@@ -712,7 +712,7 @@ void test_50 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_51 (TestCaseResult * tcr)
@@ -721,7 +721,7 @@ void test_51 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_52 (TestCaseResult * tcr)
@@ -730,7 +730,7 @@ void test_52 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_53 (TestCaseResult * tcr)
@@ -739,7 +739,7 @@ void test_53 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_54 (TestCaseResult * tcr)
@@ -748,7 +748,7 @@ void test_54 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_55 (TestCaseResult * tcr)
@@ -757,7 +757,7 @@ void test_55 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_56 (TestCaseResult * tcr)
@@ -766,7 +766,7 @@ void test_56 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_57 (TestCaseResult * tcr)
@@ -775,7 +775,7 @@ void test_57 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_58 (TestCaseResult * tcr)
@@ -784,7 +784,7 @@ void test_58 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_59 (TestCaseResult * tcr)
@@ -793,7 +793,7 @@ void test_59 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_60 (TestCaseResult * tcr)
@@ -802,7 +802,7 @@ void test_60 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_61 (TestCaseResult * tcr)
@@ -811,7 +811,7 @@ void test_61 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_62 (TestCaseResult * tcr)
@@ -820,7 +820,7 @@ void test_62 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_63 (TestCaseResult * tcr)
@@ -829,7 +829,7 @@ void test_63 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_64 (TestCaseResult * tcr)
@@ -838,7 +838,7 @@ void test_64 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_65 (TestCaseResult * tcr)
@@ -847,7 +847,7 @@ void test_65 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_66 (TestCaseResult * tcr)
@@ -856,7 +856,7 @@ void test_66 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_67 (TestCaseResult * tcr)
@@ -865,7 +865,7 @@ void test_67 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_68 (TestCaseResult * tcr)
@@ -874,7 +874,7 @@ void test_68 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_69 (TestCaseResult * tcr)
@@ -883,7 +883,7 @@ void test_69 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_70 (TestCaseResult * tcr)
@@ -892,7 +892,7 @@ void test_70 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_71 (TestCaseResult * tcr)
@@ -901,7 +901,7 @@ void test_71 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_72 (TestCaseResult * tcr)
@@ -910,7 +910,7 @@ void test_72 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_73 (TestCaseResult * tcr)
@@ -919,7 +919,7 @@ void test_73 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_74 (TestCaseResult * tcr)
@@ -928,7 +928,7 @@ void test_74 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_75 (TestCaseResult * tcr)
@@ -937,7 +937,7 @@ void test_75 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_76 (TestCaseResult * tcr)
@@ -946,7 +946,7 @@ void test_76 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_77 (TestCaseResult * tcr)
@@ -955,7 +955,7 @@ void test_77 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_78 (TestCaseResult * tcr)
@@ -964,7 +964,7 @@ void test_78 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_79 (TestCaseResult * tcr)
@@ -973,7 +973,7 @@ void test_79 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_80 (TestCaseResult * tcr)
@@ -982,7 +982,7 @@ void test_80 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_81 (TestCaseResult * tcr)
@@ -991,7 +991,7 @@ void test_81 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_82 (TestCaseResult * tcr)
@@ -1000,7 +1000,7 @@ void test_82 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_83 (TestCaseResult * tcr)
@@ -1009,7 +1009,7 @@ void test_83 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_84 (TestCaseResult * tcr)
@@ -1018,7 +1018,7 @@ void test_84 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_85 (TestCaseResult * tcr)
@@ -1027,7 +1027,7 @@ void test_85 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_86 (TestCaseResult * tcr)
@@ -1036,7 +1036,7 @@ void test_86 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_87 (TestCaseResult * tcr)
@@ -1045,7 +1045,7 @@ void test_87 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_88 (TestCaseResult * tcr)
@@ -1054,7 +1054,7 @@ void test_88 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_89 (TestCaseResult * tcr)
@@ -1063,7 +1063,7 @@ void test_89 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_90 (TestCaseResult * tcr)
@@ -1072,7 +1072,7 @@ void test_90 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_91 (TestCaseResult * tcr)
@@ -1081,7 +1081,7 @@ void test_91 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_92 (TestCaseResult * tcr)
@@ -1090,7 +1090,7 @@ void test_92 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_93 (TestCaseResult * tcr)
@@ -1099,7 +1099,7 @@ void test_93 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_94 (TestCaseResult * tcr)
@@ -1108,7 +1108,7 @@ void test_94 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_95 (TestCaseResult * tcr)
@@ -1117,7 +1117,7 @@ void test_95 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_96 (TestCaseResult * tcr)
@@ -1126,7 +1126,7 @@ void test_96 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_97 (TestCaseResult * tcr)
@@ -1135,7 +1135,7 @@ void test_97 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_98 (TestCaseResult * tcr)
@@ -1144,7 +1144,7 @@ void test_98 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 void test_99 (TestCaseResult * tcr)
@@ -1153,7 +1153,7 @@ void test_99 (TestCaseResult * tcr)
             tm_printf (1, "Info", "Test case started: %d", 2);
         sleep (2);
         tcr->result_ = retval;
-        strncpy (tcr->desc_, "PASSED", 255);
+        strncpy (tcr->desc_, "PASSED", MaxTestResultDescription - 1);
 }
 
 /* ------------------------------------------------------------------------- */
