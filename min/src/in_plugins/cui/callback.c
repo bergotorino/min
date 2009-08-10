@@ -2417,7 +2417,6 @@ void set_read (DLList * set_cases_list, char *setname)
         int             title_result = 1;
         CUICaseData    *tc = INITPTR;
         MinParser      *set_file;
-        MinSectionParser *set_section_p;
         MinSectionParser *set_case_p;
         char           *module_name_;
         char           *case_title_;
@@ -2439,8 +2438,6 @@ void set_read (DLList * set_cases_list, char *setname)
                 return;
         }
         DELETE (work_path);
-
-        set_section_p = mp_section (set_file, "", "", 1);
 
         set_case_p = mp_section (set_file,
                                  "[TestSetCaseStart]",
