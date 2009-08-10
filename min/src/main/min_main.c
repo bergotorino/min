@@ -78,29 +78,21 @@ eapiOut_t out_str;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
-/** Displays the MIN release tag */
+/* ------------------------------------------------------------------------- */
 LOCAL void      display_version ();
 /* ------------------------------------------------------------------------- */
-/** Displays short help */
+LOCAL void      display_license ();
+/* ------------------------------------------------------------------------- */
 LOCAL void      display_help ();
 /* ------------------------------------------------------------------------- */
-/** Appends the pwd to a relative path 
- * @param p the path coming from commandline
- * @return the absolute path
- */
 LOCAL char     *patch_path (char *p);
 /* ------------------------------------------------------------------------- */
-/** Adds the modules and configuration files given from commandline
- *  @param modulelist list of module and filenames 
- *  @return 0 - on success, 1 - on error (e.g. file not found)
- */
-LOCAL int add_command_line_modules (DLList * modulelist);
+LOCAL int       add_command_line_modules (DLList * modulelist);
 /* ------------------------------------------------------------------------- */
-/** Adds the IP slaves given from commandline through eapi to slave pool
- *  @param slavelist list of hostnames or ip addresses
- *  @return 0 - on success, 1 - on error 
- */
-LOCAL int add_ip_slaves (DLList * slavelist);
+LOCAL int       add_ip_slaves (DLList * slavelist);
+/* ------------------------------------------------------------------------- */
+LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf);
+/* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -108,6 +100,8 @@ LOCAL int add_ip_slaves (DLList * slavelist);
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Displays license and contact information
+ */
 LOCAL void display_license ()
 {
         printf ("MIN Test Framework, © Nokia 2008, All rights reserved,\n"
@@ -115,13 +109,17 @@ LOCAL void display_license ()
                 "Contact: Pekka Nuotio, DG.MIN-Support@nokia.com\n\n");
 
 }
-
+/* ------------------------------------------------------------------------- */
+/** Displays the MIN release tag 
+ */
 LOCAL void display_version ()
 {
 
         printf ("MIN Test Framework release %s\n", MIN_VERSION_STR);
 }
-
+/* ------------------------------------------------------------------------- */
+/** Displays short help 
+ */
 LOCAL void display_help ()
 {
         printf ("\nUsage: min [options]\n");
@@ -153,7 +151,11 @@ LOCAL void display_help ()
         printf ("\nReport bugs to:\n");
         printf ("DG.MIN-Support@nokia.com\n");
 }
-
+/* ------------------------------------------------------------------------- */
+/** Appends the pwd to a relative path 
+ * @param p the path coming from commandline
+ * @return the absolute path
+ */
 LOCAL char *patch_path (char *p)
 {
         Text *path, *cwd;
@@ -172,7 +174,11 @@ LOCAL char *patch_path (char *p)
 
         return retval;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Adds the modules and configuration files given from commandline
+ *  @param modulelist list of module and filenames 
+ *  @return 0 - on success, 1 - on error (e.g. file not found)
+ */
 LOCAL int add_command_line_modules (DLList * modulelist)
 {
 
@@ -215,7 +221,11 @@ LOCAL int add_command_line_modules (DLList * modulelist)
 
         return 0;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Adds the IP slaves given from commandline through eapi to slave pool
+ *  @param slavelist list of hostnames or ip addresses
+ *  @return 0 - on success, 1 - on error 
+ */
 LOCAL int add_ip_slaves (DLList * slavelist)
 {
  
@@ -239,8 +249,12 @@ LOCAL int add_ip_slaves (DLList * slavelist)
 
         return 0;
 }
-
-
+/* ------------------------------------------------------------------------- */
+/** Loads the plugin with given name and starts executing it in a thread
+ *  @param plugin_name short name for the plugin e.g. "cui" loads "min_cui.so" 
+ *  @param plugin_conf passed as is to the plugin
+ *  @return handler for the created thread
+ */
 LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
 {
         void *pluginhandle = INITPTR;
@@ -293,8 +307,16 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
 
         return plugin_thread;
 }
-
 /* ------------------------------------------------------------------------- */
+/* ======================== FUNCTIONS ====================================== */
+/* ------------------------------------------------------------------------- */
+/** main() for MIN - handle command line swithces and load plugins
+ *  @param argc argument count
+ *  @param argv arguments
+ *  @param evnp environment
+ *  @return number of failed (aborted,crashed) cases or -1 in case  of 
+ *   serious error
+ */
 int main (int argc, char *argv[], char *envp[])
 {
         int             cont_flag, status, opt_char, oper_mode, exit_flag;
@@ -486,10 +508,6 @@ int main (int argc, char *argv[], char *envp[])
 
 	return min_return_value;
 }
-
-/* ------------------------------------------------------------------------- */
-/* ======================== FUNCTIONS ====================================== */
-/* None */
 
 /* ------------------------------------------------------------------------- */
 
