@@ -1272,7 +1272,7 @@ LOCAL void receive_variables ()
         void *shmaddr;
         unsigned int size;
         char *var_buff = INITPTR, *variable_str, *p;
-        MinItemParser *mip;
+        MinItemParser *mip = INITPTR;
 
         shmaddr = sm_attach (scripter_mod.shm_id);
         if (shmaddr == INITPTR) {

@@ -959,7 +959,7 @@ int
 handle_remote_event (TScripterKeyword command, MinItemParser * parameters)
 {
         char           *token = INITPTR, *token2 = INITPTR;
-        int             status;
+        int             status = 0;
         minTestEventParam_t param;
         minEventSrc_t  event_src;
         min_event_t   *e;
