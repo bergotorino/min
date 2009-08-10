@@ -2409,9 +2409,7 @@ LOCAL CUICaseData *setgetcase (char *module, char *title)
 void set_read (DLList * set_cases_list, char *setname)
 {
 
-        char           *work_path;
         char           *c_dir;
-        int             p_lenghth;
         int             caseread = 1;
         int             mod_result = 1;
         int             title_result = 1;
@@ -2420,24 +2418,22 @@ void set_read (DLList * set_cases_list, char *setname)
         MinSectionParser *set_case_p;
         char           *module_name_;
         char           *case_title_;
+	Text           *tx;
 
         MIN_DEBUG ("set name : %s", setname);
         c_dir = getenv ("HOME");
         /*build filename and path to open set file */
-        p_lenghth = strlen (c_dir) + strlen (setname) + 9;
-        work_path = NEW2 (char, p_lenghth);
-        sprintf (work_path, "%s", c_dir);
-        strcat (work_path, "/.min/");
+	tx = tx_create (c_dir);
+	tx_c_append (tx, "/.min/");
 
-        set_file = mp_create (work_path, setname, ENoComments);
+        set_file = mp_create (tx_share_buf (tx), setname, ENoComments);
 
         if (set_file == INITPTR) {
 
-                MIN_WARN ("Could not open set file %s%s", work_path,
+		MIN_WARN ("Could not open set file %s%s", tx_share_buf (tx),
 			  setname);
                 return;
         }
-        DELETE (work_path);
 
         set_case_p = mp_section (set_file,
                                  "[TestSetCaseStart]",
@@ -2467,7 +2463,7 @@ void set_read (DLList * set_cases_list, char *setname)
                                          "[TestSetCaseStart]",
                                          "[TestSetCaseEnd]", caseread);
         }
-
+	tx_destroy (&tx);
         mp_destroy (&set_file);
 }
 
