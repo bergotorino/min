@@ -82,25 +82,12 @@ int exit_ = 0;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Creates a socket to accept tcp connections
- * @return 0 or -1 on error
- */
 LOCAL int create_listen_socket();
 /* ------------------------------------------------------------------------- */
-/** Listens and accepts connections. Forks and execves min for each 
- *  new connection
- * @param envp the environment passed to main()
- */
 LOCAL int poll_sockets (char *envp[]);
 /* ------------------------------------------------------------------------- */
-/** Signal handler for SIGCHLD
- * @param sig the signal number
- */
 LOCAL void handle_sigchld (int sig);
 /* ------------------------------------------------------------------------- */
-/** Signal handler for SIGINT and SIGHUP
- * @param sig the signal number
- */
 LOCAL void handle_sigint (int sig);
       
 /* ------------------------------------------------------------------------- */
@@ -109,6 +96,9 @@ LOCAL void handle_sigint (int sig);
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Creates a socket to accept tcp connections
+ * @return 0 or -1 on error
+ */
 LOCAL int create_listen_socket()
 {
 	struct sockaddr_in in_addr;
@@ -144,6 +134,10 @@ LOCAL int create_listen_socket()
 	return 0;
 }
 /* ------------------------------------------------------------------------- */
+/** Listens and accepts connections. Forks and execves min for each 
+ *  new connection
+ * @param envp the environment passed to main()
+ */
 LOCAL int poll_sockets (char *envp[])
 {
 	fd_set rd, wr, er;
@@ -217,6 +211,9 @@ LOCAL int poll_sockets (char *envp[])
 	return 0;
 }
 /* ------------------------------------------------------------------------- */
+/** Signal handler for SIGCHLD
+ * @param sig the signal number
+ */
 LOCAL void handle_sigchld (int sig)
 {
         int             pid, status;
@@ -228,6 +225,9 @@ LOCAL void handle_sigchld (int sig)
 
 }
 /* ------------------------------------------------------------------------- */
+/** Signal handler for SIGINT and SIGHUP
+ * @param sig the signal number
+ */
 LOCAL void handle_sigint (int sig)
 {
 	exit_ = 1;

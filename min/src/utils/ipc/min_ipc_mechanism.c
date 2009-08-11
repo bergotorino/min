@@ -73,20 +73,15 @@ LOCAL pid_t     lastpid = 0;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
-/* None */
 /* ------------------------------------------------------------------------- */
-/** Wrapps around system call msgsnd, it also has error handling included */
 LOCAL int       mq_wrapper_around_msgsnd (int msqid, MsgBuffer * buf);
 /* ------------------------------------------------------------------------- */
-/** Translates MsgBuffer to _MIBuff */
 LOCAL void      mq_msgbuf_to_internal (struct _MIBuff *ibuf,
                                        const MsgBuffer * buf);
 /* ------------------------------------------------------------------------- */
-/** Translates _MIBuff to MsgBuffer */
 LOCAL void      mq_internal_to_msgbuf (MsgBuffer * buf,
                                        const struct _MIBuff *ibuf);
 /* ------------------------------------------------------------------------- */
-/** Gives the size of internal buffer in bytes */
 LOCAL unsigned int mq_internal_length (const struct _MIBuff *ibuf);
 /* ------------------------------------------------------------------------- */
 LOCAL int _findShmKey(const void *a, const void *b);
@@ -99,6 +94,11 @@ LOCAL int _findShmShmid(const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Wraps around system call msgsnd, it also has error handling included.
+ *  @param msqid POSIX message queue identifier
+ *  @param buf message to be sent 
+ *  @param return ENOERR on success, -1 on error
+ */
 LOCAL int mq_wrapper_around_msgsnd (int msqid, MsgBuffer * buf)
 {
         int             retval = ENOERR;
@@ -166,8 +166,11 @@ LOCAL int mq_wrapper_around_msgsnd (int msqid, MsgBuffer * buf)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Translates MsgBuffer to internally used _MIBuff.
+ *  @param ibuf [OUT] will hold the data after translation
+ *  @param buf [IN] data to be translated
+ */
 LOCAL void mq_msgbuf_to_internal (struct _MIBuff *ibuf, const MsgBuffer * buf)
 {
         if (ibuf == INITPTR) {
@@ -191,6 +194,10 @@ LOCAL void mq_msgbuf_to_internal (struct _MIBuff *ibuf, const MsgBuffer * buf)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Translates internally used _MIBuff to MsgBuffer.
+ *  @param buf [OUT] will hold the data after translation
+ *  @param ibuf [IN] data to be translated
+ */
 LOCAL void mq_internal_to_msgbuf (MsgBuffer * buf, const struct _MIBuff *ibuf)
 {
         if (buf == INITPTR) {
@@ -214,6 +221,10 @@ LOCAL void mq_internal_to_msgbuf (MsgBuffer * buf, const struct _MIBuff *ibuf)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Calculates the size of internal buffer in bytes.
+ *  @param ibuf [IN] internal message buffer
+ *  @return size of message in buffer in bytes 
+ */
 LOCAL unsigned int mq_internal_length (const struct _MIBuff *ibuf)
 {
         unsigned int    base_length = sizeof (long) * 2 + sizeof (char)
@@ -233,6 +244,11 @@ LOCAL unsigned int mq_internal_length (const struct _MIBuff *ibuf)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Used for comparing SHM keys, passed as search function to dl_list_find().
+ * @param a void pointer to ShmItem
+ * @param b void poinoter to SHM key
+ * @return 0 when match is found -1 otherwise
+ */
 LOCAL int _findShmKey(const void *a, const void *b)
 {
         const key_t *p1 = (const key_t*)b;
@@ -242,6 +258,11 @@ LOCAL int _findShmKey(const void *a, const void *b)
         else return -1;
 }
 /* ------------------------------------------------------------------------- */
+/** Used for comparing SHM ids, passed as search function to dl_list_find().
+ * @param a void pointer to ShmItem
+ * @param b void poinoter to SHM id
+ * @return 0 when match is found -1 otherwise
+ */
 LOCAL int _findShmShmid(const void *a, const void *b)
 {
         const int *p1 = (const int*)b;
@@ -282,6 +303,8 @@ int mq_queue_exists (int queueid)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Initializes the message buffer.
+ */
 void mq_init_buffer ()
 {
         DLListIterator  it = DLListNULLIterator;
@@ -595,6 +618,7 @@ void mq_resend_buffered ()
 }
 
 /* ------------------------------------------------------------------------- */
+/** Returns number of messages in msg_buffer. */
 int mq_buffer_size ()
 {
         return dl_list_size (msg_buffer);
@@ -623,7 +647,7 @@ int sl_pause_process (long pid)
 }
 
 /* ------------------------------------------------------------------------- */
-/** Pauses process.
+/** Resumes process.
  *  @param pid the id of a process to be resumed (>0)
  *  @return 0 on success and -1 on failure
  *
@@ -640,7 +664,7 @@ int sl_resume_process (long pid)
 }
 
 /* ------------------------------------------------------------------------- */
-/** Pauses process.
+/** Kills process.
  *  @param pid the id of a process to be killed (>0)
  *  @return 0 on success and -1 on failure
  *
@@ -761,6 +785,9 @@ void           *sm_attach (int shmid)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Detaches shared memory segment. 
+ *  @param shmaddr address of segment. 
+ */
 inline void sm_detach (void *shmaddr)
 {
         if (shmaddr != INITPTR)
@@ -768,6 +795,12 @@ inline void sm_detach (void *shmaddr)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Reads from shared memory segment.
+ *  @param shmaddr [IN] address of segment
+ *  @param data [OUT] buffer used for saving the read data
+ *  @param size [IN] number of bytes to read
+ *  @return ENOERR on success, -1 on error.
+ */ 
 int sm_read (const void *shmaddr, void *data, unsigned int size)
 {
         int             retval = ENOERR;
@@ -788,6 +821,12 @@ int sm_read (const void *shmaddr, void *data, unsigned int size)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Writes to shared memory segment
+ *  @param shmaddr address of segment
+ *  @param data data to be written
+ *  @param size of data in bytes
+ *  @return ENOERR on success, -1 on error.
+ */ 
 int sm_write (void *shmaddr, const void *data, unsigned int size)
 {
         int             retval = ENOERR;
@@ -808,6 +847,7 @@ int sm_write (void *shmaddr, const void *data, unsigned int size)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Returns the global handler of message queue */
 int sm_get_handler()
 {
         return __shm_handler__;

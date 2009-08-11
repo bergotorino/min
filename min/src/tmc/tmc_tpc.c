@@ -96,7 +96,7 @@ LOCAL void tp_timeout_handler (int signum)
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
 /** Initializes Test Process Controller
- *  @param tpc [in:out] adress of the test proces controller.
+ *  @param tpc [in:out] address of the test proces controller.
  */
 void tp_init (TestProcessController * tpc)
 {

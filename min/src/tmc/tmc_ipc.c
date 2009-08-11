@@ -18,7 +18,7 @@
 
 
 /**
- *  @file       tmc_msgipc.c
+ *  @file       tmc_ipc.c
  *  @version    0.1
  *  @brief      This file contains implementation of the TMC IPC part.
  */
@@ -77,7 +77,7 @@
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
 /** Initializes TMC's inter process communication part
- *  @param tmcipi adress of the TMC's inter process communication entity.
+ *  @param tmcipi address of the TMC's inter process communication entity.
  *  @param receiver PID of the process to which messages will be adressed to.
  *
  *  Fills TMCIPCInterface structure with default data.

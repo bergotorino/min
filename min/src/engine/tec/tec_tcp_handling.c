@@ -197,7 +197,7 @@ LOCAL void free_tcp_slave (slave_info *slave)
 LOCAL void socket_read_rcp (slave_info *slave)
 {
 	int bytes_read;
-        char *buff, len_buff[2];
+        char *buff, len_buff[4];
         unsigned int len;
         
         bytes_read = read (slave->fd_, &len_buff, 2);
