@@ -107,47 +107,15 @@ struct _MinFileParser {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Creates a new file parser.
- *  @param file [in] is the pointer to the FILE entity.
- *  @param is_unicode [in] is a flag indicating if file is unicode.
- *  @param comment_type [in] is an indication how to treat comments in file.
- *  @return adress of the allocaded MinFileParser entity.
- */
-MinFileParser *mfp_create (FILE * file,
+MinFileParser  *mfp_create (FILE * file,
                             TUnicode is_unicode, TCommentType comment_type);
 /* ------------------------------------------------------------------------- */
-/** Destroys allocated file parser.
- *  @param fp [in] allocated file parser entity.
- */
 void            mfp_destroy (MinFileParser ** sfp);
 /* ------------------------------------------------------------------------- */
-/**
- * Open and read configuration source and parses a required section.
- * This method will parse next section after the earlier section if
- * seeked parameter is equal 1.
- * If configuration file includes several sections with both start and
- * end tags so seeked parameter seeks the required section.
- * If start tag is not given, returned section begins from the beginning of
- * the file. If end tag is not given, returned sections ends at the end of
- * the file.
- * If section is not found function will return INITPTR
- * @param sfp [in] adress of the Min File Parser
- * @param start_tag [in] indicates the tag name to start from.
- * @param end_tag [in] indicates the tag name to end on.
- * @param offset [in] ...
- * @param seeked [in] indicates section that will be parsed.
- *
- * Possible Errors:
- * - EINVAL: invalid value was passed to the function.
- */
 TSChar         *mfp_next_section (MinFileParser * sfp,
                                   const TSChar * start_tag,
                                   const TSChar * end_tag,
                                   int *offset, int seeked);
-/* ------------------------------------------------------------------------- */
-
-/* ------------------------------------------------------------------------- */
-
 /* ------------------------------------------------------------------------- */
 #endif                          /* MIN_FILE_PARSER_H */
 /* End of file */

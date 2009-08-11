@@ -65,58 +65,23 @@
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Reads configuration source and returns a complete line.
- * This method will return also and end of line sequence.
- * @param line_buffer [out] handler to which the buffer will be attached.
- * @param eol_buffer [out] table for eol sequence.
- * @return > 0 on success, 0 on failure.
- */
 LOCAL TSBool    mfp_read_line (MinFileParser * sfp,
                                TSChar ** line_buffer, TSChar * eol_buffer);
 /* ------------------------------------------------------------------------- */
-/**
- * Parses a given line and removes all c-style comments from it.
- * Result is passed in destination buffer.
- * @param src_buff [in] buffer to be processed.
- * @param dst_buff [out] the result of processing.
- * @param find [in] what kind of comments we are looking for.
- */
 LOCAL void      mfp_replace_comments_line (const TSChar * src_buff,
                                            TSChar ** dst_buff,
                                            TWhatToFind find);
 /* ------------------------------------------------------------------------- */
-/**
- * Parses a given line and removes all #-style comments.
- * Result is passed in destination buffer.
- * @param src_buff [in] buffer to be processed.
- * @param dst_buff [out] the result of processing.
- */
 LOCAL void      mfp_replace_hash_comments_line (const TSChar * src_buff,
                                                 TSChar ** dst_buff);
 /* ------------------------------------------------------------------------- */
-/** Closes all files on file stack and clears the stack.
- *  @param sfp [in] pointer to the MinFileParser to operate on.
- */
 LOCAL void      mfp_clear_file_stack (MinFileParser * sfp);
 /* ------------------------------------------------------------------------- */
-/** Pops FILE handle from file stack and sets correct current file handle.
- *  @param sfp [in] pointer to the MinFileParser to operate on.
- */
 LOCAL void      mfp_pop_from_file_stack (MinFileParser * sfp);
 /* ------------------------------------------------------------------------- */
-/** Opens file and pushes it to stack.
- *  @param sfp [in] pointer to the MinFileParser to operate on.
- *  @param file_name [in] value to be pushed to the stack.
- */
 LOCAL void      mfp_push_file_to_stack (MinFileParser * sfp,
                                         const TSChar * file_name);
 /* ------------------------------------------------------------------------- */
-/** Deletes all descriptors assigned to array and empties array.
- *  @param sfp [in] pointer to the MinFileParser to operate on.
- */
-/* LOCAL void clear_section_lines_array( MinFileParser* sfp );missing -ssaa */
-/* ------------------------------------------------------------------------- */
-/** Used for comparing filenames on the list */
 LOCAL int       compare_filename (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -125,6 +90,11 @@ LOCAL int       compare_filename (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Used for comparing filenames on the list 
+ *  @param a filename string
+ *  @param b filename string
+ *  @return 0 if the filenames match !=0 otherwise
+ */
 LOCAL int compare_filename (const void *a, const void *b)
 {
         int             retval =
@@ -141,6 +111,12 @@ LOCAL int compare_filename (const void *a, const void *b)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Reads configuration source and returns a complete line.
+ * This method will return also and end of line sequence.
+ * @param line_buffer [out] handler to which the buffer will be attached.
+ * @param eol_buffer [out] table for eol sequence.
+ * @return > 0 on success, 0 on failure.
+ */
 LOCAL TSBool mfp_read_line (MinFileParser * sfp, TSChar ** line_buffer,
                             TSChar * eol_buffer)
 {
@@ -222,6 +198,12 @@ LOCAL TSBool mfp_read_line (MinFileParser * sfp, TSChar ** line_buffer,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Parses a given line and removes all c-style comments from it.
+ * Result is passed in destination buffer.
+ * @param src_buff [in] buffer to be processed.
+ * @param dst_buff [out] the result of processing.
+ * @param find [in] what kind of comments we are looking for.
+ */
 LOCAL void mfp_replace_comments_line (const TSChar * src_buff,
                                       TSChar ** dst_buff, TWhatToFind find)
 {
@@ -356,6 +338,11 @@ LOCAL void mfp_replace_comments_line (const TSChar * src_buff,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Parses a given line and removes all #-style comments.
+ * Result is passed in destination buffer.
+ * @param src_buff [in] buffer to be processed.
+ * @param dst_buff [out] the result of processing.
+ */
 LOCAL void mfp_replace_hash_comments_line (const TSChar * src_buff,
                                            TSChar ** dst_buff)
 {
@@ -397,6 +384,9 @@ LOCAL void mfp_replace_hash_comments_line (const TSChar * src_buff,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Closes all files on file stack and clears the stack.
+ *  @param sfp [in] pointer to the MinFileParser to operate on.
+ */
 LOCAL void mfp_clear_file_stack (MinFileParser * sfp)
 {
         if (sfp == INITPTR) {
@@ -412,6 +402,9 @@ LOCAL void mfp_clear_file_stack (MinFileParser * sfp)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Pops FILE handle from file stack and sets correct current file handle.
+ *  @param sfp [in] pointer to the MinFileParser to operate on.
+ */
 LOCAL void mfp_pop_from_file_stack (MinFileParser * sfp)
 {
         DLListIterator  it = DLListNULLIterator;
@@ -472,6 +465,10 @@ LOCAL void mfp_pop_from_file_stack (MinFileParser * sfp)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Opens file and pushes it to stack.
+ *  @param sfp [in] pointer to the MinFileParser to operate on.
+ *  @param file_name [in] value to be pushed to the stack.
+ */
 LOCAL void mfp_push_file_to_stack (MinFileParser * sfp,
                                    const TSChar * file_name)
 {
@@ -519,6 +516,12 @@ LOCAL void mfp_push_file_to_stack (MinFileParser * sfp,
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Creates a new file parser.
+ *  @param file [in] is the pointer to the FILE entity.
+ *  @param is_unicode [in] is a flag indicating if file is unicode.
+ *  @param comment_type [in] is an indication how to treat comments in file.
+ *  @return adress of the allocaded MinFileParser entity.
+ */
 MinFileParser *mfp_create (FILE * file, TUnicode is_unicode,
                             TCommentType comment_type)
 {
@@ -566,8 +569,10 @@ MinFileParser *mfp_create (FILE * file, TUnicode is_unicode,
       EXIT:
         return tmp;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Destroys allocated file parser.
+ *  @param fp [in] allocated file parser entity.
+ */
 void mfp_destroy (MinFileParser ** sfp)
 {
         if (*sfp == INITPTR)
@@ -589,6 +594,24 @@ void mfp_destroy (MinFileParser ** sfp)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Open and read configuration source and parses a required section.
+ * This method will parse next section after the earlier section if
+ * seeked parameter is equal 1.
+ * If configuration file includes several sections with both start and
+ * end tags so seeked parameter seeks the required section.
+ * If start tag is not given, returned section begins from the beginning of
+ * the file. If end tag is not given, returned sections ends at the end of
+ * the file.
+ * If section is not found function will return INITPTR
+ * @param sfp [in] adress of the Min File Parser
+ * @param start_tag [in] indicates the tag name to start from.
+ * @param end_tag [in] indicates the tag name to end on.
+ * @param offset [in] ...
+ * @param seeked [in] indicates section that will be parsed.
+ *
+ * Possible Errors:
+ * - EINVAL: invalid value was passed to the function.
+ */
 TSChar         *mfp_next_section (MinFileParser * sfp,
                                   const TSChar * start_tag,
                                   const TSChar * end_tag, int *offset,
