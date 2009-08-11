@@ -88,11 +88,21 @@ TSBool          ok_to_break;    /*flag stating if it is ok to revert back to
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
+LOCAL int       split_string_eq (char *input, char **name, char **var);
+/* ------------------------------------------------------------------------- */
 LOCAL int       min_if_dispatch_extif_msg (MinItemParser * extif_message);
+/* ------------------------------------------------------------------------- */
+LOCAL int       extif_send_ipc_sendrcv (long receipent, char *data_name, 
+					char *data_value);
+/* ------------------------------------------------------------------------- */
+LOCAL int       get_id_from_slavename (char *slavename);
 /* ------------------------------------------------------------------------- */
 LOCAL int       extif_msg_handle_reserve (MinItemParser * extif_message);
 /* ------------------------------------------------------------------------- */
 LOCAL int       extif_msg_handle_release (MinItemParser * extif_message);
+/* ------------------------------------------------------------------------- */
+LOCAL void      tec_ms_handle_data_request (int slave_id, char *varname, 
+					    long requester);
 /* ------------------------------------------------------------------------- */
 #ifdef MIN_EXTIF
 LOCAL int       extif_msg_handle_response (MinItemParser * extif_message);
@@ -122,6 +132,7 @@ LOCAL slave_info *find_slave_by_addrinfo (struct addrinfo *ai,
 void            master_report (int run_id, int execution_result,
                                int test_result, char *desc);
 /* ==================== LOCAL FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
 /** Function used to split string looking like name=value into 2 parts. 
  *  It was necessary, because parser has only functionality to extract value 
  *  only if name is known. Remember to deallocate "name" and "value" after
@@ -159,8 +170,14 @@ LOCAL int split_string_eq (char *input, char **name, char **var)
 
 }
 /* ------------------------------------------------------------------------- */
-LOCAL int
-extif_send_ipc_sendrcv (long receipent, char *data_name, char *data_value)
+/** Send the RCP sendreceive data to test process over POSIX message queue.
+ *  @param receipent recipient (pid) of the test process.
+ *  @param data_name name of the variable.
+ *  @param data_value value of the variable.
+ *  @return 0 success, -1 on error.
+ */
+LOCAL int extif_send_ipc_sendrcv (long receipent, char *data_name, 
+				  char *data_value)
 {
         MsgBuffer       data_message;
         data_message.type_ = MSG_SNDRCV;
@@ -172,6 +189,10 @@ extif_send_ipc_sendrcv (long receipent, char *data_name, char *data_value)
         return mq_send_message (mq_id, &data_message);
 }
 /* ------------------------------------------------------------------------- */
+/** Get the RCP identifier matching the slave name
+ *  @param slavename name of the slave.
+ *  @return identifier value, or -1 if no slave matching the argument if found.
+ */
 LOCAL int get_id_from_slavename (char *slavename)
 {
         DLListIterator  work_slave_item = DLListNULLIterator;
@@ -196,6 +217,10 @@ LOCAL int get_id_from_slavename (char *slavename)
         return retval;
 }
 /* ------------------------------------------------------------------------- */
+/** Handle the "release" RCP message.
+ *  @param extif_message RCP message.
+ *  @return 0 always.
+ */
 LOCAL int extif_msg_handle_release (MinItemParser * extif_message)
 {
         /*restore original "complete" callback if allowed, otherwise mark that 
@@ -214,8 +239,13 @@ LOCAL int extif_msg_handle_release (MinItemParser * extif_message)
         return 0;
 }
 /* ------------------------------------------------------------------------- */
-LOCAL void
-tec_ms_handle_data_request (int slave_id, char *varname, long requester)
+/** Handle the "expect" from test case.
+ *  @param slave_id slave identifier.
+ *  @param varname name of the expected variable.
+ *  @param requester pid of the expecting test process.
+ */
+LOCAL void tec_ms_handle_data_request (int slave_id, char *varname, 
+				       long requester)
 {
         DLListIterator  work_data_item = DLListNULLIterator;
         received_data  *work_data_entry;
@@ -262,6 +292,10 @@ tec_ms_handle_data_request (int slave_id, char *varname, long requester)
         pthread_mutex_unlock (&tec_mutex_);
 }
 /* ------------------------------------------------------------------------- */
+/** Handle "remote" command.
+ *  @param extif_message RCP message.
+ *  @return 0 on success, -1 on error.
+ */
 LOCAL int extif_msg_handle_command (MinItemParser * extif_message)
 {
 
@@ -323,8 +357,11 @@ EXIT:
         return retval;
 }
 /* ------------------------------------------------------------------------- */
-/** Function handles RCP message containing sendreceive command
-*/
+/** Handles RCP message containing sendreceive command
+ *  @param extif_message RCP message
+ *  @param dev_id RCP device id.
+ *  @retrun 0 on success, -1 on error.
+ */
 LOCAL int handle_remote_sendreceive (MinItemParser * extif_message, int dev_id)
 {
 
@@ -387,7 +424,7 @@ LOCAL int handle_remote_sendreceive (MinItemParser * extif_message, int dev_id)
         return 0;
 }
 /* ------------------------------------------------------------------------- */
-/**Function handles RCP message containing "remote run" command.
+/** Handles RCP message containing "remote run" command.
  * @param extif_message - pointer to item parser containing received message. 
  * Assume that get_next_string was called several times, until "run" command
  * was extracted - so next get_string will give first parameter to run keyword.
@@ -620,7 +657,7 @@ MODULE_PRESENT:
         return 0;
 }
 /* ------------------------------------------------------------------------- */
-/**Function implemens handling of "remote pause" command 
+/** Handling of "remote pause" command.
  * @param extif_message - pointer to item parser containing received message.
  *  Assume that get_next_string was called several times, until "pause" 
  * command was extracted
@@ -632,7 +669,7 @@ LOCAL int handle_remote_pause (MinItemParser * extif_message, int case_id)
         return 0;
 }
 /* ------------------------------------------------------------------------- */
-/**Function implemens handling of "remote cancel" command 
+/** Handling of "remote cancel" command.
  * @param extif_message - pointer to item parser containing received message. 
  * Assume   that get_next_string was called several times, until "cancel" 
  * command was extracted
@@ -696,7 +733,6 @@ LOCAL int splithex (char *hex, int *dev_id, int *case_id)
  * @return string containing proper representation, or INITPTR 
  * in case of problem.
  */
-
 LOCAL char     *writehex (int devid, int caseid)
 {
         char           *hex = NEW2 (char, 9);
@@ -711,8 +747,8 @@ LOCAL char     *writehex (int devid, int caseid)
         return hex;
 }
 /* ------------------------------------------------------------------------- */
-/**Function recognizes message received from external controller and calls 
- * apropriate handler
+/** Recognizes message received from external controller and calls 
+ *  appropriate handler
  * @param extif_message pointer to MinItemParser with parser created
  *  from message string.
  * @return result of operation, 0 if successfull.
@@ -763,7 +799,7 @@ LOCAL int min_if_dispatch_extif_msg (MinItemParser * extif_message)
         return result;
 }
 /* ------------------------------------------------------------------------- */
-/**Function handles "response" message coming from external controller
+/** Handles "response" message coming from external controller
  * @param extif_message pointer to item parser. It is assumed that 
  * mip_get_string was  executed once for this parser to get first "word"
  * @return result of operation, 0 if ok.
@@ -1043,7 +1079,6 @@ void rcp_handling_cleanup ()
         dl_list_free (&EXTIF_received_data);
 
 }
-
 /* ------------------------------------------------------------------------- */
 /** Function called to send external controller message to master device.
  * @param tc_id id of slave's test case
@@ -1063,7 +1098,6 @@ void send_to_master (int tc_id, char *msg)
 
         DELETE (hex);
 }
-
 /*---------------------------------------------------------------------------*/
 /** Function called to send external controller message to slave device.
  * @param slave_name NULL-terminated string containing slave's name
@@ -1283,9 +1317,11 @@ int ec_msg_ms_handler (MsgBuffer * message)
         return 0;
 }
 /* ------------------------------------------------------------------------- */
-/** Function reads message received from external controller and 
- * calls  handling
- */
+/** Called when message received from external controller
+ * @param message string containing actual message
+ * @param length length of message 
+ * @return 0 on success, -1 on error
+*/
 int tec_extif_message_received (char *message, int length)
 {
         MinItemParser *extif_message = INITPTR;

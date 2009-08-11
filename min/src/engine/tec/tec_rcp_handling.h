@@ -41,13 +41,17 @@
 /* ------------------------------------------------------------------------- */
 /* DATA TYPES */
 
+/* ----------------------------------------------------------------------------
+ * GLOBAL VARIABLES
+ */
+DLList         *EXTIF_received_data;
+
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
 
 /* ------------------------------------------------------------------------- */
 /* STRUCTURES */
-
 
 /** Structure for holding master/slave association data */
 typedef struct {
@@ -81,30 +85,23 @@ typedef struct {
 	DLList         *write_queue_;
 } slave_info;
 
-
-/** Function called when message received from external controller
- * @param message sting containing actual message
- * @param length length of message (this param will probobly be dropped
- * @return result of operation
-*/
+/* ------------------------------------------------------------------------- */
 int             tec_extif_message_received (char *message, int length);
-
+/* ------------------------------------------------------------------------- */
 void            send_to_master (int tc_id, char *msg);
-
-DLList         *EXTIF_received_data;
-
+/* ------------------------------------------------------------------------- */
 void            rcp_handling_init ();
- 
+/* ------------------------------------------------------------------------- */
 void            rcp_handling_cleanup ();
-
+/* ------------------------------------------------------------------------- */
 int             tec_add_ip_slave_to_pool (struct addrinfo **ai, 
 					  char *slavetype);
-
+/* ------------------------------------------------------------------------- */
 int             tec_del_ip_slave_from_pool (struct addrinfo *ai, 
 					    char *slavetype);
-
+/* ------------------------------------------------------------------------- */
 void            tcp_master_report (int run_id, int execution_result, 
 				   int test_result, char *desc);
-
+/* ------------------------------------------------------------------------- */
 #endif
 /* End of file */
