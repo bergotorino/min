@@ -18,7 +18,7 @@
 
 
 /**
- *  @file       scripted_test_preocess.h
+ *  @file       scripted_test_process.h
  *  @version    0.1
  *  @brief      This file contains header file of the Test Process of Scripter
  */

@@ -70,28 +70,12 @@ typedef test_libl_t TestLibraryLoader;
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Tries to open test library.
- *  @return 0 when everything ok. 1 on error.
- *  @param *tlibl test library loader entity for one test module
- *  @param *lib_name path to the *.so file to be loaded
- */
 int tl_open  (test_libl_t *tlibl, const char *lib_name);
 /* ------------------------------------------------------------------------- */
-/** Tries to open test class.
- *  @param* file [in] name of the test liblary.
- */
 void* tl_open_tc( const char* file );
 /* ------------------------------------------------------------------------- */
-/** Closes the test library
- *  @return 0 when everything ok. 1 on error.
- *  @param *tlibl test library loader entity for one test module
- */
 int tl_close (test_libl_t *tlibl);
 /* ------------------------------------------------------------------------- */
-/** Determines whether the test library looks correct.
- *  @return 1 when everything ok. 0 on error.
- *  @param *tlibl test library loader entity for one test module
- */
 int tl_is_ok (test_libl_t *tlibl);
 /* ------------------------------------------------------------------------- */
 #endif /* TLLIB_H */

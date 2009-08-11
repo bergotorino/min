@@ -18,7 +18,7 @@
 
 
 /**
- *  @file       combined_test_preocess.h
+ *  @file       combined_test_process.h
  *  @version    0.1
  *  @brief      This file contains header file of the Test Process of Combiner
  */

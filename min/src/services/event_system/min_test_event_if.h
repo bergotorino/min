@@ -17,7 +17,7 @@
  */
 
 /**
- *  @file       min_event_if.h
+ *  @file       min_test_event_if.h
  *  @version    0.1
  *  @brief      This file contains header file of the MIN Event interface
  */

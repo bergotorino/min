@@ -18,9 +18,9 @@
 
 
 /**
- *  @file       template.h
+ *  @file       tec_events.h
  *  @version    0.1
- *  @brief      This file contains header file of the ...
+ *  @brief      This is header file for tec_events.c
  */
 
 #ifndef TEC_EVENTS_H

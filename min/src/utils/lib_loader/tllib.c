@@ -60,13 +60,6 @@
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Loads .so library.
- *  @param libname[in] the name of the library
- *  @return pointer to dll handler, or INITPTR in case of failure.
- *
- *  It loads the library. .so extension is added automatically, settings
- *  system is used to fetch lobrary paths.
- */
 LOCAL void* tl_load_lib( const char *libname );
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -74,6 +67,13 @@ LOCAL void* tl_load_lib( const char *libname );
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Loads .so library.
+ *  @param libname[in] the name of the library
+ *  @return pointer to dll handler, or INITPTR in case of failure.
+ *
+ *  It loads the library. .so extension is added automatically, settings
+ *  system is used to fetch lobrary paths.
+ */
 LOCAL void* tl_load_lib( const char *libname )
 {
         void *retval = INITPTR;
@@ -154,6 +154,11 @@ LOCAL void* tl_load_lib( const char *libname )
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Tries to open test library.
+ *  @return 0 when everything ok. 1 on error.
+ *  @param *tlibl test library loader entity for one test module
+ *  @param *lib_name path to the *.so file to be loaded
+ */
 int tl_open (test_libl_t *tlibl, const char *lib_name)
 {
 	void *test_lib;
@@ -237,6 +242,9 @@ int tl_open (test_libl_t *tlibl, const char *lib_name)
 	return 0;
 }
 /* ------------------------------------------------------------------------- */
+/** Tries to open test class.
+ *  @param* file [in] name of the test liblary.
+ */
 void* tl_open_tc( const char* file )
 {
         void*           retval = INITPTR;
@@ -300,6 +308,10 @@ EXIT:
         return retval;
 } 
 /* ------------------------------------------------------------------------- */
+/** Closes the test library
+ *  @return 0 when everything ok. 1 on error.
+ *  @param *tlibl test library loader entity for one test module
+ */
 int tl_close (test_libl_t *tlibl)
 {
 	if (tlibl == INITPTR || tlibl->test_library_ == INITPTR) {
@@ -326,6 +338,10 @@ int tl_close (test_libl_t *tlibl)
 	return 0;
 }
 /* ------------------------------------------------------------------------- */
+/** Determines whether the test library looks correct.
+ *  @return 1 when everything ok. 0 on error.
+ *  @param *tlibl test library loader entity for one test module
+ */
 int tl_is_ok (test_libl_t *tlibl)
 {
 	if (tlibl == INITPTR) {
