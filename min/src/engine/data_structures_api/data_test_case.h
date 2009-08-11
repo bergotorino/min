@@ -92,65 +92,60 @@ typedef struct {
 
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
-
+/* ------------------------------------------------------------------------- */
 DLListIterator  tc_add (DLList * list_handle, test_case_s * tc_data);
-
+/* ------------------------------------------------------------------------- */
 test_case_s    *tc_create (DLListIterator tm_data_item,
                            filename_t tc_cfg_filename,
                            title_string_t tc_title);
-
+/* ------------------------------------------------------------------------- */
 DLListIterator  tc_find_by_id (DLList * list_handle,
 			       int test_id);
-
-void            tc_remove (DLListIterator tc_data_item);
-
-void            tc_delete (test_case_s * test_case);
-
 /* ------------------------------------------------------------------------- */
-
+void            tc_remove (DLListIterator tc_data_item);
+/* ------------------------------------------------------------------------- */
+void            tc_delete (test_case_s * test_case);
+/* ------------------------------------------------------------------------- */
 int             tc_get_id (DLListIterator tc_data_item);
-
+/* ------------------------------------------------------------------------- */
 int             tc_get_ext_id (DLListIterator tc_data_item);
-
+/* ------------------------------------------------------------------------- */
 long            tc_get_run_id (DLListIterator tc_data_item);
-
+/* ------------------------------------------------------------------------- */
 int             tc_get_group_id (DLListIterator tc_data_item);
-
+/* ------------------------------------------------------------------------- */
 int             tc_get_title (DLListIterator tc_data_item,
                               title_string_t title_string);
-
+/* ------------------------------------------------------------------------- */
 void            tc_get_cfg_filename (DLListIterator tc_data_item,
                                      filename_t tc_cfg_filename);
-
-int             tc_get_priority (DLListIterator tc_data_item);
-
-DLList         *tc_get_tr_list (DLListIterator tc_data_item);
-
-int             tc_get_status (DLListIterator tc_data_item);
-
-DLListIterator  tc_get_test_module_ptr (DLListIterator tc_data_item);
-
 /* ------------------------------------------------------------------------- */
-
+int             tc_get_priority (DLListIterator tc_data_item);
+/* ------------------------------------------------------------------------- */
+DLList         *tc_get_tr_list (DLListIterator tc_data_item);
+/* ------------------------------------------------------------------------- */
+int             tc_get_status (DLListIterator tc_data_item);
+/* ------------------------------------------------------------------------- */
+DLListIterator  tc_get_test_module_ptr (DLListIterator tc_data_item);
+/* ------------------------------------------------------------------------- */
 void            tc_set_id (DLListIterator tc_data_item, int test_case_id);
-
+/* ------------------------------------------------------------------------- */
 void            tc_set_run_id (DLListIterator tc_data_item, long run_id);
-
+/* ------------------------------------------------------------------------- */
 void            tc_set_group_id (DLListIterator tc_data_item, int group_id);
-
+/* ------------------------------------------------------------------------- */
 void            tc_set_status (DLListIterator item_data, int status);
-
+/* ------------------------------------------------------------------------- */
 void            tc_set_cfg_filename (DLListIterator tc_data_item,
                                      filename_t tc_cfg_filename);
-
+/* ------------------------------------------------------------------------- */
 void            tc_set_priority (DLListIterator tc_data_item, int priority);
-
+/* ------------------------------------------------------------------------- */
 void            tc_set_tr_list (DLListIterator tc_data_item,
                                 DLList * test_result_list);
-
+/* ------------------------------------------------------------------------- */
 void            tc_set_test_module_ptr (DLListIterator tc_data_item,
                                         DLListIterator tm_data_item);
-
 /* ------------------------------------------------------------------------- */
 #endif                          /* DATA_TEST_CASE_H */
 /* End of file */

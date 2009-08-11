@@ -72,7 +72,7 @@ LOCAL pthread_mutex_t TR_MUTEX = PTHREAD_MUTEX_INITIALIZER;
 /* None */
 
 /* ======================== FUNCTIONS ====================================== */
-
+/* ------------------------------------------------------------------------- */
 /** Adds Test Result data item to linked list
  *  @param list_handle pointer to linked list of Test Result data
  *  @param test_result pointer to Test Result data structure.
@@ -98,9 +98,7 @@ DLListIterator tr_add (DLList * list_handle, test_result_s * test_result)
 
         return dllist_item;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Creates Test Result data structure
  *  @param tc_data_item pointer to Test Case data item which processed this
  *                      Test Result data.
@@ -136,9 +134,7 @@ test_result_s  *tr_create_data_item (DLListIterator tc_data_item)
 
         return test_result;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Removes given Test Result data item from linked list.
  *  @param tr_data_item pointer to given Test Result data item.
  */
@@ -153,9 +149,7 @@ void tr_remove (DLListIterator tr_data_item)
 
         pthread_mutex_unlock (&TR_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets result description string from  given Test Result data item.
  *  @param tr_data_item pointer to given Test Result data item.
  */
@@ -174,9 +168,7 @@ void tr_get_result_description (DLListIterator tr_data_item,
 
         pthread_mutex_unlock (&TR_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets result type value from given Test Result Data item
  *  @param tr_data_item pointer to given Test Result data item.
  *  @return positive integer result type value,
@@ -203,9 +195,7 @@ int tr_get_result_type (DLListIterator tr_data_item)
 
         return result_type;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets result code value from given Test Result Data item
  *  @param tr_data_item pointer to given Test Result data item.
  *  @return positive integer result code value,
@@ -231,9 +221,7 @@ int tr_get_result_code (DLListIterator tr_data_item)
 
         return result_code;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets start time value from given Test Result Data item
  *  @param tr_data_item pointer to given Test Result data item.
  *  @return long type start time value.
@@ -258,9 +246,7 @@ long tr_get_start_time (DLListIterator tr_data_item)
 
         return start_time;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets end time value from given Test Result Data item
  *  @param tr_data_item pointer to given Test Result data item.
  *  @return long type end time value.
@@ -286,9 +272,7 @@ long tr_get_end_time (DLListIterator tr_data_item)
 
         return end_time;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets pointer to linked list of printouts list
  *  @param tr_data_item pointer to Test Result data item.
  *  @return returns pointer to linked list of printouts list data,
@@ -313,9 +297,7 @@ DLList         *tr_get_priontouts_list (DLListIterator tr_data_item)
 
         return printouts_list;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets new result description string text for given Test Result data item
  *  @param tr_data_item pointer to given Test Result data item.
  *  @param result_desc new result description string text. 
@@ -339,9 +321,7 @@ void tr_set_result_description (DLListIterator tr_data_item,
 
         pthread_mutex_unlock (&TR_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets result type value for given Test Result data item
  *  @param tr_data_item pointer to given Test Result data item.
  */
@@ -358,9 +338,7 @@ void tr_set_result_type (DLListIterator tr_data_item, int result_type)
 
         pthread_mutex_unlock (&TR_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets result code for given Test Result data item.
  *  @param tr_data_item pointer to given Test Result data item.
  */
@@ -377,9 +355,7 @@ void tr_set_result_code (DLListIterator tr_data_item, int result_code)
 
         pthread_mutex_unlock (&TR_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets start time for given Test Result data item
  *  @param tr_data_item pointer to given Test Result data item.
  */
@@ -396,9 +372,7 @@ void tr_set_start_time (DLListIterator tr_data_item, long start_time)
 
         pthread_mutex_unlock (&TR_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets end time for given Test Result data item
  *  @param tr_data_item pointer to given Test Result data item.
  */
@@ -415,9 +389,7 @@ void tr_set_end_time (DLListIterator tr_data_item, long end_time)
 
         pthread_mutex_unlock (&TR_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets pointer to linked list of printouts list for Test Result data item
  *  @param tr_data_item pointer to given Test Result data item.
  */
@@ -435,9 +407,7 @@ void tr_set_priontouts_list (DLListIterator tr_data_item,
 
         pthread_mutex_unlock (&TR_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Creates Test Result prinout data structure
  *  @param tr_data_item pointer to Test Result data item.
  *  @return returns pointer to printout data structure,
@@ -472,9 +442,7 @@ test_result_printout_s *tr_create_printout (int priority, char *printout)
 
         return tr_printout;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Removes printouts data structure and freeing used memery allocation
  *  @param tr_data_item pointer to given Test Result data item.
  */
@@ -490,9 +458,7 @@ void tr_remove_printout (test_result_printout_s * tr_printout)
 
         pthread_mutex_unlock (&TR_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Removes linked list of printouts data from given Test Result data item
  *  @param tr_data_item pointer to given Test Result data item.
  */

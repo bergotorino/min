@@ -72,7 +72,7 @@ LOCAL pthread_mutex_t TC_MUTEX = PTHREAD_MUTEX_INITIALIZER;
 /* None */
 
 /* ======================== FUNCTIONS ====================================== */
-
+/* ------------------------------------------------------------------------- */
 /** Adds new Test Case data structure to linked list DLList
  *  @param list_handle link to list to which a new element is added.
  *  @param tc_data pointer to data that is stored on the list.
@@ -99,9 +99,7 @@ DLListIterator tc_add (DLList * list_handle, test_case_s * tc_data)
 
         return dllist_item;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Creates new Test Case data structure
  *  @param tm_data_item pointer to Test Module Info data item.
  *  @param tc_cfg_filename contains filaname string of
@@ -147,9 +145,7 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
 
         return tc_data;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Searches for test module by id from the given list
  *  @param list_handle pointer to linked list of Test Modules Info data
  *  @param id search key
@@ -178,9 +174,7 @@ DLListIterator  tc_find_by_id (DLList * list_handle,
         return INITPTR;
 
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Removes Test Case data item from linked list where this exists
  *  @param tc_data_item pointer to Test Case data item.
  */
@@ -193,9 +187,7 @@ void tc_remove (DLListIterator tc_data_item)
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Deletes Test Case data structure and freeing used memory allocation
  *  @param test_case pointer to Test Case data structure.
  */
@@ -222,9 +214,7 @@ void tc_delete (test_case_s * test_case)
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets ID value of specific Test Case data item
  *  @param tc_data_item pointer to Test Case data item.
  *  @return positive integer value of ID, or -1 if get ID failed.
@@ -250,9 +240,7 @@ int tc_get_id (DLListIterator tc_data_item)
 
         return tc_id;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets the external ID value of specific Test Case data item
  *  @param tc_data_item pointer to Test Case data item.
  *  @return positive integer value of ID, or -1 if get ID failed.
@@ -278,9 +266,7 @@ int tc_get_ext_id (DLListIterator tc_data_item)
 
         return tc_id;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets run ID value of specific Test Case data item
  *  @param tc_data_item pointer to Test Case data item.
  *  @return positive integer value of ID, or -1 if get ID failed.
@@ -306,9 +292,7 @@ long tc_get_run_id (DLListIterator tc_data_item)
 
         return run_id;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets group ID value of specific Test Case data item
  *  @param tc_data_item pointer to Test Case data item.
  *  @return positive integer value of group ID,
@@ -335,9 +319,7 @@ int tc_get_group_id (DLListIterator tc_data_item)
 
         return tc_group_id;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Case title string and copying it to
  *  given title string parameter
  *  @param tc_data_item pointer to Test Case data item.
@@ -369,9 +351,7 @@ int tc_get_title (DLListIterator tc_data_item, title_string_t title_string)
 
         return result;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Case status value
  *  @param tc_data_item pointer to Test Case data item.
  *  @return status integer value,
@@ -396,9 +376,7 @@ int tc_get_status (DLListIterator tc_data_item)
 
         return tc_status;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Case config filename string and
  *  copying it to given title string parameter
  *  @param tc_data_item pointer to Test Case data item.
@@ -419,9 +397,7 @@ void tc_get_cfg_filename (DLListIterator tc_data_item,
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Result list pointer according to Test Case data item
  *  @param tc_data_item pointer to Test Case data item.
  *  @return pointer to Test Result linked list,
@@ -445,9 +421,7 @@ DLList         *tc_get_tr_list (DLListIterator tc_data_item)
 
         return test_result_list;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Result priority value
  *  @param tc_data_item pointer to Test Case data item.
  *  @return positive integer priority value,
@@ -472,9 +446,7 @@ int tc_get_priority (DLListIterator tc_data_item)
 
         return priority;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Module Info data iten pointer according to Test Case data item
  *  @param tc_data_item pointer to Test Case data item.
  *  @return pointer to Test Module Info data item,
@@ -498,9 +470,7 @@ DLListIterator tc_get_test_module_ptr (DLListIterator tc_data_item)
 
         return tm_data_item;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets Test Case ID value
  *  @param tc_data_item pointer to Test Case data item.
  *  @param test_case_id integer value of Test Case ID.
@@ -517,9 +487,7 @@ void tc_set_id (DLListIterator tc_data_item, int test_case_id)
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets Test Case run ID value
  *  @param tc_data_item pointer to Test Case data item.
  *  @param run_id integer value of Test Case ryb ID.
@@ -536,10 +504,7 @@ void tc_set_run_id (DLListIterator tc_data_item, long run_id)
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
-
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets Test Case group ID value
  *  @param tc_data_item pointer to Test Case data item.
  *  @param group_id integer value of Test Case group ID.
@@ -556,9 +521,7 @@ void tc_set_group_id (DLListIterator tc_data_item, int group_id)
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets Test Case status value
  *  @param tc_data_item pointer to Test Case data item.
  *  @param status integer value of Test Case status.
@@ -575,9 +538,7 @@ void tc_set_status (DLListIterator tc_data_item, int status)
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets Test Case config filename string
  *  @param tc_data_item pointer to Test Case data item.
  *  @param tc_cfg_filename new Test Case config filename string.
@@ -600,9 +561,7 @@ void tc_set_cfg_filename (DLListIterator tc_data_item,
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets Test Case priority value
  *  @param tc_data_item pointer to Test Case data item.
  *  @param priority integer value of Test Case priority.
@@ -619,9 +578,7 @@ void tc_set_priority (DLListIterator tc_data_item, int priority)
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets Test Result list pointer for Test Case data item
  *  @param tc_data_item pointer to Test Case data item.
  *  @param test_result_list pointer to linked list of Test Result list.
@@ -638,9 +595,7 @@ void tc_set_tr_list (DLListIterator tc_data_item, DLList * test_result_list)
 
         pthread_mutex_unlock (&TC_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets Test Module Info data item pointer for Test Case data item
  *  @param tc_data_item pointer to Test Case data item.
  *  @param tm_data_item pointer to setting Test Module Info data item.

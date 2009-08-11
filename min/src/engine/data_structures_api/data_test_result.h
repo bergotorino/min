@@ -92,53 +92,49 @@ typedef struct {
 
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
-
-DLListIterator  tr_add (DLList * list_handle, test_result_s * test_result);
-
-test_result_s  *tr_create_data_item (DLListIterator tc_data_item);
-
-void            tr_remove (DLListIterator tr_data_item);
-
 /* ------------------------------------------------------------------------- */
-
+DLListIterator  tr_add (DLList * list_handle, test_result_s * test_result);
+/* ------------------------------------------------------------------------- */
+test_result_s  *tr_create_data_item (DLListIterator tc_data_item);
+/* ------------------------------------------------------------------------- */
+void            tr_remove (DLListIterator tr_data_item);
+/* ------------------------------------------------------------------------- */
 void            tr_get_result_description (DLListIterator tr_data_item,
                                            result_description_t result_desc);
-
-int             tr_get_result_type (DLListIterator tr_data_item);
-
-int             tr_get_result_code (DLListIterator tr_data_item);
-
-long            tr_get_start_time (DLListIterator tr_data_item);
-
-long            tr_get_end_time (DLListIterator tr_data_item);
-
-DLList         *tr_get_priontouts_list (DLListIterator tr_data_item);
-
 /* ------------------------------------------------------------------------- */
-
+int             tr_get_result_type (DLListIterator tr_data_item);
+/* ------------------------------------------------------------------------- */
+int             tr_get_result_code (DLListIterator tr_data_item);
+/* ------------------------------------------------------------------------- */
+long            tr_get_start_time (DLListIterator tr_data_item);
+/* ------------------------------------------------------------------------- */
+long            tr_get_end_time (DLListIterator tr_data_item);
+/* ------------------------------------------------------------------------- */
+DLList         *tr_get_priontouts_list (DLListIterator tr_data_item);
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
 void            tr_set_result_description (DLListIterator tr_data_item,
                                            result_description_t result_desc);
-
+/* ------------------------------------------------------------------------- */
 void            tr_set_result_type (DLListIterator tr_data_item,
                                     int result_type);
-
+/* ------------------------------------------------------------------------- */
 void            tr_set_result_code (DLListIterator tr_data_item,
                                     int result_code);
-
+/* ------------------------------------------------------------------------- */
 void            tr_set_start_time (DLListIterator tr_data_item,
                                    long start_time);
-
+/* ------------------------------------------------------------------------- */
 void            tr_set_end_time (DLListIterator tr_data_item, long end_time);
-
+/* ------------------------------------------------------------------------- */
 void            tr_set_priontouts_list (DLListIterator tr_data_item,
                                         DLList * printouts_list);
-
+/* ------------------------------------------------------------------------- */
 test_result_printout_s *tr_create_printout (int priority, char *printout);
-
+/* ------------------------------------------------------------------------- */
 void            tr_remove_printout (test_result_printout_s * tr_printout);
-
+/* ------------------------------------------------------------------------- */
 void            tr_remove_printouts_list (DLListIterator tr_data_item);
-
 /* ------------------------------------------------------------------------- */
 #endif                          /* DATA_TEST_RESULT_H */
 /* End of file */
