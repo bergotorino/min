@@ -129,15 +129,33 @@ LOCAL int       mdl_send (struct logger_typeinfo_t *lt, int style,
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Overwrites previous MIN Logger settings with new values
+ *  @param ls [out] settings struture to be overwritten
+ *  @param path [in] output directory.
+ *  @param file [in] output file.
+ *  @param loggertype [in] type of the logger that is in use.
+ *  @param output [in] output plugin.
+ *  @param overwrite [in] overwrite file if exists flag.
+ *  @param withtimestamp [in] add timestamp flag.
+ *  @param withlinebreak [in] add linebreak flag.
+ *  @param witheventranking [in] do event ranking flag.
+ *  @param pididtologfile [in] process id to logfile flag.
+ *  @param createlogdir [in] create output directory if not exists flag.
+ *  @param unicode [in] unicode flag.
+ *  @param loglevel [in] log level for current logger. 
+ */
 LOCAL void mnl_overwrite_settings (struct logger_settings_t *ls,
-                                   TSChar * path, TSChar * file,
+                                   TSChar * path, 
+				   TSChar * file,
                                    TSLoggerType * loggertype,
-                                   unsigned int *output, TSBool * overwrite,
+                                   unsigned int *output, 
+				   TSBool * overwrite,
                                    TSBool * withtimestamp,
                                    TSBool * withlinebreak,
                                    TSBool * witheventranking,
                                    TSBool * pididtologfile,
-                                   TSBool * createlogdir, TSBool * unicode,
+                                   TSBool * createlogdir, 
+				   TSBool * unicode,
                                    TSStyle * loglevel )
 {
         if (ls == INITPTR) {
@@ -225,14 +243,33 @@ LOCAL void mnl_overwrite_settings (struct logger_settings_t *ls,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL MinTxtLogger *stl_create (const TSChar * path, const TSChar * file,
-                                 TSLoggerType loggertype, unsigned int output,
-                                 TSBool overwrite, TSBool withtimestamp,
-                                 TSBool withlinebreak,
-                                 TSBool witheventranking,
-                                 TSBool pididtologfile, TSBool createlogdir,
-                                 unsigned int staticbuffersize,
-                                 TSBool unicode)
+/** Creates a new MIN text logger instance.
+ *  @param path [in] output directory.
+ *  @param file [in] output file.
+ *  @param loggertype [in] type of the logger that is in use.
+ *  @param output [in] output plugin.
+ *  @param overwrite [in] overwrite file if exists flag.
+ *  @param withtimestamp [in] add timestamp flag.
+ *  @param withlinebreak [in] add linebreak flag.
+ *  @param witheventranking [in] do event ranking flag.
+ *  @param pididtologfile [in] process id to logfile flag.
+ *  @param createlogdir [in] create output directory if not exists flag.
+ *  @param staticbuffersize [in] size of the static buffer.
+ *  @param unicode [in] unicode flag.
+ *  @return pointer to logger instance.
+ */
+LOCAL MinTxtLogger *stl_create (const TSChar * path, 
+				const TSChar * file,
+				TSLoggerType loggertype, 
+				unsigned int output,
+				TSBool overwrite, 
+				TSBool withtimestamp,
+				TSBool withlinebreak,
+				TSBool witheventranking,
+				TSBool pididtologfile, 
+				TSBool createlogdir,
+				unsigned int staticbuffersize,
+				TSBool unicode)
 {
         MinTxtLogger  *retval = NEW (MinTxtLogger);
         struct output_typeinfo_t *out = INITPTR;
@@ -265,6 +302,9 @@ LOCAL MinTxtLogger *stl_create (const TSChar * path, const TSChar * file,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Destroys MIN Txt logger instance.
+ *  @param stl address of pointer to txt logger instance.
+ */
 LOCAL void stl_destroy (MinTxtLogger ** stl)
 {
         DLListIterator  it = DLListNULLIterator;
@@ -289,6 +329,12 @@ LOCAL void stl_destroy (MinTxtLogger ** stl)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Send log message through txt logger output plugin(s).
+ *  @param lt holds logger type and plugins
+ *  @param style logging style option
+ *  @param msg log message
+ *  @return ENOERR on success, -1 on error. 
+ */
 LOCAL int stl_send (struct logger_typeinfo_t *lt, int style,
                     const TSChar * msg)
 {
@@ -298,7 +344,8 @@ LOCAL int stl_send (struct logger_typeinfo_t *lt, int style,
         struct output_typeinfo_t *outtype = INITPTR;
         Text *message = INITPTR;
         unsigned int loglevel = style & 0xFFF80;
-        if (lt == INITPTR) { retval = -1; goto EXIT; }
+   
+	if (lt == INITPTR) { retval = -1; goto EXIT; }
         if (msg == INITPTR) { retval = -1; goto EXIT; }
         if (loglevel == 0x0) { loglevel = ESInfo; }
         message = tx_create("");
@@ -326,14 +373,33 @@ LOCAL int stl_send (struct logger_typeinfo_t *lt, int style,
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL MinHtmlLogger *mhl_create (const TSChar * path, const TSChar * file,
-                                  TSLoggerType loggertype,
-                                  unsigned int output, TSBool overwrite,
-                                  TSBool withtimestamp, TSBool withlinebreak,
-                                  TSBool witheventranking,
-                                  TSBool pididtologfile, TSBool createlogdir,
-                                  unsigned int staticbuffersize,
-                                  TSBool unicode)
+/** Creates a new MIN html logger instance.
+ *  @param path [in] output directory.
+ *  @param file [in] output file.
+ *  @param loggertype [in] type of the logger that is in use.
+ *  @param output [in] output plugin.
+ *  @param overwrite [in] overwrite file if exists flag.
+ *  @param withtimestamp [in] add timestamp flag.
+ *  @param withlinebreak [in] add linebreak flag.
+ *  @param witheventranking [in] do event ranking flag.
+ *  @param pididtologfile [in] process id to logfile flag.
+ *  @param createlogdir [in] create output directory if not exists flag.
+ *  @param staticbuffersize [in] size of the static buffer.
+ *  @param unicode [in] unicode flag.
+ *  @return pointer to logger instance.
+ */
+LOCAL MinHtmlLogger *mhl_create (const TSChar * path, 
+				 const TSChar * file,
+				 TSLoggerType loggertype,
+				 unsigned int output, 
+				 TSBool overwrite,
+				 TSBool withtimestamp, 
+				 TSBool withlinebreak,
+				 TSBool witheventranking,
+				 TSBool pididtologfile, 
+				 TSBool createlogdir,
+				 unsigned int staticbuffersize,
+				 TSBool unicode)
 {
         MinHtmlLogger *retval = NEW (MinHtmlLogger);
         struct output_typeinfo_t *out = INITPTR;
@@ -368,6 +434,9 @@ LOCAL MinHtmlLogger *mhl_create (const TSChar * path, const TSChar * file,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Destroys MIN html logger instance.
+ *  @param shl address of pointer to html logger instance.
+ */
 LOCAL void mhl_destroy (MinHtmlLogger ** shl)
 {
         DLListIterator  it = DLListNULLIterator;
@@ -393,6 +462,12 @@ LOCAL void mhl_destroy (MinHtmlLogger ** shl)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Send log message through html logger output plugin(s).
+ *  @param lt holds logger type and plugins
+ *  @param style logging style option
+ *  @param msg log message
+ *  @return ENOERR on success, -1 on error. 
+ */
 LOCAL int mhl_send (struct logger_typeinfo_t *lt, int style,
                     const TSChar * msg)
 {
@@ -431,6 +506,12 @@ LOCAL int mhl_send (struct logger_typeinfo_t *lt, int style,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Write html page start.
+ *  @param outtype output plugin.
+ *  @param file filename used to generate html title. 
+ *  @param pididtologfile flag stating wether the pid should be appended to 
+ *         output filename.   
+ */
 LOCAL void mhl_start_html_page (struct output_typeinfo_t *outtype,
                                 const TSChar * file, TSBool pididtologfile)
 {
@@ -487,6 +568,9 @@ LOCAL void mhl_start_html_page (struct output_typeinfo_t *outtype,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Write html page ending.
+ *  @param outtype output plugin.
+ */
 LOCAL void mhl_end_html_page (struct output_typeinfo_t *outtype)
 {
         /* Html page and body section end tags */
@@ -495,6 +579,12 @@ LOCAL void mhl_end_html_page (struct output_typeinfo_t *outtype)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Write starting for html style. 
+ *  @param outtype output plugin.
+ *  @param style style flags
+ *  @param timestamp flag stating whether time stamps are used.
+ *  @param eventranking flag stating whether event ranking is used.
+ */
 LOCAL void mhl_style_starting (struct output_typeinfo_t *outtype, int style,
                                TSBool * timestamp, TSBool * eventranking)
 {
@@ -562,6 +652,10 @@ LOCAL void mhl_style_starting (struct output_typeinfo_t *outtype, int style,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Write ending for HTML style.
+ *  @param outtype output plugin.
+ *  @param style style flags.
+ */
 LOCAL void mhl_style_ending (struct output_typeinfo_t *outtype, int style)
 {
         if (0x00020 <= style || /* ESRed, 0x00020 => 32 */
@@ -616,14 +710,33 @@ LOCAL void mhl_style_ending (struct output_typeinfo_t *outtype, int style)
 }
 
 /* ------------------------------------------------------------------------- */
-LOCAL MinDataLogger *mdl_create (const TSChar * path, const TSChar * file,
-                                  TSLoggerType loggertype,
-                                  unsigned int output, TSBool overwrite,
-                                  TSBool withtimestamp, TSBool withlinebreak,
-                                  TSBool witheventranking,
-                                  TSBool pididtologfile, TSBool createlogdir,
-                                  unsigned int staticbuffersize,
-                                  TSBool unicode)
+/** Creates a new MIN data logger instance.
+ *  @param path [in] output directory.
+ *  @param file [in] output file.
+ *  @param loggertype [in] type of the logger that is in use.
+ *  @param output [in] output plugin.
+ *  @param overwrite [in] overwrite file if exists flag.
+ *  @param withtimestamp [in] add timestamp flag.
+ *  @param withlinebreak [in] add linebreak flag.
+ *  @param witheventranking [in] do event ranking flag.
+ *  @param pididtologfile [in] process id to logfile flag.
+ *  @param createlogdir [in] create output directory if not exists flag.
+ *  @param staticbuffersize [in] size of the static buffer.
+ *  @param unicode [in] unicode flag.
+ *  @return pointer to logger instance.
+ */
+LOCAL MinDataLogger *mdl_create (const TSChar * path, 
+				 const TSChar * file,
+				 TSLoggerType loggertype,
+				 unsigned int output, 
+				 TSBool overwrite,
+				 TSBool withtimestamp, 
+				 TSBool withlinebreak,
+				 TSBool witheventranking,
+				 TSBool pididtologfile, 
+				 TSBool createlogdir,
+				 unsigned int staticbuffersize,
+				 TSBool unicode)
 {
         MinDataLogger *retval = NEW (MinDataLogger);
         struct output_typeinfo_t *out = INITPTR;
@@ -665,6 +778,9 @@ LOCAL MinDataLogger *mdl_create (const TSChar * path, const TSChar * file,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Destroys MIN data logger instance.
+ *  @param shl address of pointer to data logger instance.
+ */
 LOCAL void mdl_destroy (MinDataLogger ** sdl)
 {
         DLListIterator  it = DLListNULLIterator;
@@ -689,6 +805,12 @@ LOCAL void mdl_destroy (MinDataLogger ** sdl)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Send log message through data logger output plugin(s).
+ *  @param lt holds logger type and plugins
+ *  @param style logging style option
+ *  @param msg log message
+ *  @return ENOERR on success, -1 on error. 
+ */
 LOCAL int mdl_send (struct logger_typeinfo_t *lt, int style,
                     const TSChar * msg)
 {
@@ -721,12 +843,32 @@ LOCAL int mdl_send (struct logger_typeinfo_t *lt, int style,
 
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
-MinLogger     *mnl_create (const TSChar * path, const TSChar * file,
-                            unsigned int loggertype, unsigned int output,
-                            TSBool overwrite, TSBool withtimestamp,
-                            TSBool withlinebreak, TSBool witheventranking,
-                            TSBool pididtologfile, TSBool createlogdir,
-                            unsigned int staticbuffersize, TSBool unicode)
+/** Creates MIN Logger 'object' 
+ *  @param path [in] output directory.
+ *  @param file [in] output file.
+ *  @param loggertype [in] type of the logger that is in use.
+ *  @param overwrite [in] overwrite file if exists flag.
+ *  @param withtimestamp [in] add timestamp flag.
+ *  @param withlinebreak [in] add linebreak flag.
+ *  @param witheventranking [in] do event ranking flag.
+ *  @param pididtologfile [in] process id to logfile flag.
+ *  @param createlogdir [in] create output directory if not exists flag.
+ *  @param staticbuffersize [in] size of the static buffer.
+ *  @param unicode [in] unicode flag.
+ *  @return new instance of MinLogger or INITPTR in case of failure.
+ */
+MinLogger     *mnl_create (const TSChar * path, 
+			   const TSChar * file,
+			   unsigned int loggertype, 
+			   unsigned int output,
+			   TSBool overwrite, 
+			   TSBool withtimestamp,
+			   TSBool withlinebreak, 
+			   TSBool witheventranking,
+			   TSBool pididtologfile, 
+			   TSBool createlogdir,
+			   unsigned int staticbuffersize, 
+			   TSBool unicode)
 {
         MinLogger     *retval = INITPTR;
         struct logger_typeinfo_t *endpoint = INITPTR;
@@ -828,6 +970,11 @@ MinLogger     *mnl_create (const TSChar * path, const TSChar * file,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Destroys MIN Logger instance.
+ *  @param mnl [in:out] logger instance to be destroyed.
+ *   
+ *  NOTE: after being freed the pointer is set to INITPTR;
+ */
 void mnl_destroy (MinLogger ** mnl)
 {
         DLListIterator  it = INITPTR;
@@ -878,6 +1025,14 @@ void mnl_destroy (MinLogger ** mnl)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Logs message.
+ *  @param mnl [in] adress of the MinLogger instance to be used.
+ *  @param style [in] the style to be used.
+ *  @param format [in] format of the message to be logged.
+ *  @param ... [in] extra parameters, according to the msg format.
+ *
+ *  NOTE: see man printf
+ */
 int mnl_log (MinLogger * mnl, TSStyle style, const TSChar * format, ...)
 {
         int             retval = ENOERR;
@@ -918,6 +1073,14 @@ int mnl_log (MinLogger * mnl, TSStyle style, const TSChar * format, ...)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Varargs version of mnl_log()
+ *  @param mnl [in] adress of the MinLogger instance to be used.
+ *  @param style [in] the style to be used.
+ *  @param format [in] format of the message to be logged.
+ *  @param va_list [in] extra parameters, according to the msg format.
+ *
+ *  NOTE: see man printf
+ */
 int vmnl_log (MinLogger * mnl, TSStyle style, const TSChar * format, 
 	      va_list vl)
 {
@@ -954,9 +1117,12 @@ int vmnl_log (MinLogger * mnl, TSStyle style, const TSChar * format,
       EXIT:
         return retval;
 }
-
-
 /* ------------------------------------------------------------------------- */
+/** Writes delimiter to the log.
+ *  @param mnl [in] adress of the MinLogger instance to be used.
+ *
+ *  Writes sequence of 60 '#' to the log.
+ */
 void mnl_write_delimiter (MinLogger * mnl)
 {
         char            delim[61];
@@ -977,8 +1143,12 @@ void mnl_write_delimiter (MinLogger * mnl)
       EXIT:
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Writes user defined delimiter to the log.
+ *  @param mnl [in] adress of the MinLogger instance to be used.
+ *  @param c [in] character used as a delmiter.
+ *  @param t [in] nuber of character in the delimiter string.
+ */
 void mnl_write_own_delimiter (MinLogger * mnl, const TSChar c,
                               unsigned int t)
 {
@@ -1004,6 +1174,10 @@ void mnl_write_own_delimiter (MinLogger * mnl, const TSChar c,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Gives information which output plugins are used with logger.
+ *  @param mnl [in] adress of the MinLogger instance to be used.
+ *  @return ORed mask of output plugins types that were created for this logger
+ */
 unsigned int mnl_output_type (MinLogger * mnl)
 {
         unsigned int    retval = 0;
@@ -1032,6 +1206,10 @@ unsigned int mnl_output_type (MinLogger * mnl)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Gives information which logs are created.
+ *  @param mnl [in] adress of the MinLogger instance to be used.
+ *  @return ORed mask of log typed plugins types that were created.
+ */
 unsigned int mnl_logger_type (MinLogger * mnl)
 {
         unsigned int    retval = 0;
@@ -1053,12 +1231,18 @@ unsigned int mnl_logger_type (MinLogger * mnl)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Getter for the logger instance.
+ *  @return global logger.
+ */
 MinLogger *mnl_get_logger_instance()
 {
 	return __logger__;
 }
 /* ------------------------------------------------------------------------- */
-char* mnl_get_component_name()
+/** Return the global logging component name.
+ *  @return component name or INIT_PTR
+ */
+char *mnl_get_component_name()
 {
 	if (__component_name__==INITPTR) { return INITPTR; }
 	else { return tx_share_buf(__component_name__); }

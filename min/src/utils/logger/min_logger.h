@@ -286,20 +286,6 @@ struct min_data_logger_t {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Creates MIN Logger 'object' 
- *  @param path [in] output directory.
- *  @param file [in] output file.
- *  @param loggertype [in] type of the logger that is in use.
- *  @param overwrite [in] overwrite file if exists flag.
- *  @param withtimestamp [in] add timestamp flag.
- *  @param withlinebreak [in] add linebreak flag.
- *  @param witheventranking [in] do event ranking flag.
- *  @param pididtologfile [in] process id to logfile flag.
- *  @param createlogdir [in] create output directory if not exists flag.
- *  @param buffersize [in] size of the static buffer.
- *  @param unicode [in] unicode flag.
- *  @return new instance of MinLogger or INITPTR in case of failure.
- */
 MinLogger     *mnl_create (const TSChar * path,
                             const TSChar * file,
                             unsigned int loggertype,
@@ -312,56 +298,25 @@ MinLogger     *mnl_create (const TSChar * path,
                             TSBool createlogdir,
                             unsigned int staticbuffersize, TSBool unicode);
 /* ------------------------------------------------------------------------- */
-/** Destroys MIN Logger instance.
- *  @param mnl [in:out] sfo instance to be destroyed.
- *   
- *  NOTE: after being freed the pointer is set to INITPTR;
- */
 void            mnl_destroy (MinLogger ** mnl);
 /* ------------------------------------------------------------------------- */
-/** Logs message.
- *  @param mnl [in] adress of the MinLogger instance to be used.
- *  @param style [in] the style to be used.
- *  @param format [in] format of the message to be logged.
- *  @param ... [in] extra parameters, according to the msg format.
- *
- *  NOTE: see man printf
- */
 int             mnl_log (MinLogger * mnl,
                          TSStyle style, const TSChar * format, ...);
+/* ------------------------------------------------------------------------- */
 int             vmnl_log (MinLogger * mnl,
 			  TSStyle style, const TSChar * format, va_list vl);
-
 /* ------------------------------------------------------------------------- */
-/** Writes delimiter to the log.
- *  @param mnl [in] adress of the MinLogger instance to be used.
- *
- *  Writes sequence of 60 '#' to the log.
- */
 void            mnl_write_delimiter (MinLogger * mnl);
 /* ------------------------------------------------------------------------- */
-/** Writes user defined delimiter to the log.
- *  @param mnl [in] adress of the MinLogger instance to be used.
- *  @param c [in] character used as a delmiter.
- *  @param t [in] nuber of character in the delimiter string.
- */
 void            mnl_write_own_delimiter (MinLogger * mnl,
                                          const TSChar c, unsigned int t);
 /* ------------------------------------------------------------------------- */
-/** Gives information which output plugins are used with logger.
- *  @param mnl [in] adress of the MinLogger instance to be used.
- *  @return ORed mask of output plugins types that were created for this logger
- */
 unsigned int    mnl_output_type (MinLogger * mnl);
 /* ------------------------------------------------------------------------- */
-/** Gives information which logs are created.
- *  @param mnl [in] adress of the MinLogger instance to be used.
- *  @return ORed mask of log typed plugins types that were created.
- */
 unsigned int    mnl_logger_type (MinLogger * mnl);
 /* ------------------------------------------------------------------------- */
-MinLogger *mnl_get_logger_instance();
+MinLogger      *mnl_get_logger_instance();
 /* ------------------------------------------------------------------------- */
-char* mnl_get_component_name();
+char           *mnl_get_component_name();
 /* ------------------------------------------------------------------------- */
 #endif                          /* MIN_LOGGER_H */
