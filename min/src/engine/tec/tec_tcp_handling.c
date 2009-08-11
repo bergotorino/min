@@ -75,55 +75,20 @@ int current_slave_fd;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Goes through the list of slaves and sets sockets that are available
- *  for reading or writing to the fd sets
- *  @param rd set of read sockets
- *  @param wr set of write sockets
- *  @param nfds highest fd in sets before calling this func
- *  @return the value of highest fd in set
- */
 LOCAL int set_active_rcp_sockets (fd_set *rd, fd_set *wr, int nfds);
 /* ------------------------------------------------------------------------- */
-/** Read/write sockets  
- *  @param rd set of read sockets
- *  @param wr set of write sockets
- */
 LOCAL void rw_rcp_sockets (fd_set *rd, fd_set *rw);
 /* ------------------------------------------------------------------------- */
-/** Reads the socket bound to the slave_info
- *  @param slave_info the slave with a socket available for reading
- */
 LOCAL void socket_read_rcp (slave_info *slave);
 /* ------------------------------------------------------------------------- */
-/** Writes to socket bound to slave_info
- *  @param slave_info the slave with a socket available for writing
- */
 LOCAL void socket_write_rcp (slave_info *slave);
 /* ------------------------------------------------------------------------- */
-/** Finds a slave with fd
- *  @param fd search key
- *  @param itp out used to pass also the DLListIterator to caller
- *  @return slave_info if found, INITPTR if not
- */
 LOCAL slave_info *find_slave_by_fd (int fd, DLListIterator *itp);
 /* ------------------------------------------------------------------------- */
-/** Searches for master (a "special" slave)
- *  @return slave_info if found, INITPTR if not
- */
 LOCAL slave_info *find_master ();
 /* ------------------------------------------------------------------------- */
-/** Frees the tcp type slave - closes slave socket, marks the slave free
- *  @param slave slave to be freed
- */
 LOCAL void free_tcp_slave (slave_info *slave);
 /* ------------------------------------------------------------------------- */
-/** Splits RCP's adress string fields into two ints.
- * @param hex [in] string to be split, has to be 8 characters, otherwise
- *  function fails
- * @param dev_id [out] pointer to int that will hold device id
- * @param case_id [out] pointer to int that will hold case id
- * @return result of operation, 0 if ok
- */
 LOCAL int splithex (char *hex, int *dev_id, int *case_id);
 
 /* ------------------------------------------------------------------------- */
@@ -132,6 +97,13 @@ LOCAL int splithex (char *hex, int *dev_id, int *case_id);
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Goes through the list of slaves and sets sockets that are available
+ *  for reading or writing to the fd sets
+ *  @param rd set of read sockets
+ *  @param wr set of write sockets
+ *  @param nfds highest fd in sets before calling this func
+ *  @return the value of highest fd in set
+ */
 LOCAL int set_active_rcp_sockets (fd_set *rd, fd_set *wr, int nfds)
 {
 	DLListIterator it;
@@ -150,6 +122,10 @@ LOCAL int set_active_rcp_sockets (fd_set *rd, fd_set *wr, int nfds)
 	return nfds;
 }
 /* ------------------------------------------------------------------------- */
+/** Read/write sockets  
+ *  @param rd set of read sockets
+ *  @param wr set of write sockets
+ */
 LOCAL void rw_rcp_sockets (fd_set *rd, fd_set *wr)
 {
 	DLListIterator it;
@@ -170,6 +146,9 @@ LOCAL void rw_rcp_sockets (fd_set *rd, fd_set *wr)
 	return;
 }
 /* ------------------------------------------------------------------------- */
+/** Frees the tcp type slave - closes slave socket, marks the slave free
+ *  @param slave slave to be freed
+ */
 LOCAL void free_tcp_slave (slave_info *slave)
 {
 	slave_info *master;
@@ -194,6 +173,9 @@ LOCAL void free_tcp_slave (slave_info *slave)
 	return;
 }
 /* ------------------------------------------------------------------------- */
+/** Reads the socket bound to the slave_info
+ *  @param slave_info the slave with a socket available for reading
+ */
 LOCAL void socket_read_rcp (slave_info *slave)
 {
 	int bytes_read;
@@ -226,6 +208,9 @@ LOCAL void socket_read_rcp (slave_info *slave)
 
 }
 /* ------------------------------------------------------------------------- */
+/** Writes to socket bound to slave_info
+ *  @param slave_info the slave with a socket available for writing
+ */
 LOCAL void socket_write_rcp (slave_info *slave)
 {
         Text *tx;
@@ -265,6 +250,11 @@ LOCAL void socket_write_rcp (slave_info *slave)
 	
 }
 /* ------------------------------------------------------------------------- */
+/** Finds a slave with fd
+ *  @param fd search key
+ *  @param itp out used to pass also the DLListIterator to caller
+ *  @return slave_info if found, INITPTR if not
+ */
 LOCAL slave_info *find_slave_by_fd (int fd, DLListIterator *itp)
 {
        DLListIterator it;
@@ -284,6 +274,9 @@ LOCAL slave_info *find_slave_by_fd (int fd, DLListIterator *itp)
        return INITPTR;
 }
 /* ------------------------------------------------------------------------- */
+/** Searches for master (a "special" slave)
+ *  @return slave_info if found, INITPTR if not
+ */
 LOCAL slave_info *find_master ()
 {
        DLListIterator it;
@@ -301,6 +294,13 @@ LOCAL slave_info *find_master ()
        return INITPTR;
 }
 /* ------------------------------------------------------------------------- */
+/** Splits RCP's adress string fields into two ints.
+ * @param hex [in] string to be split, has to be 8 characters, otherwise
+ *  function fails
+ * @param dev_id [out] pointer to int that will hold device id
+ * @param case_id [out] pointer to int that will hold case id
+ * @return result of operation, 0 if ok
+ */
 LOCAL int splithex (char *hex, int *dev_id, int *case_id)
 {
         char            dev_id_c[5];
@@ -324,6 +324,7 @@ LOCAL int splithex (char *hex, int *dev_id, int *case_id)
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
 /** Handles socket polling thread
+ *  @param arg not used
  *  @return NULL
  */
 void *ec_poll_sockets (void *arg)
@@ -396,6 +397,7 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 /** Tries to allocate slave entry for IP communication
  *  @param he host address information
  *  @param slavetype type of the slave e.g. "phone"
+ *  @param pid process identifier of the slave test case
  *  @return 0 on success, 1 on error
  */
 int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
@@ -457,8 +459,8 @@ int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
 }
 
 /* ------------------------------------------------------------------------- */
-/** Creates a new master entry
- * param socket the socket of the master
+/** Creates a new master entry.
+ *  @param socket the socket of the master
  */
 void new_tcp_master (int socket)
 {
@@ -477,7 +479,7 @@ void new_tcp_master (int socket)
 }
 
 /* ------------------------------------------------------------------------- */
-/** Function to close slave 
+/** Function to close slave connection to slave.
  * @param slave the slave_info struck
  */
 void tcp_slave_close (slave_info *slave) {
