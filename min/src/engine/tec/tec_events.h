@@ -37,9 +37,9 @@
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */
-#define REM_E_STAT_ACTIVE 0
-#define REM_E_STAT_ERROR  1
-#define REM_E_STAT_SET    2
+#define REM_E_STAT_ACTIVE 0 /** Remote event status active */
+#define REM_E_STAT_ERROR  1 /** Remote event status error */
+#define REM_E_STAT_SET    2 /** Remote event status set */
 /* ------------------------------------------------------------------------- */
 /* DATA TYPES */
 
@@ -48,16 +48,17 @@
 
 /* ------------------------------------------------------------------------- */
 /* Structures */
+/** MIN test event description. */
 typedef struct {
         TEventType_t    event_type_;
         TEventName_t    event_name_;
 } minTestEventDescr_t;
-
+/** Parameter for the event system */
 typedef struct {
         TEventReq_t     command_;
         minTestEventDescr_t event;
 } minTestEventParam_t;
-
+/** Source for event: "remote" or pid of the test process. */
 typedef struct {
         unsigned char   remote;
         pid_t           pid;
@@ -102,8 +103,10 @@ int             state_event_handle_request (minTestEventParam_t * param,
 /* ------------------------------------------------------------------------- */
 int             handle_remote_event (TScripterKeyword command,
                                      MinItemParser * parameters);
+/* ------------------------------------------------------------------------- */
 int             handle_remote_event_request_resp (MinItemParser *
                                                   parameters);
+/* ------------------------------------------------------------------------- */
 #endif                          /* TEC_EVENTS_H */
 
 /* End of file */

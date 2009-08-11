@@ -95,7 +95,54 @@ DLList         *state_events, *ind_events;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
+/* ------------------------------------------------------------------------- */
+LOCAL int       event_comp (const void *list_data, const void *user_data);
+/* ------------------------------------------------------------------------- */
+LOCAL int       event_is_registered (min_event_t * event,
+                                     minEventSrc_t * registrar);
+/* ------------------------------------------------------------------------- */
+LOCAL e_registration_t *event_add_registration (min_event_t * event,
+                                                minEventSrc_t * registrar);
+/* ------------------------------------------------------------------------- */
+LOCAL int       event_del_registration (min_event_t * event,
+                                        minEventSrc_t * registrar);
+/* ------------------------------------------------------------------------- */
+LOCAL e_registration_t *event_find_registration (min_event_t * event,
+                                                 minEventSrc_t * registrar,
+                                                 DLListIterator * itp);
+/* ------------------------------------------------------------------------- */
+LOCAL void      del_event (DLListIterator it, min_event_t * event);
 
+/* ------------------------------------------------------------------------- */
+LOCAL min_event_t *add_ind_event (minTestEventParam_t * param);
+/* ------------------------------------------------------------------------- */
+LOCAL min_event_t *add_state_event (minTestEventParam_t * param);
+/* ------------------------------------------------------------------------- */
+LOCAL min_event_t *find_ind_event (minTestEventParam_t * param,
+                                    DLListIterator * it);
+/* ------------------------------------------------------------------------- */
+LOCAL min_event_t *find_state_event (minTestEventParam_t * param,
+                                      DLListIterator * it);
+/* ------------------------------------------------------------------------- */
+LOCAL void      send_event_ind (minEventSrc_t * reveicer, int status);
+/* ------------------------------------------------------------------------- */
+LOCAL void      do_set_on_state_reg (void *data);
+/* ------------------------------------------------------------------------- */
+LOCAL void      do_set_on_ind_reg (void *data);
+/* ------------------------------------------------------------------------- */
+LOCAL void      registration_state_change (e_registration_t * ereg,
+                                           event_reg_state_t next_state);
+/* ------------------------------------------------------------------------- */
+LOCAL void      remote_event_req_response (char *eventname, int status,
+                                           TEventType_t etype);
+/* ------------------------------------------------------------------------- */
+LOCAL void      remote_event_rel_response (char *eventname, int status);
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
 /** List comparison function for events. Passed as an arg to dl_list_find(). 
  *  The event is searched by event name.
  *  @param list_data list item data to be compared
@@ -103,119 +150,6 @@ DLList         *state_events, *ind_events;
  *  @returns a matching event if found, INITPTR if not found
  *  
  */
-LOCAL int       event_comp (const void *list_data, const void *user_data);
-
-/**  Checks if the pid is already registered for the event.
- *   @param event the event registartion list of which is searched
- *   @param registrar the pid to be searched
- *   @returns 1 if registrar is already registered for the event, 0 if not
- */
-LOCAL int       event_is_registered (min_event_t * event,
-                                     minEventSrc_t * registrar);
-
-/**  Adds a registration for the event
- *   @param event the event to be registered for
- *   @param registrar the pid of registrating process
- *   @returns pointer to event registration entry
- */
-LOCAL e_registration_t *event_add_registration (min_event_t * event,
-                                                minEventSrc_t * registrar);
-
-/**  Removes a registration from the event
- *   @param event the event to be unregistered for
- *   @param registrar the pid of unregistrating process
- *   @returns 0 if the registration is found and removed, 
- *            1 if no registration is found.
- */
-LOCAL int       event_del_registration (min_event_t * event,
-                                        minEventSrc_t * registrar);
-
-/**  Searches for registration entry on the event
- *   @param event the event to be searched
- *   @param registrar the pid of searched process
- *   @returns pointer to the event registration if found 
- *            INITPTR if no registration is found.
- */
-LOCAL e_registration_t *event_find_registration (min_event_t * event,
-                                                 minEventSrc_t * registrar,
-                                                 DLListIterator * itp);
-
-/** Delete event from the list of events
- *  @param it the list iterator containing the event
- *  @param event event to removed
- */
-LOCAL void      del_event (DLListIterator it, min_event_t * event);
-
-/** Add event to the list of indication events
- *  @param param the description of event to be added
- *  @returns a pointer to the event or INITPTR if event by that name exists
- */
-LOCAL min_event_t *add_ind_event (minTestEventParam_t * param);
-
-/** Add event to the list of state events
- *  @param param the description of event to be added
- *  @returns a pointer to the event or INITPTR if event by that name exists
- */
-LOCAL min_event_t *add_state_event (minTestEventParam_t * param);
-
-
-/** Searches for indication event
- *  @param param the event describtion of the event to be searched
- *  @param [IN/OUT] it used to return also the address of the list iterator
- *  @returns pointer to the event if found, INITPTR if not 
- */
-LOCAL min_event_t *find_ind_event (minTestEventParam_t * param,
-                                    DLListIterator * it);
-
-/** Searches for state event
- *  @param param the event describtion of the event to be searched
- *  @param [IN/OUT] it used to return also the address of the list iterator
- *  @returns pointer to the event if found, INITPTR if not 
- */
-LOCAL min_event_t *find_state_event (minTestEventParam_t * param,
-                                      DLListIterator * it);
-
-/** Sends EVENT_IND IPC message to TMC with pid mathing the argument
- *  @param receiver pid of the receiving process
- *  @param status ok/err to be informed to TP 
- */
-LOCAL void      send_event_ind (minEventSrc_t * reveicer, int status);
-
-/** Handles the SET event on a state event registration.
- *  @param data pointer to event registrations
- */
-LOCAL void      do_set_on_state_reg (void *data);
-
-/** Handles the SET event on an indication event registration.
- *  @param data pointer to event registrations
- */
-LOCAL void      do_set_on_ind_reg (void *data);
-
-/** The state change of an event registrations is done by calling this func
- *  @param ereg the event registration entry
- *  @param next_state the state we are making the transition to
- */
-LOCAL void      registration_state_change (e_registration_t * ereg,
-                                           event_reg_state_t next_state);
-
-/** Build and send remote event request response
- *  @param eventname name of the event
- *  @param status set, active, error
- *  @param etype state or indication
- */
-LOCAL void      remote_event_req_response (char *eventname, int status,
-                                           TEventType_t etype);
-
-/** Build and send remote event release response
- *  @param eventname name of the event
- *  @param status set, active, error
- */
-LOCAL void      remote_event_rel_response (char *eventname, int status);
-/* ------------------------------------------------------------------------- */
-/* FORWARD DECLARATIONS */
-/* None */
-
-/* ==================== LOCAL FUNCTIONS ==================================== */
 LOCAL int event_comp (const void *list_data, const void *user_data)
 {
         min_event_t   *e;
@@ -227,7 +161,11 @@ LOCAL int event_comp (const void *list_data, const void *user_data)
         return strncmp (e->descr_.event_name_, p->event.event_name_,
                         MaxMinEventName);
 }
-
+/* ------------------------------------------------------------------------- */
+/** The state change of an event registrations is done by calling this func
+ *  @param ereg the event registration entry
+ *  @param next_state the state we are making the transition to
+ */
 LOCAL void
 registration_state_change (e_registration_t * ereg,
                            event_reg_state_t next_state)
@@ -240,7 +178,13 @@ registration_state_change (e_registration_t * ereg,
 
         ereg->regstate_ = next_state;
 }
-
+/* ------------------------------------------------------------------------- */
+/**  Searches for registration entry on the event
+ *   @param event the event to be searched
+ *   @param registrar the pid of searched process
+ *   @returns pointer to the event registration if found 
+ *            INITPTR if no registration is found.
+ */
 LOCAL e_registration_t *event_find_registration (min_event_t * event,
                                                  minEventSrc_t * registrar,
                                                  DLListIterator * itp)
@@ -259,7 +203,12 @@ LOCAL e_registration_t *event_find_registration (min_event_t * event,
         }
         return INITPTR;
 }
-
+/* ------------------------------------------------------------------------- */
+/**  Checks if the pid is already registered for the event.
+ *   @param event the event registartion list of which is searched
+ *   @param registrar the pid to be searched
+ *   @returns 1 if registrar is already registered for the event, 0 if not
+ */
 LOCAL int
 event_is_registered (min_event_t * event, minEventSrc_t * registrar)
 {
@@ -271,7 +220,10 @@ event_is_registered (min_event_t * event, minEventSrc_t * registrar)
 
         return 0;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Handles the SET event on an indication event registration.
+ *  @param data pointer to event registrations
+ */
 LOCAL void do_set_on_ind_reg (void *data)
 {
         e_registration_t *ereg;
@@ -301,7 +253,10 @@ LOCAL void do_set_on_ind_reg (void *data)
                 return;
         }
 }
-
+/* ------------------------------------------------------------------------- */
+/** Handles the SET event on a state event registration.
+ *  @param data pointer to event registrations
+ */
 LOCAL void do_set_on_state_reg (void *data)
 {
         e_registration_t *ereg;
@@ -330,8 +285,11 @@ LOCAL void do_set_on_state_reg (void *data)
                 return;
         }
 }
-
-
+/* ------------------------------------------------------------------------- */
+/** Add event to the list of indication events
+ *  @param param the description of event to be added
+ *  @returns a pointer to the event or INITPTR if event by that name exists
+ */
 LOCAL min_event_t *add_ind_event (minTestEventParam_t * param)
 {
         min_event_t   *e;
@@ -348,7 +306,11 @@ LOCAL min_event_t *add_ind_event (minTestEventParam_t * param)
 
         return e;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Add event to the list of state events
+ *  @param param the description of event to be added
+ *  @returns a pointer to the event or INITPTR if event by that name exists
+ */
 LOCAL min_event_t *add_state_event (minTestEventParam_t * param)
 {
         min_event_t   *e;
@@ -371,8 +333,12 @@ LOCAL min_event_t *add_state_event (minTestEventParam_t * param)
 
         return e;
 }
-
-
+/* ------------------------------------------------------------------------- */
+/**  Adds a registration for the event
+ *   @param event the event to be registered for
+ *   @param registrar the pid of registrating process
+ *   @returns pointer to event registration entry
+ */
 LOCAL e_registration_t *event_add_registration (min_event_t * event,
                                                 minEventSrc_t * registrar)
 {
@@ -386,7 +352,13 @@ LOCAL e_registration_t *event_add_registration (min_event_t * event,
         return reg;
 
 }
-
+/* ------------------------------------------------------------------------- */
+/**  Removes a registration from the event
+ *   @param event the event to be unregistered for
+ *   @param registrar the pid of unregistrating process
+ *   @returns 0 if the registration is found and removed, 
+ *            1 if no registration is found.
+ */
 LOCAL int
 event_del_registration (min_event_t * event, minEventSrc_t * registrar)
 {
@@ -412,7 +384,12 @@ event_del_registration (min_event_t * event, minEventSrc_t * registrar)
 
         return 1;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Searches for indication event
+ *  @param param the event describtion of the event to be searched
+ *  @param [IN/OUT] it used to return also the address of the list iterator
+ *  @returns pointer to the event if found, INITPTR if not 
+ */
 LOCAL min_event_t *find_ind_event (minTestEventParam_t * param,
                                     DLListIterator * itp)
 {
@@ -423,7 +400,12 @@ LOCAL min_event_t *find_ind_event (minTestEventParam_t * param,
                 *itp = it;
         return (min_event_t *) dl_list_data (it);
 }
-
+/* ------------------------------------------------------------------------- */
+/** Searches for state event
+ *  @param param the event describtion of the event to be searched
+ *  @param [IN/OUT] it used to return also the address of the list iterator
+ *  @returns pointer to the event if found, INITPTR if not 
+ */
 LOCAL min_event_t *find_state_event (minTestEventParam_t * param,
                                       DLListIterator * itp)
 {
@@ -443,7 +425,11 @@ LOCAL void free_event (void *event)
         DELETE (((min_event_t *) (event))->descr_.event_name_);
         DELETE (event);
 }
-
+/* ------------------------------------------------------------------------- */
+/** Delete event from the list of events
+ *  @param it the list iterator containing the event
+ *  @param event event to removed
+ */
 LOCAL void del_event (DLListIterator it, min_event_t * event)
 {
         if (dl_list_data (it) != event) {
@@ -455,7 +441,11 @@ LOCAL void del_event (DLListIterator it, min_event_t * event)
 
         return;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Sends EVENT_IND IPC message to TMC with pid mathing the argument
+ *  @param receiver pid of the receiving process
+ *  @param status ok/err to be informed to TP 
+ */
 LOCAL void send_event_ind (minEventSrc_t * receiver, int status)
 {
         MsgBuffer       message;
@@ -473,6 +463,52 @@ LOCAL void send_event_ind (minEventSrc_t * receiver, int status)
                 MIN_DEBUG ("remote event (status %d)", status);
 }
 
+/* ------------------------------------------------------------------------- */
+/** Build and send remote event request response
+ *  @param eventname name of the event
+ *  @param status set, active, error
+ *  @param etype state or indication
+ */
+LOCAL void
+remote_event_req_response (char *eventname, int status, TEventType_t etype)
+{
+        char           *buff;
+
+        buff =
+            NEW2 (char,
+                  strlen ("remote request active type state") +
+                  MaxMinEventName);
+
+        sprintf (buff, "remote request %s %s",
+                 status == REM_E_STAT_SET ? "set" :
+                 (status == REM_E_STAT_ACTIVE ? "active" : "error"),
+                 eventname);
+        if (etype == EState)
+                sprintf (buff + strlen (buff), " type=state");
+
+        send_to_master (0, buff);
+
+        DELETE (buff);
+}
+/* ------------------------------------------------------------------------- */
+/** Build and send remote event release response
+ *  @param eventname name of the event
+ *  @param status set, active, error
+ */
+LOCAL void remote_event_rel_response (char *eventname, int status)
+{
+        char           *buff;
+
+        buff = NEW2 (char, strlen ("remote release ") + MaxMinEventName);
+
+        sprintf (buff, "remote release %s", eventname);
+
+        send_to_master (0, buff);
+
+        DELETE (buff);
+
+}
+
 /* ======================== FUNCTIONS ====================================== */
 
 /* ------------------------------------------------------------------------- */
@@ -484,7 +520,6 @@ void event_system_init (void)
         ind_events = dl_list_create ();
         state_events = dl_list_create ();
 }
-
 /* ------------------------------------------------------------------------- */
 /** See if event System is initialized
  *  @returns 1 if event system is initialize, 0 if not
@@ -498,7 +533,6 @@ int event_system_up (void)
         return 1;
 
 }
-
 /* ------------------------------------------------------------------------- */
 /** Removes the Event System from the engine. 
  *  Delete lists of indication and state events.
@@ -515,8 +549,6 @@ void event_system_cleanup (void)
                                  free_event);
         dl_list_free (&state_events);
 }
-
-
 /* ------------------------------------------------------------------------- */
 /** Handles a SET for Indication Event.
  *  @param param contains the event description
@@ -545,7 +577,6 @@ ind_event_handle_set (minTestEventParam_t * param,
 #endif
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Handles a WAIT for Indication Event.
  *  @param param contains the event description
@@ -602,7 +633,6 @@ ind_event_handle_wait (minTestEventParam_t * param,
 
         return 1;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Handles a REQUEST for Indication Event.
  *  @param param contains the event description
@@ -638,7 +668,6 @@ ind_event_handle_request (minTestEventParam_t * param,
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Handles a RELEASE of Indication Event.
  *  @param param contains the event description
@@ -680,7 +709,6 @@ ind_event_handle_release (minTestEventParam_t * param,
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Handles a SET for State Event.
  *  @param param contains the event description
@@ -717,7 +745,6 @@ state_event_handle_set (minTestEventParam_t * param,
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Handles a UNSET for State Event.
  *  @param param contains the event description
@@ -768,8 +795,6 @@ state_event_handle_unset (minTestEventParam_t * param,
 #endif
         return 1;
 }
-
-
 /* ------------------------------------------------------------------------- */
 /** Handles a WAIT for State Event.
  *  @param param contains the event description
@@ -830,7 +855,6 @@ state_event_handle_wait (minTestEventParam_t * param,
 #endif
         return 1;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Handles a REQUEST for State Event.
  *  @param param contains the event description
@@ -869,7 +893,6 @@ state_event_handle_request (minTestEventParam_t * param,
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Handles a RELEASE of State Event.
  *  @param param contains the event description
@@ -914,43 +937,7 @@ state_event_handle_release (minTestEventParam_t * param,
 #endif
         return 0;
 }
-
-LOCAL void
-remote_event_req_response (char *eventname, int status, TEventType_t etype)
-{
-        char           *buff;
-
-        buff =
-            NEW2 (char,
-                  strlen ("remote request active type state") +
-                  MaxMinEventName);
-
-        sprintf (buff, "remote request %s %s",
-                 status == REM_E_STAT_SET ? "set" :
-                 (status == REM_E_STAT_ACTIVE ? "active" : "error"),
-                 eventname);
-        if (etype == EState)
-                sprintf (buff + strlen (buff), " type=state");
-
-        send_to_master (0, buff);
-
-        DELETE (buff);
-}
-
-LOCAL void remote_event_rel_response (char *eventname, int status)
-{
-        char           *buff;
-
-        buff = NEW2 (char, strlen ("remote release ") + MaxMinEventName);
-
-        sprintf (buff, "remote release %s", eventname);
-
-        send_to_master (0, buff);
-
-        DELETE (buff);
-
-}
-
+/* ------------------------------------------------------------------------- */
 /** Handles remote event commands arriving over external controller
  *  @param command Event command
  *  @param parameters command parameters
