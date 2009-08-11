@@ -20,7 +20,7 @@
 /**
  *  @file       min_file_parser.c
  *  @version    0.1
- *  @brief      This file contains implementation of Min File Parser
+ *  @brief      This file contains implementation of MIN File Parser
  */
 
 /* ------------------------------------------------------------------------- */

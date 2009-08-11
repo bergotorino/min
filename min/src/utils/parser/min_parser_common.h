@@ -20,7 +20,7 @@
 /**
  *  @file       min_parser_common.h
  *  @version    0.1
- *  @brief      This file contains header file of the Min Parsers common stuff
+ *  @brief      This file contains header file of the MIN Parsers common stuff
  */
 
 #ifndef MIN_PARSER_COMMON_H

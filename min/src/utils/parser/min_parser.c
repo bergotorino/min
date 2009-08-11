@@ -66,6 +66,25 @@
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
+LOCAL MinSectionParser *mp_next_section_file (MinParser * sp,
+					      const TSChar * start_tag,
+					      const TSChar * end_tag, 
+					      int seeked);
+/* ------------------------------------------------------------------------- */
+LOCAL MinSectionParser *mp_next_section_memory (MinParser * sp,
+						const TSChar * start_tag,
+						const TSChar * end_tag,
+						int seeked);
+/* ------------------------------------------------------------------------- */
+LOCAL void              mp_parse_comments_off (TSChar * buff);
+/* ------------------------------------------------------------------------- */
+LOCAL void              mp_handle_special_marks (TSChar * buff);
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
 /** Parses sections from configuration files.
  *
  *  Open and read configuration source and parses a required section.
@@ -83,57 +102,10 @@
  *  @param seeked [in] a seeked section which will be parsed.
  *  @return MinSectionParser object or INITPTR in case of failure.
  */
-MinSectionParser *mp_next_section_file (MinParser * sp,
-                                         const TSChar * start_tag,
-                                         const TSChar * end_tag, int seeked);
-/* ------------------------------------------------------------------------- */
-/** Parses sections from memory.
- *
- *  Open and read configuration source and parses a required section.
- *  If start tag is empty the parsing starts beginning of the configuration
- *  file. If end tag is empty the parsing goes end of configuration file.
- *  This method will parse next section after the earlier section if seeked
- *  parameter is set to 1.
- *  If configuration source includes several sections with both start and end
- *  tags so seeked parameter seeks the required section. The aSeeked
- *  parameters indicates section that will be parsed.
- *
- *  @param sp [in] adress of the MinParser
- *  @param start_tag [in] Indicates a start tag for parsing.
- *  @param end_tag [in] Indicates an end tag for parsing.
- *  @param seeked [in] a seeked section which will be parsed.
- *  @return MinSectionParser object or INITPTR in case of failure.
- *
- *  Possible Errors:
- *  - EINVAL: invalid parameter.
- *  - EFAULT: sp->offset bigger than section length
- */
-MinSectionParser *mp_next_section_memory (MinParser * sp,
-                                           const TSChar * start_tag,
-                                           const TSChar * end_tag,
-                                           int seeked);
-/* ------------------------------------------------------------------------- */
-/** Convert a section without comments.
- *
- *  @param buff [in:out] section to be processed
- */
-void            mp_parse_comments_off (TSChar * buff);
-/* ------------------------------------------------------------------------- */
-/** Handles special marks.( '\/\/', '\/\*' and '*\/\/' ).
- *  This is used when ECStyleComments comment type is used.
- *
- *  @param buff [in:out] section to be processed
- */
-void            mp_handle_special_marks (TSChar * buff);
-/* ------------------------------------------------------------------------- */
-/* FORWARD DECLARATIONS */
-/* None */
-
-/* ==================== LOCAL FUNCTIONS ==================================== */
-/* ------------------------------------------------------------------------- */
-MinSectionParser *mp_next_section_file (MinParser * sp,
-                                         const TSChar * start_tag,
-                                         const TSChar * end_tag, int seeked)
+LOCAL MinSectionParser *mp_next_section_file (MinParser * sp,
+					      const TSChar * start_tag,
+					      const TSChar * end_tag, 
+					      int seeked)
 {
         MinSectionParser *section = INITPTR;
         TSChar         *buf_section = INITPTR;
@@ -174,7 +146,28 @@ MinSectionParser *mp_next_section_file (MinParser * sp,
 }
 
 /* ------------------------------------------------------------------------- */
-MinSectionParser *mp_next_section_memory (MinParser * sp,
+/** Parses sections from memory.
+ *
+ *  Open and read configuration source and parses a required section.
+ *  If start tag is empty the parsing starts beginning of the configuration
+ *  file. If end tag is empty the parsing goes end of configuration file.
+ *  This method will parse next section after the earlier section if seeked
+ *  parameter is set to 1.
+ *  If configuration source includes several sections with both start and end
+ *  tags so seeked parameter seeks the required section. The aSeeked
+ *  parameters indicates section that will be parsed.
+ *
+ *  @param sp [in] adress of the MinParser
+ *  @param start_tag [in] Indicates a start tag for parsing.
+ *  @param end_tag [in] Indicates an end tag for parsing.
+ *  @param seeked [in] a seeked section which will be parsed.
+ *  @return MinSectionParser object or INITPTR in case of failure.
+ *
+ *  Possible Errors:
+ *  - EINVAL: invalid parameter.
+ *  - EFAULT: sp->offset bigger than section length
+ */
+LOCAL MinSectionParser *mp_next_section_memory (MinParser * sp,
                                            const TSChar * start_tag,
                                            const TSChar * end_tag, int seeked)
 {
@@ -349,7 +342,11 @@ MinSectionParser *mp_next_section_memory (MinParser * sp,
 }
 
 /* ------------------------------------------------------------------------- */
-void mp_parse_comments_off (TSChar * buff)
+/** Convert a section without comments.
+ *
+ *  @param buff [in:out] section to be processed
+ */
+LOCAL void mp_parse_comments_off (TSChar * buff)
 {
         TSChar         *start_pos = INITPTR;
         TSChar         *end_pos = INITPTR;
@@ -484,7 +481,12 @@ void mp_parse_comments_off (TSChar * buff)
 }
 
 /* ------------------------------------------------------------------------- */
-void mp_handle_special_marks (TSChar * buff)
+/** Handles special marks.( '\/\/', '\/\*' and '*\/\/' ).
+ *  This is used when ECStyleComments comment type is used.
+ *
+ *  @param buff [in:out] section to be processed
+ */
+LOCAL void mp_handle_special_marks (TSChar * buff)
 {
         TSChar         *firstpos = INITPTR;
         TSChar         *secondpos = INITPTR;
@@ -546,6 +548,19 @@ void mp_handle_special_marks (TSChar * buff)
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Creates MinParser with path and file information. All information will
+ *  be parsed with comment style set by the third parameter.
+ *  @param path [in] place where the config file is located.
+ *  @param file [in] the name of the config file.
+ *  @param comments [in] comment style.
+ *  @return adress of the allocated MinParser structure, INITPTR in case of
+ *          error.
+ *
+ *  Possible Errors:
+ *  - ENOENT: invalid path argument.
+ *  - EACCES: permission denied.
+ *  - for further reference see: man 2 fopen
+ */
 MinParser     *mp_create (const TSChar * path, const TSChar * file,
                            TCommentType comments)
 {
@@ -617,6 +632,12 @@ MinParser     *mp_create (const TSChar * path, const TSChar * file,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Creates MinParser with buffer information. All information will
+ *  be parsed with comment style set by the third parameter.
+ *  @param buffer [in] buffer to be parsed.
+ *  @param comments [in] comment style.
+ *  @return adress of the allocated MinParser structure.
+ */
 MinParser     *mp_create_mem (const TSChar * buffer, TCommentType comments)
 {
         MinParser     *tmp = INITPTR;
@@ -647,6 +668,9 @@ MinParser     *mp_create_mem (const TSChar * buffer, TCommentType comments)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Destroys MinParser.
+ * @param sp [in] adress of the allocated MinParser entity.
+ */
 void mp_destroy (MinParser ** sp)
 {
         if (*sp == INITPTR)
@@ -662,6 +686,23 @@ void mp_destroy (MinParser ** sp)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Open and read configuration source and parses a required section.
+ *  If start tag is empty the parsing starts beging of the configuration
+ *  file.
+ *  If end tag is empty the parsing goes end of configuration file.
+ *  This method starts always from beginning of configuration file and
+ *  parses first section if seeked parameters is set to 1.
+ *  If configuration file includes several sections with both start and
+ *  end tags so seeked parameter seeks the required section.
+ *  @param sp [in] adress of the allocated MinParser entity.
+ *  @param start_tag [in] indicates the tag from which the parsing starts.
+ *  @param end_tag [in] indicates the tag on which the parsing ends.
+ *  @param seeked [in] indicates the section that will be parsed.
+ *  @return adress of the allocated MinSectionParser entity.
+ *
+ *  Possible Errors:
+ *  - EINVAL: invalid value was passed to the function.
+ */
 MinSectionParser *mp_section (MinParser * sp, const TSChar * start_tag,
                                const TSChar * end_tag, int seeked)
 {
@@ -688,6 +729,23 @@ MinSectionParser *mp_section (MinParser * sp, const TSChar * start_tag,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Open and read configuration source and parses a required section.
+ *  If start tag is empty the parsing starts beging of the configuration
+ *  file.
+ *  If end tag is empty the parsing goes end of configuration file.
+ *  This method will parse next section after the earlier section if
+ *  seeked parameter is set to 1.
+ *  If configuration file includes several sections with both start and
+ *  end tags so seeked parameter seeks the required section.
+ *  @param sp [in] adress of the allocated MinParser entity.
+ *  @param start_tag [in] indicates the tag from which the parsing starts.
+ *  @param end_tag [in] indicates the tag on which the parsing ends.
+ *  @param seeked [in] indicates the section that will be parsed.
+ *  @return adress of the allocated MinSectionParser entity.
+ *
+ *  Possible Errors:
+ *  - EINVAL: invalid value was passed to the function.
+ */
 MinSectionParser *mp_next_section (MinParser * sp, const TSChar * start_tag,
                                     const TSChar * end_tag, int seeked)
 {

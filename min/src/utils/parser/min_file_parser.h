@@ -19,7 +19,7 @@
 /**
  *  @file       min_file_parser.h
  *  @version    0.1
- *  @brief      This file contains header file of the Min File Parser
+ *  @brief      This file contains header file of the MIN File Parser
  */
 #ifndef MIN_FILE_PARSER_H
 #define MIN_FILE_PARSER_H

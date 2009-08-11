@@ -81,72 +81,16 @@ struct _MinParser {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Creates MinParser with path and file information. All information will
- *  be parsed with comment style set by the third parameter.
- *  @param path [in] place where the config file is located.
- *  @param file [in] the name of the config file.
- *  @param comments [in] comment style.
- *  @return adress of the allocated MinParser structure, INITPTR in case of
- *          error.
- *
- *  Possible Errors:
- *  - ENOENT: invalid path argument.
- *  - EACCES: permission denied.
- *  - for further reference see: man 2 fopen
- */
-MinParser     *mp_create (const TSChar * path, const TSChar * file,
+MinParser      *mp_create (const TSChar * path, const TSChar * file,
                            TCommentType comments);
 /* ------------------------------------------------------------------------- */
-/** Creates MinParser with buffer information. All information will
- *  be parsed with comment style set by the third parameter.
- *  @param buffer [in] buffer to be parsed.
- *  @param comments [in] comment style.
- *  @return adress of the allocated MinParser structure.
- */
-MinParser     *mp_create_mem (const TSChar * buffer, TCommentType comments);
+MinParser      *mp_create_mem (const TSChar * buffer, TCommentType comments);
 /* ------------------------------------------------------------------------- */
-/** Destroys MinParser.
- * @param sp [in] adress of the allocated MinParser entity.
- */
 void            mp_destroy (MinParser ** sp);
 /* ------------------------------------------------------------------------- */
-/** Open and read configuration source and parses a required section.
- *  If start tag is empty the parsing starts beging of the configuration
- *  file.
- *  If end tag is empty the parsing goes end of configuration file.
- *  This method starts always from beginning of configuration file and
- *  parses first section if seeked parameters is set to 1.
- *  If configuration file includes several sections with both start and
- *  end tags so seeked parameter seeks the required section.
- *  @param sp [in] adress of the allocated MinParser entity.
- *  @param start_tag [in] indicates the tag from which the parsing starts.
- *  @param end_tag [in] indicates the tag on which the parsing ends.
- *  @param seeked [in] indicates the section that will be parsed.
- *  @return adress of the allocated MinSectionParser entity.
- *
- *  Possible Errors:
- *  - EINVAL: invalid value was passed to the function.
- */
 MinSectionParser *mp_section (MinParser * sp, const TSChar * start_tag,
                                const TSChar * end_tag, int seeked);
 /* ------------------------------------------------------------------------- */
-/** Open and read configuration source and parses a required section.
- *  If start tag is empty the parsing starts beging of the configuration
- *  file.
- *  If end tag is empty the parsing goes end of configuration file.
- *  This method will parse next section after the earlier section if
- *  seeked parameter is set to 1.
- *  If configuration file includes several sections with both start and
- *  end tags so seeked parameter seeks the required section.
- *  @param sp [in] adress of the allocated MinParser entity.
- *  @param start_tag [in] indicates the tag from which the parsing starts.
- *  @param end_tag [in] indicates the tag on which the parsing ends.
- *  @param seeked [in] indicates the section that will be parsed.
- *  @return adress of the allocated MinSectionParser entity.
- *
- *  Possible Errors:
- *  - EINVAL: invalid value was passed to the function.
- */
 MinSectionParser *mp_next_section (MinParser * sp, 
                                     const TSChar * start_tag,
                                     const TSChar * end_tag, 
