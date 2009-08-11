@@ -246,16 +246,10 @@ typedef struct {
 /* ----------------------------------------------------------------------------
  * FUNCTION PROTOTYPES
  */
-/** Initializes the Engine API - binds pointers to functions to callback
- *  functions.
- */
+/* -------------------------------------------------------------------------*/
 void eapi_init (eapiIn_t *in, eapiOut_t *out);
-
-/** Gets pointer to the plugin list. Used by the MINAPI macro
- */
+/* -------------------------------------------------------------------------*/
 DLList* get_plugin_list();
-
-DLListIterator* get_it();
 /* -------------------------------------------------------------------------*/
 
 #endif                          /* MIN_ENGINE_API_H */

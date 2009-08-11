@@ -20,8 +20,7 @@
 /**
  *  @file       min_engine_api.c
  *  @version    0.1
- *  @brief      This file contains implementation of test execution 
- *              controller functionality
+ *  @brief      MIN Engine API 
  */
 
 /* ----------------------------------------------------------------------------
@@ -41,17 +40,13 @@
 /* ----------------------------------------------------------------------------
  * GLOBAL VARIABLES
  */
-DLList *modules;
-//eapiIn_t *in;
-
-DLList *plugins = INITPTR;
-DLListIterator it = DLListNULLIterator;
-static int open;
+DLList *modules; /** List of modules added through this API */
+DLList *plugins = INITPTR; /** List of plugins */
+static int open; /** Flag stating whether the API is open */
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
  */
 extern pthread_mutex_t tec_mutex_;
-
 
 /* ---------------------------------------------------------------------------
  * EXTERNAL FUNCTION PROTOTYPES
@@ -82,25 +77,50 @@ extern pthread_mutex_t tec_mutex_;
 /* ----------------------------------------------------------------------------
  * LOCAL FUNCTION PROTOTYPES
  */
-/** Searches for test case by runid from the given list
- *  @param list_handle pointer to linked list of test case data
- *  @param runid search key
- *  @return pointer to test case data item,
- *          or returns INITPTR if operation failed.  
- *
- */
+/* ------------------------------------------------------------------------- */
 LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid);
-
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_add_test_module (char *modulepath);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_add_test_case_file (unsigned module_id, char *testcasefile);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_start_test_case (unsigned module_id, unsigned case_id, 
+				unsigned groupid);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_pause_case (long test_run_id);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_resume_case (long test_run_id);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_abort_case (long test_run_id);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_error (const char *what, const char *msg);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_open ();
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_close ();
+/* ------------------------------------------------------------------------- */
+LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_query_test_modules(char **modulelist);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_query_test_files(char **filelist);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_receive_rcp (char *message, int length);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_register_slave (char *host, char *slavetype);
+/* ------------------------------------------------------------------------- */
+LOCAL int eapi_debug_test_case (unsigned module_id, unsigned case_id);
 /* -------------------------------------------------------------------------
  * FORWARD DECLARATIONS
  */
 /* None */
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
-
-
 /* ------------------------------------------------------------------------- */
-
+/** Add test module to engine .
+ *  @param modulepath path to test module.
+ *  @return 1 on error, 0 on success
+ */
 LOCAL int eapi_add_test_module (char *modulepath)
 {
         test_module_info_s *modinfo = INITPTR;
@@ -120,9 +140,12 @@ LOCAL int eapi_add_test_module (char *modulepath)
                 
         return ret;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Add test case file to module.
+ *  @param module_id module identifier.
+ *  @param testcasefile test case file name.
+ *  @return 0 on success, 1 on error.
+ */
 LOCAL int eapi_add_test_case_file (unsigned module_id, char *testcasefile)
 {
         DLListIterator it;
@@ -153,9 +176,17 @@ LOCAL int eapi_add_test_case_file (unsigned module_id, char *testcasefile)
         } 
 	return 0;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Start test case execution.
+ *  @param module_id test module identifierm
+ *  @param case_id test case identifier.
+ *  @param groupid test group id.
+ *  @return 0 on success, 1 on error.
+ *
+ *  Start executing test case identified by module_id and case_id. If groupid 
+ *  is greater than zero, check first if there is ongoing case with the same
+ *  groupid. 
+ */
 LOCAL int eapi_start_test_case (unsigned module_id, unsigned case_id, 
 				unsigned groupid)
 {
@@ -202,9 +233,11 @@ LOCAL int eapi_start_test_case (unsigned module_id, unsigned case_id,
 
         return result;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Pause test case.
+ *  @param test_run_id identifier for the ongoing case.
+ *  @return 0 on success, 1 on error.
+ */
 LOCAL int eapi_pause_case (long test_run_id)
 {
 	DLListIterator it;
@@ -214,9 +247,11 @@ LOCAL int eapi_pause_case (long test_run_id)
 		return ec_pause_test_case (it);
 	return 1;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Resume test case.
+ *  @param test_run_id runtime identifier for the paused case.
+ *  @return 0 on success, 1 on error.
+ */
 LOCAL int eapi_resume_case (long test_run_id)
 {
 	DLListIterator it;
@@ -228,7 +263,10 @@ LOCAL int eapi_resume_case (long test_run_id)
 }
 
 /* ------------------------------------------------------------------------- */
-
+/** Abort test case.
+ *  @param test_run_id runtime identifier for the ongoing case.
+ *  @return 0 on success, 1 on error.
+ */
 LOCAL int eapi_abort_case (long test_run_id)
 {
 	DLListIterator it;
@@ -240,15 +278,20 @@ LOCAL int eapi_abort_case (long test_run_id)
 }
 
 /* ------------------------------------------------------------------------- */
-
+/** Print error message to log. 
+ *  @param what high level error message.
+ *  @param msg  detailed message.
+ *  @return 0 always
+ */
 LOCAL int eapi_error (const char *what, const char *msg)
 {
         MIN_FATAL ("%s - %s",what,msg);
 	return 0;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Opens the Engine API. Runs ec_configure() and starts all the modules.
+ *  @return number of started modules.
+ */ 
 LOCAL int eapi_open ()
 {
 	MIN_DEBUG ("Opening");
@@ -258,10 +301,11 @@ LOCAL int eapi_open ()
 	return ec_start_modules();
 }
 
-
 /* ------------------------------------------------------------------------- */
-
-LOCAL int eapi_close (char *what, char *msg)
+/** Closes the Engine api.
+ *  @return 0 always.
+ */
+LOCAL int eapi_close ()
 {
         MIN_DEBUG ("Closing");
 	ec_reinit();
@@ -269,9 +313,14 @@ LOCAL int eapi_close (char *what, char *msg)
 	open = 0;
 	return 0;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Searches for test case by runid from the given list
+ *  @param list_handle pointer to linked list of test case data
+ *  @param runid search key
+ *  @return pointer to test case data item,
+ *          or returns INITPTR if operation failed.  
+ *
+ */
 LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid)
 {
 	test_case_s    *tc;
@@ -289,9 +338,11 @@ LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid)
         return INITPTR;
 
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Scan all the modules from search directories and add them to modulelist.
+ *  @param [out] modulelist list of module file names.
+ *  @return 0 always.
+ */
 LOCAL int eapi_query_test_modules(char **modulelist)
 {
         char *modules = INITPTR;
@@ -350,9 +401,12 @@ LOCAL int eapi_query_test_modules(char **modulelist)
         *modulelist = modules;
 	return 0;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Scan all the test case files  from search directories and add them to 
+ *  filelist.
+ *  @param [out] filelist list of test case file names.
+ *  @return 0 always.
+ */
 LOCAL int eapi_query_test_files(char **filelist)
 {
         char *files = INITPTR;
@@ -469,14 +523,22 @@ LOCAL int eapi_query_test_files(char **filelist)
 }
 
 /* ------------------------------------------------------------------------- */
-
+/** Receive RCP prototocol message.
+ *  @param message the message
+ *  @param lentght message lenght.
+ *  @return 0 on success, -1 on error. 
+ */
 LOCAL int eapi_receive_rcp (char *message, int length)
 {
 	return tec_extif_message_received (message, length);
 }
 
 /* ------------------------------------------------------------------------- */
-
+/** Register slave device.
+ *  @param host hostname or ip address (in dot format) of the slave device.
+ *  @param slavetype type of slave (can be null, defaults to "phone")
+ *  @return 0 on success 1 on error.
+ */
 LOCAL int eapi_register_slave (char *host, char *slavetype)
 {
 	int ret;
@@ -502,6 +564,11 @@ LOCAL int eapi_register_slave (char *host, char *slavetype)
 					slavetype ? slavetype : "phone");
 }
 /* ------------------------------------------------------------------------- */
+/** Start test case is debugger.
+ *  @param module_id test module identifier.
+ *  @param case_id test case identifier.
+ *  @return 0 on success -1 on error.
+ */
 LOCAL int eapi_debug_test_case (unsigned module_id, unsigned case_id)
 {
         int             result = 0, stat;
@@ -529,10 +596,12 @@ LOCAL int eapi_debug_test_case (unsigned module_id, unsigned case_id)
 
         return result;
 }
-
-
+/* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
-
+/* ------------------------------------------------------------------------- */
+/** Initializes the Engine API - binds pointers to functions to callback
+ *  functions.
+ */
 void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 {
         if (plugins == INITPTR) plugins = dl_list_create();
@@ -558,17 +627,12 @@ void eapi_init (eapiIn_t *inp, eapiOut_t *out)
 }
 
 /* ------------------------------------------------------------------------- */
-
+/** Gets pointer to the plugin list. Used by the MINAPI macro
+ */
 DLList* get_plugin_list()
 {
         return plugins;
 }
-
-DLListIterator* get_it()
-{
-        return &it;
-}
-
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
