@@ -65,12 +65,8 @@ static test_module_id_t current_id = 1000;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
-
-/** Local comparison function for same process ID value searching.
-This function is used with DLLIST function dl_list_find().
-*/
+/* ------------------------------------------------------------------------- */
 LOCAL int       compare_pid (const void *data1, const void *data2);
-
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
@@ -79,7 +75,7 @@ LOCAL int       compare_pid (const void *data1, const void *data2);
 /* None */
 
 /* ======================== FUNCTIONS ====================================== */
-
+/* ------------------------------------------------------------------------- */
 /** Adds Test Module Info data item to linked list
  *  @param list_handle pointer to linked list of Test Modules Info data
  *  @param tm_data pointer to Test Module Info data structure.
@@ -104,7 +100,7 @@ DLListIterator tm_add (DLList * list_handle, test_module_info_s * tm_data)
 
         return dllist_item;
 }
-
+/* ------------------------------------------------------------------------- */
 /** Searches for test module by id from the given list
  *  @param list_handle pointer to linked list of Test Modules Info data
  *  @param id search key
@@ -112,7 +108,6 @@ DLListIterator tm_add (DLList * list_handle, test_module_info_s * tm_data)
  *          or returns INITPTR if operation failed.  
  *
  */
-
 DLListIterator  tm_find_by_module_id (DLList * list_handle, 
                                       test_module_id_t id)
 {
@@ -133,10 +128,7 @@ DLListIterator  tm_find_by_module_id (DLList * list_handle,
         return INITPTR;
 
 }
-
-
 /* ------------------------------------------------------------------------- */
-
 /** Creates new Test Module Info data structure
  *  @param tm_filename contains Test Module Info filename string.
  *  @param cfg_filename_list pointer to config filename string linked list.
@@ -176,9 +168,7 @@ test_module_info_s *tm_create (filename_t tm_filename,
 
         return test_module;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Removes Test Module Info data item from linked list where this exists
  *  @param tm_data_item pointer to Test Module Info data item.
  */
@@ -191,9 +181,7 @@ void tm_remove (DLListIterator tm_data_item)
 
         pthread_mutex_unlock (&TM_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Deletes Test Module Info data structure and freeing memory allocation of
  *  used data
  *  @param test_module pointer to Test Module Info data structure.
@@ -219,9 +207,7 @@ void tm_delete (test_module_info_s * test_module)
 
         pthread_mutex_unlock (&TM_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Module Info process ID value
  *  @param item_ptr pointer to Test Module Info data item.
  *  @return process ID value.
@@ -239,9 +225,7 @@ long tm_get_pid (DLListIterator item_ptr)
 
         return tm_data->process_id_;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets test module id
  *  @param item_ptr pointer to Test Module Info data item.
  *  @return id
@@ -260,9 +244,7 @@ test_module_id_t tm_get_module_id (DLListIterator item_tm_data)
         return tm_data->module_id_;
 
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Case list of given Test Module Info data item
  *  @param item_tm_data pointer to Test Module Info data item.
  *  @return pointer to Test Case linked list.
@@ -280,9 +262,7 @@ DLList         *tm_get_tclist (DLListIterator item_tm_data)
 
         return tm_data->test_case_list_;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Case status value
  *  @param tm_data_item pointer to Test Module Info data item.
  *  @return status value, or error if Test Module Info not available.
@@ -320,9 +300,7 @@ int tm_get_status (DLListIterator tm_data_item)
 
         return tm_status;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Module Info data item pointer according to process ID value
  *  @param tm_list pointer to Test Module Info data linked list.
  *  @param pid process ID value. 
@@ -346,9 +324,7 @@ DLListIterator tm_get_ptr_by_pid (DLList * tm_list, long pid)
 
         return tm_data_item;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Compares process ID values between two Test Module Info data item with
  *  use of DLLIST function dl_list_find()
  *  @param data1 void* pointer to first data.
@@ -379,9 +355,7 @@ LOCAL int compare_pid (const void *data1, const void *data2)
 
         return result;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets pointer to Test Module Info config filenames linked list 
  *  @param tm_data_item pointer to Test Module Info data item.
  *  @return return pointer to linked list,
@@ -408,14 +382,12 @@ DLList         *tm_get_cfg_filenames (DLListIterator tm_data_item)
 
         return cfg_filename_list;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Copy filename string of Test Module Info data item to given filename
  *  string
  *  @param tm_data_item pointer to Test Module Info data item.
  *  @param tm_filename filename string where wanted filename be copied. 
-*/
+ */
 void tm_get_module_filename (DLListIterator tm_data_item,
                              filename_t tm_filename)
 {
@@ -433,9 +405,7 @@ void tm_get_module_filename (DLListIterator tm_data_item,
 
         pthread_mutex_unlock (&TM_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets pointer to Test Summary data structure of given Test Module Info
  *  data item
  *  @param tm_data_item pointer to Test Module Info data item. 
@@ -462,9 +432,7 @@ test_summary_s *tm_get_test_summary_data (DLListIterator tm_data_item)
 
         return test_summary;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Gets Test Summary detail data by given data structure member enumeration
  *  @param tm_data_item pointer to Test Module Info data item.
  *  @param ts_type data structure member type. 
@@ -527,9 +495,7 @@ int tm_get_test_summary_detail (DLListIterator tm_data_item, int ts_type)
 
         return ts_count;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets process ID value of given Test Module Info data item
  *  @param item_ptr pointer to Test Module Info data item.
  *  @param tm_pid new process ID value.
@@ -546,9 +512,7 @@ void tm_set_pid (DLListIterator item_ptr, long tm_pid)
 
         pthread_mutex_unlock (&TM_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets pointer to Test Case linked list for given Test Module Info
  *  data item
  *  @param item_tm_data pointer to Test Module Info data item. 
@@ -563,9 +527,7 @@ void tm_set_tclist (DLListIterator item_tm_data, DLList * tcs_list)
 
         pthread_mutex_unlock (&TM_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets status value of given Test Module Info data item
  *  @param tm_data_item pointer to Test Module Info data item.
  *  @param status new status value.
@@ -593,9 +555,7 @@ void tm_set_status (DLListIterator tm_data_item, int status)
 
         pthread_mutex_unlock (&TM_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets pointer to config filename linked list for Test Module Info
  *  data item 
  *  @param tm_data_item pointer to Test Module Info data item. 
@@ -617,9 +577,7 @@ void tm_set_cfg_filenames (DLListIterator tm_data_item,
 
         pthread_mutex_unlock (&TM_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Creates new Test Summary data structure for given Test Moddule Info
  *  data item
  *  @param tm_data_item pointer to Test Module Info data item.
@@ -655,9 +613,7 @@ int tm_create_test_summary (DLListIterator tm_data_item)
 
         return result;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets pointer to Test Summary data structure for given Test Module Info
  *  data item
  *  @param tm_data_item pointer to Test Module Info data item.
@@ -678,9 +634,7 @@ void tm_set_test_summary_data (DLListIterator tm_data_item,
 
         pthread_mutex_unlock (&TM_MUTEX);
 }
-
 /* ------------------------------------------------------------------------- */
-
 /** Sets selected Test Summary data detail for given Test Module Info
  *  data item
  *  @param tm_data_item pointer to Test Module Info data item.

@@ -95,62 +95,57 @@ typedef struct {
 
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
-
+/* ------------------------------------------------------------------------- */
 DLListIterator  tm_add (DLList * list_handle, test_module_info_s * tm_data);
-
+/* ------------------------------------------------------------------------- */
 DLListIterator  tm_find_by_module_id (DLList * list_handle, 
                                       test_module_id_t id);
-
+/* ------------------------------------------------------------------------- */
 test_module_info_s *tm_create (filename_t tm_filename,
                                DLList * cfg_filename_list,
                                test_module_id_t id);
-
-void            tm_remove (DLListIterator tm_data_item);
-
-void            tm_delete (test_module_info_s * test_module);
-
 /* ------------------------------------------------------------------------- */
-
+void            tm_remove (DLListIterator tm_data_item);
+/* ------------------------------------------------------------------------- */
+void            tm_delete (test_module_info_s * test_module);
+/* ------------------------------------------------------------------------- */
 long            tm_get_pid (DLListIterator item_tm_data);
-
+/* ------------------------------------------------------------------------- */
 DLList         *tm_get_tclist (DLListIterator item_tm_data);
-
+/* ------------------------------------------------------------------------- */
 DLListIterator  tm_get_ptr_by_pid (DLList * list_handle, long pid);
-
+/* ------------------------------------------------------------------------- */
 int             tm_get_status (DLListIterator tm_data_item);
-
+/* ------------------------------------------------------------------------- */
 DLList         *tm_get_cfg_filenames (DLListIterator tm_data_item);
-
+/* ------------------------------------------------------------------------- */
 void            tm_get_module_filename (DLListIterator tm_data_item,
                                         filename_t tm_filename);
-
-test_summary_s *tm_get_test_summary_data (DLListIterator tm_data_item);
-
-int             tm_get_test_summary_detail (DLListIterator tm_data_item,
-                                            int ts_type);
-
-test_module_id_t tm_get_module_id (DLListIterator item_tm_data);
-
 /* ------------------------------------------------------------------------- */
-
+test_summary_s *tm_get_test_summary_data (DLListIterator tm_data_item);
+/* ------------------------------------------------------------------------- */
+int             tm_get_test_summary_detail (DLListIterator tm_data_item,
+					    int ts_type);
+/* ------------------------------------------------------------------------- */
+test_module_id_t tm_get_module_id (DLListIterator item_tm_data);
+/* ------------------------------------------------------------------------- */
 int             tm_create_test_summary (DLListIterator tm_data_item);
-
+/* ------------------------------------------------------------------------- */
 void            tm_set_pid (DLListIterator item_tm_data, long tm_pid);
-
+/* ------------------------------------------------------------------------- */
 void            tm_set_tclist (DLListIterator item_tm_data,
                                DLList * tcs_list);
-
+/* ------------------------------------------------------------------------- */
 void            tm_set_status (DLListIterator tm_data_item, int status);
-
+/* ------------------------------------------------------------------------- */
 void            tm_set_cfg_filenames (DLListIterator tm_data_item,
                                       DLList * cfg_filename_list);
-
+/* ------------------------------------------------------------------------- */
 void            tm_set_test_summary_data (DLListIterator tm_data_item,
                                           test_summary_s * test_summary);
-
+/* ------------------------------------------------------------------------- */
 void            tm_set_test_summary_detail (DLListIterator tm_data_item,
                                             int ts_type, int ts_type_count);
-
 /* ------------------------------------------------------------------------- */
 #endif                          /* DATA_TEST_MODULE_INFO_H */
 /* End of file */
