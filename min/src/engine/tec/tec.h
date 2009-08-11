@@ -44,18 +44,30 @@
 /* ----------------------------------------------------------------------------
  * CONSTANTS
  */
-
+/* None */
+/* ----------------------------------------------------------------------------
+ * Structures
+ */
+/** Engine settings */
 typedef struct {
-        filename_t      tmc_app_path_;
-	char           *debugger_;
-        long            engine_pid_;
+	/** Path to tmc binary */
+	filename_t      tmc_app_path_;
+        /** Debugger used */
+	char           *debugger_;       
+        /** PID of engine */  
+	long            engine_pid_;
+        /** Directories used in searching modules and configuration files */
         DLList         *search_dirs;
-        int             operation_mode_;
-        int             sh_mem_id_;     /* must be kept, so that it is possible
-                                         * to destroy the segment 
-                                         * during cleanup */
+        /** Mode of operation. 
+	 *  0 - execute all configured test cases and exit. 
+	 *  1 - exit when user so requests.
+	 */     
+        int             operation_mode_; 
+        /** Shared memory segment identifier */
+        int             sh_mem_id_;      
 } ec_settings_s;
 
+/** Holds data used in m/s sendreceive */
 typedef struct {
         /** id of host that sent the data*/
         int             sender_id_;
@@ -68,23 +80,22 @@ typedef struct {
         long            requested_by_;
 } received_data;
 
-
 /* ----------------------------------------------------------------------------
  * GLOBAL VARIABLES
  * This chapter contains declaration of global variables that have to be 
  * available for entities other than test execution controller, e.g UI
  */
-
-DLList         *instantiated_modules;   /*list of running test modules */
-DLList         *selected_cases; /*list of test cases selected for execution */
-DLList         *results;        /*list of result structures for executed cases.
+DLList         *instantiated_modules;   /** list of running test modules */
+DLList         *selected_cases; /** list of test cases selected for execution */
+DLList         *results;        /** list of result structures for executed 
+				 * cases.
                                  * Used for generating reports and presenting 
                                  * data to user */
-char           *UiMessage;      /*Message text to be dispalyed on UI in 
+char           *UiMessage;      /** Message text to be dispalyed on UI in 
                                  * case of fault */
-int             mq_id;          /*message queue id */
-ec_settings_s   ec_settings;    /*structure containing global settings */
-int             own_id;
+int             mq_id;          /** message queue id */
+ec_settings_s   ec_settings;    /** structure containing global settings */
+int             own_id;         /** Our identifier in m/s communication */
 /* ----------------------------------------------------------------------------
  * MACROS
  */
@@ -95,49 +106,57 @@ int             own_id;
 /* ---------------------------------------------------------------------------
  * FORWARD DECLARATIONS
  */
-
-/* ----------------------------------------------------------------------------
- * Structures
- */
+/* None */
 /* ----------------------------------------------------------------------------
  * FUNCTION PROTOTYPES
  */
+/* --------------------------------------------------------------------------*/
 void            ec_min_init (char *envp_[], int operation_mode);
+/* --------------------------------------------------------------------------*/
 int             ec_start_modules ();
+/* --------------------------------------------------------------------------*/
 DLListIterator  ec_select_case (DLListIterator work_case_item, int group_id);
-void            log_summary ();
+/* --------------------------------------------------------------------------*/
 int             log_summary_stdout ();
+/* --------------------------------------------------------------------------*/
 int             ec_exec_case (DLListIterator work_case_item);
+/* --------------------------------------------------------------------------*/
 int             ec_debug_case (DLListIterator work_case_item);
+/* --------------------------------------------------------------------------*/
 int             ec_exec_test_case (DLListIterator work_case_item);
+/* --------------------------------------------------------------------------*/
 int             ec_pause_test_case (DLListIterator work_case_item);
+/* --------------------------------------------------------------------------*/
 int             ec_resume_test_case (DLListIterator work_case_item);
+/* --------------------------------------------------------------------------*/
 int             ec_abort_test_case (DLListIterator work_case_item);
+/* --------------------------------------------------------------------------*/
 int             ec_run_cases_seq (DLList * work_cases_list);
+/* --------------------------------------------------------------------------*/
 int             ec_run_cases_par (DLList * work_cases_list);
+/* --------------------------------------------------------------------------*/
 int             ec_set_write (DLList * cases_list);
+/* --------------------------------------------------------------------------*/
 void            ec_set_read (DLList * set_cases_list, char *setname);
+/* --------------------------------------------------------------------------*/
 int             ec_run_set_seq (DLList * work_cases_list);
+/* --------------------------------------------------------------------------*/
 int             ec_run_set_par (DLList * work_cases_list);
+/* --------------------------------------------------------------------------*/
 int             ec_read_settings (char *engine_ini);
+/* --------------------------------------------------------------------------*/
 void            ec_reinit();
+/* --------------------------------------------------------------------------*/
 void            ec_cleanup ();
-/*write test set with default name */
-int             ec_set_write (DLList * cases_list);
-/*write set with given name */
-int             ec_set_write_file (DLList * cases_list, char *filename);
-/*add module at any time */
+/* --------------------------------------------------------------------------*/
 int             ec_add_module (TSChar * mod_name, DLList * testcase_files,
                                unsigned id, int report);
-/*create path to test set from current date/hour */
-char           *create_path ();
-/*search for file in defined search paths */
+/* --------------------------------------------------------------------------*/
 int             ec_search_lib (char *mod_name);
-/* reads config files and do reports new modules (uses eapi) */
+/* --------------------------------------------------------------------------*/
 int             ec_configure ();
-/** attaches a test case title fitler to engine */
+/* -------------------------------------------------------------------------*/
 void            ec_add_title_filter (char *filter_str, int regexp);
-
 /* -------------------------------------------------------------------------*/
 
 #endif                          /* TEC_H */
