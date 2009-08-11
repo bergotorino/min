@@ -68,85 +68,35 @@
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Writes message through the file output. 
- *  @param fo [in] file output plugin used for writing. 
- *  @param with_timestamp [in] flag indicates presence of timestamp.
- *  @param with_linebreak [in] flag indicating presence of linebreak. 
- *  @param with_eventrank [in] on/off for event ranking feature.
- *  @param data [in] the data to be written. */
 LOCAL void      fo_write (struct output_typeinfo_t *fo,
                           TSBool with_timestamp,
                           TSBool with_linebreak,
                           TSBool with_eventrank, const TSChar * data);
 /* ------------------------------------------------------------------------- */
-/** Creates new directory.
- *  @param fo [in] file output plugin used for this operation.
- *  @param path [in] new directory to be created.
- */
 LOCAL void      fo_create_directory (struct min_logger_file_output_t *fo,
                                      const TSChar * path);
 /* ------------------------------------------------------------------------- */
-/** Opens existing file. 
- *  @param fo [in] file output plugin used for this operation.
- *  @param path [in] path to the file we want to open.
- *  @param file [in] file name we want to open.
- */
 LOCAL void      fo_open_existing_file (struct min_logger_file_output_t *fo,
                                        const TSChar * path,
                                        const TSChar * file);
 /* ------------------------------------------------------------------------- */
-/** Creates new file. 
- *  @param fo [in] file output plugin used for this operation.
- *  @param path [in] path under which we want file to be created.
- *  @param file [in] name of the file we want to create.
- */
 LOCAL void      fo_create_new_file (struct min_logger_file_output_t *fo,
                                     const TSChar * path, const TSChar * file);
 /* ------------------------------------------------------------------------- */
-/** Adds event ranking to the data.
- *  @param data [in:out] data to which event ranking is appended.
- */
 LOCAL void      fo_event_ranking (TSChar * data);
 /* ------------------------------------------------------------------------- */
-/** Adds timestamp tp data.
- *  @param data [in:out] data to which timestamp is appended.
- */
 LOCAL void      fo_add_timestamp_to_data (TSChar * data);
 /* ------------------------------------------------------------------------- */
-/** Gest the type of the file.
- *  @param fo [in] file output plugin used for this operation.
- *  @param filename [in] the name of the file to be checked.
- *  @param filetype [out] the type of checked file.
- *
- *  NOTE: filetype is malloced inside of this function.
- */
 LOCAL void      fo_file_type (struct min_logger_file_output_t *fo,
                               const TSChar * filename, TSChar ** filetype);
 /* ------------------------------------------------------------------------- */
-/** Generate pricess id to test file name. 
- *  @param file [in] old file name.
- *  @param newfile [out] file name with pid.
- *
- */
 LOCAL void      fo_test_file_with_pid (const TSChar * file, TSChar * newfile);
 /* ------------------------------------------------------------------------- */
-/** Writes message through the null output. 
- *  @param fo [in] file output plugin used for writing. 
- *  @param with_timestamp [in] flag indicates presence of timestamp.
- *  @param with_linebreak [in] flag indicating presence of linebreak. 
- *  @param with_eventrank [in] on/off for event ranking feature.
- *  @param data [in] the data to be written. */
 LOCAL inline void no_write (struct output_typeinfo_t *fo,
                             TSBool with_timestamp,
                             TSBool with_linebreak,
                             TSBool with_eventrank, const TSChar * data);
 /* ------------------------------------------------------------------------- */
-/** Writes message through the syslog output. 
- *  @param so [in] syslog output plugin used for writing. 
- *  @param with_timestamp [in] flag indicates presence of timestamp.
- *  @param with_linebreak [in] flag indicating presence of linebreak. 
- *  @param with_eventrank [in] on/off for event ranking feature.
- *  @param data [in] the data to be written. */
 LOCAL void      so_write (struct output_typeinfo_t *so,
                           TSBool with_timestamp,
                           TSBool with_linebreak,
@@ -158,6 +108,13 @@ LOCAL void      so_write (struct output_typeinfo_t *so,
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Writes message through the file output. 
+ *  @param fo [in] file output plugin used for writing. 
+ *  @param with_timestamp [in] flag indicates presence of timestamp.
+ *  @param with_linebreak [in] flag indicating presence of linebreak. 
+ *  @param with_eventrank [in] on/off for event ranking feature.
+ *  @param data [in] the data to be written. 
+ */
 LOCAL void fo_write (struct output_typeinfo_t *fo,
                      TSBool with_timestamp,
                      TSBool with_linebreak,
@@ -287,6 +244,11 @@ LOCAL void fo_write (struct output_typeinfo_t *fo,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Opens existing file. 
+ *  @param fo [in] file output plugin used for this operation.
+ *  @param path [in] path to the file we want to open.
+ *  @param file [in] file name we want to open.
+ */
 LOCAL void fo_open_existing_file (struct min_logger_file_output_t *fo,
                                   const TSChar * path, const TSChar * file)
 {
@@ -361,6 +323,11 @@ LOCAL void fo_open_existing_file (struct min_logger_file_output_t *fo,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Creates new file. 
+ *  @param fo [in] file output plugin used for this operation.
+ *  @param path [in] path under which we want file to be created.
+ *  @param file [in] name of the file we want to create.
+ */
 LOCAL void fo_create_new_file (struct min_logger_file_output_t *fo,
                                const TSChar * path, const TSChar * file)
 {
@@ -435,6 +402,10 @@ LOCAL void fo_create_new_file (struct min_logger_file_output_t *fo,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Creates new directory.
+ *  @param fo [in] file output plugin used for this operation.
+ *  @param path [in] new directory to be created.
+ */
 LOCAL void fo_create_directory (struct min_logger_file_output_t *fo,
                                 const TSChar * path)
 {
@@ -455,6 +426,9 @@ LOCAL void fo_create_directory (struct min_logger_file_output_t *fo,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Adds event ranking to the data.
+ *  @param data [in:out] data to which event ranking is appended.
+ */
 LOCAL void fo_event_ranking (TSChar * data)
 {
         time_t          ticks;
@@ -475,6 +449,13 @@ LOCAL void fo_event_ranking (TSChar * data)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Gest the type of the file.
+ *  @param fo [in] file output plugin used for this operation.
+ *  @param filename [in] the name of the file to be checked.
+ *  @param filetype [out] the type of checked file.
+ *
+ *  NOTE: filetype is malloced inside of this function.
+ */
 LOCAL void fo_file_type (struct min_logger_file_output_t *fo,
                          const TSChar * filename, TSChar ** filetype)
 {
@@ -515,6 +496,11 @@ LOCAL void fo_file_type (struct min_logger_file_output_t *fo,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Generate pricess id to test file name. 
+ *  @param file [in] old file name.
+ *  @param newfile [out] file name with pid.
+ *
+ */
 LOCAL void fo_test_file_with_pid (const TSChar * file, TSChar * newfile)
 {
         char           *c = INITPTR;
@@ -542,6 +528,9 @@ LOCAL void fo_test_file_with_pid (const TSChar * file, TSChar * newfile)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Adds timestamp tp data.
+ *  @param data [in:out] data to which timestamp is appended.
+ */
 LOCAL void fo_add_timestamp_to_data (TSChar * data)
 {
         struct timeval  tv;
@@ -572,6 +561,13 @@ LOCAL void fo_add_timestamp_to_data (TSChar * data)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Writes message through the null output. 
+ *  @param fo [in] file output plugin used for writing. 
+ *  @param with_timestamp [in] flag indicates presence of timestamp.
+ *  @param with_linebreak [in] flag indicating presence of linebreak. 
+ *  @param with_eventrank [in] on/off for event ranking feature.
+ *  @param data [in] the data to be written. 
+ */
 LOCAL inline void no_write (struct output_typeinfo_t *fo,
                             TSBool with_timestamp,
                             TSBool with_linebreak,
@@ -583,6 +579,20 @@ LOCAL inline void no_write (struct output_typeinfo_t *fo,
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Creates MIN FileOutput plugin 'object' 
+ *  @param path [in] output directory.
+ *  @param file [in] output file.
+ *  @param loggertype [in] type of the logger that is in use.
+ *  @param overwrite [in] overwrite file if exists flag.
+ *  @param withtimestamp [in] add timestamp flag.
+ *  @param withlinebreak [in] add linebreak flag.
+ *  @param witheventranking [in] do event ranking flag.
+ *  @param pididtologfile [in] process id to logfile flag.
+ *  @param createlogdir [in] create output directory if not exists flag.
+ *  @param buffersize [in] size of the static buffer.
+ *  @param unicode [in] unicode flag.
+ *  @return new instance of FileOutput or INITPTR in case of failure.
+ */
 MinLoggerFileOutput *fo_create (const TSChar * path,
                                  const TSChar * file,
                                  TSLoggerType loggertype,
@@ -643,6 +653,11 @@ MinLoggerFileOutput *fo_create (const TSChar * path,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Destroys MIN FileOutput instance.
+ *  @param o [in:out] sfo instance to be destroyed.
+ *   
+ *  NOTE: after being freed the pointer is set to INITPTR;
+ */
 void fo_destroy (struct output_typeinfo_t **o)
 {
         struct min_logger_file_output_t *sfo = INITPTR;
@@ -664,6 +679,20 @@ void fo_destroy (struct output_typeinfo_t **o)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Creates MIN NullOutput plugin 'object' 
+ *  @param path [in] output directory.
+ *  @param file [in] output file.
+ *  @param loggertype [in] type of the logger that is in use.
+ *  @param overwrite [in] overwrite file if exists flag.
+ *  @param withtimestamp [in] add timestamp flag.
+ *  @param withlinebreak [in] add linebreak flag.
+ *  @param witheventranking [in] do event ranking flag.
+ *  @param pididtologfile [in] process id to logfile flag.
+ *  @param createlogdir [in] create output directory if not exists flag.
+ *  @param buffersize [in] size of the static buffer.
+ *  @param unicode [in] unicode flag.
+ *  @return new instance of FileOutput or INITPTR in case of failure.
+ */
 MinLoggerNullOutput *no_create (const TSChar * path,
                                  const TSChar * file,
                                  TSLoggerType loggertype,
@@ -689,6 +718,11 @@ MinLoggerNullOutput *no_create (const TSChar * path,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Destroys MIN NullOutput instance.
+ *  @param o [in:out] sfo instance to be destroyed.
+ *   
+ *  NOTE: after being freed the pointer is set to INITPTR;
+ */
 void no_destroy (struct output_typeinfo_t **o)
 {
         if (*o == INITPTR) {
@@ -701,6 +735,20 @@ void no_destroy (struct output_typeinfo_t **o)
 }
 
 /* ------------------------------------------------------------------------- */
+/** Creates MIN Syslog Output plugin 'object' 
+ *  @param path [in] output directory.
+ *  @param file [in] output idenfication string for syslog output.
+ *  @param loggertype [in] type of the logger that is in use.
+ *  @param overwrite [in] overwrite file if exists flag.
+ *  @param withtimestamp [in] add timestamp flag.
+ *  @param withlinebreak [in] add linebreak flag.
+ *  @param witheventranking [in] do event ranking flag.
+ *  @param pididtologfile [in] process id to logfile flag.
+ *  @param createlogdir [in] create output directory if not exists flag.
+ *  @param buffersize [in] size of the static buffer.
+ *  @param unicode [in] unicode flag.
+ *  @return new instance of SyslogOutput or INITPTR in case of failure.
+ */
 MinLoggerSyslogOutput *so_create (const TSChar * path,
                                    const TSChar * file,
                                    TSLoggerType loggertype,
@@ -733,6 +781,12 @@ MinLoggerSyslogOutput *so_create (const TSChar * path,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Writes message through the syslog output. 
+ *  @param so [in] syslog output plugin used for writing. 
+ *  @param with_timestamp [in] flag indicates presence of timestamp.
+ *  @param with_linebreak [in] flag indicating presence of linebreak. 
+ *  @param with_eventrank [in] on/off for event ranking feature.
+ *  @param data [in] the data to be written. */
 LOCAL void so_write (struct output_typeinfo_t *so,
                      TSBool with_timestamp,
                      TSBool with_linebreak,
@@ -761,6 +815,11 @@ LOCAL void so_write (struct output_typeinfo_t *so,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Destroys MIN Syslog Output instance.
+ *  @param o [in:out] sfo instance to be destroyed.
+ *   
+ *  NOTE: after being freed the pointer is set to INITPTR;
+ */
 void so_destroy (struct output_typeinfo_t **o)
 {
         if (*o == INITPTR) {

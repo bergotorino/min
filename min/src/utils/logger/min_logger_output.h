@@ -144,20 +144,6 @@ struct min_logger_syslog_output_t {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Creates MIN FileOutput plugin 'object' 
- *  @param path [in] output directory.
- *  @param file [in] output file.
- *  @param loggertype [in] type of the logger that is in use.
- *  @param overwrite [in] overwrite file if exists flag.
- *  @param withtimestamp [in] add timestamp flag.
- *  @param withlinebreak [in] add linebreak flag.
- *  @param witheventranking [in] do event ranking flag.
- *  @param pididtologfile [in] process id to logfile flag.
- *  @param createlogdir [in] create output directory if not exists flag.
- *  @param buffersize [in] size of the static buffer.
- *  @param unicode [in] unicode flag.
- *  @return new instance of FileOutput or INITPTR in case of failure.
- */
 MinLoggerFileOutput *fo_create (const TSChar * path,
                                  const TSChar * file,
                                  unsigned int loggertype,
@@ -169,27 +155,8 @@ MinLoggerFileOutput *fo_create (const TSChar * path,
                                  TSBool createlogdir,
                                  unsigned int buffersize, TSBool unicode);
 /* ------------------------------------------------------------------------- */
-/** Destroys MIN FileOutput instance.
- *  @param o [in:out] sfo instance to be destroyed.
- *   
- *  NOTE: after being freed the pointer is set to INITPTR;
- */
 void            fo_destroy (struct output_typeinfo_t **o);
 /* ------------------------------------------------------------------------- */
-/** Creates MIN NullOutput plugin 'object' 
- *  @param path [in] output directory.
- *  @param file [in] output file.
- *  @param loggertype [in] type of the logger that is in use.
- *  @param overwrite [in] overwrite file if exists flag.
- *  @param withtimestamp [in] add timestamp flag.
- *  @param withlinebreak [in] add linebreak flag.
- *  @param witheventranking [in] do event ranking flag.
- *  @param pididtologfile [in] process id to logfile flag.
- *  @param createlogdir [in] create output directory if not exists flag.
- *  @param buffersize [in] size of the static buffer.
- *  @param unicode [in] unicode flag.
- *  @return new instance of FileOutput or INITPTR in case of failure.
- */
 MinLoggerNullOutput *no_create (const TSChar * path,
                                  const TSChar * file,
                                  unsigned int loggertype,
@@ -201,27 +168,8 @@ MinLoggerNullOutput *no_create (const TSChar * path,
                                  TSBool createlogdir,
                                  unsigned int buffersize, TSBool unicode);
 /* ------------------------------------------------------------------------- */
-/** Destroys MIN NullOutput instance.
- *  @param o [in:out] sfo instance to be destroyed.
- *   
- *  NOTE: after being freed the pointer is set to INITPTR;
- */
 void            no_destroy (struct output_typeinfo_t **o);
 /* ------------------------------------------------------------------------- */
-/** Creates MIN Syslog Output plugin 'object' 
- *  @param path [in] output directory.
- *  @param file [in] output idenfication string for syslog output.
- *  @param loggertype [in] type of the logger that is in use.
- *  @param overwrite [in] overwrite file if exists flag.
- *  @param withtimestamp [in] add timestamp flag.
- *  @param withlinebreak [in] add linebreak flag.
- *  @param witheventranking [in] do event ranking flag.
- *  @param pididtologfile [in] process id to logfile flag.
- *  @param createlogdir [in] create output directory if not exists flag.
- *  @param buffersize [in] size of the static buffer.
- *  @param unicode [in] unicode flag.
- *  @return new instance of SyslogOutput or INITPTR in case of failure.
- */
 MinLoggerSyslogOutput *so_create (const TSChar * path,
                                    const TSChar * file,
                                    TSLoggerType loggertype,
@@ -233,11 +181,6 @@ MinLoggerSyslogOutput *so_create (const TSChar * path,
                                    TSBool createlogdir,
                                    unsigned int buffersize, TSBool unicode);
 /* ------------------------------------------------------------------------- */
-/** Destroys MIN Syslog Output instance.
- *  @param o [in:out] sfo instance to be destroyed.
- *   
- *  NOTE: after being freed the pointer is set to INITPTR;
- */
 void            so_destroy (struct output_typeinfo_t **o);
 /* ------------------------------------------------------------------------- */
 #endif                          /* MIN_LOGGER_OUTPUT_H */

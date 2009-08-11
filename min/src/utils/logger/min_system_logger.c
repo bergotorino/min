@@ -95,7 +95,12 @@ LOCAL int min_log (int priority, const char *format, va_list ap)
 /* ======================== FUNCTIONS ====================================== */
 
 /* ------------------------------------------------------------------------- */
-
+/** Opens the min log facility. Call ones per program execution.
+ * @return 0 when ok, 1 if the debug level is invalid (not 0-3)
+ * @param identifier will be prepended to all log messges
+ * @param debug_level the debug level to be used
+ * @see min_debug_level
+ */
 int min_log_open (const char *identifier, unsigned int debug_level)
 {
 	if (__component_name__==INITPTR) {
@@ -112,7 +117,8 @@ int min_log_open (const char *identifier, unsigned int debug_level)
 }
 
 /* ------------------------------------------------------------------------- */
-
+/** Closes the min logger facility
+ */
 int min_log_close ()
 {
 	if (__component_name__!=INITPTR) {
@@ -128,7 +134,10 @@ int min_log_close ()
 }
 
 /* ------------------------------------------------------------------------- */
-
+/** Writes min emergency message to log. The message is printed also to console.
+ * @return 0 always
+ * @param format message formatting string as in e.g. printf (3)
+ */
 int min_emerg (const char *format, ...)
 {
         va_list         ap;
@@ -143,9 +152,11 @@ int min_emerg (const char *format, ...)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Writes min error message to log.
+ * @return 0 always
+ * @param format message formatting string as in e.g. printf (3)
+ */
 int min_err (const char *format, ...)
 {
         va_list         ap;
@@ -156,9 +167,11 @@ int min_err (const char *format, ...)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Writes min warning message to log.
+ * @return 0 always
+ * @param format message formatting string as in e.g. printf (3)
+ */
 int min_warn (const char *format, ...)
 {
         va_list         ap;
@@ -169,9 +182,11 @@ int min_warn (const char *format, ...)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Writes informational message to log.
+ * @return 0 always
+ * @param format message formatting string as in e.g. printf (3)
+ */
 int min_info (const char *format, ...)
 {
         va_list         ap;
@@ -182,9 +197,15 @@ int min_info (const char *format, ...)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Writes debug message to log.
+ * Use through macros MIN_DEBUGXX.
+ * @return 0 always
+ * @param func_name function from which debug is called
+ * @param lineno linenumber of the c-file the debug message deals with
+ * @param file_name name of the file calling debug
+ * @param format message formatting string as in e.g. printf (3)
+ */
 int min_debug (const char *func, unsigned int lineno, const char *file_name,
                 const char *format, ...)
 {
