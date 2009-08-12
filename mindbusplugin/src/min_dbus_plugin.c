@@ -114,36 +114,47 @@ typedef struct {
         guint signals[E_SIGNAL_COUNT];
 } MinObjectClass;
 
-
-/* We need those forward declarations here */
-
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_add_test_module(MinObject *obj, gchar *modulepatch);
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_add_test_case_file(MinObject *obj,
 					   gint moduleid,
 					   gchar *testcasefile);
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_start_case(MinObject *obj,
 				   gint moduleid,
 				   gint caseid,
                                    gint groupid);
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_pause_case(MinObject *obj,
 				   gint testrunid);
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_resume_case(MinObject *obj,
 				    gint testrunid);
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_abort_case(MinObject *obj,
 				   gint testrunid);
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_fatal_error(MinObject *obj,
-                                        const char *what,
-                                        const char *errorstring); 
+				    const char *what,
+				    const char *errorstring); 
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_open(MinObject *obj);
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_close(MinObject *obj);
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_query_test_modules(MinObject *obj);
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_query_test_files(MinObject *obj);
+/* ------------------------------------------------------------------------- */
 gboolean min_object_min_register_slave(MinObject *obj,
 				       gchar *host,
 				       gchar *slavetype);
-
+/* ------------------------------------------------------------------------- */
 G_DEFINE_TYPE(MinObject, min_object, G_TYPE_OBJECT);
-
+/* ------------------------------------------------------------------------- */
 #include "min_dbus_plugin.h"
 MinObject *global_obj=NULL;
 /* ------------------------------------------------------------------------- */
@@ -174,17 +185,17 @@ static void pl_no_module (char *modulename);
 /* ------------------------------------------------------------------------- */
 static void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
 /* ------------------------------------------------------------------------- */
-/* FORWARD DECLARATIONS */
-/* None */
-
-/* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Initialize GLib object.
+ */
 static void min_object_init (MinObject *obj)
 {
         /* Init GLib object, we do not need this currently. */
 }
 /* ------------------------------------------------------------------------- */
+/** Initialize MINObject clas
+ */
 static void min_object_class_init (MinObjectClass *klass)
 {
         /* Init our class object.*/
@@ -282,6 +293,7 @@ static void min_object_class_init (MinObjectClass *klass)
                                         &dbus_glib_min_object_object_info);
 }
 /* ------------------------------------------------------------------------- */
+/** calls fatal error callback from MIN Engine API */
 static void handle_error(const char* msg,const char* reason,gboolean fatal)
 {
         g_print(": ERROR: %s (%s)\n", msg, reason);
@@ -290,8 +302,9 @@ static void handle_error(const char* msg,const char* reason,gboolean fatal)
         }
 }
 /* -------------------------------------------------------------------------- */
+/** MIN Engine calls this when test case has finnished */ 
 static void pl_case_result (long testrunid, int result, char *desc,
-			     long starttime, long endtime)
+			    long starttime, long endtime)
 {
         /* emit signal */
         if (!global_obj) return;
@@ -306,9 +319,10 @@ static void pl_case_result (long testrunid, int result, char *desc,
                         endtime);
 }
 /* ------------------------------------------------------------------------- */
+/** MIN Engine calls this when test case has started */
 static void pl_case_started (unsigned moduleid,
-                        unsigned caseid,
-                        long testrunid)
+			     unsigned caseid,
+			     long testrunid)
 {
         /* emit signal */
         if (!global_obj) return;
@@ -321,6 +335,8 @@ static void pl_case_started (unsigned moduleid,
                         testrunid);
 }
 /* ------------------------------------------------------------------------- */
+/** MIN Engine calls this when test case is paused.
+ */
 static void pl_case_paused (long testrunid)
 {
         /* emit signal */
@@ -332,6 +348,8 @@ static void pl_case_paused (long testrunid)
                         testrunid);
 }
 /* ------------------------------------------------------------------------- */
+/** MIN Engine calls this when test case is resumed 
+ */
 static void pl_case_resumed (long testrunid)
 {
         /* emit signal */
@@ -343,6 +361,8 @@ static void pl_case_resumed (long testrunid)
                         testrunid);
 }
 /* ------------------------------------------------------------------------- */
+/** MIN Engine calls this for printouts coming from test cases
+ */
 static void pl_msg_print (long testrunid, char *message)
 {
         /* emit signal */
@@ -355,6 +375,8 @@ static void pl_msg_print (long testrunid, char *message)
 
 }
 /* ------------------------------------------------------------------------- */
+/** MIN Engine calls this when new module has been succesfully added
+ */
 static void pl_new_module (char *modulename, unsigned moduleid)
 {
         /* emit signal */
@@ -366,6 +388,8 @@ static void pl_new_module (char *modulename, unsigned moduleid)
                         modulename,moduleid);
 }
 /* ------------------------------------------------------------------------- */
+/** MIN Engine calls this when module adding fails
+ */
 static void pl_no_module (char *modulename)
 {
         /* emit signal */
@@ -377,6 +401,8 @@ static void pl_no_module (char *modulename)
                         modulename);
 }
 /* -------------------------------------------------------------------------- */
+/** MIN Engine calls this for each new test case 
+ */
 static void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 {
         /* emit signal */
@@ -388,6 +414,9 @@ static void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
                         moduleid,caseid,casetitle);
 }
 /* -------------------------------------------------------------------------- */
+/** MIN Engine calls this when all test cases belonging to test module
+ *  have been reported by pl_new_case
+ */
 static void pl_module_ready (unsigned moduleid)
 {
         /* emit signal */
@@ -399,6 +428,8 @@ static void pl_module_ready (unsigned moduleid)
                         moduleid);
 }
 /* -------------------------------------------------------------------------- */
+/** MIN engine calls this as a reply to query_test_modules.
+ */
 static void pl_test_modules (char *modules)
 {
         /* emit signal */
@@ -410,6 +441,8 @@ static void pl_test_modules (char *modules)
                         modules);
 }
 /* -------------------------------------------------------------------------- */
+/** MIN engine calls this as a reply to query_test_files.
+ */
 static void pl_test_files (char *files)
 {
         /* emit signal */
@@ -423,6 +456,8 @@ static void pl_test_files (char *files)
 /* -------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Attach dbus plugin to MIN Test Framework
+ */
 void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
 {
         /* Binds the callbacks */
@@ -441,6 +476,8 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         (*out_callback)->test_files             = pl_test_files;
 }
 /* ------------------------------------------------------------------------- */
+/** Opens the plugin. Enters g_main_loop()
+ */
 void pl_open_plugin ()
 {
         DBusGConnection *bus = NULL;
@@ -510,16 +547,19 @@ void pl_open_plugin ()
         g_main_loop_run(mainloop);
 }
 /* ------------------------------------------------------------------------- */
+/** Close plugin */
 void pl_close_plugin ()
 {
         /* Deinit DBus */
 }
 /* ------------------------------------------------------------------------- */
+/** Detach plugin */
 void pl_detach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
 {
         /* Unbinds the callbacks */
 }
 /* ------------------------------------------------------------------------- */
+/** Calls add_test_module from MIN Engine API */
 gboolean min_object_min_add_test_module(MinObject *obj, gchar *modulepatch)
 {
         /* Calls callback from MIN */
@@ -530,6 +570,7 @@ gboolean min_object_min_add_test_module(MinObject *obj, gchar *modulepatch)
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
+/** Calls add_test_case_file from MIN Engine API */
 gboolean min_object_min_add_test_case_file(MinObject *obj,
                                         gint moduleid,
                                         gchar *testcasefile)
@@ -542,6 +583,7 @@ gboolean min_object_min_add_test_case_file(MinObject *obj,
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
+/** Calls start_case from MIN Engine API */
 gboolean min_object_min_start_case(MinObject *obj,
                                 gint moduleid,
                                 gint caseid,
@@ -555,6 +597,7 @@ gboolean min_object_min_start_case(MinObject *obj,
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
+/** Calls pause_case from MIN Engine API */
 gboolean min_object_min_pause_case(MinObject *obj,
 				   gint testrunid)
 {
@@ -566,6 +609,7 @@ gboolean min_object_min_pause_case(MinObject *obj,
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
+/** Calls resume_case from MIN Engine API */
 gboolean min_object_min_resume_case(MinObject *obj,
 				    gint testrunid)
 {
@@ -578,6 +622,7 @@ gboolean min_object_min_resume_case(MinObject *obj,
 
 }
 /* ------------------------------------------------------------------------- */
+/** Calls abort_case from MIN Engine API */
 gboolean min_object_min_abort_case(MinObject *obj,
 				   gint testrunid)
 {
@@ -589,9 +634,10 @@ gboolean min_object_min_abort_case(MinObject *obj,
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
-gboolean min_object_min_fatal_error(MinObject *obj,
-                                        const char *what,
-                                        const char *errorstring)
+/** Calls fatal_error from MIN Engine API */
+gboolean min_object_min_fatal_error (MinObject *obj,
+				     const char *what,
+				     const char *errorstring)
 {
         /* Calls callback from MIN */
         if (min_clbk.fatal_error) {
@@ -601,6 +647,7 @@ gboolean min_object_min_fatal_error(MinObject *obj,
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
+/** Calls min_open from MIN Engine API */
 gboolean min_object_min_open(MinObject *obj)
 {
         /* Calls callback from MIN */
@@ -611,6 +658,7 @@ gboolean min_object_min_open(MinObject *obj)
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
+/** Calls min_close from MIN Engine API */
 gboolean min_object_min_close(MinObject *obj)
 {
         /* Calls callback from MIN */
@@ -624,6 +672,7 @@ gboolean min_object_min_close(MinObject *obj)
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
+/** Calls query_test_modules from MIN Engine API */
 gboolean min_object_min_query_test_modules(MinObject *obj)
 {
         /* Calls callback from MIN */
@@ -634,6 +683,7 @@ gboolean min_object_min_query_test_modules(MinObject *obj)
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
+/** Calls query_test_files from MIN Engine API */
 gboolean min_object_min_query_test_files(MinObject *obj)
 {
         /* Calls callback from MIN */
@@ -644,6 +694,7 @@ gboolean min_object_min_query_test_files(MinObject *obj)
         return FALSE;
 }
 /* ------------------------------------------------------------------------- */
+/** Calls register_slave from MIN Engine API */
 gboolean min_object_min_register_slave(MinObject *obj,
 				       gchar *host,
 				       gchar *slavetype)
