@@ -20,8 +20,8 @@
 /**
  *  @file       min_test_interference.c
  *  @version    0.1
- *  @brief      This file contains implementation of Event System for 
- *              Test Process
+ *  @brief      Test interference system.
+ *              
  */
 
 /* ------------------------------------------------------------------------- */
@@ -59,15 +59,30 @@
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
-/**sleeping for number of miliseconds given in argument
-*/
-inline void msleep(int period)
+/* ------------------------------------------------------------------------- */
+LOCAL inline void msleep (int period);
+/* ------------------------------------------------------------------------- */
+LOCAL int         check_package_avail ();
+/* ------------------------------------------------------------------------- */
+LOCAL void       *ti_cpu_controller (void *Arg);
+/* ------------------------------------------------------------------------- */
+LOCAL void       *ti_mem_controller (void *Arg)
+/* ------------------------------------------------------------------------- */
+LOCAL void       *ti_io_controller (void *Arg)
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+/** Sleep for number of miliseconds given in argument
+ */
+LOCAL inline void msleep(int period)
 {
         sleep ((int)(period/1000));
         usleep (1000*(period%1000));
 }
-
-
+/* ------------------------------------------------------------------------- */
+/** Check that the tools used in interference are available in the system.
+ *  @return 0 if tools available, -1 if not
+ */
 LOCAL int check_package_avail ()
 {
         int             retval = 0;
@@ -78,7 +93,10 @@ LOCAL int check_package_avail ()
 
         return retval;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Implements the CPU load interference.
+ * @param *Arg test interference structure.
+ */
 LOCAL void     *ti_cpu_controller (void *Arg)
 {
         testInterference *Ainterference = (testInterference *) Arg;
@@ -117,9 +135,10 @@ LOCAL void     *ti_cpu_controller (void *Arg)
         MIN_TRACE ("<--");
         return NULL;            //only to satisfy compiler
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Implements the memory load interference.
+ * @param *Arg test interference structure.
+ */
 LOCAL void     *ti_mem_controller (void *Arg)
 {
         FILE           *output = NULL;
@@ -200,9 +219,10 @@ LOCAL void     *ti_mem_controller (void *Arg)
         MIN_TRACE ("<--");
         return NULL;            //only to satisfy compiler
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Implements the i/o load interference.
+ *  @param *Arg test interference structure.
+ */
 LOCAL void     *ti_io_controller (void *Arg)
 {
         testInterference *Ainterference = (testInterference *) Arg;
@@ -244,11 +264,19 @@ LOCAL void     *ti_io_controller (void *Arg)
         MIN_TRACE ("<--");
         return NULL;            //only to satisfy compiler
 }
-
 /* ------------------------------------------------------------------------- */
-
-/* ================= OTHER EXPORTED FUNCTIONS ============================== */
-/* None */
+/* ======================== FUNCTIONS ====================================== */
+/* ------------------------------------------------------------------------- */
+/** Function that creates test interference “instance” and starts the 
+ * interference process, which will contiuously sleep and resume
+ * for given time periods
+ * @param aType type of interference
+ * @param aIdleTime time for which process will be sleeping during cycle
+ * @param aBusyTime time for which interference will be active
+ * @param aLoadValue value of load - percent for cpu, megabytes for memory,
+ * ignored for ioload
+ * @return pointer to interference struct.
+*/
 testInterference *ti_start_interference_timed (TInterferenceType aType,
                                                int aIdleTime,
                                                int aBusyTime, int aLoadValue)
@@ -352,15 +380,25 @@ testInterference *ti_start_interference_timed (TInterferenceType aType,
 
         return interf_controller;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Function that creates test interference “instance” and starts the 
+ * interference process.
+ * @param aType type of interference
+ * @param aLoadValue value of load - percent for cpu, megabytes for memory,
+ * ignored for ioload
+ * @return pointer to interference struct.
+ */
 testInterference *ti_start_interference (TInterferenceType aType,
                                          int aLoadValue)
 {
         return ti_start_interference_timed (aType, 0, 0, aLoadValue);
 }
-
 /* ------------------------------------------------------------------------- */
+/** Stops the interference and destroys interference struct.
+ * @param aInterference interference structure pointer, 
+ * destroyed inside the function, no need to deallocate it.
+ * @return none.
+ */
 void ti_stop_interference (testInterference * aInterference)
 {
         MIN_TRACE ("-->");
@@ -368,19 +406,27 @@ void ti_stop_interference (testInterference * aInterference)
         pthread_join (aInterference->controller_handle_, NULL);
         MIN_TRACE ("<--");
 }
-
 /* ------------------------------------------------------------------------- */
+/** Pauses the interference 
+ * @param aInterference interference structure pointer, 
+ * @return none.
+ */
 void ti_pause_interference (testInterference * aInterference)
 {
         aInterference->instance_paused_ = EPausePending;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Resumes the interference 
+ * @param aInterference interference structure pointer, 
+ * @return none.
+ */
 void ti_resume_interference (testInterference * aInterference)
 {
         aInterference->instance_paused_ = EResumePending;
 }
 
+/* ================= OTHER EXPORTED FUNCTIONS ============================== */
+/* None */
 /* ================= TESTS FOR LOCAL FUNCTIONS ============================= */
 
 /* End of file */

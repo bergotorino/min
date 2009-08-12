@@ -46,7 +46,7 @@ typedef enum {
         EMemLoad,
         EIOLoad
 } TInterferenceType;
-/** pause status*/
+/** pause status */
 typedef enum {
         ERunning,
         EPausePending,
@@ -60,6 +60,7 @@ typedef enum {
 
 /* ------------------------------------------------------------------------- */
 /* Structures */
+/** Container for test interference of all types */
 typedef struct interference_controller_ {
         TInterferenceType       type_;
         pid_t                   controller_pid_;
@@ -73,60 +74,21 @@ typedef struct interference_controller_ {
         TSBool                  terminated_;
         pthread_t               controller_handle_;
 } testInterference;
-
-
-/* ------------------------------------------------------------------------- */
-
-
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Function that creates test interference “instance” and starts the 
- * interference process.
- * @param aType type of interference
- * @param aLoadValue value of load - percent for cpu, megabytes for memory,
- * ignored for ioload
- * @return pointer to interference struct.
-*/
-
 testInterference   *ti_start_interference (TInterferenceType aType,
-                                               int aLoadValue
-/** Function that creates test interference “instance” and starts the 
- * interference process, which will contiuously sleep and resume
- * for given time periods
- * @param aType type of interference
- * @param aIdleTime time for which process will be sleeping during cycle
- * @param aBusyTime time for which interference will be active
- * @param aLoadValue value of load - percent for cpu, megabytes for memory,
- * ignored for ioload
- * @return pointer to interference struct.
-*/
-                                              );
+					   int aLoadValue);
+/* ------------------------------------------------------------------------- */
 testInterference   *ti_start_interference_timed (TInterferenceType aType,
-                                               int aIdleTime,
-                                               int aBusyTime,
-                                               int aLoadValue
-                                              );
-
-/** Stops the interference and destroys interference struct.
- * @param aInterference interference structure pointer, 
- * destroyed inside the function, no need to deallocate it.
- * @return none.
-*/
-void ti_stop_interference(testInterference* aInterference);
-
-/** Pauses the interference 
- * @param aInterference interference structure pointer, 
- * @return none.
-*/
-void ti_pause_interference(testInterference* aInterference);
-
-/** Resumes the interference 
- * @param aInterference interference structure pointer, 
- * @return none.
-*/
-void ti_resume_interference(testInterference* aInterference);
-
-
-
+						 int aIdleTime,
+						 int aBusyTime,
+						 int aLoadValue);
+/* ------------------------------------------------------------------------- */
+void                ti_stop_interference (testInterference* aInterference);
+/* ------------------------------------------------------------------------- */
+void                ti_pause_interference (testInterference* aInterference);
+/* ------------------------------------------------------------------------- */
+void                ti_resume_interference (testInterference* aInterference);
+/* ------------------------------------------------------------------------- */
 #endif                          /* MIN_TEST_INTERFERENCE_H */
