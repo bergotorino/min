@@ -18,7 +18,7 @@
 
 
 /**
- *  @file       sut_ext_template.c
+ *  @file       sut_ext.c
  *  @version    0.1
  *  @brief      This file contains template for S.U.T. extension
  *              used in test cases written in python

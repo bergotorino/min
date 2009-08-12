@@ -44,8 +44,8 @@ extern char *module_time;
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-TTestModuleType module_type     = ENormal;
-unsigned int    module_version  = 200830;
+TTestModuleType module_type     = ENormal; /** Test module type */
+unsigned int    module_version  = 200830;  /** Test module template version */
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -79,6 +79,12 @@ unsigned int    module_version  = 200830;
 
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** tm_run_test_case() for this test module. Needs to be implemented by user.
+  * @param id test case id
+  * @param cfg_file test case file
+  * @param result [out] test case result
+  * @return test result code
+  */
 int tm_run_test_case (unsigned int id, const char *cfg_file,
                       TestCaseResult * result)
 {
@@ -88,15 +94,19 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         RESULT (result, TP_PASSED, "Test Passed");
 }
 /* ------------------------------------------------------------------------- */
+/** return  test module type */
 unsigned int get_module_type()
 { return module_type; }
 /* ------------------------------------------------------------------------- */
+/** return test module template version */
 unsigned int get_module_version()
 { return module_version; }
 /* ------------------------------------------------------------------------- */
+/** return build date */
 char* get_module_date()
 { return module_date; }
 /* ------------------------------------------------------------------------- */
+/** return build time */
 char* get_module_time()
 { return module_time; }
 /* ------------------------------------------------------------------------- */

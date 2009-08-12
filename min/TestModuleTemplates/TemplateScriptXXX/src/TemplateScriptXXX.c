@@ -66,14 +66,14 @@ DLList *variables;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Used for finding callname.  */
-int             _look4callname (const void *a, const void *b);
-/** Initialize scripter local variables  */
-int             _init_vars ();
-/** Send the variables back to scripter */
-int             _send_vars ();
-/** Find the variable from list */
-ScriptVariable *_find_var (const char *varname);
+LOCAL int             _look4callname (const void *a, const void *b);
+/* ------------------------------------------------------------------------- */
+LOCAL int             _init_vars ();
+/* ------------------------------------------------------------------------- */
+LOCAL int             _send_vars ();
+/* ------------------------------------------------------------------------- */
+LOCAL ScriptVariable *_find_var (const char *varname);
+/* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -81,13 +81,17 @@ ScriptVariable *_find_var (const char *varname);
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
-int _look4callname (const void *a, const void *b)
+/** Compare function for call name  */
+LOCAL int _look4callname (const void *a, const void *b)
 {
         TestCaseInfoTC *tci = (TestCaseInfoTC *) a;
         return strcmp (tci->name_, (char *)b);
 }
 /* ------------------------------------------------------------------------- */
-int _init_vars ()
+/** Initialize scripter local variables  
+ *  @return 0 on success, -1 on error
+ */
+LOCAL int _init_vars ()
 {
         void *shmaddr, *tmp;
         unsigned int size;
@@ -200,7 +204,10 @@ exit:
         return retval;
 }
 /* ------------------------------------------------------------------------- */
-int _send_vars ()
+/** Send the variables back to scripter.
+ *  @return 0 on success, 1 on error
+ */
+LOCAL int _send_vars ()
 {
         DLListIterator   it;
         ScriptVariable *var;
@@ -261,10 +268,13 @@ exit:
         dl_list_free (&variables);
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
-
-ScriptVariable *_find_var (const char *varname)
+/** Find the variable from list 
+ *  @param varname variable name
+ *  @return pointer to scripter variable or INITPTR if no variable matching 
+ *          argument is found.
+ */
+LOCAL ScriptVariable *_find_var (const char *varname)
 {
         DLListIterator  it;
         ScriptVariable *var;
@@ -283,6 +293,11 @@ ScriptVariable *_find_var (const char *varname)
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Run method from test this class.
+ *  @param item MinItemparser containing name of test class function and 
+ *         parameters
+ *  @return the return value of test class function
+ */
 int ts_run_method (MinItemParser * item)
 {
         DLList         *l;
@@ -359,18 +374,27 @@ int ts_run_method (MinItemParser * item)
         return retval;
 }
 /* ------------------------------------------------------------------------- */
+/** return  test module type */
 unsigned int get_module_type()
 { return module_type; }
 /* ------------------------------------------------------------------------- */
+/** return test module template version */
 unsigned int get_module_version()
 { return module_version; }
 /* ------------------------------------------------------------------------- */
+/** return build date */
 char* get_module_date()
 { return module_date; }
 /* ------------------------------------------------------------------------- */
+/** return build time */
 char* get_module_time()
 { return module_time; }
 /* ------------------------------------------------------------------------- */
+/** Assign string value to script variable
+ * @param varname name of variable
+ * @param varval value to assign
+ * @return 0 on success, -1 on error (e.g. variable not declared)
+ */
 int SetLocalValue (const char *varname, const char *varval)
 {
         ScriptVariable *var;
@@ -396,6 +420,11 @@ int SetLocalValue (const char *varname, const char *varval)
         return 0;
 }
 /* ------------------------------------------------------------------------- */
+/** Assign integer value to script variable
+ * @param varname name of variable
+ * @param varval value to assign
+ * @return 0 on success, -1 on error
+ */
 int SetLocalValueInt (const char *varname, const long value)
 {
         ScriptVariable *var;
@@ -415,6 +444,11 @@ int SetLocalValueInt (const char *varname, const long value)
         return 0;
 }
 /* ------------------------------------------------------------------------- */
+/** Get value of script variable as an integer
+ * @param varname name of variable
+ * @param value [out] variable value
+ * @return 0 on success, -1 on error
+ */
 int GetLocalValueInt (const char *varname, long *value)
 {
         ScriptVariable *var;
@@ -439,6 +473,11 @@ int GetLocalValueInt (const char *varname, long *value)
         return 0;
 }
 /* ------------------------------------------------------------------------- */
+/** Get value of script variable as a string
+ * @param varname name of variable
+ * @param value [out] variable value
+ * @return 0 on success, -1 on error
+ */
 int GetLocalValue (const char *varname, char **value)
 {
         ScriptVariable *var;
