@@ -349,7 +349,7 @@ LOCAL void pl_case_started (unsigned moduleid,
         dl_list_add (executed_case_list_,(void*)tmp);
 }
 /* ------------------------------------------------------------------------- */
-/** Engine calls this when it when test case has finnished
+/** Engine calls this when it when test case has finished
  *  @param testrunid identifier for the test run
  *  @param result test case result
  *  @param desc test result description

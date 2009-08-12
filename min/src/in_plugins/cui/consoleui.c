@@ -48,7 +48,7 @@ extern int not_in_curses;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
-
+/* None */
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
@@ -142,6 +142,8 @@ LOCAL void      save_focus_pos (int index, int top_row);
 /* ------------------------------------------------------------------------- */
 LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
 /* ------------------------------------------------------------------------- */
+LOCAL int _find_case_by_id (const void *a, const void *b);
+/* ------------------------------------------------------------------------- */
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
 			   long starttime, long endtime);
 /* ------------------------------------------------------------------------- */
@@ -200,7 +202,6 @@ LOCAL void init_ncurses ()
         noecho ();              /* don't echo while we do getch */
         keypad (stdscr, TRUE);  /* enables reading arrow keys */
 }
-
 /* ------------------------------------------------------------------------- */
 /** Ends ncurses and free all the memory taken up
  */
@@ -248,8 +249,6 @@ LOCAL void quit ()
         /* end ncurses */
         endwin ();
 }
-
-
 /* ------------------------------------------------------------------------- */
 /** Erases the current line from the cursor to the end of the line in the 
  *  specified window
@@ -270,7 +269,6 @@ LOCAL void cui_clear_from_pos (WINDOW * pwin, int y, int x)
                 /* write single character to window */
                 mvwaddch (pwin, y, i, ' ');
 }
-
 /* ------------------------------------------------------------------------- */
 /** Adds centered title to specified window's top line
  *  @param pwin pointer to window
@@ -289,7 +287,6 @@ LOCAL void cui_print_title (WINDOW * pwin, const char *title)
         waddstr (pwin, title);
         waddch (pwin, ' ');
 }
-
 /* ------------------------------------------------------------------------- */
 /** Deletes menu and frees all the memory taken up
  */
@@ -307,7 +304,6 @@ LOCAL void delete_menu ()
            structure */
         delwin (menu_window);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Creates and displays main window
  */
@@ -332,7 +328,6 @@ LOCAL void create_main_window (int ysize, int xsize)
 		wrefresh (main_window);
 	}
 }
-
 /* ------------------------------------------------------------------------- */
 /** Creates and displays log window
  */
@@ -356,8 +351,6 @@ LOCAL void create_log_window ()
 		wrefresh (log_window);
 	}
 }
-
-
 /* ------------------------------------------------------------------------- */
 /** Creates and displays menu
  *  @param cb pointer to menu callback structure
@@ -416,7 +409,6 @@ LOCAL void create_menu (callback_s * cb, const char *string)
         /* display the menu */
         post_menu (my_menu);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Initializes main window and menu
  */
@@ -432,7 +424,6 @@ LOCAL void init_main_window ()
 		create_main_window (maxy, maxx);
         create_menu (cb_main_menu, "Main Menu");
 }
-
 /* ------------------------------------------------------------------------- */
 /** Restores focus position
  *  @param position pointer to focus position to restore
@@ -454,7 +445,6 @@ LOCAL void restore_focus_pos ()
                 }
         }
 }
-
 /* ------------------------------------------------------------------------- */
 /** Saves focus position
  *  @param index index of the focused menu item
@@ -467,13 +457,11 @@ LOCAL void save_focus_pos (int index, int top_row)
                 focus_pos->top_row = top_row;
         }
 }
-
 /* ------------------------------------------------------------------------- */
 /** Searches executed test case with test run id 
  *  @param testrunid search key
  *  @return pointer to ExecutedTestCase structure of INITPTR if not found
  */
-
 LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 {
 	DLListIterator it;
@@ -489,8 +477,14 @@ LOCAL ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 	
 	return INITPTR;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when it when test case has finished
+ *  @param testrunid identifier for the test run
+ *  @param result test case result
+ *  @param desc test result description
+ *  @param starttime starting timestamp
+ *  @param endtime time the test case has finnished
+ */ 
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
 			   long starttime, long endtime)
 {
@@ -526,6 +520,8 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 	  
 }
 /* ------------------------------------------------------------------------- */
+/** Test case id compare function.
+ */
 LOCAL int _find_case_by_id (const void *a, const void *b)
 {
         CUICaseData * tmp1 = (CUICaseData*)a;
@@ -535,6 +531,11 @@ LOCAL int _find_case_by_id (const void *a, const void *b)
         else return -1;
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when test case has been started
+ *  @param moduleid id of the module this test case belongs to
+ *  @param caseid id of the test case
+ *  @param testrunid identifier for the test run
+ */ 
 LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid)
@@ -585,6 +586,9 @@ LOCAL void pl_case_started (unsigned moduleid,
         dl_list_add (executed_case_list_,(void*)tmp);
 }
 /* ------------------------------------------------------------------------- */
+/** Engine call this when test case has been paused.
+ *  @param testrunid test runtime identifier.
+ */
 LOCAL void pl_case_paused (long testrunid)
 {
 	ExecutedTestCase *etc;
@@ -596,6 +600,9 @@ LOCAL void pl_case_paused (long testrunid)
 	
 }
 /* ------------------------------------------------------------------------- */
+/** Engine call this when test case has been resumed.
+ *  @param testrunid test runtime identifier.
+ */
 LOCAL void pl_case_resumed (long testrunid)
 {
 	ExecutedTestCase *etc;
@@ -606,6 +613,10 @@ LOCAL void pl_case_resumed (long testrunid)
 	}
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when it when test case has sent print data
+ *  @param testrunid identifier for the test run
+ *  @param message the test case message
+ */ 
 LOCAL void pl_msg_print (long testrunid, char *message)
 {
 	ExecutedTestCase *etc;
@@ -617,6 +628,10 @@ LOCAL void pl_msg_print (long testrunid, char *message)
 
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this for each module it is configured with
+ *  @param modulename name of the module
+ *  @param moduleid module id
+ */ 
 LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 {
 	CUIModuleData *cmd = INITPTR;
@@ -653,6 +668,9 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when all the cases for module are reported
+ *  @param moduleid module id
+ */ 
 LOCAL void pl_module_ready (unsigned moduleid)
 {
 	static unsigned int  ready_module_count_ = 0;
@@ -663,12 +681,20 @@ LOCAL void pl_module_ready (unsigned moduleid)
 	}
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when module adding fails
+ *  @param modulename name of the module
+ */ 
 LOCAL void pl_no_module (char *modulename)
 {
         MIN_WARN ("Module %s has not been loaded",modulename);        
         cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this for each new test case
+ *  @param moduleid id of the module this test case belongs to
+ *  @param caseid id of the test case
+ *  @param casetitle test case title
+ */ 
 LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 {
         CUICaseData *ccd = INITPTR;        
@@ -688,8 +714,10 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
         /* update the screen */
         cui_refresh_view();
 }
-
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when it when test case/module sends error message
+ *  @param error the message
+ */ 
 LOCAL void pl_error_report (char *error) {
 	Text *txt;
 	
@@ -697,7 +725,6 @@ LOCAL void pl_error_report (char *error) {
 	dl_list_add (error_list_, txt);
 	cui_refresh_log_view ();
 }
-
 /* ------------------------------------------------------------------------- */
 /** Clears one line of the specified window
  *  @param y vertical position of line to clear
@@ -709,7 +736,6 @@ LOCAL void cui_clear_line (WINDOW * pwin, int y)
 	for (x = 0; x < getmaxx (pwin); x++)
 		mvwaddch (pwin, y, x, ' ');
 }
-
 /* ------------------------------------------------------------------------- */
 /** Clears the specified window
  *  @param pwin pointer to window
@@ -731,7 +757,6 @@ LOCAL void free_etc_print (void *p)
 	tx = (Text *)p;
 	tx_destroy (&tx);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Frees the data of ExecutedTestCase
  *  @param p pointer to ExecutedTestCase 
@@ -748,7 +773,6 @@ LOCAL void free_executed_case (void *p)
 	dl_list_free (&etc->printlist_);
 	DELETE (etc);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Frees the CUICaseData
  *  @param p pointer to CUICaseData
@@ -761,7 +785,6 @@ LOCAL void free_case (void *p)
 	tx_destroy (&tc->casetitle_);
 	DELETE (tc);
 }
-
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* ------------------------------------------------------------------------- */
