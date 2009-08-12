@@ -142,174 +142,78 @@ typedef struct {
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Used for finding class name on list. */
 LOCAL int       _findclass (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Used for finding test process of specified pid. */
 LOCAL int       _findpid (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Used for finding test process of specified status. */
 LOCAL int       _findstatus (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Used for finding test process of specified testid. */
 LOCAL int       _findid (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Used for finding specified allowed result and also allowed error code */
 LOCAL int       _findallowedresult (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Fetches pointer to run_method from library and stores it in safe place.
- *  @param dllname [in] name of the library from which pointer is fetched.
- *  @param classname [in] mnemonic for that library.
- */
 LOCAL void      fetch_ptr2run (const char *dllname, const char *classname);
 /* ------------------------------------------------------------------------- */
-/** Reads possible optional parameter for the RUN keyword. 
- *  @param mip [in] line with possible parameters. 
- *  @param ep [out] structure that contains extra parameters */
 LOCAL void      read_optional_run_params (MinItemParser * mip,
                                           ExtraParams * ep);
 /* ------------------------------------------------------------------------- */
-/** Message handling function. Calls appropiate message handler.
- *  @param mqid [in] message queue id.
- *  @param msg [in] buffer that contains message to be handled.
- */
+LOCAL void      uengine_read_message (int mqid, MsgBuffer * input_buffer);
+/* ------------------------------------------------------------------------- */
 LOCAL void      uengine_handle_message (int mqid, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** Handles MSG_RET
- *  @param mqid [in] message queue id.
- *  @param param [in] test result code.
- *  @param message [in] description of the test result.
- */
 LOCAL void      uengine_handle_ret (int mqid, int param, const char *message,
                                     long sender);
 /* ------------------------------------------------------------------------- */
-/** Handles indication event.
- *  @param mqid [in] message queue id.
- *  @param msg [in] buffer that contains message to be handled.
- */
 LOCAL void      uengine_handle_event_ind (int mqid, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** Handles MSG_SNDRCV
- *  @param mqid [in] message queue id.
- *  @param msg [in] buffer that contains message to be handled.
- */
 LOCAL void      uengine_handle_sndrcv (int mqid, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** Handles MSG_END message.
- *  @param mqid [in] message queue id.
- *  @param msg [in] buffer that contains message to be handled.
- */
 LOCAL void      uengine_handle_end (int mqid, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** Handles MSG_PAUSE message.
- *  @param mqid [in] message queue id.
- *  @param msg [in] buffer that contains message to be handled.
- */
 LOCAL void      uengine_handle_pause (int mqid, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** Handles MSG_RESUME message.
- *  @param mqid [in] message queue id.
- *  @param msg [in] buffer that contains message to be handled.
- */
 LOCAL void      uengine_handle_resume (int mqid, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** Handles abort message.
- *  @param mqid [in] message queue id.
- *  @param msg [in] buffer that contains message to be handled.
- */
 LOCAL void      uengine_handle_stop (int mqid, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** Handles external controller message.
- *  @param mqid [in] message queue id.
- *  @param msg [in] buffer that contains message to be handled.
- */
 LOCAL void      uengine_handle_extif (int mqid, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** handles external controller message type EResponseSlave
- *  @param result [in] the result of the operation: 1 = Ok, 0 = Error 
- *  @param caseid [in] the test case id, if caseid > 0
- */
 LOCAL void      uengine_handle_extif_response (int result, int caseid);
 /* ------------------------------------------------------------------------- */
-/** handles external controller message type ERemoteSlaveResponse
- *  @param testresult [in] test case result. 
- *  @param caseid [in] the test case id, if caseid > 0
- */
 LOCAL void      uengine_handle_extif_remote_response (int testresult,
                                                       int caseid);
 /* ------------------------------------------------------------------------- */
-/** Handler for SIGCHLD
- *  @param sig signal numnber
- */
-/*LOCAL void scripter_sigchld_handler( int sig );*/
-/* ------------------------------------------------------------------------- */
-/** Handler for SIGALRM
- *  @param sig signal numnber
- */
 LOCAL void      scripter_sigalrm_handler (int sig);
 /* ------------------------------------------------------------------------- */
-/** Checks a few global flags to see if next line in script should be executed
- */
 LOCAL TSBool    _execute_script (void);
 /* ------------------------------------------------------------------------- */
-/** Checks if there are test cases running 
- */
 LOCAL TSBool    _pending_tests (void);
 /* ------------------------------------------------------------------------- */
-/** List find compare function
- *  @param a comparison lvalue
- *  @param b comparison rvalue
- */
 LOCAL int       _look4event (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Searches for event registration from a local list
- *  @param eventname name of the envent
- */
 LOCAL minEventIf *find_event_reqistration (char *eventname);
 /* ------------------------------------------------------------------------- */
-/** Translates literal category to the enum representation.
- *  @param str [in] literal category to be translated
- *  @return enumerator value that correstonds to str @see TTestCategory
- */
 LOCAL TTestCategory get_result_category (const char *str);
 /* ------------------------------------------------------------------------- */
-/** Assigns a value to script variable
- *  @param varname [in] variable name
- *  @param varval [in] variable value
- */
-LOCAL void var_assign (const char *varname, const char *varval);
+LOCAL ScriptVar *var_find (const char *varname);
 /* ------------------------------------------------------------------------- */
-/** Updates the scriter internal variables 
- *  @param res [in] Test Process result
- */
-LOCAL void update_variables (TPResult res);
+LOCAL const char *var_value (const char *varname);
 /* ------------------------------------------------------------------------- */
-/** Used for declaring scripter interal variables
- *  @param varname [in] variable name
- */
-LOCAL int declare_internal_var (const char *varname);
+LOCAL void       var_assign (const char *varname, const char *varval);
 /* ------------------------------------------------------------------------- */
-/** Interpretes the variable value as integer and increments by one
- *  @param varname [in] variable name
- */
-LOCAL void var_increment (const char *varname);
+LOCAL void       update_variables (TPResult res);
 /* ------------------------------------------------------------------------- */
-/** Sends scripter variables to test class
- */
-LOCAL void send_variables ();
+LOCAL int        declare_internal_var (const char *varname);
 /* ------------------------------------------------------------------------- */
-/** Receives scripter variables from test class
- */
-LOCAL void receive_variables ();
+LOCAL void       var_increment (const char *varname);
 /* ------------------------------------------------------------------------- */
-/** Inspects all the results of the method, combiner calls made from the script
- *  and decides if the scripted test case is PASSED or FAILED
- *  @param tp_details [in] list of method / combiner calls
- *  @param tcr [in/out] the final result
- */
-LOCAL void      scripter_final_verdict (DLList * tp_details,
-                                        TestCaseResult * tcr);
-
+LOCAL void       send_variables ();
+/* ------------------------------------------------------------------------- */
+LOCAL void       receive_variables ();
+/* ------------------------------------------------------------------------- */
+LOCAL void       scripter_final_verdict (DLList * tp_details,
+					 TestCaseResult * tcr);
+/* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
 
@@ -317,13 +221,16 @@ LOCAL void      scripter_final_verdict (DLList * tp_details,
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
+/** Used for finding class name on list. 
+ */
 LOCAL int _findclass (const void *a, const void *b)
 {
         ScriptedTestProcessDetails *stpd = (ScriptedTestProcessDetails *) a;
         return strcmp (stpd->testclass_, (char *)b);
 }
-
 /* ------------------------------------------------------------------------- */
+/** Used for finding test process of specified pid. 
+ */
 LOCAL int _findpid (const void *a, const void *b)
 {
         ScriptedTestProcessDetails *stpd = (ScriptedTestProcessDetails *) a;
@@ -332,8 +239,9 @@ LOCAL int _findpid (const void *a, const void *b)
         else
                 return 1;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Used for finding test process of specified status. 
+ */
 LOCAL int _findstatus (const void *a, const void *b)
 {
         ScriptedTestProcessDetails *stpd = (ScriptedTestProcessDetails *) a;
@@ -342,15 +250,17 @@ LOCAL int _findstatus (const void *a, const void *b)
         else
                 return 1;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Used for finding test process of specified testid. 
+*/
 LOCAL int _findid (const void *a, const void *b)
 {
         ScriptedTestProcessDetails *stpd = (ScriptedTestProcessDetails *) a;
         return strcmp (stpd->options_.testid_, (char *)b);
 }
-
 /* ------------------------------------------------------------------------- */
+/** Used for finding specified allowed result and also allowed error code 
+ */
 LOCAL int _findallowedresult (const void *a, const void *b)
 {
         if (*(int *)a == *(int *)b)
@@ -359,6 +269,8 @@ LOCAL int _findallowedresult (const void *a, const void *b)
                 return 1;
 }
 /* ------------------------------------------------------------------------- */
+/** Checks if there are test cases running 
+ */
 LOCAL TSBool _pending_tests ()
 {
         DLListIterator  it = DLListNULLIterator;
@@ -387,8 +299,9 @@ LOCAL TSBool _pending_tests ()
 
         return ESFalse;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Checks a few global flags to see if next line in script should be executed
+ */
 LOCAL TSBool _execute_script ()
 {
         struct timeval  res;
@@ -455,8 +368,11 @@ LOCAL TSBool _execute_script ()
 
         return ESTrue;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Fetches pointer to run_method from library and stores it in safe place.
+ *  @param dllname [in] name of the library from which pointer is fetched.
+ *  @param classname [in] mnemonic for that library.
+ */
 LOCAL void fetch_ptr2run (const char *dllname, const char *classname)
 {
         TestClassDetails *tcd = INITPTR;
@@ -514,8 +430,10 @@ LOCAL void fetch_ptr2run (const char *dllname, const char *classname)
 EXIT:
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Reads possible optional parameter for the RUN keyword. 
+ *  @param mip [in] line with possible parameters. 
+ *  @param ep [out] structure that contains extra parameters */
 LOCAL void read_optional_run_params (MinItemParser * mip, ExtraParams * ep)
 {
         char           *token = INITPTR;
@@ -605,8 +523,11 @@ LOCAL void read_optional_run_params (MinItemParser * mip, ExtraParams * ep)
       EXIT:
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Read message from POSIX mail queue.
+ *  @param mqid mail queue identfier
+ *  @param input_buffer [out] the buffer message is read into.
+ */
 LOCAL void uengine_read_message (int mqid, MsgBuffer * input_buffer)
 {
         int             retval = 0;
@@ -639,8 +560,11 @@ LOCAL void uengine_read_message (int mqid, MsgBuffer * input_buffer)
         }
 
 }
-
 /* ------------------------------------------------------------------------- */
+/** Message handling function. Calls appropiate message handler.
+ *  @param mqid [in] message queue id.
+ *  @param msg [in] buffer that contains message to be handled.
+ */
 LOCAL void uengine_handle_message (int mqid, const MsgBuffer * msg)
 {
         MsgBuffer       out;
@@ -705,8 +629,12 @@ LOCAL void uengine_handle_message (int mqid, const MsgBuffer * msg)
 
 
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handles MSG_RET
+ *  @param mqid [in] message queue id.
+ *  @param param [in] test result code.
+ *  @param message [in] description of the test result.
+ */
 LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
                                long sender)
 {
@@ -854,32 +782,47 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
       EXIT:
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handles MSG_END message.
+ *  @param mqid [in] message queue id.
+ *  @param msg [in] buffer that contains message to be handled.
+ */
 LOCAL void uengine_handle_end (int mqid, const MsgBuffer * msg)
 {
-        /* Not needed on this sprint */
+	/* No handling needed */
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handles MSG_PAUSE message.
+ *  @param mqid [in] message queue id.
+ *  @param msg [in] buffer that contains message to be handled.
+ */
 LOCAL void uengine_handle_pause (int mqid, const MsgBuffer * msg)
 {
-        /* Not needed on this sprint */
+	/* No handling needed */
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handles MSG_RESUME message.
+ *  @param mqid [in] message queue id.
+ *  @param msg [in] buffer that contains message to be handled.
+ */
 LOCAL void uengine_handle_resume (int mqid, const MsgBuffer * msg)
 {
-        /* Not needed on this sprint */
+        /* No handling needed */
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handles abort message.
+ *  @param mqid [in] message queue id.
+ *  @param msg [in] buffer that contains message to be handled.
+ */
 LOCAL void uengine_handle_stop (int mqid, const MsgBuffer * msg)
 {
-        /* Not needed on this sprint */
+        /* No handling needed */
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handles external controller message.
+ *  @param mqid [in] message queue id.
+ *  @param msg [in] buffer that contains message to be handled.
+ */
 LOCAL void uengine_handle_extif (int mqid, const MsgBuffer * msg)
 {
         switch (msg->extif_msg_type_) {
@@ -898,8 +841,11 @@ LOCAL void uengine_handle_extif (int mqid, const MsgBuffer * msg)
         }
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** handles external controller message type EResponseSlave
+ *  @param result [in] the result of the operation: 1 = Ok, 0 = Error 
+ *  @param caseid [in] the test case id, if caseid > 0
+ */
 LOCAL void uengine_handle_extif_response (int result, int caseid)
 {
         ScriptedTestProcessDetails *stpd = INITPTR;
@@ -956,8 +902,11 @@ LOCAL void uengine_handle_extif_response (int result, int caseid)
       EXIT:
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** handles external controller message type ERemoteSlaveResponse
+ *  @param testresult [in] test case result. 
+ *  @param caseid [in] the test case id, if caseid > 0
+ */
 LOCAL void uengine_handle_extif_remote_response (int testresult, int caseid)
 {
         DLListIterator  it = DLListNULLIterator;
@@ -998,8 +947,11 @@ LOCAL void uengine_handle_extif_remote_response (int testresult, int caseid)
       EXIT:
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handles indication event.
+ *  @param mqid [in] message queue id.
+ *  @param msg [in] buffer that contains message to be handled.
+ */
 LOCAL void uengine_handle_event_ind (int mqid, const MsgBuffer * msg)
 {
         scripter_mod.event_pending = ESFalse;
@@ -1009,8 +961,11 @@ LOCAL void uengine_handle_event_ind (int mqid, const MsgBuffer * msg)
                 MIN_ERROR ("Event error occured");
         }
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handles MSG_SNDRCV
+ *  @param mqid [in] message queue id.
+ *  @param msg [in] buffer that contains message to be handled.
+ */
 LOCAL void uengine_handle_sndrcv (int mqid, const MsgBuffer * msg)
 {
 
@@ -1026,8 +981,10 @@ LOCAL void uengine_handle_sndrcv (int mqid, const MsgBuffer * msg)
         }
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Updates the scriter internal variables 
+ *  @param res [in] Test Process result
+ */
 LOCAL void update_variables (TPResult res)
 {
         switch (res) {
@@ -1056,13 +1013,10 @@ LOCAL void update_variables (TPResult res)
         }
         var_increment ("TOTAL_COUNT");
 }
-
 /* ------------------------------------------------------------------------- */
-/*LOCAL void scripter_sigchld_handler( int sig )
-{
-        min_info("Scripter Test process received SIGCHLD");
-}*/
-/* ------------------------------------------------------------------------- */
+/** Handler for SIGALRM
+ *  @param sig signal numnber
+ */
 LOCAL void scripter_sigalrm_handler (int sig)
 {
         DLListIterator  it = DLListNULLIterator;
@@ -1095,15 +1049,20 @@ LOCAL void scripter_sigalrm_handler (int sig)
                 it2 = it;
         } while (it != DLListNULLIterator);
 }
-
 /* ------------------------------------------------------------------------- */
+/** List find compare function
+ *  @param a comparison lvalue
+ *  @param b comparison rvalue
+ */
 LOCAL int _look4event (const void *a, const void *b)
 {
         minEventIf    *e = (minEventIf *) a;
         return strcmp (e->Name (e), (char *)b);
 }
-
 /* ------------------------------------------------------------------------- */
+/** Searches for event registration from a local list
+ *  @param eventname name of the envent
+ */
 LOCAL minEventIf *find_event_reqistration (char *eventname)
 {
         DLListIterator  it = DLListNULLIterator;
@@ -1117,8 +1076,11 @@ LOCAL minEventIf *find_event_reqistration (char *eventname)
         }
         return (minEventIf *) dl_list_data (it);
 }
-
 /* ------------------------------------------------------------------------- */
+/** Translates literal category to the enum representation.
+ *  @param str [in] literal category to be translated
+ *  @return enumerator value that correstonds to str @see TTestCategory
+ */
 LOCAL TTestCategory get_result_category (const char *str)
 {
         TTestCategory   retval = ECategoryUnknown;
@@ -1143,8 +1105,11 @@ LOCAL TTestCategory get_result_category (const char *str)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Find scipt variable with variable name.
+ *  @param varname variable name.
+ *  @return pointer to variable strucutre or INITPTR.
+ */
 LOCAL ScriptVar *var_find (const char *varname)
 {
         DLListIterator  it;
@@ -1160,8 +1125,11 @@ LOCAL ScriptVar *var_find (const char *varname)
         }
         return INITPTR;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Get value from variable. 
+ *  @param varname variable name.
+ *  @return varible value or argument if variable is not found.
+ */
 LOCAL const char *var_value (const char *varname)
 {
         ScriptVar      *var;
@@ -1177,8 +1145,11 @@ LOCAL const char *var_value (const char *varname)
 
         return varname;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Assigns a value to script variable
+ *  @param varname [in] variable name
+ *  @param varval [in] variable value
+ */
 LOCAL void var_assign (const char *varname, const char *varval)
 {
         ScriptVar      *var;
@@ -1200,8 +1171,10 @@ LOCAL void var_assign (const char *varname, const char *varval)
 
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Interpretes the variable value as integer and increments by one
+ *  @param varname [in] variable name
+ */
 LOCAL void var_increment (const char *varname)
 {
         ScriptVar      *var;
@@ -1221,9 +1194,9 @@ LOCAL void var_increment (const char *varname)
 
         return;
 }
-
-
 /* ------------------------------------------------------------------------- */
+/** Sends scripter variables to test class
+ */
 LOCAL void send_variables ()
 {
         DLListIterator   it;
@@ -1267,6 +1240,8 @@ LOCAL void send_variables ()
         tx_destroy (&vars);
 }
 /* ------------------------------------------------------------------------- */
+/** Receives scripter variables from test class.
+ */
 LOCAL void receive_variables ()
 {
         void *shmaddr;
@@ -1351,8 +1326,12 @@ exit:
 
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Inspects all the results of the method, combiner calls made from the script
+ *  and decides if the scripted test case is PASSED or FAILED
+ *  @param tp_details [in] list of method / combiner calls
+ *  @param tcr [in/out] the final result
+ */
 LOCAL void scripter_final_verdict (DLList * tp_details, TestCaseResult * tcr)
 {
         ScriptedTestProcessDetails *stpd;
@@ -1463,6 +1442,12 @@ LOCAL void scripter_final_verdict (DLList * tp_details, TestCaseResult * tcr)
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** substracts two timeval structures.
+ *  @param result [out] the result of substraction
+ *  @param x [in] left operand
+ *  @param y [in] right operand
+ *  @return 1 if result negative, 0 otherwise 
+ */
 int substract_timeval (struct timeval *result, struct timeval *x,
                        struct timeval *y)
 {
@@ -1487,8 +1472,12 @@ int substract_timeval (struct timeval *result, struct timeval *x,
         /* Return 1 if result is negative. */
         return x->tv_sec < y->tv_sec;
 }
-
 /* ------------------------------------------------------------------------- */
+/** add two timeval structures.
+ *  @param result [out] the result of addition
+ *  @param x [in] left operand
+ *  @param y [in] right operand
+ *  @return 1 if result negative, 0 otherwise */
 int add_timeval (struct timeval *result, struct timeval *x, struct timeval *y)
 {
         /* add it */
@@ -1504,8 +1493,13 @@ int add_timeval (struct timeval *result, struct timeval *x, struct timeval *y)
 
         return 1;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Creates testclass
+ *  @param dllName [in] the name of the dll library.
+ *  @param className [in] name of the class that will be created.
+ * 
+ *  NOTE: syntax which does the call: "create <dllname> <classname>"
+ */
 int testclass_create (filename_t dllName, char *className)
 {
         int             retval = ENOERR;
@@ -1571,8 +1565,11 @@ int testclass_create (filename_t dllName, char *className)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Calls function from a given test class.
+ *  @param className [in] the name of the class.
+ *  NOTE: syntax which does the call: "<dllname> <funcname>"
+ */
 int testclass_call_function (char *className, MinItemParser * mip)
 {
         int             retval = ENOERR;
@@ -1659,8 +1656,16 @@ int testclass_call_function (char *className, MinItemParser * mip)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Start a new testcase 
+ *  @param modulename [in] name of the test module.
+ *  @param configfile [in] module configuration file name.
+ *  @param id         [in] test case id number
+ *  @param mip        [in] the optional parameters
+ *
+ *  NOTE: syntax which does the call: 
+ * "run <modulename> <configfile> <id> ..."
+ */
 int test_run (const char *modulename, const char *configfile, unsigned int id,
               MinItemParser * mip)
 {
@@ -1776,8 +1781,12 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Destroys testclass instance.
+ *  @param className [in] name of the class to de destroyed.
+ * 
+ *  NOTE: syntax which does the call: "delete <classname>"
+ */
 int testclass_destroy (char *className)
 {
         DLListIterator  it;
@@ -1821,8 +1830,12 @@ int testclass_destroy (char *className)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Registers scripter for an Event
+ *  @param eventname [in] name of the event
+ *  @param is_state  [in] set if the event is state envent
+ *  NOTE: syntax which does the call: "request <eventname> [state]"
+ */
 int event_request (char *eventname, int is_state)
 {
         int             retval = ENOERR;
@@ -1859,8 +1872,11 @@ int event_request (char *eventname, int is_state)
 
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Wait for Event
+ *  @param className [in] name of the event
+ *  NOTE: syntax which does the call: "wait <eventname>"
+ */
 int event_wait (char *eventname)
 {
         int             retval = ENOERR;
@@ -1893,8 +1909,11 @@ int event_wait (char *eventname)
         }
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Release the event
+ *  @param eventname [in] name of the event
+ *  NOTE: syntax which does the call: "release <eventname>"
+ */
 int event_release (char *eventname)
 {
         int             retval = ENOERR;
@@ -1928,8 +1947,11 @@ int event_release (char *eventname)
 
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Set the event
+ *  @param eventname [in] name of the event
+ *  NOTE: syntax which does the call: "set <eventname> [state]"
+ */
 int event_set (char *eventname, int is_state)
 {
         int             retval = ENOERR;
@@ -1953,8 +1975,11 @@ int event_set (char *eventname, int is_state)
 
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Unset the event
+ *  @param eventname [in] name of the event
+ *  NOTE: syntax which does the call: "unset <eventname>"
+ */
 int event_unset (char *eventname)
 {
         int             retval = ENOERR;
@@ -1978,8 +2003,11 @@ int event_unset (char *eventname)
 
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Called when the end of test case is reached in the script
+ * 
+ *  NOTE: syntax which does the call: "[Endtest]"
+ */
 int script_finish (void)
 {
         int             retval = ENOERR;
@@ -2104,8 +2132,6 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         scripter_mod.script_tcr.result_ = TP_NC;
         memset (scripter_mod.script_tcr.desc_, 0x0, MaxTestResultDescription);
 
-        /* 6) Set SIGCHLD and SIGALRM signal handlers */
-        /* signal (SIGCHLD, scripter_sigchld_handler); */
         signal (SIGCHLD, SIG_IGN);
         /* 7) The uEngine main loop */
         while (!scripter_mod.script_finished || _pending_tests ()) {
@@ -2346,8 +2372,12 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Prints text from a testclass.
+ *  @param mip [in] pointer to the min item parser.
+ *
+ *  NOTE: syntax which does the call: "print <text>"
+ */
 int testclass_print (MinItemParser * mip)
 {
         int             retval = ENOERR;
@@ -2367,8 +2397,14 @@ int testclass_print (MinItemParser * mip)
         tx_destroy (&txt);
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Sets next allowed result for a testclass execution.
+ *  @param nextresult [in] allowed result
+ *  @param mip [in] posible next results, we support multiple next results. 
+ *
+ *  NOTE: syntax which does the call: 
+ *  "allownextresult <result> [result2] .. [resultN]"
+ */
 int testclass_allownextresult (int nextresult, MinItemParser * mip)
 {
         int             retval = ENOERR;
@@ -2413,8 +2449,12 @@ int testclass_allowerrorcodes (int nexterrorcode, MinItemParser * mip)
         retval = ENOERR;
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Stops execution till specified test finishes. 
+ *  @param testid [in] id of the test that we are waiting to complete.
+ *
+ *  NOTE: syntax which does the call: "complete <testid>"
+ */
 int test_complete (const char *testid)
 {
         int             retval = ENOERR;
@@ -2463,8 +2503,12 @@ int test_complete (const char *testid)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Pauses test process 
+ *  @param testid [in] id of the process to be paused
+ *  @param mip [in] optional parameters
+ *  NOTE: syntax which does the call: "pause <testid> [time=<time>]"
+ */
 int test_pause (char *testid, MinItemParser * mip)
 {
         int             retval = ENOERR;
@@ -2516,8 +2560,12 @@ int test_pause (char *testid, MinItemParser * mip)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Resumes paused test process
+ *  @param testid [in] testid of the test process to be resumed.
+ *
+ *  NOTE: syntax which does the call: "resume <testid>"
+ */
 int test_resume (char *testid)
 {
         int             retval = ENOERR;
@@ -2562,8 +2610,12 @@ int test_resume (char *testid)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Aborts test process
+ *  @param testid [in] testid of the test process to be aborted.
+ *
+ *  NOTE: syntax which does the call: "cancel <testid>"
+ */
 int test_cancel (char *testid)
 {
         int             retval = ENOERR;
@@ -2607,8 +2659,14 @@ int test_cancel (char *testid)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Allocates a slave
+ *  @param slave_type [in] is the type of slave, currently "phone" type is
+ *                         the one that is supported. 
+ *  @param slave_name [in] name of the slave which will be further used.
+ *
+ *  NOTE: syntax which does the call: "allocate <slavetype> <slaveid>"
+ */
 int test_allocate_slave (const char *slave_type, const char *slave_name)
 {
         int             retval = ENOERR;
@@ -2643,8 +2701,12 @@ int test_allocate_slave (const char *slave_type, const char *slave_name)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Frees allocated slave
+ *  @param slave_name [in] name of the slave which will be freed.
+ *
+ *  NOTE: syntax which does the call: "free <slaveid>"
+ */
 int test_free_slave (const char *slave_name)
 {
         int             retval = ENOERR;
@@ -2672,8 +2734,13 @@ int test_free_slave (const char *slave_name)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Executes a command on a remote slave device.
+ *  @param slave_name [in[ the name of the slave that is going to be used.
+ *  @param mip [in] contains the test we are going to execute on slave.
+ *
+ *  NOTE: syntax which does the call: "remote <slaveid> <command>"
+ */
 int test_remote_exe (const char *slave_name, MinItemParser * mip)
 {
         MsgBuffer       msg;
@@ -2762,15 +2829,23 @@ int test_remote_exe (const char *slave_name, MinItemParser * mip)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Cancels script execution when test fails.
+ *
+ *  NOTE: syntax which does the call: "canceliferror"
+ */
 int test_canceliferror ()
 {
         scripter_mod.canceliferror = ESTrue;
         return ENOERR;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Sets timeout for the scripter/combiner 
+ *  @param interval [in] the timeout value in miliseconds
+ *
+ *  NOTE: syntax which does the call: "timeout <interval>"
+ * 
+ */
 int testclass_test_timeout (unsigned long interval)
 {
         unsigned long   timeout = 0;
@@ -2802,8 +2877,12 @@ int testclass_test_timeout (unsigned long interval)
         }
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Takes script execution into sleep for specified period of time. 
+ *  @param interval [in] the sleep time in miliseconds
+ *
+ *  NOTE: syntax which does the call: "sleep <interval>" 
+ */
 int testclass_test_sleep (unsigned long interval)
 {
         scripter_mod.sleep = interval;
@@ -2812,13 +2891,24 @@ int testclass_test_sleep (unsigned long interval)
         return ENOERR;
 }
 /* ------------------------------------------------------------------------- */
+/** Sets a new blocking timeout for test case
+ * @param timeout [in] variable name or value to be evaluated
+ *  NOTE: syntax which does the call: "blockingtimeout <timeout>"  
+ */
 int  set_block_timeout (unsigned long timeout)
 {
 	scripter_mod.blocking_timeout = timeout;
 	return ENOERR;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Declares a variable for the scripter
+ *  @param name [in] name of the variable
+ *  @param initialize [in] flag to tell whether third argument is to considered
+ *         as initilial value for the variable
+ *  @param val [in] initial value for the variable
+ *
+ *  NOTE: syntax which does the call: "var <value>"  
+ */
 int declare_var (char *name, TSBool initialize, char *val)
 {
 
@@ -2847,8 +2937,10 @@ int declare_var (char *name, TSBool initialize, char *val)
         MIN_DEBUG ("name=%s init. val=%s", name, initialize ? val : "none");
         return ENOERR;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Used for declaring scripter interal variables
+ *  @param varname [in] variable name
+ */
 LOCAL int declare_internal_var (const char *name)
 {
         char *var_name, *var_value;
@@ -2860,8 +2952,13 @@ LOCAL int declare_internal_var (const char *name)
         declare_var (var_name, 1, var_value);
         return ENOERR;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Sends a variable value from slave to master
+ *  @param variable [in] name of the variable
+ *  @param value [in] variable value
+ *
+ *  NOTE: syntax which does the call: "sendreceive <variable>=<value>"  
+ */
 int sendreceive_slave_send (char *variable, char *value)
 {
         MsgBuffer       msg;
@@ -2876,8 +2973,12 @@ int sendreceive_slave_send (char *variable, char *value)
 
         return ENOERR;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Expects a variable value from master
+ *  @param variable [in] name of the variable
+ *
+ *  NOTE: syntax which does the call: "expect <variable>"  
+ */
 int sendreceive_slave_expect (char *variable)
 {
         MsgBuffer       msg;
@@ -2903,6 +3004,12 @@ int sendreceive_slave_expect (char *variable)
         return ENOERR;
 }
 /* ------------------------------------------------------------------------- */
+/** Operates test interference in script
+ * @param mip [in] pointer to min item parser containing script 
+ * line with parameters
+ * NOTE: syntax which does the call: "testinterference <name>.<command> [type] 
+ * [value] [idle time] [active time]"
+ */
 int test_interference(MinItemParser* args)
 {
         char*   command = INITPTR;
@@ -2955,9 +3062,11 @@ int test_interference(MinItemParser* args)
         }
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Evaluates an if condition
+ * @param condition [in] variable name or value to be evaluated
+ * @return ESTrue or ESFalse
+ */
 TSBool eval_if (char *condition) {
         int i,isnumber = ESTrue;
         const char *value;

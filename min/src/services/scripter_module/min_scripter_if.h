@@ -143,256 +143,76 @@ struct _TestClassDetails {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** substracts two timeval structures.
- *  @param result [out] the result of substraction
- *  @param x [in] left operand
- *  @param y [in] right operand
- *  @return 1 if result negative, 0 otherwise */
 int             substract_timeval (struct timeval *result, struct timeval *x,
                                    struct timeval *y);
 /* ------------------------------------------------------------------------- */
-/** add two timeval structures.
- *  @param result [out] the result of addition
- *  @param x [in] left operand
- *  @param y [in] right operand
- *  @return 1 if result negative, 0 otherwise */
 int             add_timeval (struct timeval *result, struct timeval *x,
                              struct timeval *y);
 /* ------------------------------------------------------------------------- */
-/** Initiates the scripter interface
- *  @param sif [in/out] the scripter interface to be filled by scripter plugin.
- *  @param tmc [in] pointer to the tmc saved for later use
- */
-int             scripter_if_init (minScripterIf * sif, TMC_t * tmc);
-/* ------------------------------------------------------------------------- */
-/** Creates testclass
- *  @param dllName [in] the name of the dll library.
- *  @param className [in] name of the class that will be created.
- * 
- *  NOTE: syntax which does the call: "create <dllname> <classname>"
- */
 int             testclass_create (char *dllName, char *className);
 /* ------------------------------------------------------------------------- */
-/** Calls function from a given test class.
- *  @param className [in] the name of the class.
- *  NOTE: syntax which does the call: "<dllname> <funcname>"
- */
 int             testclass_call_function (char *className,
                                          MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
-/** Destroys testclass instance.
- *  @param className [in] name of the class to de destroyed.
- * 
- *  NOTE: syntax which does the call: "delete <classname>"
- */
 int             testclass_destroy (char *className);
-
 /* ------------------------------------------------------------------------- */
-/** Registers scripter for an Event
- *  @param eventname [in] name of the event
- *  @param is_state  [in] set if the event is state envent
- *  NOTE: syntax which does the call: "request <eventname> [state]"
- */
 int             event_request (char *eventname, int is_state);
-
 /* ------------------------------------------------------------------------- */
-/** Wait for Event
- *  @param className [in] name of the event
- *  NOTE: syntax which does the call: "wait <eventname>"
- */
 int             event_wait (char *eventname);
-
 /* ------------------------------------------------------------------------- */
-/** Release the event
- *  @param eventname [in] name of the event
- *  NOTE: syntax which does the call: "release <eventname>"
- */
 int             event_release (char *eventname);
-
 /* ------------------------------------------------------------------------- */
-/** Set the event
- *  @param eventname [in] name of the event
- *  NOTE: syntax which does the call: "set <eventname> [state]"
- */
 int             event_set (char *eventname, int is_state);
-
 /* ------------------------------------------------------------------------- */
-/** Set the event
- *  @param eventname [in] name of the event
- *  NOTE: syntax which does the call: "unset <eventname>"
- */
 int             event_unset (char *eventname);
-
 /* ------------------------------------------------------------------------- */
-/** Load test libraries used by script and checks if used symbols are available
- *  from those libraries
- *  @param symlist [in] list of ScripterDataItems
- *  @return 0 if all symbols are available, -1 otherwise.
- */
 char           *validate_test_case (MinSectionParser * testcase);
 /* ------------------------------------------------------------------------- */
-/** Validate the define section of script file
- *  @param define [in] the define section of script file
- *  @return ESTrue if all symbols are available, ESFalse otherwise.
- */
 TSBool          validate_define (MinSectionParser * define);
 /* ------------------------------------------------------------------------- */
-/** Called when the end of test case is reached in the script
- * 
- *  NOTE: syntax which does the call: "[Endtest]"
- */
 int             script_finish (void);
 /* ------------------------------------------------------------------------- */
-/** Prints text from a testclass.
- *  @param mip [in] pointer to the min item parser.
- *
- *  NOTE: syntax which does the call: "print <text>"
- */
 int             testclass_print (MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
-/** Sets next allowed result for a testclass execution.
- *  @param nextresult [in] allowed result
- *  @param mip [in] posible next results, we support multiple next results. 
- *
- *  NOTE: syntax which does the call: 
- *  "allownextresult <result> [result2] .. [resultN]"
- */
 int             testclass_allownextresult (int nextresult,
                                            MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
-/** Start a new testcase 
- *  @param modulename [in] name of the test module.
- *  @param configfile [in] module configuration file name.
- *  @param id         [in] test case id number
- *  @param mip        [in] the optional parameters
- *
- *  NOTE: syntax which does the call: 
- * "run <modulename> <configfile> <id> ..."
- */
 int             test_run (const char *modulename, const char *configfile,
                           unsigned int id, MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
-/** Resumes paused test process
- *  @param testid [in] testid of the test process to be resumed.
- *
- *  NOTE: syntax which does the call: "resume <testid>"
- */
 int             test_resume (char *testid);
 /* ------------------------------------------------------------------------- */
-/** Aborts test process
- *  @param testid [in] testid of the test process to be aborted.
- *
- *  NOTE: syntax which does the call: "cancel <testid>"
- */
 int             test_cancel (char *testid);
 /* ------------------------------------------------------------------------- */
-/** Pauses test process 
- *  @param testid [in] id of the process to be paused
- *  @param mip [in] optional parameters
- *  NOTE: syntax which does the call: "pause <testid> [time=<time>]"
- */
 int             test_pause (char *testid, MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
-/** Stops execution till specified test finishes. 
- *  @param testid [in] id of the test that we are waiting to complete.
- *
- *  NOTE: syntax which does the call: "complete <testid>"
- */
 int             test_complete (const char *testid);
 /* ------------------------------------------------------------------------- */
-/** Allocates a slave
- *  @param slave_type [in] is the type of slave, currently "phone" type is
- *                         the one that is supported. 
- *  @param slave_name [in] name of the slave which will be further used.
- *
- *  NOTE: syntax which does the call: "allocate <slavetype> <slaveid>"
- */
 int             test_allocate_slave (const char *slave_type,
                                      const char *slave_name);
 /* ------------------------------------------------------------------------- */
-/** Frees allocated slave
- *  @param slave_name [in] name of the slave which will be freed.
- *
- *  NOTE: syntax which does the call: "free <slaveid>"
- */
 int             test_free_slave (const char *slave_name);
 /* ------------------------------------------------------------------------- */
-/** Executes a command on a remote slave device.
- *  @param slave_name [in[ the name of the slave that is going to be used.
- *  @param mip [in] contains the test we are going to execute on slave.
- *
- *  NOTE: syntax which does the call: "remote <slaveid> <command>"
- */
 int             test_remote_exe (const char *slave_name,
                                  MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
-/** Cancels script execution when test fails.
- *
- *  NOTE: syntax which does the call: "canceliferror"
- */
 int             test_canceliferror ();
 /* ------------------------------------------------------------------------- */
-/** Sets timeout for the scripter/combiner 
- *  @param interval [in] the timeout value in miliseconds
- *
- *  NOTE: syntax which does the call: "timeout <interval>"
- * 
- */
 int             testclass_test_timeout (unsigned long interval);
 /* ------------------------------------------------------------------------- */
-/** Takes script execution into sleep for specified period of time. 
- *  @param interval [in] the sleep time in miliseconds
- *
- *  NOTE: syntax which does the call: "sleep <interval>" 
-*/
 int             testclass_test_sleep (unsigned long interval);
 /* ------------------------------------------------------------------------- */
-/** Declares a variable for the scripter
- *  @param name [in] name of the variable
- *  @param initialize [in] flag to tell whether third argument is to considered
- *         as initilial value for the variable
- *  @param val [in] initial value for the variable
- *
- *  NOTE: syntax which does the call: "var <value>"  
- */
 int             declare_var (char *name, TSBool initialize, char *val);
 /* ------------------------------------------------------------------------- */
-/** Sends a variable value from slave to master
- *  @param variable [in] name of the variable
- *  @param value [in] variable value
- *
- *  NOTE: syntax which does the call: "sendreceive <variable>=<value>"  
- */
 int             sendreceive_slave_send (char *variable, char *value);
 /* ------------------------------------------------------------------------- */
-/** Expects a variable value from master
- *  @param variable [in] name of the variable
- *
- *  NOTE: syntax which does the call: "expect <variable>"  
- */
 int             sendreceive_slave_expect (char *variable);
 /* ------------------------------------------------------------------------- */
-/** Operates test interference in script
- * @param mip [in] pointer to min item parser containing script 
- * line with parameters
- * NOTE: syntax which does the call: "testinterference <name>.<command> [type] 
- * [value] [idle time] [active time]"
- */
-int             test_interference(MinItemParser* args);
+int             test_interference (MinItemParser* args);
 /* ------------------------------------------------------------------------- */
-/** Evaluates an if condition
- * @param condition [in] variable name or value to be evaluated
- * @return ESTrue or ESFalse
- */
 TSBool          eval_if (char *condition);
-
 /* ------------------------------------------------------------------------- */
-/** Sets a new blocking timeout for test case
- * @param timeout [in] variable name or value to be evaluated
- *  NOTE: syntax which does the call: "blockingtimeout <timeout>"  
- */
 int             set_block_timeout (unsigned long timeout);
-
 /* ------------------------------------------------------------------------- */
 #endif                          /* MIN_SCRIPTER_IF_H */
 

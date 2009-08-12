@@ -1184,6 +1184,10 @@ EXIT:
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Validate the define section of script file
+ *  @param define [in] the define section of script file
+ *  @return ESTrue if all symbols are available, ESFalse otherwise.
+ */
 TSBool validate_define (MinSectionParser * define)
 {
         TSBool          retval = ESTrue;
@@ -1247,8 +1251,12 @@ TSBool validate_define (MinSectionParser * define)
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Load test libraries used by script and checks if used symbols are available
+ *  from those libraries
+ *  @param symlist [in] list of ScripterDataItems
+ *  @return 0 if all symbols are available, -1 otherwise.
+ */
 char           *validate_test_case (MinSectionParser * testcase)
 {
         MinItemParser *line = INITPTR;

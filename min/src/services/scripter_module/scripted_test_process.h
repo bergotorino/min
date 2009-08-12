@@ -57,15 +57,10 @@
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Handles IPC message in the Scripted Test Process way. 
- *  @param msg [in] message to be handled.
- */
 void            stp_handle_message (const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
-/** Handler for the SIGUSR2 signal. */
 void            stp_handle_sigusr2 (int signum);
 /* ------------------------------------------------------------------------- */
-/** Called before exiting scripted test process */
 void            stp_exit (void);
 /* ------------------------------------------------------------------------- */
 #endif                          /* SCRIPTED_TEST_PROCESS_H */

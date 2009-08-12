@@ -68,16 +68,8 @@ extern TSBool   stprun;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Used for looking for specified class name on the list of them. */
 LOCAL int       _look4class (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Handles MSG_RUN command.
- *  @param msg [in] message that comes through IPC.
- *
- *  This function runs a test function provided by the end user. The return
- *  value of that function is picked as a test result and is send through
- *  IPC in MSG_RET message.
- */
 LOCAL void      stp_handle_run (const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -86,14 +78,22 @@ LOCAL void      stp_handle_run (const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Used for looking for specified class name on the list of them. 
+ */
 LOCAL int _look4class (const void *a, const void *b)
 {
         TestClassDetails *tcd = (TestClassDetails *) a;
         MIN_DEBUG ("%s classname %s", __FUNCTION__, tcd->classname_);
         return strcmp (tcd->classname_, (char *)b);
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handles MSG_RUN command.
+ *  @param msg [in] message that comes through IPC.
+ *
+ *  This function runs a test function provided by the end user. The return
+ *  value of that function is picked as a test result and is send through
+ *  IPC in MSG_RET message.
+ */
 LOCAL void stp_handle_run (const MsgBuffer * msg)
 {
         DLListIterator  it = DLListNULLIterator;
@@ -149,6 +149,9 @@ LOCAL void stp_handle_run (const MsgBuffer * msg)
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Handles IPC message in the Scripted Test Process way. 
+ *  @param msg [in] message to be handled.
+ */
 void stp_handle_message (const MsgBuffer * msg)
 {
         switch (msg->type_) {
@@ -165,14 +168,9 @@ void stp_handle_message (const MsgBuffer * msg)
         }
         return;
 }
-
 /* ------------------------------------------------------------------------- */
-void stp_handle_sigusr2 (int signum)
-{
-        stprun = ESFalse;
-}
-
-/* ------------------------------------------------------------------------- */
+/** Called before exiting scripted test process 
+ */
 void stp_exit ()
 {
         DLListIterator  it = DLListNULLIterator;
