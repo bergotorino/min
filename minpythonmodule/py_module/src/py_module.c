@@ -72,15 +72,20 @@ extern char    *strcasestr (const char *haystack, const char *needle);
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
-/* None */
+/* ------------------------------------------------------------------------- */
+LOCAL TSBool check_end_conditions();
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
-/* None */
-TSBool check_end_conditions()
+/* ------------------------------------------------------------------------- */
+/** Check if a test case has ended 
+ *  @return EStrue if everything is finnished with the test case, 
+ *          ESFalse otherwise
+ */
+LOCAL TSBool check_end_conditions()
 {
         int caseid = 0;
         MsgBuffer message;
@@ -149,10 +154,8 @@ TSBool check_end_conditions()
 // }
 // 
 
-
-
-
 /* ------------------------------------------------------------------------- */
+/** Implementation of tm_run_test_case() for MIN python test module */
 int tm_run_test_case( unsigned int      id
                     , const char     *  cfg_file
                     , TestCaseResult *  result )

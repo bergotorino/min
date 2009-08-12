@@ -50,7 +50,6 @@ instlallation*/
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-/* None */
 DLList         *events_list = INITPTR;
 DLList         *remotes_list = INITPTR;
 int             testflag;
@@ -72,7 +71,6 @@ int             testflag;
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
-/* None */
 struct _case_args {
         int             id_;
         char           *file_;
@@ -84,8 +82,48 @@ typedef struct _case_args case_args;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
-/* None */
-
+/* ------------------------------------------------------------------------- */
+LOCAL char     *find_lib (char *l_name);
+/* ------------------------------------------------------------------------- */
+LOCAL int       find_case_by_title (char *case_name, DLList * cases_list);
+/* ------------------------------------------------------------------------- */
+LOCAL void     *thread_exec (void *args);
+/* ------------------------------------------------------------------------ */
+LOCAL int       wait_response (int mq_id, TMSCommand re_type);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_printf (PyObject * self, PyObject * args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_indic_set (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_state_set (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_state_unset (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_event_request (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_event_release (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_event_wait (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_complete_case (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_start_case (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_create_logger (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_log (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_destroy_logger (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_allocate_slave (PyObject * self, PyObject * args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_release_slave (PyObject * self, PyObject * args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_request_remote_event (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_remote_event_release (PyObject * self, PyObject * Args);
+/* ------------------------------------------------------------------------- */
+LOCAL PyObject *p_tm_remote_run_case (PyObject * self, PyObject * Args);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 
@@ -93,14 +131,13 @@ typedef struct _case_args case_args;
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
 /** function used to find test module (library) in search paths configured
-for system.
-@param l_name name of testmodule (not modified inside function)
-@return full path and name of test module - remember that it is allocated 
- within function and needs to be freed when it's not needed anymore.
-*/
-char           *find_lib (char *l_name)
+ *  for system.
+ *  @param l_name name of testmodule (not modified inside function)
+ *  @return full path and name of test module - remember that it is allocated 
+ *  within function and needs to be freed when it's not needed anymore.
+ */
+LOCAL char           *find_lib (char *l_name)
 {
         void           *sh_mem_handle;
         int             sh_mem_id;
@@ -146,7 +183,12 @@ char           *find_lib (char *l_name)
         return path_to_check;
 }
 /* ------------------------------------------------------------------------- */
-int find_case_by_title (char *case_name, DLList * cases_list)
+/** Search for test case index according to test case title 
+ *  @param case_name test case title
+ *  @param cases_list list of test cases
+ *  @return test  case index or -1 if no matching case is found
+ */ 
+LOCAL int find_case_by_title (char *case_name, DLList * cases_list)
 {
         DLListIterator  work_case_item = dl_list_head (cases_list);
         int             index = -1;
@@ -164,7 +206,10 @@ int find_case_by_title (char *case_name, DLList * cases_list)
         return index;
 }
 /* ------------------------------------------------------------------------- */
-void           *thread_exec (void *args)
+/** Executes test case from MIN test module
+ *  @param args (void) pointer to case_args structure
+ */
+LOCAL void *thread_exec (void *args)
 {
         TestCaseResult  min_result;
         int             id;
@@ -202,7 +247,12 @@ void           *thread_exec (void *args)
         return NULL;
 }
 /* ------------------------------------------------------------------------- */
-int wait_response (int mq_id, TMSCommand re_type)
+/** Wait for remote run response (master/slave)
+ *  @param mq_id POSIX mail queue identifier
+ *  @param re_type response type
+ *  @return 0 if response comes, -1 on timeout
+ */
+LOCAL int wait_response (int mq_id, TMSCommand re_type)
 {
         int             i, result_c = 0;
         int             end_flags_id = 0;
@@ -263,7 +313,9 @@ int wait_response (int mq_id, TMSCommand re_type)
         return -1;
 }
 /* ------------------------------------------------------------------------- */
-static PyObject *p_tm_printf (PyObject * self, PyObject * args)
+/** min_ext.Print_to_CUI 
+*/
+LOCAL PyObject *p_tm_printf (PyObject * self, PyObject * args)
 {
         /*declare variables */
         PyObject       *result;
@@ -288,9 +340,10 @@ static PyObject *p_tm_printf (PyObject * self, PyObject * args)
                            result_c);
         return result;
 }
-
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_indic_set (PyObject * self, PyObject * Args)
+/** min_ext.Set_indication_event
+ */
+LOCAL PyObject *p_tm_indic_set (PyObject * self, PyObject * Args)
 {
         minEventIf    *event;
         char           *event_name;
@@ -311,7 +364,9 @@ static PyObject *p_tm_indic_set (PyObject * self, PyObject * Args)
         return result;
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_state_set (PyObject * self, PyObject * Args)
+/** min_ext.Set_state_event
+ */
+LOCAL PyObject *p_tm_state_set (PyObject * self, PyObject * Args)
 {
         minEventIf    *event;
         char           *event_name;
@@ -333,7 +388,9 @@ static PyObject *p_tm_state_set (PyObject * self, PyObject * Args)
         return result;
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_state_unset (PyObject * self, PyObject * Args)
+/** min_ext.Unset_event
+ */
+LOCAL PyObject *p_tm_state_unset (PyObject * self, PyObject * Args)
 {
         minEventIf    *event = NULL;
         char           *event_name;
@@ -355,7 +412,9 @@ static PyObject *p_tm_state_unset (PyObject * self, PyObject * Args)
         return result;
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_event_request (PyObject * self, PyObject * Args)
+/** min_ext.Request_event
+ */
+LOCAL PyObject *p_tm_event_request (PyObject * self, PyObject * Args)
 {
 
         minEventIf    *event = NULL;
@@ -401,7 +460,9 @@ static PyObject *p_tm_event_request (PyObject * self, PyObject * Args)
         return result;
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_event_release (PyObject * self, PyObject * Args)
+/** min_ext.Release_event
+ */
+LOCAL PyObject *p_tm_event_release (PyObject * self, PyObject * Args)
 {
 
         minEventIf    *event = NULL;
@@ -441,7 +502,9 @@ static PyObject *p_tm_event_release (PyObject * self, PyObject * Args)
         return result;
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_event_wait (PyObject * self, PyObject * Args)
+/** min_ext.Wait_event
+ */
+LOCAL PyObject *p_tm_event_wait (PyObject * self, PyObject * Args)
 {
         minEventIf    *event = NULL;
         char           *event_name;
@@ -483,7 +546,9 @@ static PyObject *p_tm_event_wait (PyObject * self, PyObject * Args)
         return result;
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_complete_case (PyObject * self, PyObject * Args)
+/** min_ext.Complete_case
+ */
+LOCAL PyObject *p_tm_complete_case (PyObject * self, PyObject * Args)
 {
         int             result_c = 0;
         PyObject       *result;
@@ -572,6 +637,8 @@ static PyObject *p_tm_complete_case (PyObject * self, PyObject * Args)
 
 }
 /* -------------------------------------------------------------------------- */
+/** min_ext.Start_case
+ */
 static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
 {
         int             result_c = 0;
@@ -680,7 +747,9 @@ static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
         return result;
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_create_logger (PyObject * self, PyObject * Args)
+/** min_ext.Create_logger
+ */
+LOCAL PyObject *p_tm_create_logger (PyObject * self, PyObject * Args)
 {
         MinLogger     *created_logger;
         char           *dir = NULL;
@@ -712,7 +781,9 @@ static PyObject *p_tm_create_logger (PyObject * self, PyObject * Args)
                               (unsigned int)created_logger);
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_log (PyObject * self, PyObject * Args)
+/** min_ext.Log
+ */
+LOCAL PyObject *p_tm_log (PyObject * self, PyObject * Args)
 {
         unsigned int    logger_handle;
         char            style = ESNoStyle;
@@ -759,7 +830,9 @@ static PyObject *p_tm_log (PyObject * self, PyObject * Args)
         return Py_BuildValue ( /*Format string */ "i", /*variable(s) */ 0);
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_destroy_logger (PyObject * self, PyObject * Args)
+/** min_ext.Destroy_logger
+ */
+LOCAL PyObject *p_tm_destroy_logger (PyObject * self, PyObject * Args)
 {
         unsigned int    logger_handle;
         MinLogger     *instance;
@@ -772,7 +845,9 @@ static PyObject *p_tm_destroy_logger (PyObject * self, PyObject * Args)
         return Py_BuildValue ( /*Format string */ "i", /*variable(s) */ 0);
 }
 /* ------------------------------------------------------------------------- */
-static PyObject *p_tm_allocate_slave (PyObject * self, PyObject * args)
+/** min_ext.Allocate_slave
+ */
+LOCAL PyObject *p_tm_allocate_slave (PyObject * self, PyObject * args)
 {
         int             result_c = 0;
         PyObject       *result;
@@ -812,7 +887,9 @@ static PyObject *p_tm_allocate_slave (PyObject * self, PyObject * args)
         return result;
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_release_slave (PyObject * self, PyObject * args)
+/** min_ext.Free_slave
+ */
+LOCAL PyObject *p_tm_release_slave (PyObject * self, PyObject * args)
 {
         int             result_c = 0;
         PyObject       *result;
@@ -851,7 +928,9 @@ static PyObject *p_tm_release_slave (PyObject * self, PyObject * args)
         return result;
 }
 /* -------------------------------------------------------------------------- */
-static PyObject *p_tm_request_remote_event (PyObject * self, PyObject * Args)
+/** min_ext.Request_remote_event
+ */
+LOCAL PyObject *p_tm_request_remote_event (PyObject * self, PyObject * Args)
 {
         minEventIf    *event = NULL;
         char           *event_name;
@@ -919,7 +998,9 @@ static PyObject *p_tm_request_remote_event (PyObject * self, PyObject * Args)
         return result;
 }
 /* ------------------------------------------------------------------------- */
-static PyObject *p_tm_remote_event_release (PyObject * self, PyObject * Args)
+/** min_ext.Release_remote_event
+ */
+LOCAL PyObject *p_tm_remote_event_release (PyObject * self, PyObject * Args)
 {
 
         minEventIf    *event = NULL;
@@ -976,7 +1057,9 @@ static PyObject *p_tm_remote_event_release (PyObject * self, PyObject * Args)
         return result;
 }
 /* ------------------------------------------------------------------------- */
-static PyObject *p_tm_remote_run_case (PyObject * self, PyObject * Args)
+/** min_ext.Run_remote_case
+ */
+LOCAL PyObject *p_tm_remote_run_case (PyObject * self, PyObject * Args)
 {
         MsgBuffer       message;
         char           *slave_name;

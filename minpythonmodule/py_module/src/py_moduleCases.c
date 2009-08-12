@@ -87,15 +87,13 @@
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
-/* None */
 extern char *strcasestr (const char *haystack,const char *needle);
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-/* None */
 void* python_lib_handle;
-Text* orig_python_path;         /*holds original value of PYTHONPATH variable
-                                  it will be read during module start and 
-                                             restored when module is unloaded*/
+Text* orig_python_path;         /** holds original value of PYTHONPATH variable
+				    it will be read during module start and 
+				    restored when module is unloaded */
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -118,16 +116,49 @@ Text* orig_python_path;         /*holds original value of PYTHONPATH variable
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
+/* ------------------------------------------------------------------------- */
+LOCAL char* cutname(char* file);
+/* ------------------------------------------------------------------------- */
+LOCAL char* fetch_title(char* input);
+/* ------------------------------------------------------------------------- */
+LOCAL char* cut_file_from_path(char* path);
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
 /* None */
-char* cutname(char* file)
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+/** Remove the .py ending from filename
+ *  @return new string with the .py ending stripped
+ */
+LOCAL char* cutname(char* file)
 {
         char* output = NEW2(char,strlen(file)-2);
         sprintf(output,"%s","\0");
         strncat(output,file,strlen(file)-3);
         return output;
 }
-/* ------------------------------------------------------------------------- */
-char* cut_file_from_path(char* path)
+/** Function used to fetch title of testcase from python's function's docstring
+ * @param input docstring extracted from python script
+ * @return extracted title - it is allocated inside the function, so it
+ * is mandatory to free it afterwards to prevent memory leak
+ */
+LOCAL char* fetch_title(char* input)
+{
+        int length;
+        char* retval;
+        char* pos = strchr(input,'\n');
+        if (pos != NULL) length = pos - input;
+        else length = strlen(input);
+        retval = NEW2(char,length+2);
+        snprintf(retval,length+2,"%s",input);
+        return retval;
+}
+/** Extract the a filename from path. 
+ *  Add ".py" ending if the file does not contain one.
+ *  @param path absolute or relative path to file
+ */
+LOCAL char* cut_file_from_path(char* path)
 {
         char* out = NULL;
 
@@ -154,77 +185,6 @@ char* cut_file_from_path(char* path)
         sprintf(temp,"%s",out);
         return temp;
 }
-/* ------------------------------------------------------------------------- */
-/** Function used to fetch title of testcase from python's function's docstring
- * @param input docstring extracted from python script
- * @return extracted title - it is allocated inside the function, so it
- * is mandatory to free it afterwards to prevent memory leak
-*/
-char* fetch_title(char* input)
-{
-        int length;
-        char* retval;
-        char* pos = strchr(input,'\n');
-        if (pos != NULL) length = pos - input;
-        else length = strlen(input);
-        retval = NEW2(char,length+2);
-        snprintf(retval,length+2,"%s",input);
-        return retval;
-}
-/* ------------------------------------------------------------------------- */
-void tm_initialize()
-{
-        void *sh_mem_handle;
-        int sh_mem_id;
-        void *tmp_ptr;
-        unsigned int data_size;
-        char *paths;
-        Text *py_paths;
-        sh_mem_id = sm_create('a',sizeof(struct logger_settings_t));
-        sh_mem_handle = sm_attach(sh_mem_id);
-        tmp_ptr = sh_mem_handle + sizeof(struct logger_settings_t);
-        data_size = strlen(tmp_ptr)+1;
-        paths = NEW2(char,data_size);
-        sm_read(tmp_ptr,paths,data_size);
-        sm_detach(sh_mem_handle);
-        MIN_DEBUG("initializing python in %d",getpid());
-        orig_python_path = tx_create(getenv("PYTHONPATH"));
-        py_paths = tx_create(paths);
-        DELETE(paths);
-        /*append mod search paths to existing pythonpaths.*/
-        if (orig_python_path != NULL) {
-                tx_c_append(py_paths,":");
-                tx_append(py_paths,orig_python_path);
-        }
-        setenv("PYTHONPATH",tx_share_buf(py_paths),1);
-        MIN_DEBUG("PYTHONPATH is %s",getenv("PYTHONPATH"));
-        python_lib_handle = dlopen("libpython2.5.so",RTLD_GLOBAL|RTLD_LAZY);
-        Py_Initialize();
-        MIN_DEBUG("python initialized in %d",getpid());
-}
-/* ------------------------------------------------------------------------- */
-void tm_finalize()
-{
-        int sm_id = 0;
-        MIN_DEBUG("finalizing python in %d",getpid());
-        Py_Finalize();
-        setenv("PYTHONPATH",tx_share_buf(orig_python_path),1);
-        tx_destroy(&orig_python_path);
-        dlclose(python_lib_handle);
-        MIN_DEBUG("python finalized in %d",getpid());
-        sm_id = sm_create('p',sizeof(AsyncOpFlags));
-        /*need to unload python dll here*/
-        sm_destroy(sm_id);
-}
-
-/* ------------------------------------------------------------------------- */
-/* FORWARD DECLARATIONS */
-/* None */
-
-/* ------------------------------------------------------------------------- */
-/* ==================== LOCAL FUNCTIONS ==================================== */
-/* None */
-
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /** tm_get_test_cases is used to inquire test cases from the Test Module.
@@ -325,6 +285,55 @@ int tm_get_test_cases( const char * cfg_file, DLList ** cases )
         //Py_Finalize();
 
         return count;
+}
+/* ------------------------------------------------------------------------- */
+/** Initiliaze python module, called by TMC
+ */
+void tm_initialize()
+{
+        void *sh_mem_handle;
+        int sh_mem_id;
+        void *tmp_ptr;
+        unsigned int data_size;
+        char *paths;
+        Text *py_paths;
+        sh_mem_id = sm_create('a',sizeof(struct logger_settings_t));
+        sh_mem_handle = sm_attach(sh_mem_id);
+        tmp_ptr = sh_mem_handle + sizeof(struct logger_settings_t);
+        data_size = strlen(tmp_ptr)+1;
+        paths = NEW2(char,data_size);
+        sm_read(tmp_ptr,paths,data_size);
+        sm_detach(sh_mem_handle);
+        MIN_DEBUG("initializing python in %d",getpid());
+        orig_python_path = tx_create(getenv("PYTHONPATH"));
+        py_paths = tx_create(paths);
+        DELETE(paths);
+        /*append mod search paths to existing pythonpaths.*/
+        if (orig_python_path != NULL) {
+                tx_c_append(py_paths,":");
+                tx_append(py_paths,orig_python_path);
+        }
+        setenv("PYTHONPATH",tx_share_buf(py_paths),1);
+        MIN_DEBUG("PYTHONPATH is %s",getenv("PYTHONPATH"));
+        python_lib_handle = dlopen("libpython2.5.so",RTLD_GLOBAL|RTLD_LAZY);
+        Py_Initialize();
+        MIN_DEBUG("python initialized in %d",getpid());
+}
+/* ------------------------------------------------------------------------- */
+/** Deinitiliaze python module, called by TMC
+ */
+void tm_finalize()
+{
+        int sm_id = 0;
+        MIN_DEBUG("finalizing python in %d",getpid());
+        Py_Finalize();
+        setenv("PYTHONPATH",tx_share_buf(orig_python_path),1);
+        tx_destroy(&orig_python_path);
+        dlclose(python_lib_handle);
+        MIN_DEBUG("python finalized in %d",getpid());
+        sm_id = sm_create('p',sizeof(AsyncOpFlags));
+        /*need to unload python dll here*/
+        sm_destroy(sm_id);
 }
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
