@@ -62,9 +62,9 @@
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* None */
-
+/* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
-
+/* ------------------------------------------------------------------------- */
 /** Adds Scripter Data Item to linked list of scripter data structures.
  *  @param list_handle pointer to linked list of Scripter Data Item.
  *  @param scripter_data pointer to Scripter Data Item structure.
@@ -86,7 +86,6 @@ DLListIterator scripter_dsa_add (DLList * list_handle,
 
         return dllist_item;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Creates new Scripter Data Item structure
  *  @param DLL_name pointer to DLL name string.
@@ -129,7 +128,6 @@ ScripterDataItem *scripter_dsa_create (TSChar * DLL_name, TSChar * Class_name,
 
         return scripter_data;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Frees the memory allocation of Scripter Data Item structure.
  *  @param scripter_data reference pointer to Scripter Data Item.
@@ -162,7 +160,6 @@ void scripter_dsa_free (ScripterDataItem ** scripter_data)
                         *scripter_data = INITPTR;
         }
 }
-
 /* ------------------------------------------------------------------------- */
 /** Removes Scripter Data Item structure from linked list.
  *  @param scr_data_item pointer to list item in linked list.
@@ -187,7 +184,6 @@ int scripter_dsa_remove (DLListIterator scr_data_item)
 
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Adds symbol name data to Scripter Data Item structure.
  *  @param scr_data_item pointer to list item in linked list.
@@ -219,9 +215,7 @@ int scripter_dsa_add_symbol (DLListIterator scr_data_item,
 
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
 

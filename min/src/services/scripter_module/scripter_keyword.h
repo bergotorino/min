@@ -90,10 +90,6 @@ typedef enum {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Translates literal keyword to mnemonic.
- *  @param label [in] keyword in literal form ("")
- *  @return mnemonic for keyword - enumerator value.
- */
 TScripterKeyword get_keyword (const char *label);
 /* ------------------------------------------------------------------------- */
 #endif                          /* SCRIPTER_KEYWORD_H */

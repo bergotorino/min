@@ -197,17 +197,10 @@ typedef struct {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Creates the 'Lego snake'
- *  @param msp [in] the script to be precompilled
- */
 void            mli_create (MinSectionParser * msp);
 /* ------------------------------------------------------------------------- */
-/** Destroys the 'Lego snake' */
 void            mli_destroy ();
 /* ------------------------------------------------------------------------- */
-/** Gets handler to the preprocessed script - the Lego Snake
- *  @return handler t the global legsnake local variable
- */
 LegoBasicType  *mli_get_legosnake ();
 /* ------------------------------------------------------------------------- */
 #endif                          /* MIN_LEGO_INTERFACE */

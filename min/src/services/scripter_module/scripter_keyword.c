@@ -78,6 +78,10 @@
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Translates literal keyword to mnemonic.
+ *  @param label [in] keyword in literal form ("")
+ *  @return mnemonic for keyword - enumerator value.
+ */
 TScripterKeyword get_keyword (const char *label)
 {
         TScripterKeyword retval = EKeywordUnknown;

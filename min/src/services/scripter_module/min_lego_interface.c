@@ -71,71 +71,42 @@ LOCAL LegoBasicType *legosnake = INITPTR;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Creates Start piece. 
- *  @return pointer to the allocated Start piece.
- */
 LOCAL LegoStartType *mli_create_start ();
 /* ------------------------------------------------------------------------- */
-/** Creates End piece.
- *  @return pointer to the allocated End piece.
- */
 LOCAL LegoEndType *mli_create_end ();
 /* ------------------------------------------------------------------------- */
-/** Creates Passive piece.
- *  @param keyword [in] the keyword that comes from the script.
- *  @param mip [in] the script line which includes the keyword. 
- *  @return pointer to the allocated Passive piece.
- */
 LOCAL LegoPassiveType *mli_create_passive (TScripterKeyword keyword,
                                            MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
-/** Creates Active piece.
- *  @param keyword [in] the keyword that comes from the script.
- *  @param mip [in] the script line which includes the keyword. 
- *  @return pointer to the allocated Active piece.
- */
 LOCAL LegoActiveType *mli_create_active (TScripterKeyword keyword,
                                          MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
-/** Creates Start Loop piece.
- *  @param keyword [in] the keyword that comes from the script.
- *  @param loops [in] number of times the loop will be executed. 
- *  @param timeout [in] indicates normal loop or timeout loop.
- *  @return pointer to the allocated Start Loop piece.
- *
- *  NOTE: The loops parameter meaning depends on timeout parameter. If it is
- *        timeouted loop then loops indicates the time in [ms] otherwise
- *        loops indicates the number of loop iterations.
- *
- *  NOTE: The created piece is also pushed to the stack. It also handles 
- *        creation of the stack.
- */
 LOCAL LegoLoopType *mli_create_loop (TScripterKeyword keyword,
                                      unsigned int loops, TSBool timeout);
 /* ------------------------------------------------------------------------- */
-/** Creates End Loop piece.
- *  @param keyword [in] the keyword that comes from the script.
- *  @return pointer to the allocated End Loop piece.
- *
- *  NOTE: The matching Start Loop piece is taken from the stack. It also
- *        handled destroying of the stack if empty.
- */
 LOCAL LegoEndloopType *mli_create_endloop (TScripterKeyword keyword);
 
 /* ------------------------------------------------------------------------- */
-/** Creates Break Loop piece.
- *  @param keyword [in] the keyword that comes from the script.
- *  @return pointer to the allocated Break Loop piece.
- */
 LOCAL LegoBreakloopType *mli_create_breakloop (TScripterKeyword keyword);
-
 /* ------------------------------------------------------------------------- */
+LOCAL LegoIfBlockType *mli_create_ifblock (TScripterKeyword keyword,
+                                           char *if_condition);
+/* ------------------------------------------------------------------------- */
+LOCAL LegoElseBlockType *mli_create_else (TScripterKeyword keyword,
+                                          LegoBasicType *prev);
+/* ------------------------------------------------------------------------- */
+LOCAL LegoEndifBlockType *mli_create_endifblock (TScripterKeyword keyword);
+/* ------------------------------------------------------------------------- */
+
 /* FORWARD DECLARATIONS */
 /* None */
 
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Creates Start piece. 
+ *  @return pointer to the allocated Start piece.
+ */
 LOCAL LegoStartType *mli_create_start ()
 {
         LegoStartType  *retval = INITPTR;
@@ -144,8 +115,10 @@ LOCAL LegoStartType *mli_create_start ()
         retval->next_ = INITPTR;
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Creates End piece.
+ *  @return pointer to the allocated End piece.
+ */
 LOCAL LegoEndType *mli_create_end ()
 {
         LegoEndType    *retval = INITPTR;
@@ -154,8 +127,12 @@ LOCAL LegoEndType *mli_create_end ()
         retval->next_ = INITPTR;
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Creates Passive piece.
+ *  @param keyword [in] the keyword that comes from the script.
+ *  @param mip [in] the script line which includes the keyword. 
+ *  @return pointer to the allocated Passive piece.
+ */
 LOCAL LegoPassiveType *mli_create_passive (TScripterKeyword keyword,
                                            MinItemParser * mip)
 {
@@ -172,8 +149,12 @@ LOCAL LegoPassiveType *mli_create_passive (TScripterKeyword keyword,
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Creates Active piece.
+ *  @param keyword [in] the keyword that comes from the script.
+ *  @param mip [in] the script line which includes the keyword. 
+ *  @return pointer to the allocated Active piece.
+ */
 LOCAL LegoActiveType *mli_create_active (TScripterKeyword keyword,
                                          MinItemParser * mip)
 {
@@ -190,8 +171,20 @@ LOCAL LegoActiveType *mli_create_active (TScripterKeyword keyword,
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Creates Start Loop piece.
+ *  @param keyword [in] the keyword that comes from the script.
+ *  @param loops [in] number of times the loop will be executed. 
+ *  @param timeout [in] indicates normal loop or timeout loop.
+ *  @return pointer to the allocated Start Loop piece.
+ *
+ *  NOTE: The loops parameter meaning depends on timeout parameter. If it is
+ *        timeouted loop then loops indicates the time in [ms] otherwise
+ *        loops indicates the number of loop iterations.
+ *
+ *  NOTE: The created piece is also pushed to the stack. It also handles 
+ *        creation of the stack.
+ */
 LOCAL LegoLoopType *mli_create_loop (TScripterKeyword keyword,
                                      unsigned int loops, TSBool timeout)
 {
@@ -219,8 +212,14 @@ LOCAL LegoLoopType *mli_create_loop (TScripterKeyword keyword,
         dl_list_add (loopstack, (void *)retval);
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Creates End Loop piece.
+ *  @param keyword [in] the keyword that comes from the script.
+ *  @return pointer to the allocated End Loop piece.
+ *
+ *  NOTE: The matching Start Loop piece is taken from the stack. It also
+ *        handled destroying of the stack if empty.
+ */
 LOCAL LegoEndloopType *mli_create_endloop (TScripterKeyword keyword)
 {
         DLListIterator  it = DLListNULLIterator;
@@ -262,6 +261,10 @@ LOCAL LegoEndloopType *mli_create_endloop (TScripterKeyword keyword)
         return retval;
 }
 /* ------------------------------------------------------------------------- */
+/** Creates Break Loop piece.
+ *  @param keyword [in] the keyword that comes from the script.
+ *  @return pointer to the allocated Break Loop piece.
+ */
 LOCAL LegoBreakloopType *mli_create_breakloop (TScripterKeyword keyword)
 {
         LegoBreakloopType *retval = INITPTR;
@@ -273,6 +276,10 @@ LOCAL LegoBreakloopType *mli_create_breakloop (TScripterKeyword keyword)
         return retval;
 }
 /* ------------------------------------------------------------------------- */
+/** Creates if-block start piece.
+ *  @param keyword [in] the keyword that comes from the script.
+ *  @return pointer to the allocated IfBlock piece.
+ */
 LOCAL LegoIfBlockType *mli_create_ifblock (TScripterKeyword keyword,
                                            char *if_condition)
 {
@@ -298,9 +305,11 @@ LOCAL LegoIfBlockType *mli_create_ifblock (TScripterKeyword keyword,
 
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Creates else-block start piece.
+ *  @param keyword [in] the keyword that comes from the script.
+ *  @return pointer to the allocated ElseBlock piece.
+ */
 LOCAL LegoElseBlockType *mli_create_else (TScripterKeyword keyword,
                                           LegoBasicType *prev)
 {
@@ -325,9 +334,11 @@ LOCAL LegoElseBlockType *mli_create_else (TScripterKeyword keyword,
 
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Creates end piece for if-else block.
+ *  @param keyword [in] the keyword that comes from the script.
+ *  @return pointer to the allocated EndifBlock piece.
+ */
 LOCAL LegoEndifBlockType *mli_create_endifblock (TScripterKeyword keyword)
 {
         LegoBasicType *previous;
@@ -371,10 +382,12 @@ LOCAL LegoEndifBlockType *mli_create_endifblock (TScripterKeyword keyword)
 
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Creates the 'Lego snake'
+ *  @param msp [in] the script to be precompilled
+ */
 void mli_create (MinSectionParser * msp)
 {
         MinItemParser *mip = INITPTR;
@@ -554,8 +567,9 @@ void mli_create (MinSectionParser * msp)
       EXIT:
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Destroys the 'Lego snake' 
+ */
 void mli_destroy ()
 {
         LegoBasicType  *tmp = INITPTR;
@@ -634,8 +648,10 @@ void mli_destroy ()
       EXIT:
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Gets handler to the preprocessed script - the Lego Snake
+ *  @return handler t the global legsnake local variable
+ */
 LegoBasicType  *mli_get_legosnake ()
 {
         return legosnake;
