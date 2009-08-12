@@ -120,6 +120,11 @@ void tm_finalize()
 }
 */
 /* ------------------------------------------------------------------------- */
+/** Implementation of tm_get_test_cases() for HardCoded test module.
+ *  @param cfg_file test case file
+ *  @param cases [out] list of test cases found in this module
+ *  @return 0 on success
+ */
 int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 {
         int             retval = 0;

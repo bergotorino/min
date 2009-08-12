@@ -82,7 +82,7 @@ instlallation*/
 /**Function that uses tested functionality. To be able to cooperate
  * with Python, user must define list of arguments during tuple parsing,
  * and convert return value to "PyObject*".
-*/
+ */
 static PyObject* file_creation(PyObject* self, PyObject* args)
 
 {
@@ -108,7 +108,6 @@ static PyObject* file_creation(PyObject* self, PyObject* args)
         result = Py_BuildValue(/*Format string*/"i",/*variable(s)*/result_c);
         return result;
 }
-
 /* -------------------------------------------------------------------------- */
 static PyMethodDef sut_extMethods[] =
 {
@@ -118,7 +117,7 @@ static PyMethodDef sut_extMethods[] =
         /*do not remove next line, it is mandatory*/
         {NULL, NULL, 0, NULL}
 };
-
+/* -------------------------------------------------------------------------- */
 PyMODINIT_FUNC initsut_pextp(void)
 {
         (void) Py_InitModule("sut_ext", sut_pextpMethods);

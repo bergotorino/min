@@ -66,15 +66,19 @@ char *module_time = __TIME__;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
-/* None */
-
-/* ------------------------------------------------------------------------- */
-/* FORWARD DECLARATIONS */
 /* ------------------------------------------------------------------------- */
 LOCAL int       ExampleTest (MinItemParser * item);
 /* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* ------------------------------------------------------------------------- */
+/* None */
+/* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Example test case. Sends parameters back to engine with tm_printf()
+ *  @param item MinItemParser containing the parameters
+ *  @return ENOERR always
+ */
 LOCAL int ExampleTest (MinItemParser * item)
 {
         char           *string = INITPTR;
@@ -95,6 +99,10 @@ LOCAL int ExampleTest (MinItemParser * item)
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Get test methods of this test class.
+ *  @param list [out] list of test cases filled by this function
+ *  @return 0 on success
+ */
 int ts_get_test_cases (DLList ** list)
 {
         /*
@@ -106,6 +114,7 @@ int ts_get_test_cases (DLList ** list)
         /*
          * ADD NEW ENTRY HERE 
          */
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */

@@ -141,7 +141,6 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Implementation of tm_run_test_case for MINUnit
  */
