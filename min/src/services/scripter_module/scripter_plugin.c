@@ -100,169 +100,53 @@ static LegoBasicType *current = INITPTR;
 /* ------------------------------------------------------------------------- */
 LOCAL int       look4slave (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Handles keyword 
- *  @param keyword [in] keyword to be handled 
- *  @param mip [in] item parser which contains the rest of the line 
- *
- *  NOTE: Item parser should be rewinded after usage in order to be able
- *        to correctly handle loops.
- */
 LOCAL void      interpreter_handle_keyword (TScripterKeyword keyword,
                                             MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "run" keyword
- * @param line - min item parser containing line. Assume that 
- * mip_get_line was executed once to extract first keyword
- * @param line_number - line number for debug messages
- * @param tc_title - title of validated test case
- * @return 0 if line is valid*/
 LOCAL int       check_run_line (MinItemParser * line, int line_number, 
 				char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validitye of line with "pause" keyword
- * @param line - min item parser containing line. Assume that 
- * mip_get_line was executed once to extract first keyword
- * @param line_number - line number for debug messages
- * @param tc_title - title of validated test case
- * @return 0 if line is valid*/
 LOCAL int       check_pause_line (MinItemParser * line, int line_number,
 				  char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "loop" keyword
- * @param line - min item parser containing line. Assume that 
- * mip_get_line was executed once to extract first keyword
- * @param line_number - line number for debug messages
- * @param tc_title - title of validated test case
- * @return 0 if line is valid*/
 LOCAL int       check_loop_line (MinItemParser * line, int line_number,
 				 char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "allocate" keyword
- *  @param line [in] MinItemParser containing line.
- *  @param line_number - line number for debug messages
- *  @param slaves [in] list of slaves
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- *
- *  NOTE: mip_get_line was executed once to extract first keyword. 
- */
 LOCAL int       check_allocate_line (MinItemParser * line, int line_number,
 				     DLList * slaves, char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "free" keyword
- *  @param line [in] MinItemParser containing line.
- *  @param line_number - line number for debug messages
- *  @param slaves [in] list of slaves
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- *
- *  NOTE: mip_get_line was executed once to extract first keyword. 
- */
 LOCAL int       check_free_line (MinItemParser * line, int line_number,
 				 DLList * slaves, char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "remote" keyword
- *  @param line [in] MinItemParser containing line.
- *  @param variables [in] list of variables
- *  @param line_number - line number for debug messages
- *  @param slaves [in] list of slaves
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- *
- *  NOTE: mip_get_line was executed once to extract first keyword. 
- */
 LOCAL int       check_remote_line (MinItemParser * line, DLList * variables,
                                    int line_number, DLList * slaves, 
 				   char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "allownextresult" keyword 
- *  @param line [in] MinItemParser containing line.
- *  @param line_number - line number for debug messages
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- *
- *  NOTE: mip_get_line was executed once to extract first keyword. 
- */
 LOCAL int       check_allownextresult_line (MinItemParser * line,
                                             int line_number,
 					    char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "complete" keyword 
- *  @param line [in] MinItemParser containing line.
- *  @param line_number - line number for debug messages
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- *
- *  NOTE: mip_get_line was executed once to extract first keyword. 
- */
 LOCAL int       check_complete_line (MinItemParser * line, int line_number,
 				     char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "timeout" keyword 
- *  @param line [in] MinItemParser containing line.
- *  @param line_number - line number for debug messages
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- *
- *  NOTE: mip_get_line was executed once to extract first keyword. 
- */
 LOCAL int       check_timeout_line (MinItemParser * line, int line_number,
 				    char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "sleep" keyword 
- *  @param line [in] MinItemParser containing line.
- *  @param line_number - line number for debug messages
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- *
- *  NOTE: mip_get_line was executed once to extract first keyword. 
- */
 LOCAL int       check_sleep_line (MinItemParser * line, int line_number,
 				  char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "blockingtimeout" keyword 
- *  @param line [in] MinItemParser containing line.
- *  @param line_number - line number for debug messages
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- *
- *  NOTE: mip_get_line was executed once to extract first keyword. 
- */
 LOCAL int       check_blockingtimeout_line (MinItemParser * line, 
 					    int line_number,
 					    char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "testinterference" keyword 
- *  @param line [in] MinItemParser containing line.
- *  @param line_number - line number for debug messages
- *  @param interf_objs list of interference objects
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- *
- *  NOTE: mip_get_line was executed once to extract first keyword. 
- */
 LOCAL int       check_interference_line (MinItemParser * line,
                                          int line_number,
 					 DLList * interf_objs,
 					 char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "expect" keyword 
- *  @param line [in] MinItemParser containing line.
- *  @param line_number - line number for debug messages
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- *
- *  NOTE: mip_get_line was executed once to extract first keyword. 
- */
 LOCAL int       check_expect_line (MinItemParser * line, DLList * varnames,
                                    int line_number, char * tc_title);
 /* ------------------------------------------------------------------------- */
-/** Checks validity of line with "if" keyword 
- *  @param line [in] MinItemParser containing line.
- *  @param line_number - line number for debug messages
- *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
- */
 LOCAL int       check_if_line (MinItemParser * line, int line_number, 
 			       char * tc_title);
 
@@ -272,6 +156,14 @@ LOCAL int       check_if_line (MinItemParser * line, int line_number,
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Checks validity of line with "expect" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
 LOCAL int check_expect_line (MinItemParser * line, DLList * varnames,
                              int line_number, char *tc_title)
 {
@@ -296,14 +188,21 @@ LOCAL int check_expect_line (MinItemParser * line, DLList * varnames,
         }
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Compare function for dl_list_find().
+ */
 LOCAL int look4slave (const void *a, const void *b)
 {
         return strcmp ((char *)a, (char *)b);
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handles keyword 
+ *  @param keyword [in] keyword to be handled 
+ *  @param mip [in] item parser which contains the rest of the line 
+ *
+ *  NOTE: Item parser should be rewinded after usage in order to be able
+ *        to correctly handle loops.
+ */
 LOCAL void interpreter_handle_keyword (TScripterKeyword keyword,
                                        MinItemParser * mip)
 {
@@ -529,8 +428,14 @@ LOCAL void interpreter_handle_keyword (TScripterKeyword keyword,
         mip->item_skip_and_mark_pos_ = parser_pos;
         return;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Checks validity of line with "run" keyword
+ * @param line - min item parser containing line. Assume that 
+ * mip_get_line was executed once to extract first keyword
+ * @param line_number - line number for debug messages
+ * @param tc_title - title of validated test case
+ * @return 0 if line is valid
+ */
 LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
 {
         char           *lib_name = NULL;
@@ -655,8 +560,14 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
         dl_list_free (&module_cases);
         return opresult;
 }
-
 /*------------------------------------------------------------------------- */
+/** Checks validitye of line with "pause" keyword
+ * @param line - min item parser containing line. Assume that 
+ * mip_get_line was executed once to extract first keyword
+ * @param line_number - line number for debug messages
+ * @param tc_title - title of validated test case
+ * @return 0 if line is valid
+ */
 LOCAL int check_pause_line (MinItemParser * line, int line_number, 
 			    char *tc_title)
 {
@@ -672,8 +583,14 @@ LOCAL int check_pause_line (MinItemParser * line, int line_number,
         DELETE (string);
         return 0;
 }
-
 /*------------------------------------------------------------------------- */
+/** Checks validity of line with "loop" keyword
+ * @param line - min item parser containing line. Assume that 
+ * mip_get_line was executed once to extract first keyword
+ * @param line_number - line number for debug messages
+ * @param tc_title - title of validated test case
+ * @return 0 if line is valid
+ */
 LOCAL int check_loop_line (MinItemParser * line, int line_number, 
 			   char * tc_title)
 {
@@ -704,8 +621,16 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number,
         }
         return 0;
 }
-
 /*------------------------------------------------------------------------- */
+/** Checks validity of line with "allocate" keyword
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param slaves [in] list of slaves
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
 LOCAL int check_allocate_line (MinItemParser * line, int line_number,
 			       DLList * slaves, char * tc_title)
 {
@@ -749,8 +674,16 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number,
       EXIT:
         return retval;
 }
-
 /*------------------------------------------------------------------------- */
+/** Checks validity of line with "free" keyword
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param slaves [in] list of slaves
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
 LOCAL int check_free_line (MinItemParser * line, int line_number,
 			   DLList *slaves, char * tc_title)
 {
@@ -789,8 +722,17 @@ LOCAL int check_free_line (MinItemParser * line, int line_number,
       EXIT:
         return retval;
 }
-
 /*------------------------------------------------------------------------- */
+/** Checks validity of line with "remote" keyword
+ *  @param line [in] MinItemParser containing line.
+ *  @param variables [in] list of variables
+ *  @param line_number - line number for debug messages
+ *  @param slaves [in] list of slaves
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
 LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
                              int line_number, DLList * slaves, char * tc_title)
 {
@@ -867,8 +809,15 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
       EXIT:
         return retval;
 }
-
 /*------------------------------------------------------------------------- */
+/** Checks validity of line with "allownextresult" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
 LOCAL int check_allownextresult_line (MinItemParser * line, int line_number,
 				      char * tc_title)
 {
@@ -892,8 +841,15 @@ LOCAL int check_allownextresult_line (MinItemParser * line, int line_number,
       EXIT:
         return retval;
 }
-
 /*------------------------------------------------------------------------- */
+/** Checks validity of line with "complete" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
 LOCAL int check_complete_line (MinItemParser * line, int line_number, 
 			       char * tc_title)
 {
@@ -920,8 +876,15 @@ LOCAL int check_complete_line (MinItemParser * line, int line_number,
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Checks validity of line with "timeout" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
 LOCAL int check_timeout_line (MinItemParser * line, int line_number,
 			      char * tc_title)
 {
@@ -953,8 +916,16 @@ LOCAL int check_timeout_line (MinItemParser * line, int line_number,
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Checks validity of line with "testinterference" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param interf_objs list of interference objects
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
 LOCAL int check_interference_line (MinItemParser * line, int line_number,
 				   DLList * interf_objs, char * tc_title)
 {
@@ -1094,8 +1065,15 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                 DELETE (type);
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Checks validity of line with "sleep" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
 LOCAL int check_sleep_line (MinItemParser * line, int line_number, 
 			    char * tc_title)
 {
@@ -1127,6 +1105,14 @@ LOCAL int check_sleep_line (MinItemParser * line, int line_number,
         return retval;
 }
 /* ------------------------------------------------------------------------- */
+/** Checks validity of line with "blockingtimeout" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
 LOCAL int check_blockingtimeout_line (MinItemParser * line, int line_number, 
 				      char * tc_title)
 {
@@ -1157,8 +1143,13 @@ LOCAL int check_blockingtimeout_line (MinItemParser * line, int line_number,
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Checks validity of line with "if" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if line is valid, -1 otherwise. 
+ */
 LOCAL int check_if_line (MinItemParser * line, int line_number, char * tc_title)
 {
         int retval;
@@ -2122,8 +2113,10 @@ char           *validate_test_case (MinSectionParser * testcase)
 
         return tc_title;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Handle current script command and move to next.
+ *  @return ENOERR in case of success, -1 otherwise.
+ */
 int interpreter_next ()
 {
         LegoActiveType *active = INITPTR;
@@ -2277,9 +2270,9 @@ int interpreter_next ()
       EXIT:
         return retval;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Inititialize scripter. 
+ */
 int scripter_init (minScripterIf * scripter_if)
 {
         current = INITPTR;
