@@ -78,90 +78,35 @@ struct ExecutedTestCase;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Search a case by id from the case_list_, used with dl_list_find()
- *  @param a pointer to DLListIterator
- *  @param b pointer to search key
- *  @return 0 if found, greater or less than zero if not
- */ 
 LOCAL int _find_case_by_id (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Search a module by id from the available_modules, used with dl_list_find()
- *  @param a pointer to DLListIterator
- *  @param b pointer to search key
- *  @return 0 if found, greater or less than zero if not
- */ 
 LOCAL int _find_mod_by_id (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-/** Get the ExecutedTestCase struture by test run identifier 
- *  @param testrunid search key
- *  @return pointer to ExecutedTestCase matching the id or INITPTR
- */ 
 LOCAL struct ExecutedTestCase *get_executed_tcase_with_runid (long testrunid);
 /* ------------------------------------------------------------------------- */
-/** Engine calls this for each module it is configured with
- *  @param modulename name of the module
- *  @param moduleid module id
- */ 
 LOCAL void pl_new_module (char *modulename, unsigned moduleid);
 /* ------------------------------------------------------------------------- */
-/** Engine calls this when module adding fails
- *  @param modulename name of the module
- */ 
 LOCAL void pl_no_module (char *modulename);
 /* ------------------------------------------------------------------------- */
-/** Engine calls this when all the cases for module are reported
- *  @param moduleid module id
- */ 
 LOCAL void pl_module_ready (unsigned moduleid);
 /* ------------------------------------------------------------------------- */
-/** Engine calls this for each new test case
- *  @param moduleid id of the module this test case belongs to
- *  @param caseid id of the test case
- *  @param casetitle test case title
- */ 
 LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
 /* ------------------------------------------------------------------------- */
-/** Engine calls this when test case has been started
- *  @param moduleid id of the module this test case belongs to
- *  @param caseid id of the test case
- *  @param testrunid identifier for the test run
- */ 
 LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid);
 /* ------------------------------------------------------------------------- */
-/** Engine calls this when it when test case has finnished
- *  @param testrunid identifier for the test run
- *  @param result test case result
- *  @param desc test result description
- *  @param starttime starting timestamp
- *  @param endtime time the test case has finnished
- */ 
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
 			   long starttime, long endtime);
 /* ------------------------------------------------------------------------- */
-/** Engine calls this when it when test case has sent print data
- *  @param testrunid identifier for the test run
- *  @param message the test case message
- */ 
 LOCAL void pl_msg_print (long testrunid, char *message);
 /* ------------------------------------------------------------------------- */
-/** Engine calls this when it when test case/module sends error message
- *  @param error the message
- */ 
 LOCAL void pl_error_report (char *error);
 /* ------------------------------------------------------------------------- */
-/** Function that checks if we have ran all the cases and can finnish
- */
 LOCAL int  all_done();
-/* ------------------------------------------------------------------------- */
-LOCAL void test_module_info(char *libname);
 /* ------------------------------------------------------------------------- */
 LOCAL char *patch_path (char *p);
 /* ------------------------------------------------------------------------- */
-/** Displays information of test module library 
- *  @param libname the test module name coming from commandline
- */
 LOCAL void test_module_info(char *libname);
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
@@ -195,6 +140,11 @@ struct ExecutedTestCase {
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Search a case by id from the case_list_, used with dl_list_find()
+ *  @param a pointer to DLListIterator
+ *  @param b pointer to search key
+ *  @return 0 if found, greater or less than zero if not
+ */ 
 LOCAL int _find_case_by_id (const void *a, const void *b)
 {
         CLICaseData * tmp1 = (CLICaseData*)a;
@@ -204,6 +154,11 @@ LOCAL int _find_case_by_id (const void *a, const void *b)
         else return -1;
 }
 /* ------------------------------------------------------------------------- */
+/** Search a module by id from the available_modules, used with dl_list_find()
+ *  @param a pointer to DLListIterator
+ *  @param b pointer to search key
+ *  @return 0 if found, greater or less than zero if not
+ */ 
 LOCAL int _find_mod_by_id (const void *a, const void *b)
 {
         CLIModuleData * tmp1 = (CLIModuleData*)a;
@@ -213,6 +168,10 @@ LOCAL int _find_mod_by_id (const void *a, const void *b)
         else return -1;
 }
 /* ------------------------------------------------------------------------- */
+/** Get the ExecutedTestCase struture by test run identifier 
+ *  @param testrunid search key
+ *  @return pointer to ExecutedTestCase matching the id or INITPTR
+ */ 
 LOCAL struct ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 {
 	DLListIterator it;
@@ -229,6 +188,10 @@ LOCAL struct ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 	return INITPTR;
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this for each module it is configured with
+ *  @param modulename name of the module
+ *  @param moduleid module id
+ */ 
 LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 {
 	CLIModuleData *cld = INITPTR;
@@ -244,12 +207,18 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 	return;
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when module adding fails
+ *  @param modulename name of the module
+ */ 
 LOCAL void pl_no_module (char *modulename)
 {
 
         fprintf (stderr, "Module %s has not been loaded", modulename);        
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when all the cases for module are reported
+ *  @param moduleid module id
+ */ 
 LOCAL void pl_module_ready (unsigned moduleid)
 {
 	DLListIterator it;
@@ -292,6 +261,11 @@ LOCAL void pl_module_ready (unsigned moduleid)
 		
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this for each new test case
+ *  @param moduleid id of the module this test case belongs to
+ *  @param caseid id of the test case
+ *  @param casetitle test case title
+ */ 
 LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 {
         CLICaseData *ccd = INITPTR;        
@@ -322,6 +296,11 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
         dl_list_add (case_list_,(void*)ccd);
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when test case has been started
+ *  @param moduleid id of the module this test case belongs to
+ *  @param caseid id of the test case
+ *  @param testrunid identifier for the test run
+ */ 
 LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid)
@@ -370,6 +349,13 @@ LOCAL void pl_case_started (unsigned moduleid,
         dl_list_add (executed_case_list_,(void*)tmp);
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when it when test case has finnished
+ *  @param testrunid identifier for the test run
+ *  @param result test case result
+ *  @param desc test result description
+ *  @param starttime starting timestamp
+ *  @param endtime time the test case has finnished
+ */ 
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
 			   long starttime, long endtime){
 
@@ -436,6 +422,10 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 	case_result_count_ ++;
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when it when test case has sent print data
+ *  @param testrunid identifier for the test run
+ *  @param message the test case message
+ */ 
 LOCAL void pl_msg_print (long testrunid, char *message)
 {
 	struct ExecutedTestCase *etc;
@@ -451,10 +441,15 @@ LOCAL void pl_msg_print (long testrunid, char *message)
 	return;
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this when it when test case/module sends error message
+ *  @param error the message
+ */ 
 LOCAL void pl_error_report (char *error) {
 	fprintf (stderr, "%s\n", error);
 }
 /* ------------------------------------------------------------------------- */
+/** Function that checks if we have ran all the cases and can finnish
+ */
 LOCAL int all_done()
 {
 	if (ready_module_count_ == dl_list_size (available_modules) &&
@@ -467,6 +462,10 @@ LOCAL int all_done()
 	return 0;
 }
 /* ------------------------------------------------------------------------- */
+/** If path given in argument is not absolute make it so.
+ *  @param p the path to check
+ *  @return the patched path
+ */
 LOCAL char *patch_path (char *p)
 {
         Text *path, *cwd;
@@ -486,6 +485,9 @@ LOCAL char *patch_path (char *p)
         return retval;
 }
 /* ------------------------------------------------------------------------- */
+/** Displays information of test module library 
+ *  @param libname the test module name coming from commandline
+ */
 LOCAL void test_module_info(char *libname)
 {
         test_libl_t tlibl;

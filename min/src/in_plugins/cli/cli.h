@@ -39,6 +39,7 @@
 
 /* ------------------------------------------------------------------------- */
 /* DATA TYPES */
+/** Options for CLI plugin */
 typedef struct {
 	int parallel_mode_;
 	int display_info_;
