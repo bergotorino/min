@@ -58,59 +58,25 @@ static int      mqid = -1;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
-
-/** Check that the event paramter seems valid.
- *  @param e event  to be validate
- *  @return 0 if the event is valid, 1 if not
- */
+/* ------------------------------------------------------------------------- */
 LOCAL int       validate_event (minEventIf * e);
-/** Sends event request towards the engine.
- *  @param event the event.
- */
+/* ------------------------------------------------------------------------- */
 LOCAL void      send_event (minEventIf * e);
-
-/** Get the event request type from the event,
- * @param e the event
- * @returns the event request type
- */
+/* ------------------------------------------------------------------------- */
+LOCAL void      wait_event (minEventIf * e);
+/* ------------------------------------------------------------------------- */
 inline LOCAL TEventReq_t get_event_req_type (minEventIf * e);
-
-/** Set the event request type for the event.
- * @param e the the event
- * @param aReqType the event request type
- */
+/* ------------------------------------------------------------------------- */
 inline LOCAL void set_event_req_type (minEventIf * e, TEventReq_t aReqType);
-
-/** Get the name from event.
- *  @param e the event name of which is to be returned 
- *  @returns event name or INITPTR if name is not set for the event
- */
+/* ------------------------------------------------------------------------- */
 inline LOCAL TEventName_t get_event_name (minEventIf * e);
-
-/** Set the name for the event.
- * @param e the event
- * @param aName event name
- */
+/* ------------------------------------------------------------------------- */
 inline LOCAL void set_event_name (minEventIf * e, TEventName_t aName);
-
-/** Get event type from event
- *  @param e the event
- *  @returns event type
- */
+/* ------------------------------------------------------------------------- */
 inline LOCAL TEventType_t get_event_type (minEventIf * e);
-
-/** Set the event type for event.
- *  @param e the event
- *  @param aType the event type
- */
+/* ------------------------------------------------------------------------- */
 inline LOCAL void set_event_type (minEventIf * e, TEventType_t aType);
-
-/** Set request type, name and even type for event.
- *  @param e the event
- *  @param aType event requst type
- *  @param aName event name
- *  @param aEventType event type
- */
+/* ------------------------------------------------------------------------- */
 LOCAL void      set_event_stuff (minEventIf * e, TEventReq_t aType,
                                  TEventName_t aName, TEventType_t aEventType);
 
@@ -118,9 +84,13 @@ LOCAL void      set_event_stuff (minEventIf * e, TEventReq_t aType,
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
-
+/* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
-
+/* ------------------------------------------------------------------------- */
+/** Check that the event paramter seems valid.
+ *  @param e event  to be validate
+ *  @return 0 if the event is valid, 1 if not
+ */
 int validate_event (minEventIf * e)
 {
 
@@ -142,9 +112,10 @@ int validate_event (minEventIf * e)
       invalid_event:
         return 1;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Sends event request towards the engine.
+ *  @param event the event.
+ */
 LOCAL void send_event (minEventIf * e)
 {
         int             retval = -1;
@@ -165,7 +136,10 @@ LOCAL void send_event (minEventIf * e)
                 retval = mq_send_message_block (mqid, &buff);
         }
 }
-
+/* ------------------------------------------------------------------------- */
+/** Wait for Event message from the Engine.
+ *  @param event the event.
+ */
 LOCAL void wait_event (minEventIf * e)
 {
         int             retval;
@@ -208,23 +182,38 @@ LOCAL void wait_event (minEventIf * e)
         }
         return;
 }
-
-
+/* ------------------------------------------------------------------------- */
+/** Get the event request type from the event,
+ * @param e the event
+ * @returns the event request type
+ */
 inline LOCAL TEventReq_t get_event_req_type (minEventIf * e)
 {
         return e->event_req_type_;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Set the event request type for the event.
+ * @param e the the event
+ * @param aReqType the event request type
+ */
 inline LOCAL void set_event_req_type (minEventIf * e, TEventReq_t aReqType)
 {
         e->event_req_type_ = aReqType;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Get the name from event.
+ *  @param e the event name of which is to be returned 
+ *  @returns event name or INITPTR if name is not set for the event
+ */
 inline LOCAL TEventName_t get_event_name (minEventIf * e)
 {
         return e->event_name_;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Set the name for the event.
+ * @param e the event
+ * @param aName event name
+ */
 inline LOCAL void set_event_name (minEventIf * e, TEventName_t aName)
 {
         if (e->event_name_ != INITPTR) {
@@ -234,19 +223,32 @@ inline LOCAL void set_event_name (minEventIf * e, TEventName_t aName)
         e->event_name_ = NEW2 (char, strlen (aName) + 1);
         STRCPY (e->event_name_, aName, strlen (aName) + 1);
 }
-
+/* ------------------------------------------------------------------------- */
+/** Get event type from event
+ *  @param e the event
+ *  @returns event type
+ */
 inline LOCAL TEventType_t get_event_type (minEventIf * e)
 {
         return e->event_type_;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Set the event type for event.
+ *  @param e the event
+ *  @param aType the event type
+ */
 inline LOCAL void set_event_type (minEventIf * e, TEventType_t aType)
 {
         e->event_type_ = aType;
         return;
 }
-
-
+/* ------------------------------------------------------------------------- */
+/** Set request type, name and even type for event.
+ *  @param e the event
+ *  @param aType event requst type
+ *  @param aName event name
+ *  @param aEventType event type
+ */
 LOCAL void set_event_stuff (minEventIf * e, TEventReq_t aType,
                             TEventName_t aName, TEventType_t aEventType)
 {
@@ -254,9 +256,14 @@ LOCAL void set_event_stuff (minEventIf * e, TEventReq_t aType,
         set_event_name (e, aName);
         set_event_req_type (e, aType);
 }
-
+/* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
-
+/* ------------------------------------------------------------------------- */
+/** Creates a MIN event.
+ *  @param aName name of the event (can be NULL) 
+ *  @param aType type of the event (state or indication)
+ *  @returns a pointer to the created event,
+ */
 minEventIf    *min_event_create (const TEventName_t aName,
                                    TEventType_t aType)
 {
@@ -289,18 +296,25 @@ minEventIf    *min_event_create (const TEventName_t aName,
 
         return event;
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** Destroys an event. The memory allocated for the event is freed
+ * @param event pointer to the event to be deleted
+ */
 void min_event_destroy (minEventIf * event)
 {
         if (event->event_name_ && event->event_name_ != INITPTR)
                 DELETE (event->event_name_);
         DELETE (event);
 }
-
 /* ------------------------------------------------------------------------- */
-
+/** MIN Event handling for TP
+ *  @param event_param event description and command
+ *
+ *  This function
+ *  - validates the event 
+ *  - sends event related message to engine
+ *  - waits for SIGUSR (blocking)
+ */
 void Event (minEventIf * e)
 {
         sigset_t        waitset;
@@ -323,9 +337,7 @@ void Event (minEventIf * e)
 
         return;
 }
-
 /* ------------------------------------------------------------------------- */
-
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
 

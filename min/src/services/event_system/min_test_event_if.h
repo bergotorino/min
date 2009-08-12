@@ -126,30 +126,12 @@ typedef struct min_event_if_ {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-
-/** Creates a MIN event.
- *  @param aName name of the event (can be NULL) 
- *  @param aType type of the event (state or indication)
- *  @returns a pointer to the created event,
- */
-minEventIf    *min_event_create (const TEventName_t aName,
-                                   TEventType_t aType);
-/** MIN Event handling for TP
- *  @param event_param event description and command
- *
- *  This function
- *  - validates the event 
- *  - sends event related message to engine
- *  - waits for SIGUSR (blocking)
- */
+minEventIf     *min_event_create (const TEventName_t aName,
+                                  TEventType_t aType);
+/* ------------------------------------------------------------------------- */
 void            Event (minEventIf * event);
-
-/** Destroys an event. The memory allocated for the event is freed
- * @param event pointer to the event to be deleted
- */
+/* ------------------------------------------------------------------------- */
 void            min_event_destroy (minEventIf * event);
-
-
 /* ------------------------------------------------------------------------- */
 
 
