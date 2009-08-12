@@ -57,12 +57,10 @@
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-/** Handler for the SIGUSR2 signal. */
 void            ctp_handle_sigusr2 (int signum);
-/** Handler for the SIGTSTP signal. */
+/* ------------------------------------------------------------------------- */
 void            ctp_hande_sigtstp (int signo, siginfo_t * info,
                                    void *context);
-
 /* ------------------------------------------------------------------------- */
 #endif                          /* COMBINED_TEST_PROCESS_H */
 /* End of file */

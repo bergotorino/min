@@ -78,13 +78,20 @@ extern TSBool   ctprun;
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Handler for the SIGUSR2 signal. 
+ *  @param signum not used.
+ */
 void ctp_handle_sigusr2 (int signum)
 {
         ctprun = ESFalse;
         return;
 }
-
-
+/* ------------------------------------------------------------------------- */
+/** Handler for the SIGTSTP signal. 
+ *  @param signo not used.
+ *  @param siginfo_t used to pass sleep time with the signal.
+ *  @param context not used.
+ */
 void ctp_hande_sigtstp (int signo, siginfo_t * info, void *context)
 {
         int             sleeptime = info->si_int;
