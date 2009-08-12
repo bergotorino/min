@@ -87,25 +87,10 @@ typedef struct
 /* -------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* -------------------------------------------------------------------------- */
-/** Runs specified test case.
- *  @param id[in] test case id.
- *  @param scriptfile[in] config file to which test case belongs to.
- *  @param result[out] for test case result returning.
- *  @return ENOERR or -1 in case of failure.
- *
- *  NOTE: This function is a part of Test Module API and it is called by TMC
- */
 int tm_run_test_case( unsigned int      id
                     , const char     *  scriptfile
                     , TestCaseResult *  result );
 /* -------------------------------------------------------------------------- */
-/** Get test cases from the script file.
- *  @param scriptfile[in] config file from which test cases are extracted.
- *  @param cases[out] for test cases returning.
- *  @return ENOERR or -1 in case of failure.
- *
- *  NOTE: This function is a part of Test Module API and it is called by TMC
- */
 int tm_get_test_cases( const char * scriptfile, DLList ** cases );
 /* -------------------------------------------------------------------------- */
 #endif /* LUA_SCRIPTER_IF_H */

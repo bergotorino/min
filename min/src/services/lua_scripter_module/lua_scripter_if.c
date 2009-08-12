@@ -62,120 +62,43 @@
 /* -------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* -------------------------------------------------------------------------- */
-/** Comparator used for findings events on the list */
-LOCAL int _look4event( const void *a, const void *b );
+LOCAL int _look4event (const void *a, const void *b);
 /* -------------------------------------------------------------------------- */
-/** Loads .so test module and exports functions from within it to the Lua.
- *  This function is intended to be called from LUA.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 1 or 0 in case of failure.
- */
-LOCAL int ls_load_testmodule( lua_State *l );
+LOCAL int ls_load_testmodule (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Unloads loaded test module.
- *  This function is intended to be called from LUA.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0
- */
-LOCAL int ls_release_testmodule( lua_State *l );
+LOCAL int ls_release_testmodule (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Registers test case on the global list.
- *  This function is intended to be called from LUA.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_register_testcase( lua_State *l );
+LOCAL int ls_register_testcase (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Prints message on the UI.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_print( lua_State *l );
+LOCAL int ls_print (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Requests an event.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_request( lua_State *l );
+LOCAL int ls_request (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Releases an event.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_release( lua_State *l );
+LOCAL int ls_release (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Sets an event.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_set( lua_State *l );
+LOCAL int ls_set (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Unsets an event.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_unset( lua_State *l );
+LOCAL int ls_unset (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Waits for an event.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_wait( lua_State *l );
+LOCAL int ls_wait (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Sleeps
- *  This function is intended to be called from LUA.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_sleep( lua_State *l );
+LOCAL int ls_sleep (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Runs a test from specified library.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 1.
- */
-LOCAL int ls_run( lua_State *l );
+LOCAL int ls_run (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Allocates slave device for external interface purposes.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 1.
- */
-LOCAL int ls_allocate_slave( lua_State *l );
+LOCAL int ls_allocate_slave (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Frees allocated slave device.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_free_slave( lua_State *l );
+LOCAL int ls_free_slave (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Requests an event through ext interface
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_slave_request( lua_State *l );
+LOCAL int ls_slave_request (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Releases an event through ext interface
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_slave_release( lua_State *l );
+LOCAL int ls_slave_release (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Executes test on slave side through external interface.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_slave_run( lua_State *l );
+LOCAL int ls_slave_run (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Waits for variable passed via send/receive mechanism.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 1.
- */
-LOCAL int ls_slave_expect( lua_State *l );
+LOCAL int ls_slave_expect (lua_State *l);
 /* -------------------------------------------------------------------------- */
-/** Sends value through send/receive mechanism.
- *  @param l [in] the state of the Lua interpreter.
- *  @return number of variables returned to the Lua: 0.
- */
-LOCAL int ls_slave_sendrecv( lua_State *l );
+LOCAL int ls_slave_sendrecv (lua_State *l);
 /* -------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
 /* -------------------------------------------------------------------------- */
@@ -222,13 +145,20 @@ LOCAL luaL_reg *test_module_method = INITPTR;
 /* -------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ===================================== */
 /* -------------------------------------------------------------------------- */
+/** Comparator used for findings events on the list 
+ */
 LOCAL int _look4event( const void *a, const void *b )
 {
         minEventIf *e = (minEventIf*)a;
         return strcmp(e->Name(e),(char*)b);
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_load_testmodule( lua_State *l )
+/** Loads .so test module and exports functions from within it to the Lua.
+ *  This function is intended to be called from LUA.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 1 or 0 in case of failure.
+ */
+LOCAL int ls_load_testmodule (lua_State *l)
 {
         int              stacktop       = 0;
         int              tmp            = 0;
@@ -307,9 +237,14 @@ LOCAL int ls_load_testmodule( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_release_testmodule( lua_State *l )
+/** Unloads loaded test module.
+ *  This function is intended to be called from LUA.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0
+ */
+LOCAL int ls_release_testmodule (lua_State *l)
 {
-        int stacktop = lua_gettop(l);
+        int stacktop = lua_gettop (l);
         TMInfo *ti = INITPTR;
         if(stacktop!=1) {
                 MIN_WARN("Invalid number of arguments for min.unload"
@@ -326,7 +261,12 @@ LOCAL int ls_release_testmodule( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_register_testcase( lua_State *l )
+/** Registers test case on the global list.
+ *  This function is intended to be called from LUA.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_register_testcase (lua_State *l)
 {
         char    *tctitle        = INITPTR;
         char    *funname        = INITPTR;
@@ -370,7 +310,11 @@ LOCAL int ls_register_testcase( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_print( lua_State *l )
+/** Prints message on the UI.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_print (lua_State *l)
 {
         char *format = INITPTR;
         int stacktop = lua_gettop(l);
@@ -391,7 +335,11 @@ LOCAL int ls_print( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_request( lua_State *l )
+/** Requests an event.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_request (lua_State *l)
 {
         minEventIf *event = INITPTR;
         char *eventname = INITPTR;
@@ -436,7 +384,11 @@ LOCAL int ls_request( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_release( lua_State *l )
+/** Releases an event.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_release (lua_State *l)
 {
         minEventIf *event = INITPTR;
         char *eventname = INITPTR;
@@ -475,7 +427,11 @@ LOCAL int ls_release( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_set( lua_State *l )
+/** Sets an event.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_set (lua_State *l)
 {
         minEventIf *event = INITPTR;
         char *eventname = INITPTR;
@@ -518,7 +474,11 @@ LOCAL int ls_set( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_unset( lua_State *l )
+/** Unsets an event.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_unset (lua_State *l)
 {
         minEventIf *event = INITPTR;
         char *eventname = INITPTR;
@@ -547,6 +507,10 @@ LOCAL int ls_unset( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
+/** Waits for an event.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
 LOCAL int ls_wait( lua_State *l )
 {
         minEventIf *event = INITPTR;
@@ -616,6 +580,11 @@ LOCAL int ls_wait( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
+/** Sleeps
+ *  This function is intended to be called from LUA.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
 LOCAL int ls_sleep( lua_State *l )
 {
         long msec = 0;
@@ -630,6 +599,10 @@ LOCAL int ls_sleep( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
+/** Runs a test from specified library.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 1.
+ */
 LOCAL int ls_run( lua_State *l )
 {
         int stacktop  = lua_gettop(l);
@@ -703,6 +676,10 @@ LOCAL int ls_run( lua_State *l )
         return 1;
 }
 /* -------------------------------------------------------------------------- */
+/** Allocates slave device for external interface purposes.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 1.
+ */
 LOCAL int ls_allocate_slave(lua_State *l)
 {
         int stacktop = lua_gettop(l);
@@ -773,7 +750,11 @@ LOCAL int ls_allocate_slave(lua_State *l)
         return 1;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_free_slave(lua_State *l)
+/** Frees allocated slave device.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_free_slave (lua_State *l)
 {
         int stacktop = lua_gettop(l);
         SlaveInfo *slave = INITPTR;
@@ -810,7 +791,11 @@ LOCAL int ls_free_slave(lua_State *l)
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_slave_request( lua_State *l )
+/** Requests an event through ext interface
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_slave_request (lua_State *l)
 {
         int stacktop = lua_gettop(l);
         SlaveInfo *si = INITPTR;
@@ -862,7 +847,11 @@ LOCAL int ls_slave_request( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_slave_release( lua_State *l )
+/** Releases an event through ext interface
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_slave_release (lua_State *l)
 {
         int stacktop = lua_gettop(l);
         SlaveInfo *si = INITPTR;
@@ -902,7 +891,11 @@ LOCAL int ls_slave_release( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_slave_run( lua_State *l )
+/** Executes test on slave side through external interface.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_slave_run (lua_State *l)
 {
         int stacktop = lua_gettop(l);
         SlaveInfo *si = INITPTR;
@@ -981,7 +974,11 @@ LOCAL int ls_slave_run( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_slave_expect( lua_State *l )
+/** Waits for variable passed via send/receive mechanism.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 1.
+ */
+LOCAL int ls_slave_expect (lua_State *l)
 {
         int stacktop = lua_gettop(l);
         SlaveInfo *si = INITPTR;
@@ -1033,7 +1030,11 @@ LOCAL int ls_slave_expect( lua_State *l )
         return 0;
 }
 /* -------------------------------------------------------------------------- */
-LOCAL int ls_slave_sendrecv( lua_State *l )
+/** Sends value through send/receive mechanism.
+ *  @param l [in] the state of the Lua interpreter.
+ *  @return number of variables returned to the Lua: 0.
+ */
+LOCAL int ls_slave_sendrecv (lua_State *l)
 {
         int stacktop=lua_gettop(l);
         SlaveInfo *si = INITPTR;
@@ -1093,6 +1094,14 @@ LOCAL int ls_slave_sendrecv( lua_State *l )
 /* -------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ======================================= */
 /* -------------------------------------------------------------------------- */
+/** Runs specified test case.
+ *  @param id[in] test case id.
+ *  @param scriptfile[in] config file to which test case belongs to.
+ *  @param result[out] for test case result returning.
+ *  @return ENOERR or -1 in case of failure.
+ *
+ *  NOTE: This function is a part of Test Module API and it is called by TMC
+ */
 int tm_run_test_case( unsigned int      id
                     , const char     *  scriptfile
                     , TestCaseResult *  result )
@@ -1211,6 +1220,13 @@ EXIT:
         RESULT(result,tcres,(tcdesc==INITPTR)?"Description not set":tcdesc);
 }
 /* -------------------------------------------------------------------------- */
+/** Get test cases from the script file.
+ *  @param scriptfile[in] config file from which test cases are extracted.
+ *  @param cases[out] for test cases returning.
+ *  @return ENOERR or -1 in case of failure.
+ *
+ *  NOTE: This function is a part of Test Module API and it is called by TMC
+ */
 int tm_get_test_cases( const char * scriptfile, DLList ** cases )
 {
         lua_State *l = INITPTR;
