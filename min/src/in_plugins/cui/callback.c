@@ -105,6 +105,13 @@ LOCAL char     *create_path ();
 /* ------------------------------------------------------------------------- */
 LOCAL void      side_scroll_log_item (void *p);
 /* ------------------------------------------------------------------------- */
+LOCAL int       _find_case_by_status (const void *a, const void *b);
+/* ------------------------------------------------------------------------- */
+LOCAL int       _find_mod_by_id (const void *a, const void *b);
+/* ------------------------------------------------------------------------- */
+LOCAL int       _find_mod_by_name (const void *a, const void *b);
+
+/* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 /** main menu structure */
 callback_s      cb_main_menu[] = {
@@ -274,6 +281,8 @@ LOCAL int       get_log_messages (void);
 /* ------------------------------------------------------------------------- */
 LOCAL int       get_tcs_for_start_new_case (void);
 /* ------------------------------------------------------------------------- */
+LOCAL int       get_tcs_for_debug_case (void);
+/* ------------------------------------------------------------------------- */
 LOCAL int       get_tcs_for_run_multiple_tests (void);
 /* ------------------------------------------------------------------------- */
 LOCAL int       get_ongoing_cases (void);
@@ -331,6 +340,10 @@ LOCAL void      remove_test_set (void *p);
 /* ------------------------------------------------------------------------- */
 LOCAL void      save_test_set (void);
 /* ------------------------------------------------------------------------- */
+LOCAL CUICaseData *setgetcase (char *module, char *title);
+/* ------------------------------------------------------------------------- */
+LOCAL void      set_read (DLList * set_cases_list, char *setname):
+/* ------------------------------------------------------------------------- */
 LOCAL void      add_tcs_to_test_set_menu (void);
 /* ------------------------------------------------------------------------- */
 LOCAL int       add_tcs_to_test_set (void);
@@ -350,6 +363,8 @@ LOCAL void      remove_cases_from_test_set (void *p);
 LOCAL int       compare_items (const void *data1, const void *data2);
 /* ------------------------------------------------------------------------- */
 LOCAL void      empty_test_set (void);
+/* ------------------------------------------------------------------------- */
+LOCAL int       set_write_file (DLList * cases_list, char *filename);
 /* ------------------------------------------------------------------------- */
 LOCAL int       get_test_modules (void);
 /* ------------------------------------------------------------------------- */
@@ -871,10 +886,8 @@ LOCAL int get_tcs_for_start_new_case ()
 
         return 0;
 }
-
-
 /* ------------------------------------------------------------------------- */
-/** Gets test cases for populating start new case menu
+/** Gets test cases for populating debug case menu
  *  @return 0 in case of success, returns -1 in case of failure.
  */
 LOCAL int get_tcs_for_debug_case ()
@@ -928,7 +941,6 @@ LOCAL int get_tcs_for_debug_case ()
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Gets test cases for populating run multiple tests menu
  *  @return 0 in case of success, returns -1 in case of failure.
@@ -1019,7 +1031,6 @@ LOCAL int get_tcs_for_run_multiple_tests ()
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Gets ongoing and paused cases for populating ongoing cases menu
  *  @return 0 in case of success, returns -1 in case of failure.
@@ -1133,6 +1144,8 @@ LOCAL int _find_case_by_result (const void *a, const void *b)
 }
 #endif
 /* ------------------------------------------------------------------------- */
+/** Case status compare function. 
+ */
 LOCAL int _find_case_by_status (const void *a, const void *b)
 {
         ExecutedTestCase *tmp1 = (ExecutedTestCase*)a;
@@ -1142,6 +1155,8 @@ LOCAL int _find_case_by_status (const void *a, const void *b)
         else return -1;
 }
 /* ------------------------------------------------------------------------- */
+/** Module identfier compare function.
+ */
 LOCAL int _find_mod_by_id (const void *a, const void *b)
 {
         CUIModuleData *tmp1 = (CUIModuleData*)a;
@@ -1151,14 +1166,14 @@ LOCAL int _find_mod_by_id (const void *a, const void *b)
         else return -1;
 }
 /* ------------------------------------------------------------------------- */
+/** Module name compare function.
+ */
 LOCAL int _find_mod_by_name (const void *a, const void *b)
 {
         CUIModuleData *tmp1 = (CUIModuleData*)a;
 
 	return strcmp (tx_share_buf (tmp1->modulename_), (const char *)b); 
 }
-
-
 /* ------------------------------------------------------------------------- */
 /** Gets specific test results
  *  @param cb pointer to menu callback structure
@@ -1376,7 +1391,6 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows modules menu 
  */
@@ -1388,7 +1402,6 @@ LOCAL void module_menu ()
                 update_menu (cb_module_menu, "Module menu", 0,
                              &module_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows start new case menu
  */
@@ -1399,7 +1412,6 @@ LOCAL void start_new_case_menu ()
                 update_menu (cb_start_new_case_menu, "Start new case", 1,
                              &start_new_case_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows debug case menu
  */
@@ -1410,8 +1422,6 @@ LOCAL void debug_case_menu ()
                 update_menu (cb_debug_case_menu, "Debug case", 1,
                              &debug_case_menu_focus);
 }
-
-
 /* ------------------------------------------------------------------------- */
 /** Shows run multiple tests menu
  */
@@ -1423,7 +1433,6 @@ LOCAL void run_multiple_tests_menu ()
                              "Run multiple tests", 0,
                              &run_multiple_tests_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows ongoing cases menu
  */
@@ -1434,7 +1443,6 @@ LOCAL void ongoing_cases_menu ()
                 update_menu (cb_ongoing_cases_menu, "Ongoing cases", 1,
                              &ongoing_cases_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows executed cases menu
  */
@@ -1446,7 +1454,6 @@ LOCAL void executed_cases_menu ()
                 update_menu (cb_executed_cases_menu, "Executed cases", 1,
                              &executed_cases_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows passed cases menu
  */
@@ -1458,7 +1465,6 @@ LOCAL void passed_cases_menu ()
                 update_menu (cb_passed_cases_menu, "Passed cases", 1,
                              &passed_cases_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows failed cases menu
  */
@@ -1470,7 +1476,6 @@ LOCAL void failed_cases_menu ()
                 update_menu (cb_failed_cases_menu, "Failed cases", 1,
                              &failed_cases_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows aborted cases menu
  */
@@ -1483,7 +1488,6 @@ LOCAL void aborted_cases_menu ()
                              "Aborted/Crashed cases", 1,
                              &aborted_cases_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows test results for executed test case
  *  @param p pointer to test result
@@ -1492,7 +1496,6 @@ LOCAL void tr_for_executed_case (void *p)
 {
         test_result_menu (p, executed_cases_menu);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows test results for passed test case
  *  @param p pointer to test result
@@ -1501,7 +1504,6 @@ LOCAL void tr_for_passed_case (void *p)
 {
         test_result_menu (p, passed_cases_menu);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows aborted cases menu
  *  @param p pointer to test result
@@ -1510,7 +1512,6 @@ LOCAL void tr_for_failed_case (void *p)
 {
         test_result_menu (p, failed_cases_menu);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows test results for aborted test case
  *  @param p pointer to test result
@@ -1519,7 +1520,6 @@ LOCAL void tr_for_aborted_case (void *p)
 {
         test_result_menu (p, aborted_cases_menu);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows test result menu
  *  @param p pointer to test result
@@ -1575,7 +1575,6 @@ LOCAL int test_result_menu (void *p, ptr_to_fun on_left)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows test results on window
  *  @param p pointer to test result
@@ -1644,7 +1643,6 @@ LOCAL void test_result_view (void *p)
                 }
         }
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows pause, resume, abort test case menu
  */
@@ -1750,7 +1748,6 @@ LOCAL void pause_resume_abort_menu (void *p)
                 }
         }
 }
-
 /* ------------------------------------------------------------------------- */
 /** Updates quit flag
  */
@@ -1758,7 +1755,6 @@ LOCAL void quit_program ()
 {
         continue_ = false;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Selects or deselects menu item
  */
@@ -1767,7 +1763,6 @@ LOCAL void toggle_menu_item ()
         menu_driver (my_menu, REQ_TOGGLE_ITEM);
 	
 }
-
 /* ------------------------------------------------------------------------- */
 /** Inverts menu item selection
  */
@@ -1781,7 +1776,6 @@ LOCAL void invert_select_tcs_selection ()
         for (i = 3; i < item_count (my_menu); ++i)
                 set_item_value (items[i], !item_value (items[i]));
 }
-
 /* ------------------------------------------------------------------------- */
 /** Pauses test case execution
  *  @param p pointer to DLListIterator
@@ -1793,7 +1787,6 @@ LOCAL void pause_tc (void *p)
 
         if (min_clbk_.pause_case) min_clbk_.pause_case(e->runid_);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Resumes test case execution
  *  @param p pointer to DLListIterator
@@ -1805,7 +1798,6 @@ LOCAL void resume_tc (void *p)
 
         if (min_clbk_.resume_case) min_clbk_.resume_case(e->runid_);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Aborts tes case execution
  *  @param p pointer to DLListIterator
@@ -1818,7 +1810,6 @@ LOCAL void abort_tc (void *p)
         if (min_clbk_.abort_case) min_clbk_.abort_case(e->runid_);
 
 }
-
 /* ------------------------------------------------------------------------- */
 /** Starts executing of one test case
  */
@@ -1830,7 +1821,6 @@ LOCAL void start_one_tc (void *p)
 						       c->caseid_,
 						       0);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Starts test case in debugger
  */
@@ -1848,7 +1838,6 @@ LOCAL void debug_test_case (void *p)
 	while (not_in_curses)
 	  usleep (10000);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Starts executing test cases sequentially
  */
@@ -1869,7 +1858,6 @@ LOCAL void start_cases_sequentially (void *p)
 	dl_list_free (&user_selected_cases);
 	user_selected_cases = dl_list_create();
 }
-
 /* ------------------------------------------------------------------------- */
 /** Starts executing test cases parallel
  */
@@ -1889,7 +1877,6 @@ LOCAL void start_cases_parallel (void *p)
 	dl_list_free (&user_selected_cases);
 	user_selected_cases = dl_list_create();
 }
-
 /* ------------------------------------------------------------------------- */
 /** Collects user selected test cases from menu and adds them to linked list
  */
@@ -1913,7 +1900,6 @@ LOCAL void get_selected_cases ()
         }
 
 }
-
 /* ------------------------------------------------------------------------- */
 /** Goes back to test result menu
  */
@@ -1921,7 +1907,6 @@ LOCAL void back_to_tr_menu ()
 {
         test_result_menu (INITPTR, INITPTR);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Goes back to test case controlling menu
  */
@@ -1929,7 +1914,6 @@ LOCAL void back_to_control_menu ()
 {
         pause_resume_abort_menu (INITPTR);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Views test case output
  *  @param p pointer to test_result_s
@@ -1996,7 +1980,6 @@ LOCAL void view_output (void *p)
         update_menu (cb_view_output_menu, tx_share_buf (tc->case_->casetitle_),
 		     1, NULL);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Views test case output for ongoing test case
  *  @param p pointer to DLListItem
@@ -2067,7 +2050,6 @@ LOCAL void view_output_for_ongoing_cases (void *p)
         update_menu (cb_view_output_menu, tx_share_buf (tc->case_->casetitle_),
 		     1, NULL);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows test set menu
  */
@@ -2079,7 +2061,6 @@ LOCAL void test_set_menu ()
                              "Create/modify test set menu", 0,
                              &test_set_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Creates test set menu
  *  @return 0 in case of success, returns -1 in case of failure.
@@ -2212,7 +2193,6 @@ LOCAL int create_test_set_menu ()
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Starts test set sequentially
  */
@@ -2232,7 +2212,6 @@ LOCAL void start_test_set_sequentially ()
 	}
 	display_info ("Start sequential test set execution", 1);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Starts test set parallel
  */
@@ -2251,7 +2230,6 @@ LOCAL void start_test_set_parallel ()
 	
 	display_info ("Start parallel test set execution", 1);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Removes test set
  */
@@ -2259,7 +2237,6 @@ LOCAL void remove_test_set (void *p)
 {
         empty_test_set ();
 }
-
 /* ------------------------------------------------------------------------- */
 /** Empties test set
  */
@@ -2276,7 +2253,12 @@ LOCAL void empty_test_set ()
                 }
         }
 }
-
+/* ------------------------------------------------------------------------- */
+/** Write test cases in set to to test set file.
+ *  @param case_list cases in set.
+ *  @param filenam test set file 
+ *  @return 1 always
+ */
 LOCAL int set_write_file (DLList * cases_list, char *filename)
 {
 
@@ -2324,7 +2306,9 @@ LOCAL int set_write_file (DLList * cases_list, char *filename)
 
         return 1;
 }
-
+/* ------------------------------------------------------------------------- */
+/** Create path for test set file. 
+ */
 LOCAL char *create_path ()
 {
         char           *work_path, *c_dir;
@@ -2353,7 +2337,6 @@ LOCAL char *create_path ()
 
         return work_path;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Saves test set
  */
@@ -2375,7 +2358,13 @@ LOCAL void save_test_set ()
         display_info (string, -1);
         DELETE (string);
 }
-
+/* ------------------------------------------------------------------------- */
+/** Find the test case matching module and title.
+ *  @param module test module name
+ *  @param title test case title
+ *  @return pointer to CUICaseData structure or INITPTR if matching case 
+ *          not found 
+ */
 LOCAL CUICaseData *setgetcase (char *module, char *title)
 {
         DLListIterator  module_it = DLListNULLIterator;
@@ -2402,11 +2391,12 @@ LOCAL CUICaseData *setgetcase (char *module, char *title)
 	
 	return INITPTR;
 }
-
 /* ------------------------------------------------------------------------- */
-/** Reads test set
+/** Reads test set from file into list 
+ *  @param set_cases_list [out] list of cases belonging to set
+ *  @param setname test set file name 
  */
-void set_read (DLList * set_cases_list, char *setname)
+LOCAL void set_read (DLList * set_cases_list, char *setname)
 {
 
         char           *c_dir;
@@ -2466,7 +2456,6 @@ void set_read (DLList * set_cases_list, char *setname)
 	tx_destroy (&tx);
         mp_destroy (&set_file);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Loads test set
  */
@@ -2480,7 +2469,6 @@ LOCAL void load_test_set (void *p)
 
         set_read (test_set, filename);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows add test cases to test set menu
  */
@@ -2492,7 +2480,6 @@ LOCAL void add_tcs_to_test_set_menu ()
                              "Add test cases to test set menu", 0,
                              &add_tcs_to_test_set_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Creates add test cases to test set menu
  *  @return 0 in case of success, returns -1 in case of failure.
@@ -2574,7 +2561,6 @@ LOCAL int add_tcs_to_test_set ()
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Inverts add test cases to test set selection
  */
@@ -2588,7 +2574,6 @@ LOCAL void invert_add_tcs_selection ()
         for (i = 2; i < item_count (my_menu); ++i)
                 set_item_value (items[i], !item_value (items[i]));
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows remove test cases from test set menu
  */
@@ -2600,7 +2585,6 @@ LOCAL void remove_tcs_from_test_set_menu ()
                              "Remove test cases from test set menu", 0,
                              &remove_tcs_from_test_set_menu_focus);
 }
-
 /* ------------------------------------------------------------------------- */
 /** Creates remove test cases from test set menu structure
  *  @return 0 in case of success, returns -1 in case of failure.
@@ -2685,7 +2669,6 @@ LOCAL int remove_tcs_from_test_set ()
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Shows load test set menu
  */
@@ -2697,7 +2680,6 @@ LOCAL void load_test_set_list (void)
                              &load_test_set_menu_focus);
 
 }
-
 /* ------------------------------------------------------------------------- */
 /** Get test set files in specific directory and creates load test set menu
  *  @return 0 in case of success, returns -1 in case of failure.
@@ -2793,7 +2775,6 @@ LOCAL int get_test_sets (void)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Adds user selected test cases to test set list
  */
@@ -2816,7 +2797,6 @@ LOCAL void add_cases_to_test_set (void *p)
                 }
         }
 }
-
 /* ------------------------------------------------------------------------- */
 /** Removes user selected test cases from test set list
  */
@@ -2846,7 +2826,6 @@ LOCAL void remove_cases_from_test_set (void *p)
                 }
         }
 }
-
 /* ------------------------------------------------------------------------- */
 /** Local comparison function for same test case searching.
  *  This function is used with DLLIST function dl_list_find().
@@ -2874,8 +2853,6 @@ LOCAL int compare_items (const void *data1, const void *data2)
         }
         return result;
 }
-
-
 /** Scrolls a log item horizontally, in case it does not fit the window
  */
 LOCAL void side_scroll_log_item (void *p)
@@ -2887,8 +2864,9 @@ LOCAL void side_scroll_log_item (void *p)
 	
 	return;
 }
-
 /* ======================== FUNCTIONS ====================================== */
+/** Clean all the callback structures.
+ */
 void callbacks_cleanup ()
 {
 	free_cbs (cb_module_menu);
