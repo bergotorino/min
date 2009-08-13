@@ -17,10 +17,10 @@
  */
 
 /**
- * @file:     main.cpp
- * @version:  1.00
- * @date:     18.03.2009
- * @author:   
+ *  @file:     main.cpp
+ *  @version:  1.00
+ *  @date:     18.03.2009
+ *  @author:   
  */
 
 // System includes

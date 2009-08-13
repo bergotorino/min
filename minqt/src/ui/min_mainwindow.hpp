@@ -36,7 +36,7 @@ class QToolBar;
 // -----------------------------------------------------------------------------
 /**
  * @namespace Min
- * @brief MIN Test Framework napespace
+ * @brief MIN Test Framework Qt GUI namespace
  */
 namespace Min
 {
