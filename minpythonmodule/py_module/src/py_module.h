@@ -18,9 +18,9 @@
 
 
 /**
- *  @file       pyproto.h
+ *  @file       py_module.h
  *  @version    0.1
- *  @brief      This file contains header file of pyproto test module.
+ *  @brief      Header for MIN python module
  */
 
 #ifndef PYPROTO_H
