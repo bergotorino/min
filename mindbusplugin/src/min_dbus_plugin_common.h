@@ -2,7 +2,7 @@
 #define MIN_DBUS_PLUGIN_COMMON_H
 
 /**
- *  @file       min_dbus_plugin.c
+ *  @file       min_dbus_plugin_common.h
  *  @version    0.1
  *  @brief      Common definitions for MIN DBus plugin
  */
