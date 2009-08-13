@@ -20,7 +20,7 @@
 /**
  *  @file       min_engine_api.h
  *  @version    0.1
- *  @brief      
+ *  @brief      Header for MIN Engine API
  */
 
 #ifndef MIN_ENGINE_API_H

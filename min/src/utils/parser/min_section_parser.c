@@ -20,7 +20,7 @@
 /**
  *  @file       min_section_parser.c
  *  @version    0.1
- *  @brief      This file contains implementation of Min Section Parser.
+ *  @brief      This file contains implementation of MIN Section Parser.
  */
 
 /* ------------------------------------------------------------------------- */

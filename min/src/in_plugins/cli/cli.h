@@ -18,9 +18,9 @@
 
 
 /**
- *  @file       consoleui.h
+ *  @file       cli.h
  *  @version    0.1
- *  @brief      This file contains header file of console UI of MIN
+ *  @brief      Header for MIN Commandline plugin
  */
 
 #ifndef CLI_H
