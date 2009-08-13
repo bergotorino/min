@@ -49,7 +49,7 @@ namespace Min
         /** C++ Constructor. */
         TreeItem(const QList<QVariant> &data, Min::TreeItem *parent = 0);
 
-        /** Destyructor. */
+        /** Destructor. */
         ~TreeItem();
 
         /** Appends child item to particular item.

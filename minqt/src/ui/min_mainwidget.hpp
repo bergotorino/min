@@ -69,7 +69,6 @@ namespace Min
         ~MainWidget();
 
     public:
-
         /** Gets selection model for available cases view (those to be executed)
          *  @return pointer to selection model
          */

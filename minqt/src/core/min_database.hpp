@@ -126,34 +126,70 @@ namespace Min
                            const QString &result_description="");
 
         /**
-         * gets devise ID from database
+         * gets device ID from database
          * @param device_id - device id from MIN
          *
          */
         unsigned int getDeviceDbId(unsigned int device_id);
-
+        /**
+         * gets module ID from database
+         * @param device_id - device id from MIN
+	 * @param module_id - module identifier from MIN
+         */
         unsigned int getModuleDbId(unsigned int device_id,
-                                    unsigned int module_id);
+				   unsigned int module_id);
+        /**
+         * gets module ID from database
+         * @param device_id - device id from MIN
+	 * @param module_name - module name
+         */
         unsigned int getModuleDbId(unsigned int device_id,
-                                    const QString &module_name);
-
+				   const QString &module_name);
+        /**
+         * gets case ID from database
+         * @param module_id - module id from MIN
+	 * @param test_case_id - test case id from MIN
+         */
         unsigned int getTestCaseDbId(unsigned int module_id,
-                                    unsigned int test_case_id);
-
+				     unsigned int test_case_id);
+        /**
+         * gets case ID from database
+         * @param module_id - module id from MIN
+	 * @param test_case_name - test case name
+         */
         unsigned int getTestCaseDbId(unsigned int module_id,
-                                    const QString &test_case_name);
-
+				     const QString &test_case_name);
+        /**
+         * gets test run ID from database
+	 * @param test_run_pid - test run id from MIN
+         */
         unsigned int getTestRunDbId(unsigned int test_run_pid);
-
+        /**
+         * gets test run ID from database
+	 * @param test_case_id - test case id from MIN
+	 * @param test_run_pid - test run id from MIN
+         */
         unsigned int getTestRunDbId(unsigned int test_case_id,
                                     unsigned int test_run_pid);
 
+        /**
+	 * gets test case engine id
+	 * @param moduleDbId module ID
+	 * @param testCaseDbId test case ID
+	 */
         unsigned int getTestCaseEngineId(unsigned int moduleDbId,
                                         unsigned int testCaseDbId);
-
+        /**
+	 * gets test module engine id
+	 * @param deviceId device identifier
+	 * @param moduleDbId module ID
+	 */
         unsigned int getModuleEngineId(unsigned int deviceId,
                                         unsigned int moduleDbId);
-
+        /**
+	 * gets test run engine id
+	 * @param testRunDbId internal test run id
+	 */
         unsigned int getTestRunEngineId(unsigned int testRunDbId);
 
         /** Gets module names from database for UI */
@@ -161,26 +197,30 @@ namespace Min
 
         /** Gets test case names from database for UI */
         QStringList getTestCases(unsigned int module_dbid = 1);
-
+        
+        /** Gets list of test run groups from db */
         QList<unsigned int> getTestRunGroups();
-
+        /** Get all test runs belonging to group */ 
 	QVector<QStringList> getTestRunsInGroup(unsigned int device_dbid = 1, unsigned int group_id = 0) const;
-
+        /** Get test cases for avaibalbe cases view */
         QVector<QStringList> getAvailableView(unsigned int device_dbid = 1) const;
-
+        /** Get printouts for specific test run */
         QStringList getPrintoutView(unsigned int test_run_dbid = 0) const;
-
+        /** Get data for executed cases view */
         QVector<QStringList> getExecutedView(unsigned int device_dbid = 1) const;
-
-
+        /** Get module name by module engine ID */
         QString getModuleNameFromEngineId(unsigned int moduleEngineId);
+        /** Get module name by module  ID */
         QString getModuleNameFromDbId(unsigned int moduleDbId);
+        /** Get module ID with case ID */
         unsigned int getModuleIdFromCaseDbId(unsigned int caseDbId);
-
+        /** Get test case title by module ID and case id from Engine */
         QString getCaseTitleFromEngineId(unsigned int moduleDbId,
                                             unsigned int caseEngineId);
+        /** Get test case title by module ID and case ID */
         QString getCaseTitleFromDbId(unsigned int moduleDbId,
                                         unsigned int caseDbId);
+        /** Get test case title by test run ID */
         QString getCaseTitleFromTestrunDbId(unsigned int testtunDbId);
 
     signals:

@@ -33,20 +33,22 @@
 namespace Min
 {
     // ---------------------------------------------------------------------
+    /** 
+     * @class DescriptionProvider
+     * @brief Provides test case result and status strings
+     */
     class DescriptionProvider: public QObject
     {
     Q_OBJECT
     public:
-	/**
-	 * default destructor
-	 */
+	/** constructor. */
         DescriptionProvider();
+	/** default destructor */
         ~DescriptionProvider();
-
+	/** status description */
 	static QString getTestCaseStatusDescription(int tcstatus);
-
+	/** result description */
 	static QString getTestCaseResultDescription(int tcresult);
-
 
     signals:
 

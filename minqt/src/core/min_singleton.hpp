@@ -36,7 +36,7 @@ namespace Min
     // -------------------------------------------------------------------------
     /**
      * @class Singleton
-     * @brief
+     * @brief Template singleton class
      */
     template<class T>
     class Singleton

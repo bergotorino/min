@@ -32,7 +32,7 @@ namespace Min
 
         /** Destructor. */
         ~ExecutedAllDelegate();
-
+        /** @inherited from QItemDelegate */
         void paint(QPainter *painter,
                     const QStyleOptionViewItem &option,
                     const QModelIndex &index) const;

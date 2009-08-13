@@ -68,7 +68,9 @@ namespace Min
          *  @return pointer to the QSelectionItemModel
          */
         QItemSelectionModel* getSelectionFromAvailableCasesView();
-
+        /** Gets information about selected test cases from ongoing cases view
+         *  @return pointer to the QSelectionItemModel
+         */
         QItemSelectionModel* getSelectionFromOngoingCasesView();
 
     protected:
@@ -78,6 +80,7 @@ namespace Min
     private slots:
         /** Updates the view */
         void updateAvailableView();
+        /** Hides columns we do not wish to display */
         void hideViewColumns();
     private:
         /** Main area on the window. */
@@ -97,14 +100,13 @@ namespace Min
         /** Model that feeds available cases view with the data. */
         QAbstractItemModel *testRunsModel_;
 
-	    /** Proxy model fo filterout available test cases */
-	    QSortFilterProxyModel *availableProxy_;
-
-      Min::Database &db_;
-
-      QTreeView *testRunTree_;
+        /** Proxy model fo filterout available test cases */
+        QSortFilterProxyModel *availableProxy_;
 
         /** Handler to the database */
+        Min::Database &db_;
+      
+        QTreeView *testRunTree_;
     };
     // -------------------------------------------------------------------------
 }; // namespace Min

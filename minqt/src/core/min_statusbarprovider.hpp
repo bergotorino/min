@@ -24,6 +24,10 @@
 namespace Min
 {
     // -------------------------------------------------------------------------
+    /**
+     * @class StatusBar
+     * @brief status bar for GUI
+     */
     class StatusBar
     {
     public:

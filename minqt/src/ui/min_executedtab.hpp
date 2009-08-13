@@ -49,7 +49,7 @@ namespace Min
 
         /** Destructor. */
         ~ExecutedTab();
-
+	/** Gets selection model from ongoing cases view */
         QItemSelectionModel* getSelectionFromOngoingCasesView();
 
     protected:
@@ -59,6 +59,7 @@ namespace Min
     private slots:
         /** Updates the view */
         void hideViewColumns();
+        /** Handles mouse click */ 
         void handleClick(const QModelIndex& index);
 
     private:
