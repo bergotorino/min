@@ -18,7 +18,7 @@
 
 
 /**
- *  @file       LuaTestClassXXX.h
+ *  @file       LuaTestClassXXX.hpp
  *  @version    0.1
  *  @brief      This file contains header file of the LuaTestClassXXX 
  *              test module of MIN Test Framework.

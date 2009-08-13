@@ -18,7 +18,7 @@
 
 
 /**
- *  @file       MINUnitXXX.h
+ *  @file       MINUnitXXX.hpp
  *  @version    0.1
  *  @brief      This file contains header file of MINUnitXXX
  *              test module.

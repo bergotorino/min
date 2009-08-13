@@ -84,15 +84,19 @@ int ts_run_method( MinItemParser* item )
 }
 /* ------------------------------------------------------------------------- */
 extern "C" {
+/** return  test module type */
 unsigned int get_module_type()
 { return module_type; }
 /* ------------------------------------------------------------------------- */
+/** return test module template version */
 unsigned int get_module_version()
 { return module_version; }
 /* ------------------------------------------------------------------------- */
+/** return build date */
 char* get_module_date()
 { return (char *)module_date; }
 /* ------------------------------------------------------------------------- */
+/** return build time */
 char* get_module_time()
 { return (char *)module_time; }
 }

@@ -18,7 +18,7 @@
 
 
 /**
- *  @file       TemplateScriptXXX.h
+ *  @file       TemplateScriptXXX.hpp
  *  @version    0.1
  *  @brief      This file contains header file of the TemplateScriptXXX 
  *              test module of MIN Test Framework.
@@ -112,32 +112,12 @@ int ts_run_method( MinItemParser* mip );
 /* ------------------------------------------------------------------------- */
 int ts_get_test_cases( DLList** list );
 /* ------------------------------------------------------------------------- */
-/** Assign string value to script variable
- * @param varname name of variable
- * @param varval value to assign
- * @return 0 on success, -1 on error (e.g. variable not declared)
- */
 int SetLocalValue (const char *varname, const char *varval);
 /* ------------------------------------------------------------------------- */
-/** Assign integer value to script variable
- * @param varname name of variable
- * @param varval value to assign
- * @return 0 on success, -1 on error
- */
 int SetLocalValueInt (const char *varname, const long value);
 /* ------------------------------------------------------------------------- */
-/** Get value of script variable as an integer
- * @param varname name of variable
- * @param value [out] variable value
- * @return 0 on success, -1 on error
- */
 int GetLocalValueInt (const char *varname, long *value);
 /* ------------------------------------------------------------------------- */
-/** Get value of script variable as a string
- * @param varname name of variable
- * @param value [out] variable value
- * @return 0 on success, -1 on error
- */
 int GetLocalValue (const char *varname, char **value);
 /* ------------------------------------------------------------------------- */
 }

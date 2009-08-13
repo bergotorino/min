@@ -85,6 +85,14 @@ LOCAL int       min_unit_wrapper (int __action__, const char *__cfg_file__,
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Handles tm_get_test_cases() and tm_run_case() for MINUnit module.
+ *  @param __action__ tells wether we are running or getting cases
+ *  @param __cfg_file__ not used in MINUnit
+ *  @param __cases__ [in/out] list of test cases
+ *  @param __id__ test case id
+ *  @param __result__ test case result
+ *  @return 0 always
+ */
 LOCAL int min_unit_wrapper (int __action__, const char *__cfg_file__,
                              DLList ** __cases__, unsigned int __id__,
                              TestCaseResult * __result__)
@@ -120,6 +128,8 @@ LOCAL int min_unit_wrapper (int __action__, const char *__cfg_file__,
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** Implementation of tm_get_test_cases for MINUnit
+ */
 int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 {
 
@@ -127,8 +137,9 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 
         return 0;
 }
-
 /* ------------------------------------------------------------------------- */
+/** Implementation of tm_run_test_case for MINUnit
+ */
 int tm_run_test_case (unsigned int id, const char *cfg_file,
                       TestCaseResult * result)
 {
@@ -140,15 +151,19 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
 }
 /* ------------------------------------------------------------------------- */
 extern "C" {
+/** return  test module type */
 unsigned int get_module_type()
 { return module_type; }
 /* ------------------------------------------------------------------------- */
+/** return test module template version */
 unsigned int get_module_version()
 { return module_version; }
 /* ------------------------------------------------------------------------- */
+/** return build date */
 char* get_module_date()
 { return (char *)module_date; }
 /* ------------------------------------------------------------------------- */
+/** return build time */
 char* get_module_time()
 { return (char *)module_time; }
 }

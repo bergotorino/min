@@ -18,7 +18,7 @@
 
 
 /**
- *  @file       TestModuleXXX.h
+ *  @file       TestModuleXXX.hpp
  *  @version    0.1
  *  @brief      This file contains header file of TestModuleXXX test module.
  */
