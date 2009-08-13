@@ -1,6 +1,12 @@
 #ifndef MIN_DBUS_PLUGIN_COMMON_H
 #define MIN_DBUS_PLUGIN_COMMON_H
 
+/**
+ *  @file       min_dbus_plugin.c
+ *  @version    0.1
+ *  @brief      Common definitions for MIN DBus plugin
+ */
+
 #define MIN_SERVICE_NAME     "org.maemo.MIN"
 #define MIN_SERVICE_OBJECT_PATH "/Min"
 #define MIN_SERVICE_INTERFACE "org.maemo.MIN"
@@ -17,6 +23,7 @@
 #define SIGNAL_MSG_PRINT        "min_case_msg"
 #define SIGNAL_TEST_MODULES     "min_test_modules"
 #define SIGNAL_TEST_FILES       "min_test_files"
+
 
 #endif /* MIN_DBUS_PLUGIN_COMMON_H */
 
