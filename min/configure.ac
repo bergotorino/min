@@ -52,5 +52,6 @@ AC_OUTPUT(\
 	src/in_plugins/Makefile \
 	src/in_plugins/cui/Makefile \
 	src/in_plugins/cli/Makefile \
+	src/in_plugins/tcpip/Makefile \
 	shared/Makefile \
 	man/Makefile)
