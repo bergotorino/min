@@ -167,6 +167,7 @@ Project home page: http://garage.maemo.org/projects/min/
 * Lists of started test cases: Lists of started test cases.
 * Aborting suspending and resuming a test case: Aborting_suspending and resuming a test case.
 * Viewing the test case output: Viewing the test case output.
+* Debugging a test case: Debugging a test case.
 * Test sets: Test sets.
 * Working with the MIN command line interface: Working with the MIN command line interface.
 * GNU Free Documentation License: GNU Free Documentation License.
@@ -384,6 +385,7 @@ Project home page: http://garage.maemo.org/projects/min/
 * Lists of started test cases: Lists of started test cases.
 * Aborting, suspending and resuming a test case: Aborting_suspending and resuming a test case.
 * Viewing the test case output: Viewing the test case output.
+* Debugging a test case: Debugging a test case.
 * Test sets: Test sets.
 * Working with the MIN command line interface: Working with the MIN command line interface.
 @end menu
@@ -401,6 +403,7 @@ Project home page: http://garage.maemo.org/projects/min/
 * Lists of started test cases: Lists of started test cases.
 * Aborting, suspending and resuming a test case: Aborting_suspending and resuming a test case.
 * Viewing the test case output: Viewing the test case output.
+* Debugging a test case: Debugging a test case.
 * Test sets: Test sets.
 @end menu
 
@@ -436,11 +439,15 @@ Project home page: http://garage.maemo.org/projects/min/
 @subsection Aborting, suspending and resuming a test case
 @include chapters/Aborting_suspending_and_resuming_a_test_case.texi
 
-@node Viewing the test case output, Test sets, Aborting_suspending and resuming a test case, Working with MIN Console UI
+@node Viewing the test case output, Debugging a test case, Aborting_suspending and resuming a test case, Working with MIN Console UI
 @subsection Viewing the test case output
 @include chapters/Viewing_the_test_case_output.texi
 
-@node Test sets, Working with the MIN command line interface, Viewing the test case output, Working with MIN Console UI
+@node Debugging a test case, Test sets, Viewing the test case output, Working with MIN Console UI
+@subsection Debugging a test case
+@include chapters/Debugging_a_test_case.texi
+
+@node Test sets, Working with the MIN command line interface, Debugging a test case, Working with MIN Console UI
 @subsection Test sets
 @include chapters/Test_sets.texi
 

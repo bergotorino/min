@@ -519,7 +519,7 @@ Project home page: http://garage.maemo.org/projects/min/
 @subsection blocktimeout keyword
 @include chapters/blocktimeout_keyword.texi
 
-@node print keyword, var keyword, timeout keyword, General keywords
+@node print keyword, var keyword, blocktimeout keyword, General keywords
 @subsection print keyword
 @include chapters/print_keyword.texi
 
