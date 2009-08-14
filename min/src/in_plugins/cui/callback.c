@@ -342,7 +342,7 @@ LOCAL void      save_test_set (void);
 /* ------------------------------------------------------------------------- */
 LOCAL CUICaseData *setgetcase (char *module, char *title);
 /* ------------------------------------------------------------------------- */
-LOCAL void      set_read (DLList * set_cases_list, char *setname):
+LOCAL void      set_read (DLList * set_cases_list, char *setname);
 /* ------------------------------------------------------------------------- */
 LOCAL void      add_tcs_to_test_set_menu (void);
 /* ------------------------------------------------------------------------- */

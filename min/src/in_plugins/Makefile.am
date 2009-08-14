@@ -1,4 +1,4 @@
-SUBDIRS = cui cli
+SUBDIRS = cui cli tcpip
 METASOURCES = AUTO
 INCLUDES = -I. -I.. -I../.. -I$(top_srcdir)/. \
 	-I$(top_srcdir)/src \
