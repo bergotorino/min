@@ -1,3 +1,10 @@
+min-all (2009w34) unstable; urgency=low
+  * Twelfth MIN Release
+  * Fixed: Doxygen tags updated and harmonized.
+  * Added: Test case debugging from ConsoleUI
+	
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   17 Aug 2009 13:37:13 +0100
+
 min-all (2009w28) unstable; urgency=low
   * Eleventh MIN Release
   * Fixed: MIN Qt GUI has problems executing multiple cases. 
