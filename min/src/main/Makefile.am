@@ -1,4 +1,5 @@
 INCLUDES = 	-I. -I../ -I../in_plugins/cli -I../in_plugins/cui \
+		-I../in_plugins/tcpip \
 	        -I../engine/tec -I../utils/dllist  -I../utils/logger \
 		-I../utils/lib_loader -I../utils/ipc \
 		-I../utils/parser -I../services/event_system \

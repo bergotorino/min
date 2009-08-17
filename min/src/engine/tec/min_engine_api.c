@@ -571,8 +571,8 @@ LOCAL int eapi_register_slave (char *host, char *slavetype)
  */
 LOCAL int eapi_debug_test_case (unsigned module_id, unsigned case_id)
 {
-        int             result = 0, stat;
-	DLListIterator mod_it, case_it, case_it2;
+	int result = 0;
+	DLListIterator mod_it, case_it;
         test_module_info_s *module;
 	
         pthread_mutex_lock (&tec_mutex_);

@@ -40,7 +40,6 @@
 /* ----------------------------------------------------------------------------
  * MACROS
  */
-
 #define MINAPI_PLUGIN_CALL(fname,fcall) \
         do { \
                 DLListIterator it = dl_list_head(get_plugin_list()); \

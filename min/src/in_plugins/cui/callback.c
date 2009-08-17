@@ -1735,8 +1735,9 @@ LOCAL void pause_resume_abort_menu (void *p)
 
                         if (tc->case_->casetitle_ != INITPTR 
 			    && tc->case_->casetitle_ != NULL) {
-                                strncpy (title, MaxTestCaseName - 1, 
-					 tx_share_buf (tc->case_->casetitle_));
+                                strncpy (title, 
+					 tx_share_buf (tc->case_->casetitle_),
+					 MaxTestCaseName - 1);
                                 /* Show new menu */
                                 update_menu (cb_pause_resume_abort_menu,
                                              tx_share_buf 

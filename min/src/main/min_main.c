@@ -30,6 +30,7 @@
 #include <cli.h>
 #include <consoleui.h>
 #include <cli.h>
+#include <tcpip_plugin.h>
 #include <tec.h>
 #include <tec_tcp_handling.h>
 #include <data_api.h>
@@ -319,25 +320,25 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
  */
 int main (int argc, char *argv[], char *envp[])
 {
-        int             cont_flag, status, opt_char, oper_mode, exit_flag;
-        int             no_cui_flag, help_flag, version_flag, info_flag;
+        int             cont_flag, opt_char, oper_mode, exit_flag;
+        int             cli_flag, ip_flag, help_flag, version_flag, info_flag;
 	int 	        slave_mode = 0, master_socket = -1;
         DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
         pthread_t       plugin_thread[10];
 	void           *plugin_opts = NULL;
 	cli_opts        cli_opts;
+	tcpip_opts      tcpip_opts;
         void *tmp;
         char *c2 = INITPTR;
         char *c3 = INITPTR;
         unsigned int num_of_plugins = 0;
         Text *plugin = tx_create("cui");
-	memset (&cli_opts, 0x0, sizeof (cli_opts));
 	struct option min_options[] =
 		{
 			{"help", no_argument, &help_flag, 1},
 			{"version", no_argument, &version_flag, 1},
-			{"console", no_argument, &no_cui_flag, 1},
+			{"console", no_argument, &cli_flag, 1},
 			{"info", required_argument, NULL, 'i'},
                         {"execute", required_argument, NULL, 'x'},
 			{"slave", required_argument, NULL, 's'},
@@ -347,18 +348,20 @@ int main (int argc, char *argv[], char *envp[])
                         {"masterfd", required_argument, NULL,'m'}
 		};
 
+	memset (&cli_opts, 0x0, sizeof (cli_opts));
+
         modulelist = dl_list_create();
 	slavelist = dl_list_create();
 	work_module_item = DLListNULLIterator;
-	oper_mode = no_cui_flag = help_flag = version_flag = cont_flag = 0;
-        info_flag = exit_flag = 0;
+	oper_mode = cli_flag = help_flag = version_flag = cont_flag = 0;
+        info_flag = exit_flag = ip_flag = 0;
         
         /* Detect commandline arguments */
 	while (1) {
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
      
-		opt_char = getopt_long (argc, argv, "hvcdi:x:s:p:t:r:m:",
+		opt_char = getopt_long (argc, argv, "hvcdi:x:s:p:t:r:m:f:",
 					min_options, &option_index);
      
 		/* Detect the end of the options. */
@@ -371,7 +374,7 @@ int main (int argc, char *argv[], char *envp[])
 			break;
 	       
 		case 'c':
-			no_cui_flag = 1;
+			cli_flag = 1;
 			break;
 			
 		case 'v':
@@ -394,11 +397,11 @@ int main (int argc, char *argv[], char *envp[])
                 case 'i':
                         oper_mode = 1;
                         dl_list_add (modulelist, optarg);
-			no_cui_flag = 1;
+			cli_flag = 1;
 			cli_opts.display_info_ = 1;
                         break;
                 case 'd':
-			no_cui_flag = 1;
+			cli_flag = 1;
 			cli_opts.debug_ = 1;
                         break;
 
@@ -412,11 +415,14 @@ int main (int argc, char *argv[], char *envp[])
 
 		case 'm':
 			slave_mode = 1;
-			no_cui_flag = 1;
+			cli_flag = 1;
 			oper_mode = 0;
 			master_socket = atoi (optarg);
 			break;
-
+		case 'f':
+			ip_flag = 1;
+			tcpip_opts.fd_ = atoi (optarg);
+			break;
 		case 't':
 			ec_add_title_filter (optarg, 0);
 			break;
@@ -430,11 +436,16 @@ int main (int argc, char *argv[], char *envp[])
         }
 
         /* Handle options. */
-	if (no_cui_flag) {
+	if (cli_flag) {
 		display_license();
 		plugin_opts = (void *)&cli_opts;
 		tx_c_copy (plugin, "cli");
-	}
+	} 
+
+	if (ip_flag) {
+		plugin_opts = (void *)&tcpip_opts;
+		tx_c_copy (plugin, "tcpip");
+	} 
 
 	if (optind < argc) {
 		printf ("unknown options: ");

@@ -435,7 +435,8 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 LOCAL void pl_no_module (char *modulename)
 {
 	int ret = MIN_PROTO_ERROR;
-	
+
+	return ret;
 }
 /* ------------------------------------------------------------------------- */
 /** Engine calls this when all the cases for module are reported

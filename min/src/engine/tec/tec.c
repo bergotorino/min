@@ -239,7 +239,7 @@ LOCAL void ec_settings_send ()
 
         int             shared_segm_id = 0;
         void           *sh_mem_handle = NULL;
-        int             paths_size = 0;
+        int             paths_size = 0, ret;
         char           *work_path = INITPTR;
         DLListIterator  work_path_item = DLListNULLIterator;
         char           *concat_paths = INITPTR;
@@ -276,7 +276,10 @@ LOCAL void ec_settings_send ()
         if (shared_segm_id < 0) {
 		MIN_WARN ("failed to create shared memory segment "
 			  " - trying to clean up");
-		system ("/usr/bin/min-clean.sh");
+		ret = system ("/usr/bin/min-clean.sh");
+		if (ret < 0) 
+			MIN_WARN ("failed to run clean up script");
+	  
 	}
 
 
@@ -1591,7 +1594,7 @@ LOCAL int ec_msg_run_id_handler (MsgBuffer * message)
 		tx_c_append (cmd, " tmc ");
 		sprintf (buf, "%u", message->param_);
 		tx_c_append (cmd, buf);
-		system (tx_share_buf (cmd));
+		result = system (tx_share_buf (cmd));
 		tx_destroy (&cmd);
 	}
         result = 0;
@@ -2339,7 +2342,7 @@ LOCAL void handle_sigint (int signum)
  */
 void ec_min_init (char *envp_[], int operation_mode)
 {
-        int             thread_creation_result;
+        int             thread_creation_result, ret;
         pthread_t       listener_thread;
 #ifndef MIN_EXTIF
         pthread_t       socket_thread;
@@ -2390,7 +2393,9 @@ void ec_min_init (char *envp_[], int operation_mode)
         if (mq_id < 0) {
 		MIN_WARN ("failed to create message queue "
 			  " - trying to clean up");
-		system ("/usr/bin/min-clean.sh");
+		ret = system ("/usr/bin/min-clean.sh");
+		if (ret < 0)
+			MIN_WARN ("failed to run clean up script");
 	}
 
 	mq_id = mq_open_queue ('a');
