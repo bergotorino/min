@@ -117,27 +117,13 @@ Text* orig_python_path;         /** holds original value of PYTHONPATH variable
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-LOCAL char* cutname(char* file);
-/* ------------------------------------------------------------------------- */
 LOCAL char* fetch_title(char* input);
-/* ------------------------------------------------------------------------- */
-LOCAL char* cut_file_from_path(char* path);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
-/** Remove the .py ending from filename
- *  @return new string with the .py ending stripped
- */
-LOCAL char* cutname(char* file)
-{
-        char* output = NEW2(char,strlen(file)-2);
-        sprintf(output,"%s","\0");
-        strncat(output,file,strlen(file)-3);
-        return output;
-}
 /** Function used to fetch title of testcase from python's function's docstring
  * @param input docstring extracted from python script
  * @return extracted title - it is allocated inside the function, so it
@@ -154,11 +140,25 @@ LOCAL char* fetch_title(char* input)
         snprintf(retval,length+2,"%s",input);
         return retval;
 }
+/* ------------------------------------------------------------------------- */
+/* ======================== FUNCTIONS ====================================== */
+/* ------------------------------------------------------------------------- */
+/** Remove the .py ending from filename
+ *  @return new string with the .py ending stripped
+ */
+char* cutname(char* file)
+{
+        char* output = NEW2(char,strlen(file)-2);
+        sprintf(output,"%s","\0");
+        strncat(output,file,strlen(file)-3);
+        return output;
+}
+/* ------------------------------------------------------------------------- */
 /** Extract the a filename from path. 
  *  Add ".py" ending if the file does not contain one.
  *  @param path absolute or relative path to file
  */
-LOCAL char* cut_file_from_path(char* path)
+char* cut_file_from_path(char* path)
 {
         char* out = NULL;
 
@@ -186,13 +186,11 @@ LOCAL char* cut_file_from_path(char* path)
         return temp;
 }
 /* ------------------------------------------------------------------------- */
-/* ======================== FUNCTIONS ====================================== */
 /** tm_get_test_cases is used to inquire test cases from the Test Module.
  *  Test cases are stored to array of test cases. The Test Framework will be 
  *  the owner of the data in the DLList after tm_get_test_cases return
  *  and it does the memory deallocation. 
  */
-/* ------------------------------------------------------------------------- */
 int tm_get_test_cases( const char * cfg_file, DLList ** cases )
 {
 
@@ -335,6 +333,7 @@ void tm_finalize()
         /*need to unload python dll here*/
         sm_destroy(sm_id);
 }
+
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

@@ -45,7 +45,7 @@
 /* None */
 extern char* cut_file_from_path(char* path);
 extern char* cutname(const char* file);
-extern char    *strcasestr (const char *haystack, const char *needle);
+extern char* strcasestr (const char *haystack, const char *needle);
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 /* None */
