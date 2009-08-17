@@ -149,6 +149,13 @@ LOCAL void stp_handle_run (const MsgBuffer * msg)
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
+/** SIGUSR2 handler 
+ */
+void stp_handle_sigusr2 (int signum)
+{
+        stprun = ESFalse;
+}
+/* ------------------------------------------------------------------------- */
 /** Handles IPC message in the Scripted Test Process way. 
  *  @param msg [in] message to be handled.
  */
@@ -168,6 +175,7 @@ void stp_handle_message (const MsgBuffer * msg)
         }
         return;
 }
+
 /* ------------------------------------------------------------------------- */
 /** Called before exiting scripted test process 
  */
