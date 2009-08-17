@@ -58,6 +58,7 @@
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
 eapiOut_t min_clbk;
+int fd;
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* ------------------------------------------------------------------------- */
@@ -165,7 +166,10 @@ LOCAL void eapi_message_send_resp (unsigned tid, char resp_code)
 /* ------------------------------------------------------------------------- */
 LOCAL void eapi_message_send (char *msg, unsigned short len) 
 {
+	int bytes_wrtn;
 	
+	bytes_wrtn = write (fd, msg, len);
+
 }
 
 /* ------------------------------------------------------------------------- */
@@ -564,7 +568,11 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
  */
 void pl_open_plugin (void *opts)
 {
+	tcpip_opts *pl_opts;
 	
+	pl_opts = (tcpip_opts *)opts;
+	
+	fd = pl_opts->fd_;
         return;
 }
 /* ------------------------------------------------------------------------- */
