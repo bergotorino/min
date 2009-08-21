@@ -67,7 +67,7 @@
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
-int rcp_listen_socket;
+int eapi_listen_socket, rcp_listen_socket;
 int mins_running = 0;
 int exit_ = 0;
 
@@ -82,7 +82,7 @@ int exit_ = 0;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-LOCAL int create_listen_socket();
+LOCAL int create_listen_socket (unsigned short port);
 /* ------------------------------------------------------------------------- */
 LOCAL int poll_sockets (char *envp[]);
 /* ------------------------------------------------------------------------- */
@@ -96,42 +96,42 @@ LOCAL void handle_sigint (int sig);
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
-/** Creates a socket to accept tcp connections
+/** Creates a sockets to accept tcp connections
  * @return 0 or -1 on error
  */
-LOCAL int create_listen_socket()
+LOCAL int create_listen_socket(unsigned short port)
 {
 	struct sockaddr_in in_addr;
         Text *tx;
+	int sock;
 
 	memset (&in_addr, 0x0, sizeof (struct sockaddr_in));
-        in_addr.sin_port = htons (MIN_TCP_PORT); 
+        in_addr.sin_port = htons (port); 
 	in_addr.sin_family = AF_INET;
 	in_addr.sin_addr.s_addr = INADDR_ANY;
-	if ((rcp_listen_socket = socket (AF_INET, SOCK_STREAM, 0)) == -1) {
-                MIND_LOG("Failed to create rcp socket", 
+	if ((sock = socket (AF_INET, SOCK_STREAM, 0)) == -1) {
+                MIND_LOG("Failed to create socket", 
 			 strerror (errno));
                 return -1;
         }
 
-        if (bind (rcp_listen_socket, 
+        if (bind (sock, 
 		  (struct sockaddr *)&in_addr, sizeof (in_addr))  == -1) {
-                MIND_LOG("Failed to bind to rcp socket", 
+                MIND_LOG("Failed to bind to socket", 
 			 strerror (errno));
-		close (rcp_listen_socket);
-		rcp_listen_socket = -1;
+		close (sock);
                 return -1;
                 
         }
-        if (listen (rcp_listen_socket, 1)) {
+        if (listen (sock, 1)) {
 		MIND_LOG ("Listen failed", strerror (errno));
-		close (rcp_listen_socket);
+		close (sock);
 		rcp_listen_socket = -1;
 		return -1;
 	}
 
         MIND_LOG ("accepting"," connections");
-	return 0;
+	return sock;
 }
 /* ------------------------------------------------------------------------- */
 /** Listens and accepts connections. Forks and execves min for each 
@@ -145,11 +145,12 @@ LOCAL int poll_sockets (char *envp[])
 	unsigned len;
 	struct sockaddr_in client_addr;
 	struct timeval tv;
-        int ret, rcp_socket, pid;
+        int ret, rcp_socket, eapi_socket, pid;
 	char *args[2];
         Text *tx;
 
-	create_listen_socket ();
+	rcp_listen_socket = create_listen_socket (MIN_TCP_PORT);
+	eapi_listen_socket = create_listen_socket (MIN_EAPI_LISTEN_PORT);
 	args [0] = NEW2 (char, 100);
 	args [1] = NEW2 (char, 100);
 
@@ -159,7 +160,9 @@ LOCAL int poll_sockets (char *envp[])
 		FD_ZERO (&wr);
 		FD_ZERO (&er);
 		FD_SET (rcp_listen_socket, &rd);
+		FD_SET (eapi_listen_socket, &rd);
 		nfds = MAX(nfds, rcp_listen_socket);
+		nfds = MAX(nfds, eapi_listen_socket);
 		tv.tv_sec = 0;
 		tv.tv_usec = 100000;
 		ret = select (nfds + 1, &rd, &wr, &er, &tv);
@@ -205,8 +208,60 @@ LOCAL int poll_sockets (char *envp[])
 				return -1;
 			}
 		}
+		if (FD_ISSET(eapi_listen_socket, &rd)) {
+			MIND_LOG ("Here", "1");
+
+
+			memset (&client_addr, 0, len = sizeof(client_addr));
+			MIND_LOG ("Here", "2");
+
+			eapi_socket = accept (eapi_listen_socket, 
+					     (struct sockaddr *) &client_addr, 
+				     &len);
+			MIND_LOG ("Here", "3");
+
+			if (eapi_socket < 0) {
+				MIND_LOG ("accept() for eapi socket failed", 
+					 strerror (errno));
+				return -1;
+			}
+			MIND_LOG ("Here", "4");
+
+			sprintf (args[1], "-f %u", eapi_socket);
+			pid = fork ();
+			switch (pid) {
+			case -1:
+				MIND_LOG ("Failed to create process !",
+					 strerror (errno));
+				break;
+			case 0:
+				close (eapi_listen_socket);
+				execve (args[0], args, envp);
+				MIND_LOG ("Failed start to "
+					  "min engine",
+					  strerror (errno));
+				break;
+			default:
+				sl_set_sighandler (SIGCHLD, handle_sigchld);
+				close (eapi_socket);
+				mins_running++;
+				break;
+			}
+
+			MIND_LOG ("EAPI connect from",
+				  inet_ntoa (client_addr.sin_addr));
+
+			if (listen (eapi_listen_socket, 1)) {
+				MIND_LOG("Listen failed", 
+					 strerror (errno));
+				close (eapi_listen_socket);
+				return -1;
+			}
+		}
+
 		
 	}
+	close (eapi_listen_socket);
 	close (rcp_listen_socket);
 	return 0;
 }

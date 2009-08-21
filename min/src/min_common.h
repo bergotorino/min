@@ -105,7 +105,9 @@
 #endif /*MAX*/
 #define MAX4(a,b,c,d)   MAX(MAX((a),(b)),MAX((c),(d)))
 
-#define MIN_TCP_PORT 51551
+#define MIN_TCP_PORT 51551 /** MIND listens this for RCP */
+#define MIN_EAPI_LISTEN_PORT 51552 /** MIND listens this for EAPI */
+
 /* ------------------------------------------------------------------------- */
 /* DATA TYPES */
 /* ------------------------------------------------------------------------- */

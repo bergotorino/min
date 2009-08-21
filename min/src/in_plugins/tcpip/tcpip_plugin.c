@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
 #include <tcpip_plugin.h>
 #include <min_eapi_protocol.h>
@@ -57,8 +58,11 @@
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
-eapiOut_t min_clbk;
-int fd;
+eapiOut_t min_clbk;   /** callbacks towards engine */
+int fd;               /** socket */
+int run = 1;          /** Exit flag */
+DLList *write_queue; /** socket write queue */
+
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* ------------------------------------------------------------------------- */
@@ -71,13 +75,26 @@ int fd;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
+LOCAL void write32 (char *buff, int val);
+/* ------------------------------------------------------------------------- */
+LOCAL void write16 (char *buff, int val);
+/* ------------------------------------------------------------------------- */
+LOCAL short read16 (unsigned char *buff);
+/* ------------------------------------------------------------------------- */
+LOCAL int read32 (unsigned char *buff);
+/* ------------------------------------------------------------------------- */
+LOCAL void read_from_socket (int fd);
+/* ------------------------------------------------------------------------- */
+LOCAL void write_to_socket (int fd);
+/* ------------------------------------------------------------------------- */
 LOCAL void eapi_message_send_resp (unsigned tid, char resp_code);
 /* ------------------------------------------------------------------------- */
-LOCAL void eapi_message_receive (char *msg, unsigned short len) ;
+LOCAL void eapi_message_receive (char msg_type, unsigned short len,
+	                         char *msg);
 /* ------------------------------------------------------------------------- */
 LOCAL void eapi_message_send (char *msg, unsigned short len);
 /* ------------------------------------------------------------------------- */
-LOCAL int handle_add_mod_req (char *msg, unsigned short msg_len);
+LOCAL int handle_add_mod_req (unsigned char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
 LOCAL int handle_add_case_file_req (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
@@ -91,7 +108,7 @@ LOCAL int handle_abort_case_req (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
 LOCAL int handle_abort_case_resp (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
-LOCAL int handle_open_req (char *msg, unsigned short msg_len);
+LOCAL int handle_open_req (unsigned char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
 LOCAL int handle_close_req (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
@@ -121,10 +138,97 @@ LOCAL void pl_msg_print (long testrunid, char *message);
 LOCAL void pl_error_report (char *error);
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
-/* None */
+typedef struct {
+	char *msg_;
+	unsigned short msg_len_;
+} eapi_msg_container; /** Local container for EAPI messages */
+
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/** Read MIN Engine API protocol message from socket
+ *  @param fd socket file desciptor
+ */
+LOCAL void read_from_socket (int fd)
+{
+	int bytes_read, total_read = 0;
+	unsigned short len;
+	char hdr_buff [MIN_HDR_LEN], *buff = INITPTR;
+
+	/* read the header to know the message len */
+	bytes_read = read (fd, hdr_buff, MIN_HDR_LEN);
+	if (bytes_read != MIN_HDR_LEN) {
+		MIN_WARN ("can't read the MIN header");
+		goto err_out;
+		return;
+	}
+	len = read16 (&hdr_buff[1]);
+	MIN_DEBUG ("message len %u", len);
+	buff = NEW2 (char, len);
+	while (total_read < len) {
+		bytes_read = read (fd, buff + total_read, len - total_read);
+		if (bytes_read == -1) {
+			MIN_WARN ("read() error %s", strerror (errno));
+			goto err_out;
+		}
+		total_read += bytes_read;
+	}
+	eapi_message_receive (hdr_buff [0], len, buff);
+	DELETE (buff);
+	return;
+err_out:
+	if (buff != INITPTR)
+		DELETE (buff);
+	close(fd);
+	fd = -1;
+
+	return;
+}
+/** Write message from write queue to socket
+ *  @param fd socket file desciptor
+ */
+LOCAL void write_to_socket (int fd)
+{
+	int bytes_wrtn = 0, wrtn;
+	DLListIterator it;
+	eapi_msg_container *cont;
+	
+	it = dl_list_tail (write_queue);
+	if (it == DLListNULLIterator)
+		return;
+	cont = dl_list_data (it);
+	
+	while (bytes_wrtn < cont->msg_len_) {
+		wrtn = write (fd, cont->msg_ + bytes_wrtn, cont->msg_len_ - 
+			      bytes_wrtn);
+		if (wrtn == -1) {
+			switch (errno) {
+			case EAGAIN:
+			case EINTR:
+				continue;
+				break;
+			default:
+				MIN_WARN ("write failed %s", strerror (errno));
+				return;
+				break;
+			}
+		}
+		bytes_wrtn += wrtn;
+	}
+	MIN_DEBUG ("wrote %u bytes", bytes_wrtn);
+	
+	DELETE (cont->msg_);
+	DELETE (cont);
+	dl_list_remove_it (it);
+
+	return;
+}
+
+/* ------------------------------------------------------------------------- */
+/** Write 32 bit number to buffer.
+ *  @param buff [out] the buffer to write into.
+ *  @param val the value to write.
+ */
 LOCAL void write32 (char *buff, int val)
 {
 	buff [0] = val >> 24;
@@ -133,19 +237,59 @@ LOCAL void write32 (char *buff, int val)
 	buff [3] = val;
 }
 /* ------------------------------------------------------------------------- */
+/** Write 16 bit number to buffer.
+ *  @param buff [out] the buffer to write into.
+ *  @param val the value to write.
+ */
 LOCAL void write16 (char *buff, int val)
 {
 	buff [0] = val >> 8;
 	buff [1] = val;
 }
 /* ------------------------------------------------------------------------- */
+/** Read 16 bit integer from buffer
+ *  @param buff the buffer to read from
+ *  @return two first bytes from argument as interger
+ */
+LOCAL short read16 (unsigned char *buff)
+{
+	unsigned short val;
+
+	val = buff [0] << 8 | buff [1];
+
+	return val;
+}
+/* ------------------------------------------------------------------------- */
+/** Read 32 bit integer from buffer
+ *  @param buff the buffer to read from
+ *  @return four first bytes from argument as interger
+ */
+LOCAL int read32 (unsigned char *buff)
+{
+	unsigned val;
+
+	val = buff [0] << 24 | buff [1] << 16 | buff [2] << 8  | buff [3];
+
+	return val;
+}
+/* ------------------------------------------------------------------------- */
+/** Construct MIN Engine API protocol header.
+ *  @param buff [out] the buffer header will be written to.
+ *  @param msg_type Message type code.
+ *  @param msg_len Message lenght field value.
+ */
 LOCAL void eapi_build_header (char *buff, char msg_type, 
 			      unsigned short msg_len)
 {
 	buff [0] = msg_type;
-	write16 (&buff [1], htons (msg_len));
+	write16 (&buff [1], msg_len);
 }
 /* ------------------------------------------------------------------------- */
+/** Send MIN Engine API message of type indication
+ *  @param msg_type Message type code.
+ *  @param msg_len Message lenght field value.
+ *  @param buff Message buffer
+ */
 LOCAL void eapi_message_send_ind (char msg_type, 
 				  unsigned short msg_len,
 				  char *buff ) 
@@ -154,50 +298,61 @@ LOCAL void eapi_message_send_ind (char msg_type,
 	eapi_message_send (buff, msg_len + MIN_HDR_LEN);
 }
 /* ------------------------------------------------------------------------- */
+/** Send MIN Engine API message of type response
+ *  @param tid transaction identifier
+ *  @param resp_code response code value
+ */
 LOCAL void eapi_message_send_resp (unsigned tid, char resp_code)
 {
-	char buff [8];
+	char *buff, *p;
+	unsigned short msg_len = 5;
 
-	eapi_build_header (buff, MIN_RESP, 5);
-	write32 (&buff [MIN_HDR_LEN], tid);
-	buff [7] = resp_code;
-	eapi_message_send (buff, 8);
+	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
+	p = buff + MIN_HDR_LEN;
+	write32 (p, tid);
+	p += 4;
+	*p = resp_code;
+	
+	eapi_build_header (buff, MIN_RESP, msg_len);
+	eapi_message_send (buff, msg_len + MIN_HDR_LEN);
 }
 /* ------------------------------------------------------------------------- */
+/** Send MIN Engine API protocol message.
+ *  @param msg the message
+ *  @len full lenght of message
+ * 
+ *  Stores the message to write_queue.
+ */
 LOCAL void eapi_message_send (char *msg, unsigned short len) 
 {
-	int bytes_wrtn;
-	
-	bytes_wrtn = write (fd, msg, len);
-
+	eapi_msg_container *cont;
+	cont = NEW (eapi_msg_container);
+	cont->msg_ = msg;
+	cont->msg_len_ = len;
+	dl_list_add (write_queue, cont);
 }
 
 /* ------------------------------------------------------------------------- */
 /** Dispatcher for MIN Engine API messages towards the Engine. 
- *  @param msg protocol message
- *  @param len message len
+ *  @param msg_type MIN protocol message type
+ *  @param msg_len message len
+ *  @param msg rest of message
  *
  *  Sends response after the message has been processed.
  */
-LOCAL void eapi_message_receive (char *msg, unsigned short len) 
+LOCAL void eapi_message_receive (char msg_type, unsigned short msg_len,
+	                         char *msg) 
 {
-	char msg_type;
-	char *pos;
-	unsigned short msg_len = 0;
+	unsigned char *pos;
 	unsigned tid = 0;
 	int      res = 1;
 
-	if (len < MIN_MSG_LENGHT_MIN) {
-		MIN_WARN ("Too short EAPI message %u", len);
+	if (msg_len < MIN_MSG_LENGHT_MIN) {
+		MIN_WARN ("Too short EAPI message %u", msg_len);
 		return;
 	}
 	pos = msg;
-	msg_type = *msg;
-	pos ++;
-	msg_len = *pos | (*(pos + 1) << 8);
-	pos += 2;
-	tid = *pos | (*(pos + 1) << 8) | (*(pos + 2) << 16) | 
-		(*(pos + 3) << 24);
+	tid = read32 (pos);
 	pos += 4;
 	switch (msg_type) {
 	case MIN_ADD_MOD_REQ:
@@ -251,7 +406,7 @@ LOCAL void eapi_message_receive (char *msg, unsigned short len)
  *  @return the return value of engine callback (0/1), 
  *          or MIN_PROTO_ERROR in case of protocol error
  */
-LOCAL int handle_add_mod_req (char *msg, unsigned short msg_len)
+LOCAL int handle_add_mod_req (unsigned char *msg, unsigned short msg_len)
 {
 	int ret = MIN_PROTO_ERROR;
 	
@@ -280,7 +435,19 @@ LOCAL int handle_add_case_file_req (char *msg, unsigned short msg_len)
 LOCAL int handle_start_case_req (char *msg, unsigned short msg_len)
 {
 	int ret = MIN_PROTO_ERROR;
+	unsigned char *pos;
+	unsigned moduleid, caseid, groupid;
+	
+	pos = (unsigned char *)msg;
 
+	moduleid = read32 (pos);
+	pos += 4;
+	caseid = read32 (pos);
+	pos += 4;
+	groupid = read32 (pos);
+
+	ret = min_clbk.start_case (moduleid, caseid, groupid);
+	
 	return ret;
 }
 /* ------------------------------------------------------------------------- */
@@ -342,10 +509,10 @@ LOCAL int handle_abort_case_resp (char *msg, unsigned short msg_len)
  *  @return the return value of engine callback (0/1), 
  *          or MIN_PROTO_ERROR in case of protocol error
  */
-LOCAL int handle_open_req (char *msg, unsigned short msg_len)
+LOCAL int handle_open_req (unsigned char *msg, unsigned short msg_len)
 {
 	int ret;
-	
+	MIN_DEBUG ("MIN Open Request");
 	ret = min_clbk.min_open();
 	
 	return ret;
@@ -361,6 +528,7 @@ LOCAL int handle_close_req (char *msg, unsigned short msg_len)
 {
 	int ret;
 
+	run = 0; /* let us exit */
 	ret = min_clbk.min_close();
 
 	return ret;
@@ -414,10 +582,12 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 	
 	unsigned short msg_len;
 	char *p, *buff;
+
+	MIN_DEBUG ("moduleId = %u", moduleid);
+
 	msg_len = 4 + strlen (modulename);
 	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
-	
-	p = &buff [MIN_HDR_LEN];
+	p = buff + MIN_HDR_LEN;
 	write32 (p, moduleid);
 	p += 4;
 	memcpy (p, modulename, strlen (modulename));
@@ -425,8 +595,6 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 	eapi_message_send_ind (MIN_NEW_MOD_IND, 
 			       msg_len,
 			       buff);
-
-	return;
 }
 /* ------------------------------------------------------------------------- */
 /** Engine calls this when module adding fails
@@ -453,7 +621,7 @@ LOCAL void pl_module_ready (unsigned moduleid)
 	p += 4;
 
 	eapi_message_send_ind (MIN_NEW_MOD_IND, 
-			       msg_len,
+			       msg_len + MIN_HDR_LEN,
 			       buff);
 
 }
@@ -492,7 +660,6 @@ LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid)
 {
-	
 	unsigned short msg_len;
 	char *p, *buff;
 	msg_len = 4 + 4 + 4;
@@ -506,7 +673,7 @@ LOCAL void pl_case_started (unsigned moduleid,
 	write32 (p, testrunid);
 	p += 4;
 
-	eapi_message_send_ind (MIN_NEW_CASE_IND, 
+	eapi_message_send_ind (MIN_CASE_STARTED_IND, 
 			       msg_len,
 			       buff);
 
@@ -520,7 +687,27 @@ LOCAL void pl_case_started (unsigned moduleid,
  *  @param endtime time the test case has finnished
  */ 
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
-			   long starttime, long endtime){
+			   long starttime, long endtime)
+{
+	unsigned short msg_len;
+	char *p, *buff;
+	msg_len = 4 + 4 + 4 + 4 + strlen (desc);
+	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
+	
+	p = &buff [MIN_HDR_LEN];
+	write32 (p, testrunid);
+	p += 4;	
+	write32 (p, result);
+	p += 4;
+	write32 (p, starttime);
+	p += 4;
+	write32 (p, endtime);
+	p += 4;
+	memcpy (p, desc, strlen (desc));
+	
+	eapi_message_send_ind (MIN_CASE_RESULT_IND, 
+			       msg_len,
+			       buff);
 }
 /* ------------------------------------------------------------------------- */
 /** Engine calls this when it when test case has sent print data
@@ -536,6 +723,7 @@ LOCAL void pl_msg_print (long testrunid, char *message)
  */ 
 LOCAL void pl_error_report (char *error) {
 }
+
 
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
@@ -563,16 +751,45 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         return;
 }
 /* ------------------------------------------------------------------------- */
-/** Plugin open function 
+/** Plugin open function. 
  *  @param opts contains options struct for TCP/IP plugin
+ *
+ *  Read & write EAPI Protocol messages and act accordingly, until explicitly
+ *  closed with MIN_CLOSE_REQ or the connection breaks.
  */
 void pl_open_plugin (void *opts)
 {
 	tcpip_opts *pl_opts;
-	
+	fd_set rd, wr, er;
+	int nfds = 0;
+	struct timeval tv;
+        int ret;
+
+        min_log_open ("tpcipPlugin", 3);
+
 	pl_opts = (tcpip_opts *)opts;
-	
+	write_queue = dl_list_create();
 	fd = pl_opts->fd_;
+	MIN_DEBUG ("fd = %d", fd);
+	while (fd > 0 && run == 1) {
+		FD_ZERO (&rd);
+		FD_ZERO (&wr);
+		FD_ZERO (&er);
+		FD_SET (fd, &rd);
+		FD_SET (fd, &wr);
+		tv.tv_sec = 0;
+		tv.tv_usec = 100000;
+		ret = select (fd + 1, &rd, &wr, &er, &tv);
+		if (ret == -1) {
+			MIN_WARN ("select() error %s", strerror (errno));
+			break;
+		}
+		if (FD_ISSET (fd, &rd))
+			read_from_socket (fd);
+		if (FD_ISSET (fd, &wr))
+		        write_to_socket (fd);
+	}
+
         return;
 }
 /* ------------------------------------------------------------------------- */

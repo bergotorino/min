@@ -35,13 +35,34 @@
 /* None */
 /* ------------------------------------------------------------------------- */
 /* MACROS */
-#define MIN_MSG_LENGHT_MIN   7     /** Minimum length of message */
+#define MIN_MSG_LENGHT_MIN   4     /** Minimum length of message */
 #define MIN_HDR_LEN          3     /** Lenght of MIN Header */
 #define MIN_PROTO_ERROR      222   /** Protocol error */
 /* MIN Engine API protocol message types */
 /* Engine -> client */
+/** New Module Indication 
+ *  +----------------+
+ *  |      Test      | 3
+ *  |     Module     | 4
+ *  |       Id       | 5
+ *  |                | 6
+ *  +----------------+
+ *  |      Test      | 7
+ *  |     Module     | 8
+ *  |      Name      | ..
+ *  |                | Length
+ *  +----------------+ 
+ */
 #define MIN_NEW_MOD_IND       0x01 /** New Module Indication */
-#define MIN_NO_MOD_IND        0x02 /** No Module Indication */
+#define MIN_MOD_READY_IND     0x02 /** No Module Indication */
+/** New Case Indication 
+ *  +----------------+
+ *  |      Test      | 3
+ *  |     Module     | 4
+ *  |       Id       | 5
+ *  |                | 6
+ *  +----------------+
+ */
 #define MIN_MOD_READY_IND     0x03 /** Module Ready Indication */
 /** New Case Indication 
  *  +----------------+
@@ -57,7 +78,7 @@
  *  +----------------+ 
  *  |      Test      | 11
  *  |      Case      | ..
- *  |      Title     | N
+ *  |      Title     | Length
  *  +----------------+
  */
 #define MIN_NEW_CASE_IND      0x04 
@@ -82,6 +103,33 @@
 #define MIN_CASE_STARTED_IND  0x05 /** Case Started Indication */
 #define MIN_CASE_PAUSED_IND   0x06 /** Case Paused Indication */
 #define MIN_CASE_RESUMED_IND  0x07 /** Case Resumed Indication */
+/** Case Result Indication 
+ *  +----------------+ 
+ *  |      Test      | 3
+ *  |      Run       | 4
+ *  |       Id       | 5
+ *  |                | 6
+ *  +----------------+
+ *  |      Test      | 7
+ *  |      Result    | 8
+ *  |      Code      | 9
+ *  |                | 10
+ *  +----------------+
+ *  |      Start     | 11
+ *  |      Time      | 12
+ *  |      Stamp     | 13
+ *  |                | 14
+ *  +----------------+
+ *  |      End       | 15
+ *  |      Time      | 16
+ *  |      Stamp     | 17
+ *  |                | 18
+ *  +----------------+
+ *  |      Test      | 19
+ *  |     Result     | ..
+ *  |    Description | Length
+ *  +----------------+
+ */
 #define MIN_CASE_RESULT_IND   0x08 /** Case Result Indication */
 #define MIN_PRINTOUT_IND      0x09 /** Printout Indication */
 #define MIN_MODULE_LIST_IND   0x0a /** Test Module List Indication */
@@ -92,12 +140,51 @@
 /* client -> Engine */
 #define MIN_ADD_MOD_REQ       0x20 /** Add Module Request */
 #define MIN_ADD_CASE_FILE_REQ 0x21 /** Add Test Case File Request */
+/** MIN Start Case Request
+ *  +----------------+
+ *  |                | 3
+ *  |  Transaction   | 4
+ *  |   Identifier   | 5
+ *  |                | 6
+ *  +----------------+
+ *  |      Test      | 7
+ *  |     Module     | 8
+ *  |       Id       | 9
+ *  |                | 10
+ *  +----------------+
+ *  |      Test      | 11
+ *  |      Case      | 12
+ *  |       Id       | 13
+ *  |                | 14
+ *  +----------------+ 
+ *  |      Test      | 15
+ *  |      Group     | 16
+ *  |       Id       | 17
+ *  |                | 18
+ *  +----------------+ 
+ */
 #define MIN_START_CASE_REQ    0x22 /** Start Case Request */
 #define MIN_PAUSE_CASE_REQ    0x23 /** Pause Case Request */
 #define MIN_RESUME_CASE_REQ   0x24 /** Resume Case Request */
 #define MIN_ABORT_CASE_REQ    0x25 /** Abort Case Request */
 #define MIN_FATAL_ERR_REQ     0x26 /** Fatal Error Request */
+/** MIN Open Request
+ *  +----------------+
+ *  |                | 3
+ *  |  Transaction   | 4
+ *  |   Identifier   | 5
+ *  |                | 6
+ *  +----------------+
+ */
 #define MIN_OPEN_REQ          0x27 /** MIN Open Request */
+/** MIN Close Request
+ *  +----------------+
+ *  |                | 3
+ *  |  Transaction   | 4
+ *  |   Identifier   | 5
+ *  |                | 6
+ *  +----------------+
+ */
 #define MIN_CLOSE_REQ         0x28 /** MIN Close Request */
 #define MIN_MOD_QUERY_REQ     0x29 /** Test Module Files Query Request */
 #define MIN_FILE_QUERY_REQ    0x2a /** Test Case Files Query Request */

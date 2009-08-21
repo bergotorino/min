@@ -12,6 +12,7 @@ INCLUDES = -I. 	-I../ -I../.. \
 		-I../../utils/text
 
 pkglib_LTLIBRARIES = min_tcpip.la
+include_HEADERS = min_eapi_protocol.h
 min_tcpip_la_SOURCES = tcpip_plugin.c
 min_tcpip_la_LDFLAGS = -module
 min_tcpip_la_CFLAGS = $(AM_CFLAGS)

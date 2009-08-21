@@ -15,6 +15,7 @@
 
 
 
+
 pkgdatadir = $(datadir)/min
 pkglibdir = $(libdir)/min
 pkgincludedir = $(includedir)/min
@@ -30,10 +31,11 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = i686-pc-linux-gnu
-host_triplet = i686-pc-linux-gnu
+build_triplet = i486-pc-linux-gnu
+host_triplet = i486-pc-linux-gnu
 subdir = src/in_plugins/tcpip
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -47,7 +49,7 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(pkglibdir)"
+am__installdirs = "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(includedir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 min_tcpip_la_LIBADD =
@@ -70,6 +72,8 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(min_tcpip_la_SOURCES)
 DIST_SOURCES = $(min_tcpip_la_SOURCES)
+includeHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -82,7 +86,7 @@ AUTOMAKE = ${SHELL} /home/user/min/trunk/min/missing --run automake-1.10
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -Wall 
+CFLAGS = -g -Wall -O2
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -103,7 +107,7 @@ INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /usr/bin/ld
-LDFLAGS = 
+LDFLAGS = -Wl,-Bsymbolic-functions
 LIBOBJS = 
 LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
@@ -137,7 +141,7 @@ abs_builddir = /home/user/min/trunk/min/src/in_plugins/tcpip
 abs_srcdir = /home/user/min/trunk/min/src/in_plugins/tcpip
 abs_top_builddir = /home/user/min/trunk/min
 abs_top_srcdir = /home/user/min/trunk/min
-ac_ct_CC = gcc
+ac_ct_CC = 
 ac_ct_DUMPBIN = 
 am__include = include
 am__leading_dot = .
@@ -145,9 +149,9 @@ am__quote =
 am__tar = ${AMTAR} chof - "$$tardir"
 am__untar = ${AMTAR} xf -
 bindir = ${exec_prefix}/bin
-build = i686-pc-linux-gnu
-build_alias = 
-build_cpu = i686
+build = i486-pc-linux-gnu
+build_alias = i486-linux-gnu
+build_cpu = i486
 build_os = linux-gnu
 build_vendor = pc
 builddir = .
@@ -156,9 +160,9 @@ datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = i686-pc-linux-gnu
-host_alias = 
-host_cpu = i686
+host = i486-pc-linux-gnu
+host_alias = i486-linux-gnu
+host_cpu = i486
 host_os = linux-gnu
 host_vendor = pc
 htmldir = ${docdir}
@@ -182,7 +186,7 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
 sysconfdir = /etc
-target_alias = 
+target_alias = /usr/bin/make
 top_builddir = ../../..
 top_srcdir = ../../..
 METASOURCES = AUTO
@@ -199,6 +203,7 @@ INCLUDES = -I. 	-I../ -I../.. \
 		-I../../utils/text
 
 pkglib_LTLIBRARIES = min_tcpip.la
+include_HEADERS = min_eapi_protocol.h
 min_tcpip_la_SOURCES = tcpip_plugin.c
 min_tcpip_la_LDFLAGS = -module
 min_tcpip_la_CFLAGS = $(AM_CFLAGS)
@@ -306,6 +311,23 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
+	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
+	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -382,9 +404,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES)
+all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(pkglibdir)"; do \
+	for dir in "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -432,7 +454,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -468,7 +490,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-pkglibLTLIBRARIES
+uninstall-am: uninstall-includeHEADERS uninstall-pkglibLTLIBRARIES
 
 .MAKE: install-am install-strip
 
@@ -478,13 +500,14 @@ uninstall-am: uninstall-pkglibLTLIBRARIES
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-pkglibLTLIBRARIES \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-pkglibLTLIBRARIES
+	install-html-am install-includeHEADERS install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-pkglibLTLIBRARIES install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-includeHEADERS uninstall-pkglibLTLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
