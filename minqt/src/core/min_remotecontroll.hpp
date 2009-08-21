@@ -29,10 +29,12 @@
 // System includes
 #include <QtDBus/QtDBus>
 #include <QObject>
+#include <QTcpSocket>
 
 // Min includes
 #include "min_object.h"
 #include "min_singleton.hpp"
+#include "min_sockthread.hpp"
 
 #define MIN_SERVICE_NAME     "org.maemo.MIN"
 #define MIN_SERVICE_OBJECT_PATH "/Min"
@@ -217,8 +219,10 @@ namespace Min
         /** Passes list of test modules available in Min */
         void minTestModules(const QString &modules);
         /**@}*/
-
-
+        /** For printing socket errors */
+	void handleSockError(QAbstractSocket::SocketError socketError);
+        /** Handler for signal connected */
+        void handleSockConnected();
     private:
 
         /** Used to store that data as long as caseStarted callback will come.
@@ -232,6 +236,7 @@ namespace Min
             uint groupid_;
         };
 
+      
         /** Default C++ Constructor. */
         RemoteControll();
 
@@ -244,12 +249,18 @@ namespace Min
         /** Test case files to be added to the module. */
         QStringList testCaseFiles_;
 
-        /** List to keep data between misStartCase and
+        /** List to keep data between minStartCase and
          *  caseStarted callback
          */
         QList<ExeRequestData*> exeRequest_;
 
-        /** Indocates if inteface has been closed */
+        QTcpSocket *sock_;
+        SocketThread *tcpThread_;
+	/** Flag stating wether we are talking to remote machine, or dbus
+            on  localhost */
+	bool remote_;
+
+        /** Indicates if inteface has been closed */
         bool closed_;
     };
     // -------------------------------------------------------------------------

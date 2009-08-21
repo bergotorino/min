@@ -25,9 +25,11 @@
 
 // Module include
 #include "min_remotecontroll.hpp"
-
+#include "min_sockthread.hpp"
 // System includes
 #include <QDate>
+#include <QTcpSocket>
+#include <arpa/inet.h>
 
 // Min includes
 #include "min_database.hpp"
@@ -41,6 +43,7 @@ Min::RemoteControll::RemoteControll()
     : obj_(0)
     , testCaseFiles_()
     , exeRequest_()
+    , remote_(false)
     , closed_(true)
 { ; }
 // -----------------------------------------------------------------------------
@@ -57,74 +60,158 @@ bool Min::RemoteControll::isValid() const
     return true;
 }
 // -----------------------------------------------------------------------------
+void Min::RemoteControll::handleSockError(QAbstractSocket::SocketError socketError)
+ {
+     switch (socketError) {
+     case QAbstractSocket::RemoteHostClosedError:
+	 qDebug ("Remote host closed");
+         break;
+     case QAbstractSocket::HostNotFoundError:
+	 qDebug ("Host not found");
+         break;
+     case QAbstractSocket::ConnectionRefusedError:
+	 qDebug ("Connection refused");
+         break;
+     default:
+	 qDebug ("Error: %s", sock_->errorString().toStdString().c_str());
+
+     }
+ }
+
+void Min::RemoteControll::handleSockConnected()
+{
+	qDebug ("Socket connected succesfully - create a thread");
+	tcpThread_ = new SocketThread (sock_->socketDescriptor(), this);
+
+	connect (tcpThread_,SIGNAL(min_case_msg(int, const QString &)),
+		 this,SLOT(minCaseMsg(int, const QString &)));
+	  
+	connect (tcpThread_,SIGNAL(min_case_paused(int)),
+		 this,SLOT(minCasePaused(int)));
+	
+	connect (tcpThread_,SIGNAL(min_case_result(int, int, const QString &,
+					     int, int)),
+		 this,SLOT(minCaseResult(int, int, const QString &,
+					 int, int)));
+	
+	connect (tcpThread_,SIGNAL(min_case_resumed(int)),
+		 this,SLOT(minCaseResumed(int)));
+	
+	connect (tcpThread_,SIGNAL(min_case_started(uint, uint, int)),
+		 this,SLOT(minCaseStarted(uint, uint, int)));
+	
+	connect (tcpThread_,SIGNAL(min_module_ready(uint)),
+		 this,SLOT(minModuleReady(uint)));
+	
+	connect (tcpThread_,SIGNAL(min_new_module(const QString &, uint)),
+		 this,SLOT(minNewModule(const QString &, uint)));
+	
+	connect (tcpThread_,SIGNAL(min_new_test_case(uint, uint, const QString &)),
+		 this,SLOT(minNewTestCase(uint, uint, const QString &)));
+	
+	connect (tcpThread_,SIGNAL(min_no_module(const QString &)),
+		 this,SLOT(minNoModule(const QString &)));
+	
+	connect (tcpThread_,SIGNAL(min_test_files(const QString &)),
+		 this,SLOT(minTestFiles(const QString &)));
+	
+	connect (tcpThread_,SIGNAL(min_test_modules(const QString &)),
+		 this,SLOT(minTestModules(const QString &)));
+	  
+
+
+  tcpThread_->start();
+
+  return;
+}
+
+// -----------------------------------------------------------------------------
 void Min::RemoteControll::open(const QString &address)
 {
     if (address=="") return;
 
     // Open connection to the DBus
-    if (address.contains(':')) {
-        QString dbusAddress = address;
-        dbusAddress.replace(":",",port=");
-        dbusAddress.prepend("tcp:host=");
-        QDBusConnection bus =
-                QDBusConnection::connectToBus(dbusAddress,
+    if (address.contains("localhost") ||
+	address.contains("127.0.0.1")) {
+	  if (address.contains(':')) {
+	    QString dbusAddress = address;
+	    dbusAddress.replace(":",",port=");
+	    dbusAddress.prepend("tcp:host=");
+	    QDBusConnection bus =
+	      QDBusConnection::connectToBus(dbusAddress,
                                             "org.maemo.MIN");
-        if (!bus.isConnected()) {
-            qDebug("Bus Error: %s",bus.lastError().message().toStdString().c_str());
-            return;
+	    if (!bus.isConnected()) {
+	      qDebug("Bus Error: %s",bus.lastError().message().toStdString().c_str());
+	      return;
         }
-        // 3. Open plugin
-        obj_= new MinObject("org.maemo.MIN","/Min",bus);
-    } else {
-        QDBusConnection bus =
-                QDBusConnection::connectToBus(QDBusConnection::SessionBus,
+	    // 3. Open plugin
+	    obj_= new MinObject("org.maemo.MIN","/Min",bus);
+	  } else {
+	    QDBusConnection bus =
+	      QDBusConnection::connectToBus(QDBusConnection::SessionBus,
                                             "org.maemo.MIN");
-        if (!bus.isConnected()) {
-            qDebug("Bus Error: %s",bus.lastError().message().toStdString().c_str());
-            return;
-        }
-        // 3. Open plugin
-        obj_= new MinObject("org.maemo.MIN","/Min",bus);
-    }
-
-    // 3.2. Connect signals
-    connect (obj_,SIGNAL(min_case_msg(int, const QString &)),
-            this,SLOT(minCaseMsg(int, const QString &)));
-
-    connect (obj_,SIGNAL(min_case_paused(int)),
-            this,SLOT(minCasePaused(int)));
-
-    connect (obj_,SIGNAL(min_case_result(int, int, const QString &,
+	    if (!bus.isConnected()) {
+	      qDebug("Bus Error: %s",bus.lastError().message().toStdString().c_str());
+	      return;
+	    }
+	    // 3. Open plugin
+	    obj_= new MinObject("org.maemo.MIN","/Min",bus);
+	  }
+	  
+	  // 3.2. Connect signals
+	  connect (obj_,SIGNAL(min_case_msg(int, const QString &)),
+		   this,SLOT(minCaseMsg(int, const QString &)));
+	  
+	  connect (obj_,SIGNAL(min_case_paused(int)),
+		   this,SLOT(minCasePaused(int)));
+	  
+	  connect (obj_,SIGNAL(min_case_result(int, int, const QString &,
                                             int, int)),
-            this,SLOT(minCaseResult(int, int, const QString &,
-                                    int, int)));
+		   this,SLOT(minCaseResult(int, int, const QString &,
+					   int, int)));
+	  
+	  connect (obj_,SIGNAL(min_case_resumed(int)),
+		   this,SLOT(minCaseResumed(int)));
+	  
+	  connect (obj_,SIGNAL(min_case_started(uint, uint, int)),
+		   this,SLOT(minCaseStarted(uint, uint, int)));
+	  
+	  connect (obj_,SIGNAL(min_module_ready(uint)),
+		   this,SLOT(minModuleReady(uint)));
+	  
+	  connect (obj_,SIGNAL(min_new_module(const QString &, uint)),
+		   this,SLOT(minNewModule(const QString &, uint)));
+	  
+	  connect (obj_,SIGNAL(min_new_test_case(uint, uint, const QString &)),
+		   this,SLOT(minNewTestCase(uint, uint, const QString &)));
+	  
+	  connect (obj_,SIGNAL(min_no_module(const QString &)),
+		   this,SLOT(minNoModule(const QString &)));
+	  
+	  connect (obj_,SIGNAL(min_test_files(const QString &)),
+		   this,SLOT(minTestFiles(const QString &)));
+	  
+	  connect (obj_,SIGNAL(min_test_modules(const QString &)),
+		   this,SLOT(minTestModules(const QString &)));
 
-    connect (obj_,SIGNAL(min_case_resumed(int)),
-            this,SLOT(minCaseResumed(int)));
+	  // 3.3 Open MinDBusPlugin
+	  obj_->min_open();
+	  return;
+	}
+	// Open connection to remote entity
+	remote_ = true;
+	sock_ = new QTcpSocket();
+	connect(sock_, SIGNAL(connected()),
+		this, SLOT(handleSockConnected()));
+	connect(sock_, SIGNAL(error(QAbstractSocket::SocketError)),
+		this, SLOT(handleSockError(QAbstractSocket::SocketError)));
+	
+	sock_->abort();
+	sock_->connectToHost ("10.120.200.94", MIN_EAPI_LISTEN_PORT);
 
-    connect (obj_,SIGNAL(min_case_started(uint, uint, int)),
-            this,SLOT(minCaseStarted(uint, uint, int)));
+	// etc
 
-    connect (obj_,SIGNAL(min_module_ready(uint)),
-            this,SLOT(minModuleReady(uint)));
-
-    connect (obj_,SIGNAL(min_new_module(const QString &, uint)),
-            this,SLOT(minNewModule(const QString &, uint)));
-
-    connect (obj_,SIGNAL(min_new_test_case(uint, uint, const QString &)),
-            this,SLOT(minNewTestCase(uint, uint, const QString &)));
-
-    connect (obj_,SIGNAL(min_no_module(const QString &)),
-            this,SLOT(minNoModule(const QString &)));
-
-    connect (obj_,SIGNAL(min_test_files(const QString &)),
-            this,SLOT(minTestFiles(const QString &)));
-            
-    connect (obj_,SIGNAL(min_test_modules(const QString &)),
-            this,SLOT(minTestModules(const QString &)));
-
-    // 3.3 Open MinDBusPlugin
-    obj_->min_open();
+	
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseMsg(int testrunid,
@@ -256,7 +343,7 @@ void Min::RemoteControll::minModuleReady(uint moduleid)
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
 {
-    //qDebug("Min::RemoteControll::minNewModule %d\n",moduleid);
+    qDebug("Min::RemoteControll::minNewModule %d\n",moduleid);
     Min::Database::getInstance().insertModule (1,moduleid,modulename);
 
     // If module has been added by "Add module functionality" list of test 
@@ -343,7 +430,10 @@ void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
     tmp->caseid_ = caseid;
     tmp->groupid_ = groupid;
     exeRequest_.append(tmp);
-    obj_->min_start_case (moduleid,caseid,0);
+    if (remote_)
+	    tcpThread_->min_start_case (moduleid,caseid,0);
+    else
+	    obj_->min_start_case (moduleid,caseid,0);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minClose()

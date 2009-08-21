@@ -47,8 +47,10 @@ int main( int argc, char* argv[] )
 
     // 2. Dialog that selects DBus connection
     Min::DBusConnectionDialog dlg(0);
+
     QObject::connect (&dlg,SIGNAL(selectedDBusConnection(const QString &)),
                     &rc,SLOT(open(const QString&)));
+
     if (!dlg.exec()||!rc.isValid()) {
         qDebug("Exiting - bye!");
         return EXIT_SUCCESS;

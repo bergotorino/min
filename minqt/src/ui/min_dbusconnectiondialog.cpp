@@ -44,8 +44,8 @@ Min::DBusConnectionDialog::~DBusConnectionDialog()
 // -----------------------------------------------------------------------------
 void Min::DBusConnectionDialog::accept()
 {
-    emit selectedDBusConnection(comboBox_->currentText());
-    QDialog::accept();
+  emit selectedDBusConnection(comboBox_->currentText());
+  QDialog::accept();
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

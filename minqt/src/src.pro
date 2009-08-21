@@ -2,7 +2,7 @@ TEMPLATE    = app
 TARGET      = minqt
 RESOURCES   = icons.qrc  
 
-QT += dbus sql
+QT += dbus sql network
 
 INCLUDEPATH +=  ./ui                                    \
                 ./core                                  \
@@ -29,6 +29,7 @@ SOURCES     +=  main.cpp                                \
                 core/min_testruntreemodel.cpp           \
                 core/min_object.cpp                     \
                 core/min_remotecontroll.cpp             \
+                core/min_sockthread.cpp                 \
 		core/min_database.cpp                   \
                 core/min_availablemodel.cpp             \
                 core/min_descriptionprovider.cpp	\
@@ -49,6 +50,7 @@ HEADERS     +=  ui/min_mainwidget.hpp                   \
                 core/min_testruntreemodel.hpp           \
                 core/min_object.h                       \
                 core/min_remotecontroll.hpp             \
+                core/min_sockthread.hpp                 \
 		core/min_database.hpp                   \
                 core/min_availablemodel.hpp             \
                 core/min_descriptionprovider.hpp	\
