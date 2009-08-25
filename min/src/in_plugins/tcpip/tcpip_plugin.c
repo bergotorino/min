@@ -61,7 +61,9 @@
 eapiOut_t min_clbk;   /** callbacks towards engine */
 int fd;               /** socket */
 int run = 1;          /** Exit flag */
-DLList *write_queue; /** socket write queue */
+DLList *write_queue;  /** socket write queue */
+/** Mutex to protect the write_queue */
+pthread_mutex_t tcpip_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -94,7 +96,7 @@ LOCAL void eapi_message_receive (char msg_type, unsigned short len,
 /* ------------------------------------------------------------------------- */
 LOCAL void eapi_message_send (char *msg, unsigned short len);
 /* ------------------------------------------------------------------------- */
-LOCAL int handle_add_mod_req (unsigned char *msg, unsigned short msg_len);
+LOCAL int handle_add_mod_req (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
 LOCAL int handle_add_case_file_req (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
@@ -106,9 +108,9 @@ LOCAL int handle_resume_case_req (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
 LOCAL int handle_abort_case_req (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
-LOCAL int handle_abort_case_resp (char *msg, unsigned short msg_len);
+LOCAL int handle_fatal_err_req (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
-LOCAL int handle_open_req (unsigned char *msg, unsigned short msg_len);
+LOCAL int handle_open_req (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
 LOCAL int handle_close_req (char *msg, unsigned short msg_len);
 /* ------------------------------------------------------------------------- */
@@ -130,6 +132,10 @@ LOCAL void pl_case_started (unsigned moduleid,
 			    unsigned caseid,
 			    long testrunid);
 /* ------------------------------------------------------------------------- */
+LOCAL void pl_case_paused (long testrunid);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_case_resumed (long testrunid);
+/* ------------------------------------------------------------------------- */
 LOCAL void pl_case_result (long testrunid, int result, char *desc,
 			   long starttime, long endtime);
 /* ------------------------------------------------------------------------- */
@@ -137,6 +143,11 @@ LOCAL void pl_msg_print (long testrunid, char *message);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_error_report (char *error);
 /* ------------------------------------------------------------------------- */
+LOCAL void pl_test_modules (char *modulelist);
+/* ------------------------------------------------------------------------- */
+LOCAL void pl_test_files (char *modulelist);
+/* ------------------------------------------------------------------------- */
+
 /* MODULE DATA STRUCTURES */
 typedef struct {
 	char *msg_;
@@ -162,7 +173,7 @@ LOCAL void read_from_socket (int fd)
 		goto err_out;
 		return;
 	}
-	len = read16 (&hdr_buff[1]);
+	len = read16 ((unsigned char *)&hdr_buff[1]);
 	MIN_DEBUG ("message len %u", len);
 	buff = NEW2 (char, len);
 	while (total_read < len) {
@@ -184,6 +195,7 @@ err_out:
 
 	return;
 }
+/* ------------------------------------------------------------------------- */
 /** Write message from write queue to socket
  *  @param fd socket file desciptor
  */
@@ -192,10 +204,15 @@ LOCAL void write_to_socket (int fd)
 	int bytes_wrtn = 0, wrtn;
 	DLListIterator it;
 	eapi_msg_container *cont;
-	
-	it = dl_list_tail (write_queue);
-	if (it == DLListNULLIterator)
+	int i;
+	char buff [4096];
+
+	pthread_mutex_lock (&tcpip_mutex_);
+	it = dl_list_head (write_queue);
+	if (it == DLListNULLIterator) {
+		pthread_mutex_unlock (&tcpip_mutex_);
 		return;
+	}
 	cont = dl_list_data (it);
 	
 	while (bytes_wrtn < cont->msg_len_) {
@@ -216,14 +233,19 @@ LOCAL void write_to_socket (int fd)
 		bytes_wrtn += wrtn;
 	}
 	MIN_DEBUG ("wrote %u bytes", bytes_wrtn);
-	
+	memset (buff, 0x0, 4096);
+	for (i = 0; i  < cont->msg_len_; i++) {
+		sprintf (buff, "%s%02x", buff, (unsigned char)cont->msg_[i]);
+	}
+	MIN_DEBUG ("%s", buff);
+
 	DELETE (cont->msg_);
 	DELETE (cont);
 	dl_list_remove_it (it);
+	pthread_mutex_unlock (&tcpip_mutex_);
 
 	return;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Write 32 bit number to buffer.
  *  @param buff [out] the buffer to write into.
@@ -329,7 +351,9 @@ LOCAL void eapi_message_send (char *msg, unsigned short len)
 	cont = NEW (eapi_msg_container);
 	cont->msg_ = msg;
 	cont->msg_len_ = len;
+	pthread_mutex_lock (&tcpip_mutex_);
 	dl_list_add (write_queue, cont);
+	pthread_mutex_unlock (&tcpip_mutex_);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -343,7 +367,7 @@ LOCAL void eapi_message_send (char *msg, unsigned short len)
 LOCAL void eapi_message_receive (char msg_type, unsigned short msg_len,
 	                         char *msg) 
 {
-	unsigned char *pos;
+	char *pos;
 	unsigned tid = 0;
 	int      res = 1;
 
@@ -352,7 +376,7 @@ LOCAL void eapi_message_receive (char msg_type, unsigned short msg_len,
 		return;
 	}
 	pos = msg;
-	tid = read32 (pos);
+	tid = read32 ((unsigned char *)pos);
 	pos += 4;
 	switch (msg_type) {
 	case MIN_ADD_MOD_REQ:
@@ -374,7 +398,7 @@ LOCAL void eapi_message_receive (char msg_type, unsigned short msg_len,
 		res = handle_abort_case_req (pos, msg_len);
 		break;
 	case MIN_FATAL_ERR_REQ:
-		res = handle_abort_case_resp (pos, msg_len);
+		res = handle_fatal_err_req (pos, msg_len);
 		break;
 	case MIN_OPEN_REQ:
 		res = handle_open_req (pos, msg_len);
@@ -397,7 +421,7 @@ LOCAL void eapi_message_receive (char msg_type, unsigned short msg_len,
 		break;
 	}
 	
-	eapi_message_send_resp (tid, res);
+	/* eapi_message_send_resp (tid, res); */
 }
 /* ------------------------------------------------------------------------- */
 /** Handles Add Module Request message.
@@ -406,10 +430,22 @@ LOCAL void eapi_message_receive (char msg_type, unsigned short msg_len,
  *  @return the return value of engine callback (0/1), 
  *          or MIN_PROTO_ERROR in case of protocol error
  */
-LOCAL int handle_add_mod_req (unsigned char *msg, unsigned short msg_len)
+LOCAL int handle_add_mod_req (char *msg, unsigned short msg_len)
 {
 	int ret = MIN_PROTO_ERROR;
-	
+	char *modpath;
+
+	if (msg_len == 0)
+		return ret;
+
+	modpath = NEW2 (char, msg_len + 1);
+	strncpy (modpath, msg, msg_len);
+	modpath [msg_len] = '\0';
+
+	ret = min_clbk.add_test_module (modpath);
+
+	DELETE (modpath);
+
 	return ret;
 }
 /* ------------------------------------------------------------------------- */
@@ -422,7 +458,25 @@ LOCAL int handle_add_mod_req (unsigned char *msg, unsigned short msg_len)
 LOCAL int handle_add_case_file_req (char *msg, unsigned short msg_len)
 {
 	int ret = MIN_PROTO_ERROR;
+	unsigned moduleid;
+	char *pos;
+	char *casefile;
+	
+	if (msg_len < 5)
+		return ret;
+	
+	pos = msg;
 
+	moduleid = read32 ((unsigned char *)pos);
+	pos += 4;
+	
+	casefile = NEW2 (char, msg_len - 4 + 1);
+	strncpy (casefile, pos, msg_len - 4);
+	casefile[msg_len - 4] = '\0';
+	ret = min_clbk.add_test_case_file (moduleid, casefile);
+	
+	DELETE (casefile);
+	
 	return ret;
 }
 /* ------------------------------------------------------------------------- */
@@ -460,7 +514,11 @@ LOCAL int handle_start_case_req (char *msg, unsigned short msg_len)
 LOCAL int handle_pause_case_req (char *msg, unsigned short msg_len)
 {
 	int ret = MIN_PROTO_ERROR;
+	unsigned run_id;
 
+	run_id = read32 ((unsigned char *)msg);
+	ret = min_clbk.pause_case (run_id);
+	
 	return ret;
 }
 /* ------------------------------------------------------------------------- */
@@ -473,6 +531,10 @@ LOCAL int handle_pause_case_req (char *msg, unsigned short msg_len)
 LOCAL int handle_resume_case_req (char *msg, unsigned short msg_len)
 {
 	int ret = MIN_PROTO_ERROR;
+	unsigned run_id;
+
+	run_id = read32 ((unsigned char *)msg);
+	ret = min_clbk.resume_case (run_id);
 
 	return ret;
 }
@@ -486,6 +548,10 @@ LOCAL int handle_resume_case_req (char *msg, unsigned short msg_len)
 LOCAL int handle_abort_case_req (char *msg, unsigned short msg_len)
 {
 	int ret = MIN_PROTO_ERROR;
+	unsigned test_run_id;
+
+	test_run_id = read32 ((unsigned char *)msg);
+	ret = min_clbk.abort_case (test_run_id);
 
 	return ret;
 }
@@ -496,9 +562,35 @@ LOCAL int handle_abort_case_req (char *msg, unsigned short msg_len)
  *  @return the return value of engine callback (0/1), or MIN_PROTO_ERROR 
  *          in case of protocol error
  */
-LOCAL int handle_abort_case_resp (char *msg, unsigned short msg_len)
+LOCAL int handle_fatal_err_req (char *msg, unsigned short msg_len)
 {
 	int ret = MIN_PROTO_ERROR;
+	unsigned what_len;
+	char *what, *err;
+	char *pos;
+
+	if (msg_len < 6)
+		return ret;
+
+	pos = msg;
+	what_len = read32 ((unsigned char *)pos);
+	pos += 4;
+	if (what_len > (msg_len - 4 + 1))
+		return ret;
+
+	what = NEW2 (char, what_len + 1);
+	strncpy (what, pos, what_len);
+	what [what_len] = '\0';
+	pos += what_len;
+	
+	err = NEW2 (char, msg_len - 4 - what_len + 1);
+	strncpy (err, pos, msg_len - 4 - what_len);
+	err [msg_len - 4 - what_len] = '\0';
+
+	ret = min_clbk.fatal_error (what, err);
+	
+	DELETE (what);
+	DELETE (err);
 
 	return ret;
 }
@@ -509,7 +601,7 @@ LOCAL int handle_abort_case_resp (char *msg, unsigned short msg_len)
  *  @return the return value of engine callback (0/1), 
  *          or MIN_PROTO_ERROR in case of protocol error
  */
-LOCAL int handle_open_req (unsigned char *msg, unsigned short msg_len)
+LOCAL int handle_open_req (char *msg, unsigned short msg_len)
 {
 	int ret;
 	MIN_DEBUG ("MIN Open Request");
@@ -543,6 +635,10 @@ LOCAL int handle_close_req (char *msg, unsigned short msg_len)
 LOCAL int handle_mod_query_req (char *msg, unsigned short msg_len)
 {
 	int ret = MIN_PROTO_ERROR;
+	char *modules = INITPTR;
+
+        ret = min_clbk.query_test_modules(&modules);
+	pl_test_modules (modules);
 
 	return ret;
 }
@@ -556,7 +652,10 @@ LOCAL int handle_mod_query_req (char *msg, unsigned short msg_len)
 LOCAL int handle_file_query_req (char *msg, unsigned short msg_len)
 {
 	int ret = MIN_PROTO_ERROR;
+	char *files = INITPTR;
 
+        ret = min_clbk.query_test_files(&files);
+	pl_test_files (files);
 	return ret;
 }
 /* ------------------------------------------------------------------------- */
@@ -582,8 +681,6 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 	
 	unsigned short msg_len;
 	char *p, *buff;
-
-	MIN_DEBUG ("moduleId = %u", moduleid);
 
 	msg_len = 4 + strlen (modulename);
 	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
@@ -620,7 +717,7 @@ LOCAL void pl_module_ready (unsigned moduleid)
 	write32 (p, moduleid);
 	p += 4;
 
-	eapi_message_send_ind (MIN_NEW_MOD_IND, 
+	eapi_message_send_ind (MIN_MOD_READY_IND, 
 			       msg_len + MIN_HDR_LEN,
 			       buff);
 
@@ -645,7 +742,6 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 	write32 (p, caseid);
 	p += 4;
 	memcpy (p, casetitle, strlen (casetitle));
-
 	eapi_message_send_ind (MIN_NEW_CASE_IND, 
 			       msg_len,
 			       buff);
@@ -674,6 +770,44 @@ LOCAL void pl_case_started (unsigned moduleid,
 	p += 4;
 
 	eapi_message_send_ind (MIN_CASE_STARTED_IND, 
+			       msg_len,
+			       buff);
+
+}
+/* ------------------------------------------------------------------------- */
+/** Engine calls this when test case has been paused by user
+ *  @param testrunid identifier for the test run
+ */ 
+LOCAL void pl_case_paused (long testrunid)
+{
+	unsigned short msg_len;
+	char *p, *buff;
+	msg_len = 4 + 4 + 4;
+	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
+	
+	p = &buff [MIN_HDR_LEN];
+	write32 (p, testrunid);
+
+	eapi_message_send_ind (MIN_CASE_PAUSED_IND, 
+			       msg_len,
+			       buff);
+
+}
+/* ------------------------------------------------------------------------- */
+/** Engine calls this when a paused test case has been resumed
+ *  @param testrunid identifier for the test run
+ */ 
+LOCAL void pl_case_resumed (long testrunid)
+{
+	unsigned short msg_len;
+	char *p, *buff;
+	msg_len = 4 + 4 + 4;
+	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
+	
+	p = &buff [MIN_HDR_LEN];
+	write32 (p, testrunid);
+
+	eapi_message_send_ind (MIN_CASE_RESUMED_IND, 
 			       msg_len,
 			       buff);
 
@@ -716,12 +850,125 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
  */ 
 LOCAL void pl_msg_print (long testrunid, char *message)
 {
+	unsigned short msg_len;
+	char *p, *buff;
+
+	msg_len = 4 + strlen (message);
+	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
+	
+	p = &buff [MIN_HDR_LEN];
+	write32 (p, testrunid);
+	p += 4;	
+	memcpy (p, message, strlen (message));
+	
+	eapi_message_send_ind (MIN_PRINTOUT_IND, 
+			       msg_len,
+			       buff);
 }
 /* ------------------------------------------------------------------------- */
 /** Engine calls this when it when test case/module sends error message
  *  @param error the message
  */ 
-LOCAL void pl_error_report (char *error) {
+LOCAL void pl_error_report (char *error) 
+{
+	unsigned short msg_len;
+	char *p, *buff;
+
+	msg_len = strlen (error);
+	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
+	p = &buff [MIN_HDR_LEN];
+	memcpy (p, error, strlen (error));
+
+	eapi_message_send_ind (MIN_ERROR_REPORT_IND, 
+			       msg_len,
+			       buff);
+}
+/* ------------------------------------------------------------------------- */
+/** Called to send list of modules found in Engine search paths to client 
+ *  @param modulelist list of modules separated by '\0'
+ */
+LOCAL void pl_test_modules (char *modulelist)
+{
+	char *p, *pos, *buff;
+	unsigned msg_len = 0, module_count = 0;
+
+	/*
+	** Calculate the total lenght needed
+	*/
+	p = &modulelist[0];
+	while (*p != '\0') {
+		module_count++;
+		msg_len += strlen(p);
+		p += strlen(p);
+		p++;
+	}
+	if (module_count == 0)
+		return;
+
+	msg_len += module_count * 4; /* space for lenght fields */
+
+	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
+	pos = &buff [MIN_HDR_LEN];
+	/*
+	** Loop again, this time write to message 
+	*/
+	p = &modulelist[0];
+	while (*p != '\0') {
+		write32 (pos, strlen(p));
+		pos += 4;
+		strncpy (pos, p, strlen(p));
+		pos += strlen (p);
+		p += strlen(p);
+		p++;
+	}
+	
+	eapi_message_send_ind (MIN_MODULE_LIST_IND, 
+			       msg_len,
+			       buff);
+}
+/* ------------------------------------------------------------------------- */
+/** Called to send list of test case files found in Engine search paths 
+ *  to client.
+ *  @param modulelist list of modules separated by '\0'
+ */
+LOCAL void pl_test_files (char *files)
+{
+	char *p, *pos, *buff;
+	unsigned msg_len = 0, file_count = 0;
+
+	/*
+	** Calculate the total lenght needed
+	*/
+	p = &files[0];
+	while (*p != '\0') {
+		file_count++;
+		msg_len += strlen(p);
+		p += strlen(p);
+		p++;
+	}
+	if (file_count == 0)
+		return;
+
+	msg_len += file_count * 4; /* space for lenght fields */
+
+	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
+	pos = &buff [MIN_HDR_LEN];
+	/*
+	** Loop again, this time write to message 
+	*/
+	p = &files[0];
+	while (*p != '\0') {
+		write32 (pos, strlen(p));
+		pos += 4;
+		strncpy (pos, p, strlen(p));
+		pos += strlen (p);
+		p += strlen(p);
+		p++;
+	}
+	
+	eapi_message_send_ind (MIN_FILE_LIST_IND, 
+			       msg_len,
+			       buff);
 }
 
 
@@ -739,14 +986,17 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
 
         (*out_callback)->case_result            = pl_case_result;
         (*out_callback)->case_started           = pl_case_started;
-        (*out_callback)->case_paused            = NULL;
-        (*out_callback)->case_resumed           = NULL;
+        (*out_callback)->case_paused            = pl_case_paused;
+        (*out_callback)->case_resumed           = pl_case_resumed;
         (*out_callback)->module_prints          = pl_msg_print;
         (*out_callback)->new_module             = pl_new_module;
         (*out_callback)->no_module              = pl_no_module;
         (*out_callback)->module_ready           = pl_module_ready;
         (*out_callback)->new_case               = pl_new_case;
         (*out_callback)->error_report           = pl_error_report;
+
+	(*out_callback)->test_modules           = pl_test_modules; 
+	(*out_callback)->test_files             = pl_test_files; 
 
         return;
 }
@@ -761,7 +1011,6 @@ void pl_open_plugin (void *opts)
 {
 	tcpip_opts *pl_opts;
 	fd_set rd, wr, er;
-	int nfds = 0;
 	struct timeval tv;
         int ret;
 
@@ -788,7 +1037,15 @@ void pl_open_plugin (void *opts)
 			read_from_socket (fd);
 		if (FD_ISSET (fd, &wr))
 		        write_to_socket (fd);
+		usleep (100000);
 	}
+	if (run == 1)
+		ret = min_clbk.min_close();
+	
+	if (fd > 0)
+		close(fd);
+
+	fd = -1;
 
         return;
 }

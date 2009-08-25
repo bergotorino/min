@@ -126,7 +126,6 @@ LOCAL int create_listen_socket(unsigned short port)
         if (listen (sock, 1)) {
 		MIND_LOG ("Listen failed", strerror (errno));
 		close (sock);
-		rcp_listen_socket = -1;
 		return -1;
 	}
 
@@ -155,7 +154,9 @@ LOCAL int poll_sockets (char *envp[])
 	args [1] = NEW2 (char, 100);
 
 	sprintf (args [0], "%s", "/usr/bin/min");
-	while (exit_ == 0 && rcp_listen_socket > 0) {
+	while (exit_ == 0 && rcp_listen_socket > 0 &&
+	       eapi_listen_socket > 0) {
+		nfds = 0;
 		FD_ZERO (&rd);
 		FD_ZERO (&wr);
 		FD_ZERO (&er);
@@ -187,9 +188,7 @@ LOCAL int poll_sockets (char *envp[])
 			case 0:
 				close (rcp_listen_socket);
 				execve (args[0], args, envp);
-				MIND_LOG ("Failed start to "
-					  "min engine",
-					  strerror (errno));
+				return 0;
 				break;
 			default:
 				sl_set_sighandler (SIGCHLD, handle_sigchld);
@@ -201,45 +200,39 @@ LOCAL int poll_sockets (char *envp[])
 			MIND_LOG ("connect from",
 				  inet_ntoa (client_addr.sin_addr));
 
-			if (listen (rcp_listen_socket, 1)) {
+			/* if (listen (rcp_listen_socket, 100)) {
 				MIND_LOG("Listen failed", 
 					 strerror (errno));
 				close (rcp_listen_socket);
 				return -1;
-			}
+				} */
 		}
 		if (FD_ISSET(eapi_listen_socket, &rd)) {
-			MIND_LOG ("Here", "1");
 
-
+			
 			memset (&client_addr, 0, len = sizeof(client_addr));
-			MIND_LOG ("Here", "2");
-
+			
 			eapi_socket = accept (eapi_listen_socket, 
 					     (struct sockaddr *) &client_addr, 
-				     &len);
-			MIND_LOG ("Here", "3");
+					      &len);
 
 			if (eapi_socket < 0) {
 				MIND_LOG ("accept() for eapi socket failed", 
 					 strerror (errno));
 				return -1;
 			}
-			MIND_LOG ("Here", "4");
 
 			sprintf (args[1], "-f %u", eapi_socket);
 			pid = fork ();
 			switch (pid) {
 			case -1:
 				MIND_LOG ("Failed to create process !",
-					 strerror (errno));
+					  strerror (errno));
 				break;
 			case 0:
 				close (eapi_listen_socket);
 				execve (args[0], args, envp);
-				MIND_LOG ("Failed start to "
-					  "min engine",
-					  strerror (errno));
+				return 0;
 				break;
 			default:
 				sl_set_sighandler (SIGCHLD, handle_sigchld);
@@ -247,22 +240,24 @@ LOCAL int poll_sockets (char *envp[])
 				mins_running++;
 				break;
 			}
-
+			
 			MIND_LOG ("EAPI connect from",
 				  inet_ntoa (client_addr.sin_addr));
 
-			if (listen (eapi_listen_socket, 1)) {
+
+			if (listen (eapi_listen_socket, 100)) {
 				MIND_LOG("Listen failed", 
 					 strerror (errno));
 				close (eapi_listen_socket);
 				return -1;
 			}
 		}
-
-		
+		sleep (1);
 	}
+
 	close (eapi_listen_socket);
 	close (rcp_listen_socket);
+
 	return 0;
 }
 /* ------------------------------------------------------------------------- */
