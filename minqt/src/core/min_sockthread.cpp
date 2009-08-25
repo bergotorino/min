@@ -33,10 +33,9 @@
 #include <arpa/inet.h>
 
 // -----------------------------------------------------------------------------
-Min::SocketThread::SocketThread(int fd, QObject *parent)
-  : QThread(parent)
-  , fd_(fd)
-{ ; }
+Min::SocketThread::SocketThread(QTcpSocket *s, QObject *parent)
+	:  sock (s)
+{ }
 
 Min::SocketThread::~SocketThread()
 { ; }
@@ -72,37 +71,32 @@ static void eapi_build_header (char *buff, char msg_type,
 	write16 (&buff[1], msg_len);
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::sendOpenReq ()
+void Min::SocketThread::readFromSock()
 {
-	QByteArray *msg = new QByteArray();
-	msg->resize (7);
-	
-	eapi_build_header (msg->data(), MIN_OPEN_REQ, 4);
-
-	writeQueue_.append(msg);
-}
-// -----------------------------------------------------------------------------
-void Min::SocketThread::readFromSock(QTcpSocket *sock)
-{
+	qDebug ("Bytes Available = %u", (unsigned)sock->bytesAvailable());
+	if (sock->bytesAvailable() <= 0)
+		return;
 	/* Read message type */
 	char msg_type;
-	if (!sock->getChar (&msg_type)) 
+	if (!sock->getChar (&msg_type)) { 
+		qDebug ("can't read even 1 byte");
 		return;
+	}
 	/* read message len */
 	char len_buff [2];
 	sock->read (len_buff, 2);
 	qint64 msg_len = len_buff [0] << 8 | len_buff [1];
-
+	
 	/* read the rest of message */
 	QByteArray tmp, msg = sock->read (msg_len);
 	tmp = msg.toHex();
-	qDebug ("RECEIVED: %s", tmp.data());
+	qDebug ("RECEIVED(%u): %s", (unsigned)msg_len, tmp.data());
 	
 	/* act according to message type */
 	switch (msg_type) {
-		uint module_id, case_id;
+		uint module_id, case_id, tid;
 		int run_id, result, starttime, endtime;
-		char *module_name, *case_title, *desc;
+		char *module_name, *case_title, *desc, *printout;
 	case MIN_NEW_MOD_IND:
 		qDebug ("EAPI: New Module indication");
 		module_id = read32 (&msg);
@@ -148,45 +142,54 @@ void Min::SocketThread::readFromSock(QTcpSocket *sock)
 		endtime = read32 (&msg);
 		msg.remove(0, 4);
 		desc = msg.data();
+		qDebug ("run_id=%u, result=%d, starttime=%d,"
+			"endttime=%d, desc=%s",
+			run_id, result, starttime, endtime, desc);
 		emit (min_case_result (run_id, result, desc, 
 				       starttime, endtime));
 		
 		break;
+	case MIN_PRINTOUT_IND:
+		qDebug ("EAPI: Printout indication");
+		run_id =  read32 (&msg);
+		msg.remove(0, 4);
+		printout = msg.data();
+		qDebug ("run_id=%u, printout=%s",
+			run_id, printout);
+		emit (min_case_msg (run_id, printout));
+		break;
+	case MIN_RESP:
+		qDebug ("EAPI: Response");
+		tid = read32 (&msg);
+		msg.remove(0, 4);
+		qDebug ("transaction id = %u", tid);
+		break;
+	default:
+		qDebug ("Unknow EAPI message type %02x", msg_type);
+		break;
+		
 	}
 
 
   
 }
 // -----------------------------------------------------------------------------
+void Min::SocketThread::sendToSock()
+{
+	QByteArray *msg = writeQueue_.first();
+	sock->write(*msg);
+	sock->waitForBytesWritten();
+	QByteArray tmp = msg->toHex();
+	qDebug ("SENT: %s", tmp.data());
+	
+	writeQueue_.removeFirst();
+
+}
+// -----------------------------------------------------------------------------
 void Min::SocketThread::run()
 {
-	
-	QTcpSocket *tcpsock = new QTcpSocket();
-	 
-	if (!tcpsock->setSocketDescriptor(fd_)) {
-		// emit error(sock.error());
-		return;
-	}
-	tcpsock->setReadBufferSize(0);
-	sendOpenReq ();
-	Min::RemoteControll &rc = Min::RemoteControll::getInstance();
-	qDebug ("SocketThread::run(): here - 3");
-	
-	while (tcpsock->state() == QAbstractSocket::ConnectedState) {
-		 tcpsock->waitForReadyRead(1000);
-		 if (tcpsock->bytesAvailable () > MIN_HDR_LEN) {
-			 readFromSock(tcpsock);
-		 }
-		 /** if write queue */
-		 if (!writeQueue_.isEmpty()) {
-			 QByteArray *msg = writeQueue_.first();
-			 tcpsock->write(*msg);
-			 QByteArray tmp = msg->toHex();
-			 qDebug ("SENT: %s", tmp.data());
-			 
-			 writeQueue_.removeFirst();
-		 }
-	}
+	sock->setReadBufferSize(0);
+
 }
 // -----------------------------------------------------------------------------
 void Min::SocketThread::min_abort_case(int testrunid)
@@ -207,6 +210,18 @@ void Min::SocketThread::min_add_test_module(const QString &modulepath)
 // -----------------------------------------------------------------------------
 void Min::SocketThread::min_close()
 {
+	QByteArray *msg = new QByteArray();
+	unsigned msg_len = 4;
+	char *p;
+
+	msg->resize (MIN_HDR_LEN + msg_len);
+	p = msg->data();
+	eapi_build_header (p, MIN_CLOSE_REQ, msg_len);
+	p += MIN_HDR_LEN;
+	write32 (p, 0); /* tid */
+
+	writeQueue_.append(msg);
+	sendToSock();
 	return;
 }
 void Min::SocketThread::min_fatal_error()
@@ -216,6 +231,13 @@ void Min::SocketThread::min_fatal_error()
 // -----------------------------------------------------------------------------
 void Min::SocketThread::min_open()
 {
+	QByteArray *msg = new QByteArray();
+	msg->resize (7);
+	
+	eapi_build_header (msg->data(), MIN_OPEN_REQ, 4);
+
+	writeQueue_.append(msg);
+	sendToSock();
 	return;
 }
 // -----------------------------------------------------------------------------
@@ -259,6 +281,7 @@ void Min::SocketThread::min_start_case (uint moduleid,
 	write32 (p, groupid);
 
 	writeQueue_.append(msg);
+	sendToSock();
 
 	return;
 }

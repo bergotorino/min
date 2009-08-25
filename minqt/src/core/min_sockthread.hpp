@@ -47,7 +47,7 @@ namespace Min
      * @brief Handles tcp traffic between MinQt GUI and MIN 
      *
      */
-	class SocketThread: public QThread
+	class SocketThread : public QObject
 	{
 		/** Copying is forbidden */
 		Q_DISABLE_COPY(SocketThread);
@@ -57,7 +57,7 @@ namespace Min
 		/** Destructor. */
 		~SocketThread();
 		/** Constructor */
-		SocketThread (int fd, QObject *parent);
+		SocketThread (QTcpSocket *s, QObject *parent);
 		void run();
 		void min_abort_case(int testrunid);
 		void min_add_test_case_file(uint moduleid, 
@@ -71,7 +71,6 @@ namespace Min
 		void min_query_test_modules();
 		void min_resume_case(int testrunid);
 		void min_start_case(uint moduleid, uint caseid, uint groupid);
-
 	signals:
 		void min_case_msg(int testrunid, const QString &message);
 		void min_case_paused(int testrunid);
@@ -93,22 +92,24 @@ namespace Min
 		void min_no_module(const QString &modulename);
 		void min_test_files(const QString &files);
 		void min_test_modules(const QString &modules);
+		void dataToSend();					     
 
 	public slots:
 			
 	private slots:
-		
+		void readFromSock();
+		void sendToSock();
+
 	private:
-		/** socket file descriptor */
+		/** Socket file descriptor */
 		int fd_;
-		
-		/** transaction id */
+		/** Socket file descriptor */
+		QTcpSocket *sock;
+		/** Transaction id */
 		int tid_;
 		/** List implementing socket write queue
 		 */
 		QList<QByteArray*> writeQueue_;
-		void readFromSock(QTcpSocket *sock);
-		void sendOpenReq();
 		
 	};
    // -------------------------------------------------------------------------

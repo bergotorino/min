@@ -81,8 +81,8 @@ void Min::RemoteControll::handleSockError(QAbstractSocket::SocketError socketErr
 void Min::RemoteControll::handleSockConnected()
 {
 	qDebug ("Socket connected succesfully - create a thread");
-	tcpThread_ = new SocketThread (sock_->socketDescriptor(), this);
 
+	tcpThread_ = new SocketThread (sock_, this);
 	connect (tcpThread_,SIGNAL(min_case_msg(int, const QString &)),
 		 this,SLOT(minCaseMsg(int, const QString &)));
 	  
@@ -117,12 +117,14 @@ void Min::RemoteControll::handleSockConnected()
 	
 	connect (tcpThread_,SIGNAL(min_test_modules(const QString &)),
 		 this,SLOT(minTestModules(const QString &)));
-	  
+	
+	connect (sock_, SIGNAL(readyRead()), tcpThread_,
+		 SLOT(readFromSock()));
 
+	tcpThread_->run();
+	tcpThread_->min_open();
 
-  tcpThread_->start();
-
-  return;
+	return;
 }
 
 // -----------------------------------------------------------------------------
@@ -437,7 +439,14 @@ void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minClose()
-{ obj_->min_close(); closed_ = true; }
+{ 
+    if (remote_)
+	    tcpThread_->min_close ();
+    else
+	    obj_->min_close(); 
+
+    closed_ = true; 
+}
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::setTestCaseFiles(const QStringList &data)
 { testCaseFiles_ = data; }
