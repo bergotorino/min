@@ -1061,6 +1061,10 @@ handle_remote_event (TScripterKeyword command, MinItemParser * parameters)
         }
 
         DELETE (param.event.event_name_);
+	if (token != INITPTR)
+		DELETE (token);
+	if (token2 != INITPTR)
+		DELETE (token2);
 
         return 0;
       err_out:
@@ -1094,6 +1098,7 @@ int handle_remote_event_request_resp (MinItemParser * parameters)
         if (!strcasecmp (token, "set")) {
 
                 if (mip_get_next_string (parameters, &token2) != ENOERR) {
+			DELETE (token);
                         MIN_WARN ("%s: event name missing!", __FUNCTION__);
                         return 1;
                 }

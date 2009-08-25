@@ -194,6 +194,7 @@ LOCAL void socket_read_rcp (slave_info *slave)
         bytes_read = read (slave->fd_, buff, len);
         if (bytes_read != len) {
                 MIN_WARN ("failed to read the whole message");
+		DELETE (buff);
 		free_tcp_slave (slave);
                 return;
         }
@@ -383,6 +384,7 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 	
 	if (entry == INITPTR) {
 		MIN_WARN ("No entry found for socket %d", fd);
+		tx_destroy (&tx);
 		return;
 	}
 	pthread_mutex_lock (&socket_write_mutex_);

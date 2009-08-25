@@ -274,12 +274,15 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
         pluginhandle = dlopen(tx_share_buf(plugin),RTLD_NOW);
         if (!pluginhandle) {
                 printf ("Error opening plugin %s\n", dlerror());
+		tx_destroy (&plugin);
                 exit (-1);
         }
         pl_attach = dlsym (pluginhandle, "pl_attach_plugin");
         pl_open = dlsym (pluginhandle, "pl_open_plugin");
         if (!pl_attach || !pl_open) {
+		dlclose (pluginhandle);
                 printf ("Error opening plugin %s\n", dlerror());
+		tx_destroy (&plugin);
                 exit (-1);
         }
 
@@ -305,6 +308,8 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
                 in->error_report ("MIN Test Framework, (c) Nokia 2008,"
                                   " All rights reserved,");
         }
+
+	tx_destroy (&plugin);
 
         return plugin_thread;
 }

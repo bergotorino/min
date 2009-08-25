@@ -2030,7 +2030,7 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         MsgBuffer       input_buffer;
         ScriptVar      *var;
         ScriptedTestProcessDetails *stpd;
-        Text           *cfgdefault;
+        Text           *cfgdefault = INITPTR;
         char *dir = INITPTR;
         char *file = INITPTR;
 
@@ -2092,7 +2092,6 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
                 retval = -1;
                 goto EXIT;
         }
-
         /* 2) Create Lego Snake */
         mli_create (msp);
 
@@ -2169,6 +2168,8 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         *result = scripter_mod.script_tcr;
 
         /* Do some cleanup */
+
+	tx_destroy (&cfgdefault);
 
         if (scripter_mod.expected_var != INITPTR) {
                 DELETE (scripter_mod.expected_var);
@@ -2364,11 +2365,11 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
                 msp = mp_section (sp, "[Test]", "[Endtest]", section_number);
         }
 
+      EXIT:
         tx_destroy(&homemindir);
         mp_destroy (&sp);
         DELETE (cfg_file_backup);
         MIN_INFO ("Number of cases %d", dl_list_size (*cases));
-      EXIT:
 
         return retval;
 }

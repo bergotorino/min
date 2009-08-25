@@ -2358,6 +2358,7 @@ LOCAL void save_test_set ()
 
         display_info (string, -1);
         DELETE (string);
+	DELETE (filename);
 }
 /* ------------------------------------------------------------------------- */
 /** Find the test case matching module and title.

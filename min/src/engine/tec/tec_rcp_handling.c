@@ -998,6 +998,8 @@ LOCAL int extif_msg_handle_reserve (MinItemParser * extif_message)
         mip_get_next_string (extif_message, &destid);
 	splithex (destid, &dev_id, &case_id);
 	own_id = dev_id;
+	DELETE (destid);
+	DELETE (srcid);
 #endif
 
         pthread_mutex_unlock (&tec_mutex_);
