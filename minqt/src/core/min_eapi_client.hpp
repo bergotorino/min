@@ -17,14 +17,14 @@
  */
 
 /**
- * @file:     min_sockthread.hpp
+ * @file:     min_eapi_client.hpp
  * @version:  1.00
- * @date:     20.09.2009
+ * @date:     25.08.2009
  * @author:   
  */
 
-#ifndef INCLUDED_MIN_SOCKTHREAD_HPP
-#define INCLUDED_MIN_SOCKTHREAD_HPP
+#ifndef INCLUDED_MIN_EAPI_CLIENT_HPP
+#define INCLUDED_MIN_EAPI_CLIENT_HPP
 
 // System includes
 #include <QThread>
@@ -43,22 +43,22 @@ namespace Min
 {
     // -------------------------------------------------------------------------
     /**
-     * @class SocketThread
-     * @brief Handles tcp traffic between MinQt GUI and MIN 
+     * @class EapiClient
+     * @brief Handles MIN Engine API protocol client 
      *
      */
-	class SocketThread : public QObject
+	class EapiClient : public QObject
 	{
 		/** Copying is forbidden */
-		Q_DISABLE_COPY(SocketThread);
+		Q_DISABLE_COPY(EapiClient);
 		Q_OBJECT
 		public:
 
 		/** Destructor. */
-		~SocketThread();
+		~EapiClient();
 		/** Constructor */
-		SocketThread (QTcpSocket *s, QObject *parent);
-		void run();
+		EapiClient (QTcpSocket *s, QObject *parent);
+		void init();
 		void min_abort_case(int testrunid);
 		void min_add_test_case_file(uint moduleid, 
 					    const QString &testcasefile);
@@ -115,5 +115,5 @@ namespace Min
    // -------------------------------------------------------------------------
 }; // namespace Min
 // -----------------------------------------------------------------------------
-#endif // INCLUDED_MIN_SOCKTHREAD_HPP
+#endif // INCLUDED_MIN_EAPI_CLIENT_HPP
 

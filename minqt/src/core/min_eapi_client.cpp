@@ -17,14 +17,14 @@
  */
 
 /**
- * @file:     min_sockthread.cpp
+ * @file:     min_eapi_client.cpp
  * @version:  1.00
- * @date:     20.08.2009
+ * @date:     25.08.2009
  * @author:   
  */
 
 // Module include
-#include "min_sockthread.hpp"
+#include "min_eapi_client.hpp"
 #include "min_remotecontroll.hpp"
 #include "min_eapi_protocol.h"
 // System includes
@@ -33,11 +33,11 @@
 #include <arpa/inet.h>
 
 // -----------------------------------------------------------------------------
-Min::SocketThread::SocketThread(QTcpSocket *s, QObject *parent)
+Min::EapiClient::EapiClient(QTcpSocket *s, QObject *parent)
 	:  sock (s)
 { }
 
-Min::SocketThread::~SocketThread()
+Min::EapiClient::~EapiClient()
 { ; }
 // -----------------------------------------------------------------------------
 static int read32 (QByteArray *msg)
@@ -71,7 +71,7 @@ static void eapi_build_header (char *buff, char msg_type,
 	write16 (&buff[1], msg_len);
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::readFromSock()
+void Min::EapiClient::readFromSock()
 {
 	qDebug ("Bytes Available = %u", (unsigned)sock->bytesAvailable());
 	if (sock->bytesAvailable() <= 0)
@@ -174,7 +174,7 @@ void Min::SocketThread::readFromSock()
   
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::sendToSock()
+void Min::EapiClient::sendToSock()
 {
 	QByteArray *msg = writeQueue_.first();
 	sock->write(*msg);
@@ -186,29 +186,29 @@ void Min::SocketThread::sendToSock()
 
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::run()
+void Min::EapiClient::init()
 {
 	sock->setReadBufferSize(0);
 
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::min_abort_case(int testrunid)
+void Min::EapiClient::min_abort_case(int testrunid)
 {
 	return;
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::min_add_test_case_file(uint moduleid, 
+void Min::EapiClient::min_add_test_case_file(uint moduleid, 
 			    const QString &testcasefile)
 {
 	return;
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::min_add_test_module(const QString &modulepath)
+void Min::EapiClient::min_add_test_module(const QString &modulepath)
 {
 	return;
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::min_close()
+void Min::EapiClient::min_close()
 {
 	QByteArray *msg = new QByteArray();
 	unsigned msg_len = 4;
@@ -224,12 +224,12 @@ void Min::SocketThread::min_close()
 	sendToSock();
 	return;
 }
-void Min::SocketThread::min_fatal_error()
+void Min::EapiClient::min_fatal_error()
 {
 	return;
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::min_open()
+void Min::EapiClient::min_open()
 {
 	QByteArray *msg = new QByteArray();
 	msg->resize (7);
@@ -241,28 +241,28 @@ void Min::SocketThread::min_open()
 	return;
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::min_pause_case(int testrunid)
+void Min::EapiClient::min_pause_case(int testrunid)
 {
 	return;
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::min_query_test_files()
+void Min::EapiClient::min_query_test_files()
 {
 	return;
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::min_query_test_modules()
+void Min::EapiClient::min_query_test_modules()
 {
 	return;
 }
-void Min::SocketThread::min_resume_case (int testrunid)
+void Min::EapiClient::min_resume_case (int testrunid)
 {
 	return;
 }
 // -----------------------------------------------------------------------------
-void Min::SocketThread::min_start_case (uint moduleid, 
-					uint caseid, 
-					uint groupid)
+void Min::EapiClient::min_start_case (uint moduleid, 
+				      uint caseid, 
+				      uint groupid)
 {
 	QByteArray *msg = new QByteArray();
 	unsigned msg_len = 4 + 4 + 4 + 4;

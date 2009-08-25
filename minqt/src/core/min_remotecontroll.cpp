@@ -25,7 +25,7 @@
 
 // Module include
 #include "min_remotecontroll.hpp"
-#include "min_sockthread.hpp"
+#include "min_eapi_client.hpp"
 // System includes
 #include <QDate>
 #include <QTcpSocket>
@@ -80,49 +80,49 @@ void Min::RemoteControll::handleSockError(QAbstractSocket::SocketError socketErr
 
 void Min::RemoteControll::handleSockConnected()
 {
-	qDebug ("Socket connected succesfully - create a thread");
+	qDebug ("Socket connected succesfully");
 
-	tcpThread_ = new SocketThread (sock_, this);
-	connect (tcpThread_,SIGNAL(min_case_msg(int, const QString &)),
+	eapiClient_ = new EapiClient (sock_, this);
+	connect (eapiClient_,SIGNAL(min_case_msg(int, const QString &)),
 		 this,SLOT(minCaseMsg(int, const QString &)));
 	  
-	connect (tcpThread_,SIGNAL(min_case_paused(int)),
+	connect (eapiClient_,SIGNAL(min_case_paused(int)),
 		 this,SLOT(minCasePaused(int)));
 	
-	connect (tcpThread_,SIGNAL(min_case_result(int, int, const QString &,
+	connect (eapiClient_,SIGNAL(min_case_result(int, int, const QString &,
 					     int, int)),
 		 this,SLOT(minCaseResult(int, int, const QString &,
 					 int, int)));
 	
-	connect (tcpThread_,SIGNAL(min_case_resumed(int)),
+	connect (eapiClient_,SIGNAL(min_case_resumed(int)),
 		 this,SLOT(minCaseResumed(int)));
 	
-	connect (tcpThread_,SIGNAL(min_case_started(uint, uint, int)),
+	connect (eapiClient_,SIGNAL(min_case_started(uint, uint, int)),
 		 this,SLOT(minCaseStarted(uint, uint, int)));
 	
-	connect (tcpThread_,SIGNAL(min_module_ready(uint)),
+	connect (eapiClient_,SIGNAL(min_module_ready(uint)),
 		 this,SLOT(minModuleReady(uint)));
 	
-	connect (tcpThread_,SIGNAL(min_new_module(const QString &, uint)),
+	connect (eapiClient_,SIGNAL(min_new_module(const QString &, uint)),
 		 this,SLOT(minNewModule(const QString &, uint)));
 	
-	connect (tcpThread_,SIGNAL(min_new_test_case(uint, uint, const QString &)),
+	connect (eapiClient_,SIGNAL(min_new_test_case(uint, uint, const QString &)),
 		 this,SLOT(minNewTestCase(uint, uint, const QString &)));
 	
-	connect (tcpThread_,SIGNAL(min_no_module(const QString &)),
+	connect (eapiClient_,SIGNAL(min_no_module(const QString &)),
 		 this,SLOT(minNoModule(const QString &)));
 	
-	connect (tcpThread_,SIGNAL(min_test_files(const QString &)),
+	connect (eapiClient_,SIGNAL(min_test_files(const QString &)),
 		 this,SLOT(minTestFiles(const QString &)));
 	
-	connect (tcpThread_,SIGNAL(min_test_modules(const QString &)),
+	connect (eapiClient_,SIGNAL(min_test_modules(const QString &)),
 		 this,SLOT(minTestModules(const QString &)));
 	
-	connect (sock_, SIGNAL(readyRead()), tcpThread_,
+	connect (sock_, SIGNAL(readyRead()), eapiClient_,
 		 SLOT(readFromSock()));
 
-	tcpThread_->run();
-	tcpThread_->min_open();
+	eapiClient_->init();
+	eapiClient_->min_open();
 
 	return;
 }
@@ -433,7 +433,7 @@ void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
     tmp->groupid_ = groupid;
     exeRequest_.append(tmp);
     if (remote_)
-	    tcpThread_->min_start_case (moduleid,caseid,0);
+	    eapiClient_->min_start_case (moduleid,caseid,0);
     else
 	    obj_->min_start_case (moduleid,caseid,0);
 }
@@ -441,7 +441,7 @@ void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
 void Min::RemoteControll::minClose()
 { 
     if (remote_)
-	    tcpThread_->min_close ();
+	    eapiClient_->min_close ();
     else
 	    obj_->min_close(); 
 

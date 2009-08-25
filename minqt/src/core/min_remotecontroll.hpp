@@ -34,7 +34,7 @@
 // Min includes
 #include "min_object.h"
 #include "min_singleton.hpp"
-#include "min_sockthread.hpp"
+#include "min_eapi_client.hpp"
 
 #define MIN_SERVICE_NAME     "org.maemo.MIN"
 #define MIN_SERVICE_OBJECT_PATH "/Min"
@@ -255,7 +255,7 @@ namespace Min
         QList<ExeRequestData*> exeRequest_;
 
         QTcpSocket *sock_;
-        SocketThread *tcpThread_;
+        EapiClient *eapiClient_;
 	/** Flag stating wether we are talking to remote machine, or dbus
             on  localhost */
 	bool remote_;
