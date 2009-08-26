@@ -344,10 +344,13 @@ int ts_run_method (MinItemParser * item)
                 retval = -1;
         }
 
+      EXIT:
+
         /*
          * Cleanup 
          */
-        DELETE (callname);
+	if (callname != INITPTR)
+		DELETE (callname);
         it = dl_list_head (l);
         while (it != DLListNULLIterator) {
                 free (dl_list_data (it));
@@ -355,7 +358,6 @@ int ts_run_method (MinItemParser * item)
                 it = dl_list_head (l);
         }
         dl_list_free (&l);
-      EXIT:
         return retval;
 }
 /* ------------------------------------------------------------------------- */

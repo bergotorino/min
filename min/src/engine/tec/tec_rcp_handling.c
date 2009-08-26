@@ -354,6 +354,10 @@ LOCAL int extif_msg_handle_command (MinItemParser * extif_message)
                 break;
         }
 EXIT:
+        DELETE (srcaddr);
+        DELETE (destaddr);
+        DELETE (token);
+
         return retval;
 }
 /* ------------------------------------------------------------------------- */
@@ -379,6 +383,7 @@ LOCAL int handle_remote_sendreceive (MinItemParser * extif_message, int dev_id)
         retval = split_string_eq (data, &data_name, &data_value);
         if (retval != 0) {
                 MIN_WARN ("Faulty message format");
+		DELETE (data);
                 return -1;
         }
 
@@ -421,6 +426,10 @@ LOCAL int handle_remote_sendreceive (MinItemParser * extif_message, int dev_id)
 		dl_list_remove_it(work_data_item);
         }
         pthread_mutex_unlock (&tec_mutex_);
+	DELETE (data);
+	DELETE (data_value);
+	DELETE (data_name);
+
         return 0;
 }
 /* ------------------------------------------------------------------------- */
@@ -528,6 +537,7 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
 #else
         ec_add_module (module, conf_list, 0, 0);
 #endif
+	DELETE (temp_string);
         /*wait for module to return testcases */
 MODULE_PRESENT:
         while (cont_flag == 0) {
@@ -644,6 +654,9 @@ MODULE_PRESENT:
         }
         ok_to_break = ESFalse;
         send_to_master (caseid, "remote run started");
+        DELETE (module);
+        DELETE (casefile);
+	DELETE (casetitle);
         return 0;
 
       FAULT:
@@ -654,6 +667,7 @@ MODULE_PRESENT:
         DELETE (module);
         DELETE (message);
         DELETE (casefile);
+	DELETE (casetitle);
         return 0;
 }
 /* ------------------------------------------------------------------------- */
@@ -1289,6 +1303,8 @@ int ec_msg_ms_handler (MsgBuffer * message)
                                                     (message->message_),
                                                     param2, message->sender_);
                         DELETE (extifmessage);
+			DELETE (param1);
+			DELETE (param2);
                         return 0;
                         break;
                 case EKeywordRelease:

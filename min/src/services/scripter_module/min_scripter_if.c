@@ -1561,8 +1561,10 @@ int testclass_create (filename_t dllName, char *className)
                 SCRIPTER_RTERR ("Cannot create Scripted Test Process!");
                 MIN_ERROR ("Cannot create Scripted Test Process!");
         }
-        DELETE (dllpath);
+
       EXIT:
+        DELETE (dllpath);
+
         return retval;
 }
 /* ------------------------------------------------------------------------- */
@@ -2828,6 +2830,13 @@ int test_remote_exe (const char *slave_name, MinItemParser * mip)
                 mq_send_message (scripter_mod.mqid, &msg);
         }
       EXIT:
+	if (kw != INITPTR)
+		DELETE (kw);
+	if (token != INITPTR)
+		DELETE (token);
+	if (token2 != INITPTR)
+		DELETE (token);
+
         return retval;
 }
 /* ------------------------------------------------------------------------- */
@@ -3061,6 +3070,14 @@ int test_interference(MinItemParser* args)
                 dl_list_remove_it(work_inter);
                 DELETE(handle);
         }
+
+        if (command != INITPTR)
+		DELETE (command);
+        if (name != INITPTR)
+		DELETE (name);
+        if (typename != INITPTR)
+		DELETE (typename);
+
         return 0;
 }
 /* ------------------------------------------------------------------------- */

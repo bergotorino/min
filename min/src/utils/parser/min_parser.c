@@ -168,8 +168,9 @@ LOCAL MinSectionParser *mp_next_section_file (MinParser * sp,
  *  - EFAULT: sp->offset bigger than section length
  */
 LOCAL MinSectionParser *mp_next_section_memory (MinParser * sp,
-                                           const TSChar * start_tag,
-                                           const TSChar * end_tag, int seeked)
+						const TSChar * start_tag,
+						const TSChar * end_tag, 
+						int seeked)
 {
         MinSectionParser *section = INITPTR;
         TSChar         *whole_section = INITPTR;
@@ -338,6 +339,8 @@ LOCAL MinSectionParser *mp_next_section_memory (MinParser * sp,
                 mmp_set_data (section, whole_section, start_pos, length);
         }
       EXIT:
+	if (whole_section != INITPTR)
+		DELETE (whole_section);
         return section;
 }
 

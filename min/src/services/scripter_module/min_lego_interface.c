@@ -560,6 +560,11 @@ void mli_create (MinSectionParser * msp)
         }
         if (token != INITPTR)
                 DELETE (token);
+        if (loop_param != INITPTR)
+		DELETE (loop_param);
+        if (if_condition != INITPTR)
+		DELETE (if_condition);
+
         /* 3) Add End element */
         tmp = mli_create_end ();
         last->next_ = tmp;

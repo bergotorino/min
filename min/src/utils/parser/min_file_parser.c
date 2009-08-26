@@ -129,10 +129,12 @@ LOCAL TSBool mfp_read_line (MinFileParser * sfp, TSChar ** line_buffer,
 
         if (sfp == INITPTR) {
                 errno = EINVAL;
+                tx_destroy (&buf);
                 return retval;
         }
         if (eol_buffer == INITPTR) {
                 errno = EINVAL;
+                tx_destroy (&buf);
                 return retval;
         }
 
@@ -525,7 +527,7 @@ LOCAL void mfp_push_file_to_stack (MinFileParser * sfp,
 MinFileParser *mfp_create (FILE * file, TUnicode is_unicode,
                             TCommentType comment_type)
 {
-        MinFileParser *tmp = INITPTR;
+        MinFileParser  *tmp = INITPTR;
         TSChar          path[4096];
         TSChar          buf[64];
 	ssize_t         rval;
@@ -561,6 +563,7 @@ MinFileParser *mfp_create (FILE * file, TUnicode is_unicode,
         sprintf (buf, "/proc/self/fd/%d", fileno (file));
         rval = readlink (buf, &path[0], 4095);
 	if (rval < 0) {
+		DELETE (tmp);
 		return NULL;
 	}
 

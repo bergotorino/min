@@ -591,6 +591,8 @@ LOCAL int ec_start_module_temp (DLListIterator work_case_item)
         temp_mod_pid = ec_start_tmc (temporary_module_item);
         if (temp_mod_pid == -1) {
                 MIN_WARN ("Failed to create module");
+		dl_list_free (&work_cases_list);
+		dl_list_free (&cfgs_work_list);
                 return -1;
 
         }
@@ -1899,7 +1901,7 @@ LOCAL int ec_init_module_data (DLListItem * work_module_item)
  */
 LOCAL int ec_read_module_section (MinParser * inifile)
 {
-        test_module_info_s      *module         = INITPTR;
+        test_module_info_s     *module     = INITPTR;
         DLListIterator          module_item = DLListNULLIterator;
         MinSectionParser       *module_def = INITPTR;
         MinItemParser          *line_item; 
@@ -1929,6 +1931,7 @@ LOCAL int ec_read_module_section (MinParser * inifile)
 
                 if (bin_path == INITPTR) {
                         MIN_WARN ("Could not read module definition");
+			mip_destroy (&line_time);
                         break;
                 }
                 /* make dummy list of cfgs for now */
@@ -1942,6 +1945,7 @@ LOCAL int ec_read_module_section (MinParser * inifile)
                 if (module_item == DLListNULLIterator) {
                         MIN_WARN ("Could not insert %s into list",
                                    bin_path);
+			DELETE (module);
                         break;
                 }
 
@@ -1968,6 +1972,7 @@ LOCAL int ec_read_module_section (MinParser * inifile)
 
                 } while (bin_path != INITPTR);;
 
+		mip_destroy(&line_item);
                 mmp_destroy (&module_def);
                 it++;
 
@@ -2071,6 +2076,8 @@ LOCAL int ec_read_module_confdir (int op_mode)
 #ifndef MIN_EXTIF
 			ec_read_slaves_section (modfile);
 #endif
+			mp_destroy (&modfile);
+
                 }
                 dirent = readdir (dir);
         }
@@ -2192,7 +2199,7 @@ LOCAL int ec_read_conf (MinParser * inifile, int operation_mode)
                         }
                 }
         next_item:
-                mip_destroy(&line_item);
+                mip_destroy (&line_item);
                 line_item = mmp_get_next_item_line(engine_def);
                 DELETE(search_path);
                 mip_get_string(line_item,
@@ -2201,6 +2208,7 @@ LOCAL int ec_read_conf (MinParser * inifile, int operation_mode)
                 
                 
         }
+	mip_destroy (&line_item);
         if (bin_path != INITPTR) {
                 DELETE (bin_path);
         }
@@ -3133,7 +3141,10 @@ int ec_read_settings (char *engine_ini)
         dir[strlen (engine_ini) - strlen (fname) - 1] = '\0';
         printf (" read : %s | %s \n", dir, fname);
         passed_config = mp_create (dir, fname, ENoComments);
+	DELETE (dir);
         ec_read_conf (passed_config, 0);
+	mp_destroy (&passed_config);
+
         /*in case settings shared memory segment exists already, destroy it */
         sm_destroy (ec_settings.sh_mem_id_);
         /*now send new settings */

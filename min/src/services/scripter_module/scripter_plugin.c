@@ -186,6 +186,9 @@ LOCAL int check_expect_line (MinItemParser * line, DLList * varnames,
 				       "Expecting undeclared variable");
                 retval = -1;
         }
+
+	DELETE (varname);
+
         return retval;
 }
 /* ------------------------------------------------------------------------- */
@@ -498,7 +501,6 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
         if (get_cases == NULL) {
                 SCRIPTER_SYNTAX_ERROR_ARG ("run",
 					   "get_cases() unresolved", dlerror);
-                dlclose (dll_handle);
                 goto EXIT;
         }
 
@@ -508,7 +510,6 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
                 SCRIPTER_SYNTAX_ERROR_ARG ("run", "Failed to get test "
 					   "cases from module",
 					   lib_name);
-                dlclose (dll_handle);
                 goto EXIT;
         }
         if (case_title_given == ESFalse) {
@@ -542,6 +543,7 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
                 }
         }
       EXIT:
+	if (dll_handle) dlclose (dll_handle);
         DELETE (f_path);
         DELETE (lib_name);
         DELETE (case_title);
@@ -611,15 +613,18 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number,
         result = mip_get_next_string (line, &opt_msec);
         if (result == 0) {
                 if (strcmp (opt_msec, "msec") == 0) {
-                        return 0;
+                        result = 0;
                 } else {
                         SCRIPTER_SYNTAX_ERROR ("loop",
 					       "wrong keyword in loop "
 					       "statement");
-                        return (-1);
+                        result = -1;
                 }
         }
-        return 0;
+
+	DELETE (opt_msec);
+
+        return result;
 }
 /*------------------------------------------------------------------------- */
 /** Checks validity of line with "allocate" keyword
@@ -1182,12 +1187,13 @@ EXIT:
 TSBool validate_define (MinSectionParser * define)
 {
         TSBool          retval = ESTrue;
-        MinItemParser *line = INITPTR;
+        MinItemParser  *line = INITPTR;
         char           *str1 = INITPTR;
         char           *str2 = INITPTR;
         int             pom = 0;
         unsigned int    line_number = 1;
 	char *tc_title = "Define Section";
+
         if (define == INITPTR) {
                 retval = ESFalse;
                 goto EXIT;
@@ -1224,6 +1230,7 @@ TSBool validate_define (MinSectionParser * define)
 					       "definition value was expected");
                         retval = ESFalse;
                         mip_destroy (&line);
+			DELETE (str1);
                         goto EXIT;
                 }
 
@@ -1933,12 +1940,14 @@ char           *validate_test_case (MinSectionParser * testcase)
 
                 case EDLLTypeClass:
                         if (strstr (library->DLL_name_, ".so") == NULL) {
+				if (libpath) free (libpath);
                                 libpath =
                                     NEW2 (char,
                                           strlen (library->DLL_name_) + 4);
                                 sprintf (libpath, "%s.so",
                                          library->DLL_name_);
                         } else {
+				if (libpath) free (libpath);
                                 libpath =
                                     NEW2 (char,
                                           strlen (library->DLL_name_) + 1);
@@ -1967,6 +1976,8 @@ char           *validate_test_case (MinSectionParser * testcase)
 						"in Test Library",
 						dlerror ());
 				errors ++;
+				DELETE (test_class->classname_);
+				DELETE (test_class);
                                 goto EXIT_VALIDATE;
                         }
                         test_class->runtc_ =
@@ -1976,6 +1987,8 @@ char           *validate_test_case (MinSectionParser * testcase)
 						"in Test Library",
 						dlerror ());
 				errors ++;
+				DELETE (test_class->classname_);
+				DELETE (test_class);
                                 goto EXIT_VALIDATE;
                         }
                         dl_list_add (testclasses, (void *)test_class);

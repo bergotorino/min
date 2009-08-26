@@ -367,6 +367,7 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 	etc = get_executed_tcase_with_runid (testrunid);
 	if (etc == INITPTR) {
 		fprintf (stderr, "No test found with run id %ld", testrunid);
+		tx_destroy (&txt);
 		return;
 	}
 	if (etc->status_ != TCASE_STATUS_ONGOING) {
