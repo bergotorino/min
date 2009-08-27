@@ -81,7 +81,6 @@ void Min::RemoteControll::handleSockError(QAbstractSocket::SocketError socketErr
 void Min::RemoteControll::handleSockConnected()
 {
 	qDebug ("Socket connected succesfully");
-
 	eapiClient_ = new EapiClient (sock_, this);
 	connect (eapiClient_,SIGNAL(min_case_msg(int, const QString &)),
 		 this,SLOT(minCaseMsg(int, const QString &)));
@@ -93,7 +92,6 @@ void Min::RemoteControll::handleSockConnected()
 					     int, int)),
 		 this,SLOT(minCaseResult(int, int, const QString &,
 					 int, int)));
-	
 	connect (eapiClient_,SIGNAL(min_case_resumed(int)),
 		 this,SLOT(minCaseResumed(int)));
 	
@@ -117,12 +115,17 @@ void Min::RemoteControll::handleSockConnected()
 	
 	connect (eapiClient_,SIGNAL(min_test_modules(const QString &)),
 		 this,SLOT(minTestModules(const QString &)));
-	
+
+	connect (eapiClient_,SIGNAL(min_error_report(const QString &)),
+		 this,SLOT(minErrorReport(const QString &)));
+
 	connect (sock_, SIGNAL(readyRead()), eapiClient_,
 		 SLOT(readFromSock()));
 
 	eapiClient_->init();
 	eapiClient_->min_open();
+	eapiClient_->min_query_test_files();
+	eapiClient_->min_query_test_modules();
 
 	return;
 }
@@ -207,13 +210,11 @@ void Min::RemoteControll::open(const QString &address)
 		this, SLOT(handleSockConnected()));
 	connect(sock_, SIGNAL(error(QAbstractSocket::SocketError)),
 		this, SLOT(handleSockError(QAbstractSocket::SocketError)));
-	
+
 	sock_->abort();
-	sock_->connectToHost ("10.120.200.94", MIN_EAPI_LISTEN_PORT);
+	sock_->connectToHost (address, MIN_EAPI_LISTEN_PORT);
 
-	// etc
 
-	
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseMsg(int testrunid,
@@ -368,60 +369,111 @@ void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
 void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
                     const QString &casetitle)
 {
-    qDebug("Min::RemoteControll::minNewTestCase %d %d %s\n",
-	   moduleid,caseid,casetitle.toStdString().c_str());
-    Min::Database &db = Min::Database::getInstance();
-    db.insertTestCase(db.getModuleDbId(1,moduleid),caseid,casetitle,"");
-
-    // Display stuff on status bar
-    Min::StatusBar::update("New test case: "+casetitle,3000);
+	qDebug("Min::RemoteControll::minNewTestCase %d %d %s\n",
+	       moduleid,caseid,casetitle.toStdString().c_str());
+	Min::Database &db = Min::Database::getInstance();
+	db.insertTestCase(db.getModuleDbId(1,moduleid),caseid,casetitle,"");
+	
+	// Display stuff on status bar
+	Min::StatusBar::update("New test case: "+casetitle,3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNoModule(const QString &modulename)
 {
-    qDebug("Min::RemoteControll::minNoModule\n");
+	qDebug("Min::RemoteControll::minNoModule\n");
 
-    // Display stuff on status bar
-    Min::StatusBar::update("Unable to load module: "+modulename,3000);
+	// Display stuff on status bar
+	Min::StatusBar::update("Unable to load module: "+modulename,3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minTestFiles(const QString &files)
 {
-    qDebug("Min::RemoteControll::minTestFiles %s\n",
-            files.toStdString().c_str());
+	qDebug("Min::RemoteControll::minTestFiles %s\n",
+	       files.toStdString().c_str());
+	
+	Min::Database &db = Min::Database::getInstance();
+	db.insertTestCaseFile (files);
+	
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minTestModules(const QString &modules)
 {
-    qDebug("Min::RemoteControll::minTestModules %s\n",
-            modules.toStdString().c_str());
+	qDebug("Min::RemoteControll::minTestModules %s\n",
+	       modules.toStdString().c_str());
+	Min::Database &db = Min::Database::getInstance();
+	db.insertTestCaseFile (modules);
 }
 // -----------------------------------------------------------------------------
+void Min::RemoteControll::minErrorReport(const QString &error)
+{
+
+	Min::StatusBar::update("Error: "+error,3000);
+}
+
+// -----------------------------------------------------------------------------
 void Min::RemoteControll::minAbortCase(long testrunid)
-{ obj_->min_abort_case (testrunid); }
+{ 
+	if (remote_)
+		eapiClient_->min_abort_case (testrunid);
+	else
+		obj_->min_abort_case (testrunid); 
+}
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minAddTestCaseFile(uint moduleid,
                                             const QString &testcasefile)
-{ obj_->min_add_test_case_file (moduleid, testcasefile); }
+{ 
+	if (remote_)
+		eapiClient_->min_add_test_case_file (moduleid, testcasefile);
+	else
+		obj_->min_add_test_case_file (moduleid, testcasefile); 
+
+}
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minAddTestModule(const QString &modulepath)
-{ obj_->min_add_test_module (modulepath); }
+{ 
+	if (remote_)
+		eapiClient_->min_add_test_module (modulepath);
+	else
+		obj_->min_add_test_module (modulepath); 
+}
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minFatalError(const QString &what,
                                         const QString &errorstring)
-{ obj_->min_fatal_error (what,errorstring); }
+{ 
+	if (remote_)
+		eapiClient_->min_fatal_error (what, errorstring);
+	else
+		obj_->min_fatal_error (what,errorstring); 
+
+}
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minPauseCase(long testrunid)
-{ obj_->min_pause_case (testrunid); }
+{ 
+	if (remote_)
+		eapiClient_->min_pause_case (testrunid);
+	else
+		obj_->min_pause_case (testrunid); 
+
+}
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minQueryTestFiles()
-{ obj_->min_query_test_files (); }
+{ 
+	if (remote_)
+		eapiClient_->min_query_test_files ();
+	else
+		obj_->min_query_test_files (); 
+}
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minQueryTestModules()
 { obj_->min_query_test_modules (); }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minResumeCase(long testrunid)
-{ obj_->min_resume_case (testrunid); }
+{ 
+	if (remote_)
+		eapiClient_->min_resume_case (testrunid);
+	else
+		obj_->min_resume_case (testrunid); 
+}
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minStartCase(uint moduleid, uint caseid, uint groupid)
 {

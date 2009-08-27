@@ -79,13 +79,14 @@ namespace Min
 
         /** Removes selected test case files from list */
         void removeTestCaseFile();
+
     private:
         /** Displays "select file" dialog.
          *  @param title is the title of the dialog
          *  @param filter is the filter of files to be displayed
          */
         QString displayFileOpenDialog(const QString &title,
-                                    const QString &filter);
+				      const QString &filter);
 
         /** Lays out stuff on the dialog box */
         QGridLayout *layout_;

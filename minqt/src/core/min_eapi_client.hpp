@@ -64,7 +64,8 @@ namespace Min
 					    const QString &testcasefile);
 		void min_add_test_module(const QString &modulepath);
 		void min_close();
-		void min_fatal_error();
+		void min_fatal_error(const QString &what, 
+				     const QString &errorstring);
 		void min_open();
 		void min_pause_case(int testrunid);
 		void min_query_test_files();
@@ -92,7 +93,7 @@ namespace Min
 		void min_no_module(const QString &modulename);
 		void min_test_files(const QString &files);
 		void min_test_modules(const QString &modules);
-		void dataToSend();					     
+		void min_error_report(const QString &error);
 
 	public slots:
 			

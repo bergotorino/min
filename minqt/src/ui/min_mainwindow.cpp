@@ -63,10 +63,13 @@ Min::MainWindow::MainWindow()
     setupMenuBar();
     setupToolBar();
 
+
+
     // Shortcuts
     QShortcut *menuBarShortcut       = new QShortcut(QKeySequence("Ctrl+M"),this);
     QShortcut *runCasesShortcut      = new QShortcut(QKeySequence("Ctrl+S"),this);
-    QShortcut *addTestModuleShortcut = new QShortcut(QKeySequence("Ctrl+O"),this);
+    QShortcut *addTestModuleShortcut = 
+	    new QShortcut(QKeySequence("Ctrl+O"),this);
     QShortcut *pauseTestModuleShortcut = new QShortcut(QKeySequence("Ctrl+P"),this);
     QShortcut *resumeTestModuleShortcut = new QShortcut(QKeySequence("Ctrl+R"),this);
     QShortcut *abortTestModuleShortcut = new QShortcut(QKeySequence("Ctrl+C"),this);
@@ -81,7 +84,7 @@ Min::MainWindow::MainWindow()
     connect (runCasesShortcut,SIGNAL(activated()),
              this,SLOT(handleRunTestCase()));
     connect (addTestModuleShortcut,SIGNAL(activated()),
-             this,SLOT(displayAddModuleDialog()));
+	     this,SLOT(displayAddModuleDialog()));
     connect (pauseTestModuleShortcut,SIGNAL(activated()),
              this,SLOT(handlePauseTestCase()));
     connect (resumeTestModuleShortcut,SIGNAL(activated()),
@@ -108,10 +111,14 @@ void Min::MainWindow::setupMenuBar()
 void Min::MainWindow::setupToolBar()
 {
     toolBar_ = addToolBar("Min actions");
+    Min::RemoteControll &rc = Min::RemoteControll::getInstance();
+
     QAction *runaction = toolBar_->addAction(QIcon(":icons/agt_runit.png"),
 					     "Run Selected Test Cases");
-    QAction *addmoduleaction = toolBar_->addAction(QIcon(":icons/db_add.png"),
-                                            "Add Test Module");
+    QAction *addmoduleaction = NULL;
+    if (!rc.isRemote())
+	    addmoduleaction = toolBar_->addAction(QIcon(":icons/db_add.png"),
+						   "Add Test Module");
     QAction *pausecaseaction = toolBar_->addAction(QIcon(":icons/agt_pause_queue.png"), "Pause Test Case");
     QAction *resumecaseaction = toolBar_->addAction(QIcon(":icons/agt_resume.png"), "Resume Test Case");
     QAction *abortcaseaction = toolBar_->addAction(QIcon(":icons/agt_stop1.png"), "Abort Test Case");
@@ -119,8 +126,9 @@ void Min::MainWindow::setupToolBar()
     // Connect buttons with signals
     connect (runaction,SIGNAL(triggered(bool)),
             this,SLOT(handleRunTestCase()));
-    connect (addmoduleaction,SIGNAL(triggered(bool)),
-            this,SLOT(displayAddModuleDialog()));
+    if (!rc.isRemote())
+	    connect (addmoduleaction,SIGNAL(triggered(bool)),
+		     this,SLOT(displayAddModuleDialog()));
     connect (pausecaseaction,SIGNAL(triggered(bool)),
             this,SLOT(handlePauseTestCase()));
     connect (resumecaseaction,SIGNAL(triggered(bool)),

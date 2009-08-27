@@ -82,6 +82,18 @@ namespace Min
                                     unsigned int test_case_id,
                                     const QString &test_case_title,
 				                    const QString &test_case_description);
+        /**
+         * test case filename to database
+         * @param case_file_name - case file name
+         * @ret test case ID in database
+         */
+         unsigned int insertTestCaseFile(const QString &case_file_name);
+        /**
+         * test module filename to database
+         * @param mod_file_name - module file name
+         * @ret test case ID in database
+         */
+         unsigned int insertTestModuleFile(const QString &mod_file_name);
 
         /**
          * test run  (an "instance" of test case) insertion to database
@@ -194,6 +206,12 @@ namespace Min
 
         /** Gets module names from database for UI */
         QStringList getModules(unsigned int device_dbid);
+
+        /** Gets all test case file names from database */
+        QStringList getTestCaseFiles();
+
+        /** Gets all test module file names from database */
+        QStringList getTestModuleFiles();
 
         /** Gets test case names from database for UI */
         QStringList getTestCases(unsigned int module_dbid = 1);

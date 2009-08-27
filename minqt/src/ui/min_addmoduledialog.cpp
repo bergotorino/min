@@ -25,6 +25,7 @@
 
 // Module include
 #include "min_addmoduledialog.hpp"
+#include "min_database.hpp"
 
 // System includes
 #include <QGridLayout>
@@ -81,6 +82,7 @@ Min::AddModuleDialog::AddModuleDialog(QWidget *parent)
             this,SLOT(accept()));
     connect (koButton_,SIGNAL(clicked(bool)),
             this,SLOT(reject()));
+
 }
 // -----------------------------------------------------------------------------
 Min::AddModuleDialog::~AddModuleDialog()
@@ -98,7 +100,11 @@ QString Min::AddModuleDialog::displayFileOpenDialog(const QString &title,
 void Min::AddModuleDialog::selectModule()
 {
     QString moduleName = displayFileOpenDialog("Load test module",
-                                                "Modules (*.so)");
+						   "Modules (*.so)");
+    //Min::Database &db = Min::Database::getInstance();
+
+    //QString moduleName = db.getTestModuleFiles().join('\0');
+
     if (moduleName=="") return;
     moduleEdit_->setText(moduleName);
 }
@@ -106,7 +112,10 @@ void Min::AddModuleDialog::selectModule()
 void Min::AddModuleDialog::addTestCaseFile()
 {
     QString testCaseFile = displayFileOpenDialog("Add test case file",
-                                                "Test case files (*.cfg *.lua)");
+						 "Test case files (*.cfg *.lua)");
+    //Min::Database &db = Min::Database::getInstance();
+    //QString testCaseFile = db.getTestCaseFiles().join('\0');
+
     if (testCaseFile=="") return;
     testCaseFiles_ << testCaseFile;
     tcModel_.setStringList(testCaseFiles_);

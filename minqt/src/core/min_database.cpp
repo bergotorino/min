@@ -95,6 +95,38 @@ unsigned int Min::Database::insertModule(unsigned int device_dbid,
     return retval;
 };
 // ----------------------------------------------------------------------------
+unsigned int Min::Database::insertTestCaseFile(const QString &case_file_name)
+{
+    QSqlQuery query;
+
+    // Insert test case file
+    query.prepare("INSERT INTO test_case_file(test_case_file_name) VALUES (:casefile);");
+    query.bindValue(QString(":casefile"), QVariant(case_file_name));
+    unsigned int retval = 0;
+    if (query.exec()) retval = query.lastInsertId().toUInt();
+
+    query.finish();
+
+    // Return id of last insert
+    return retval;
+};
+// ----------------------------------------------------------------------------
+unsigned int Min::Database::insertTestModuleFile(const QString &case_file_name)
+{
+    QSqlQuery query;
+
+    // Insert test case file
+    query.prepare("INSERT INTO test_case_file(test_case_file_name) VALUES (:casefile);");
+    query.bindValue(QString(":casefile"), QVariant(case_file_name));
+    unsigned int retval = 0;
+    if (query.exec()) retval = query.lastInsertId().toUInt();
+
+    query.finish();
+
+    // Return id of last insert
+    return retval;
+};
+// ----------------------------------------------------------------------------
 unsigned int Min::Database::insertTestCase(unsigned int module_dbid,
 					   unsigned int test_case_id,
 					   const QString &test_case_title,
@@ -409,6 +441,34 @@ QStringList Min::Database::getModules(unsigned int device_dbid)
     return retval;
 };
 // ----------------------------------------------------------------------------
+QStringList Min::Database::getTestCaseFiles()
+{
+    QSqlQuery query;
+    QStringList retval;
+    query.prepare("SELECT test_case_file_name FROM test_case_file");
+    if(query.exec()){
+        while(query.next()) {
+            retval.append(query.value(0).toString());
+        }
+    }
+    query.finish();
+    return retval;
+};
+// ----------------------------------------------------------------------------
+QStringList Min::Database::getTestModuleFiles()
+{
+    QSqlQuery query;
+    QStringList retval;
+    query.prepare("SELECT test_module_file_name FROM test_module_file");
+    if(query.exec()){
+        while(query.next()) {
+            retval.append(query.value(0).toString());
+        }
+    }
+    query.finish();
+    return retval;
+};
+// ----------------------------------------------------------------------------
 QStringList Min::Database::getTestCases(unsigned int module_dbid)
 {
     QSqlQuery query;
@@ -647,6 +707,8 @@ bool Min::Database::initDatabase()
         query.exec("CREATE TABLE test_case (id INTEGER PRIMARY KEY, test_case_id int, module_id int, test_case_title varchar, test_case_description varchar);");
         query.exec("CREATE TABLE test_run (id INTEGER PRIMARY KEY, test_run_pid int, test_case_id int, group_id int, status int, start_time int, end_time int, result int default 2, result_description varchar);");
         query.exec("CREATE TABLE printout (id INTEGER PRIMARY KEY, test_run_id int, content varchar);");
+	query.exec("CREATE TABLE test_case_file (test_case_file_name varchar);");
+	query.exec("CREATE TABLE test_module_file (test_module_file_name varchar);");
 
         /* Demo data */
 /*        

@@ -77,6 +77,11 @@ namespace Min
          */
         bool isValid() const;
 
+        /** Tells wether we are connected to remote host
+         *  @return true if initialization was success, false otherwise
+         */
+	    bool isRemote() const { return remote_; };
+
     public:
 
         /**@{ Functionalities of MinObject */
@@ -219,6 +224,7 @@ namespace Min
         /** Passes list of test modules available in Min */
         void minTestModules(const QString &modules);
         /**@}*/
+        void minErrorReport(const QString &error);
         /** For printing socket errors */
 	void handleSockError(QAbstractSocket::SocketError socketError);
         /** Handler for signal connected */

@@ -83,10 +83,10 @@ void Min::EapiClient::readFromSock()
 		return;
 	}
 	/* read message len */
-	char len_buff [2];
-	sock->read (len_buff, 2);
+	unsigned char len_buff [2];
+	sock->read ((char *)len_buff, 2);
 	qint64 msg_len = len_buff [0] << 8 | len_buff [1];
-	
+
 	/* read the rest of message */
 	QByteArray tmp, msg = sock->read (msg_len);
 	tmp = msg.toHex();
@@ -94,7 +94,7 @@ void Min::EapiClient::readFromSock()
 	
 	/* act according to message type */
 	switch (msg_type) {
-		uint module_id, case_id, tid;
+		uint module_id, case_id, tid, len;
 		int run_id, result, starttime, endtime;
 		char *module_name, *case_title, *desc, *printout;
 	case MIN_NEW_MOD_IND:
@@ -131,6 +131,16 @@ void Min::EapiClient::readFromSock()
 		msg.remove(0, 4);
 		emit (min_case_started (module_id, case_id, run_id));
 		break;
+	case MIN_CASE_PAUSED_IND:
+		qDebug ("EAPI: Case Paused indication");
+		run_id =  read32 (&msg);
+		emit (min_case_paused (run_id));
+		break;
+	case MIN_CASE_RESUMED_IND:
+		qDebug ("EAPI: Case Resumed indication");
+		run_id =  read32 (&msg);
+		emit (min_case_resumed (run_id));
+		break;
 	case MIN_CASE_RESULT_IND:
 		qDebug ("EAPI: Case Result indication");
 		run_id =  read32 (&msg);
@@ -164,6 +174,33 @@ void Min::EapiClient::readFromSock()
 		msg.remove(0, 4);
 		qDebug ("transaction id = %u", tid);
 		break;
+	case MIN_MODULE_LIST_IND:
+		qDebug ("EAPI: Module List Indication");
+		
+		while (!msg.isEmpty()) {
+			len = read32 (&msg);
+			msg.remove (0, 4);
+			tmp = msg.mid(0, len);
+			emit (min_test_modules(tmp.data()));
+			msg.remove (0, len);
+		} 
+		
+		break;
+	case MIN_FILE_LIST_IND:
+		qDebug ("EAPI: File List Indication");
+		while (!msg.isEmpty()) {
+			len = read32 (&msg);
+			msg.remove (0, 4);
+			tmp = msg.mid(0, len);
+			emit (min_test_files(tmp.data()));
+			msg.remove (0, len);
+		} 
+		break;
+	case MIN_ERROR_REPORT_IND:
+		qDebug ("EAPI: Error Report Indication");
+		printout = msg.data();
+		emit (min_error_report (printout));
+		break;
 	default:
 		qDebug ("Unknow EAPI message type %02x", msg_type);
 		break;
@@ -194,17 +231,59 @@ void Min::EapiClient::init()
 // -----------------------------------------------------------------------------
 void Min::EapiClient::min_abort_case(int testrunid)
 {
+	QByteArray *msg = new QByteArray();
+	unsigned msg_len = 4 + 4;
+	char *p;
+
+	msg->resize (MIN_HDR_LEN + msg_len);
+	p = msg->data();
+	eapi_build_header (p, MIN_ABORT_CASE_REQ, msg_len);
+	p += MIN_HDR_LEN;
+	write32 (p, 0); /* tid */
+	p += 4;
+	write32 (p, testrunid);
+
+	writeQueue_.append(msg);
+	sendToSock();
 	return;
 }
 // -----------------------------------------------------------------------------
 void Min::EapiClient::min_add_test_case_file(uint moduleid, 
-			    const QString &testcasefile)
+					     const QString &testcasefile)
 {
+	QByteArray *msg = new QByteArray();
+	unsigned msg_len = 4 + 4 + testcasefile.size();
+	char *p;
+	
+	msg->resize (MIN_HDR_LEN + msg_len);
+	p = msg->data();
+	eapi_build_header (p, MIN_ADD_CASE_FILE_REQ, msg_len);
+	p += MIN_HDR_LEN;
+	write32 (p, 0); 
+	p += 4;
+	write32 (p, moduleid);
+	msg->insert (MIN_HDR_LEN + 8, testcasefile);
+
+	writeQueue_.append(msg);
+	sendToSock();
 	return;
 }
 // -----------------------------------------------------------------------------
 void Min::EapiClient::min_add_test_module(const QString &modulepath)
 {
+	QByteArray *msg = new QByteArray();
+	unsigned msg_len = 4 + modulepath.size();
+	char *p;
+	
+	msg->resize (MIN_HDR_LEN + msg_len);
+	p = msg->data();
+	eapi_build_header (p, MIN_ADD_MOD_REQ, msg_len);
+	p += MIN_HDR_LEN;
+	write32 (p, 0); 
+	msg->insert (MIN_HDR_LEN + 4, modulepath);
+
+	writeQueue_.append(msg);
+	sendToSock();
 	return;
 }
 // -----------------------------------------------------------------------------
@@ -222,10 +301,29 @@ void Min::EapiClient::min_close()
 
 	writeQueue_.append(msg);
 	sendToSock();
+
 	return;
 }
-void Min::EapiClient::min_fatal_error()
+// -----------------------------------------------------------------------------
+void Min::EapiClient::min_fatal_error(const QString &what, 
+				      const QString &errorstring)
 {
+	QByteArray *msg = new QByteArray();
+	unsigned msg_len = 4 + 4 + what.size() + errorstring.size();
+	char *p;
+
+	msg->resize (MIN_HDR_LEN + msg_len);
+	p = msg->data();
+	eapi_build_header (p, MIN_FATAL_ERR_REQ, msg_len);
+	p += MIN_HDR_LEN;
+	write32 (p, 0); /* tid */
+	p += 4;
+	write32 (p, what.size());
+	msg->insert (MIN_HDR_LEN + 8, what);
+	msg->insert (MIN_HDR_LEN + 8 + what.size(), errorstring);
+
+	writeQueue_.append(msg);
+	sendToSock();
 	return;
 }
 // -----------------------------------------------------------------------------
@@ -238,25 +336,73 @@ void Min::EapiClient::min_open()
 
 	writeQueue_.append(msg);
 	sendToSock();
+
 	return;
 }
 // -----------------------------------------------------------------------------
 void Min::EapiClient::min_pause_case(int testrunid)
 {
+	QByteArray *msg = new QByteArray();
+	unsigned msg_len = 4 + 4;
+	char *p;
+
+	msg->resize (MIN_HDR_LEN + msg_len);
+	p = msg->data();
+	eapi_build_header (p, MIN_PAUSE_CASE_REQ, msg_len);
+	p += MIN_HDR_LEN;
+	write32 (p, 0); /* tid */
+	p += 4;
+	write32 (p, testrunid);
+
+	writeQueue_.append(msg);
+	sendToSock();
+
 	return;
 }
 // -----------------------------------------------------------------------------
 void Min::EapiClient::min_query_test_files()
 {
+	QByteArray *msg = new QByteArray();
+	msg->resize (7);
+	
+	eapi_build_header (msg->data(), MIN_FILE_QUERY_REQ, 4);
+
+	writeQueue_.append(msg);
+	sendToSock();
+
 	return;
 }
 // -----------------------------------------------------------------------------
 void Min::EapiClient::min_query_test_modules()
 {
+	QByteArray *msg = new QByteArray();
+	msg->resize (7);
+	
+	eapi_build_header (msg->data(), MIN_MOD_QUERY_REQ, 4);
+
+	writeQueue_.append(msg);
+	sendToSock();
+
+
 	return;
 }
+// -----------------------------------------------------------------------------
 void Min::EapiClient::min_resume_case (int testrunid)
 {
+	QByteArray *msg = new QByteArray();
+	unsigned msg_len = 4 + 4;
+	char *p;
+
+	msg->resize (MIN_HDR_LEN + msg_len);
+	p = msg->data();
+	eapi_build_header (p, MIN_RESUME_CASE_REQ, msg_len);
+	p += MIN_HDR_LEN;
+	write32 (p, 0); /* tid */
+	p += 4;
+	write32 (p, testrunid);
+
+	writeQueue_.append(msg);
+	sendToSock();
 	return;
 }
 // -----------------------------------------------------------------------------

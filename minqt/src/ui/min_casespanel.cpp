@@ -83,7 +83,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
 */
     // Main pane
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
-    centralWidget_->addItem(executedTab_,QString("Executed Cases"));
+    centralWidget_->addItem(executedTab_,QString("Test Runs"));
     centralWidget_->addItem(testRunTree_,
 			    QString("Summary"));
 
