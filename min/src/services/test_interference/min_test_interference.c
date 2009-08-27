@@ -147,6 +147,7 @@ LOCAL void     *ti_mem_controller (void *Arg)
         char          **exec_args = NEW2 (char *, 3);
         testInterference *Ainterference = (testInterference *) Arg;
         MIN_TRACE ("-->");
+	exec_args[0] = exec_args[1] = exec_args[2] = NULL;
         if (Ainterference->idle_time_ != 0) {
                 MIN_DEBUG ("enter IDLE/BUSY cycle (%d/%d)",
                            Ainterference->idle_time_,
@@ -216,6 +217,14 @@ LOCAL void     *ti_mem_controller (void *Arg)
                 kill (Ainterference->instance_pid_, SIGKILL);
         }
         DELETE (Ainterference);
+	if (exec_args) {
+		DELETE (exec_args [1]);
+		DELETE (exec_args [2]);
+		DELETE (exec_args);
+	}
+	if (output)
+		fclose (output);
+
         MIN_TRACE ("<--");
         return NULL;            //only to satisfy compiler
 }
@@ -249,6 +258,7 @@ LOCAL void     *ti_io_controller (void *Arg)
                                 break;
                         case (EPaused):
                                 usleep (1000);
+				break;
                         default:
                                 MIN_WARN ("fault in interference status");
                         }
@@ -369,14 +379,22 @@ testInterference *ti_start_interference_timed (TInterferenceType aType,
                         ret = system
                             ("dd if=/dev/zero of=/tmp/workfile count=128 bs=128");
                         exec_args[0] = "/usr/bin/ioload";
-                        exec_args[1] = "/tmp/workfile";
+                        exec_args[1] = NEW2 (char, strlen("/tmp/workfile") + 1);
+			strncpy (exec_args[1], "/tmp/workfile", 
+				 strlen ("/tmp/workfile"));
                         exec_args[2] = NULL;
                         execv (exec_args[0], exec_args);
                         break;
                 }
         }
         MIN_TRACE ("<--");
-
+	if (exec_args) {
+		DELETE (exec_args[1]);
+		DELETE (exec_args[2]);
+		DELETE (exec_args);
+	}
+	if (output)
+		fclose (output);
 
         return interf_controller;
 }

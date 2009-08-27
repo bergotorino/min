@@ -1411,7 +1411,6 @@ LOCAL void scripter_final_verdict (DLList * tp_details, TestCaseResult * tcr)
                                 break;
                         case TP_NC:
                                 MIN_DEBUG ("TP_NC .. unxepected result code");
-                                break;
                                 num_fail++;
                                 break;
                         default:
@@ -1704,7 +1703,7 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
         read_optional_run_params (mip, &stpd->options_);
 
         testlib.test_library_ = tl_open_tc (modulename);
-        strncpy (testlib.fname_, modulename, 255);
+        strncpy (testlib.fname_, modulename, 254);
         testlib.get_cases_fun_ = (ptr2case) dlsym (testlib.test_library_,
                                                    "tm_get_test_cases");
         testlib.run_case_fun_ = (ptr2run) dlsym (testlib.test_library_,
@@ -1772,6 +1771,7 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
                 /* resend buffered, flush message buffer */
                 mq_resend_buffered ();
                 mq_flush_msg_buffer ();
+		DELETE (stpd);
                 /* At the end exit gracefully. */
                 exit (TP_EXIT_SUCCESS);
         } else {
@@ -2107,6 +2107,12 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
 
         scripter_mod.req_events = dl_list_create ();
         scripter_mod.mqid = mq_open_queue ('a');
+	if (scripter_mod.mqid < 0) {
+                retval = -1;
+                SCRIPTER_RTERR("mq_open_queue() failed");
+                goto EXIT;
+	}
+		
         scripter_mod.script_finished = 0;
         scripter_mod.tclass_exec = 0;
         scripter_mod.extif_pending = ESFalse;
@@ -2810,11 +2816,14 @@ int test_remote_exe (const char *slave_name, MinItemParser * mip)
         case EKeywordSendreceive:
                 mip_get_next_string (mip, &token);
                 p = strchr (token, '=');
-                *p = '\0';
-                p++;
-                snprintf (msg.desc_, MaxDescSize, "sendreceive %s=%s",
-                          token, var_value(p));
-
+		if (p) {
+			*p = '\0';
+			p++;
+			snprintf (msg.desc_, MaxDescSize, "sendreceive %s=%s",
+				  token, var_value(p));
+		} else {
+			MIN_WARN ("Sendreceive error");
+		}
                 break;
         default:
                 MIN_WARN ("Unknown keyword [%s]", kw);
@@ -2924,7 +2933,7 @@ int declare_var (char *name, TSBool initialize, char *val)
 
         ScriptVar      *var;
 
-        if ((var = var_find (name)) != INITPTR) {
+        if ((var_find (name)) != INITPTR) {
                 if (initialize == ESFalse) {
                         SCRIPTER_RTERR_ARG ("Variable already declared", name);
                         return -1;

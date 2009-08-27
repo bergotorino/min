@@ -389,10 +389,10 @@ int SetLocalValue (const char *varname, const char *varval)
         
         if (varval != INITPTR && varval != NULL) {
                 var->var_value_ = NEW2 (char, strlen (varval) + 1);
-                strcpy (var->var_value_, varval);
+                STRCPY (var->var_value_, varval, strlen(varval));
         } else {
                 var->var_value_ = NEW2 (char, strlen ("NULL") + 1);
-                strcpy (var->var_value_, "NULL");
+                STRCPY (var->var_value_, "NULL", strlen("NULL"));
         }
 
         return 0;

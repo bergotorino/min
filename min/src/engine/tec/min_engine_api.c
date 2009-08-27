@@ -199,12 +199,14 @@ LOCAL int eapi_start_test_case (unsigned module_id, unsigned case_id,
 	mod_it = tm_find_by_module_id (instantiated_modules, module_id);
 	if (mod_it == INITPTR) {
 		MIN_WARN ("No module by id %d found", module_id);
+		pthread_mutex_unlock (&tec_mutex_);
 		return 1;
 	}
 	module = (test_module_info_s *)dl_list_data (mod_it);
 	case_it = tc_find_by_id (module->test_case_list_, case_id);
 	if (case_it == INITPTR) {
 		MIN_WARN ("No case by id %d found", case_id);
+		pthread_mutex_unlock (&tec_mutex_);
 		return 1;
 	}
 
@@ -448,9 +450,10 @@ LOCAL int eapi_query_test_files(char **filelist)
 			    
                                 addcasefile=ESTrue; /* restore flag value */
 
-			        shell_io = malloc (sizeof(char) *
-				        (strlen ( "which file 2>/dev/null" ) +1) );
-			        strcpy(shell_io, "which file 2>/dev/null");
+			        shell_io = malloc (strlen ("which file"
+							   " 2>/dev/null") + 1);
+			        strncpy(shell_io, "which file 2>/dev/null",
+					strlen("which file 2>/dev/null") + 1);
 			        if ((shell_pipe=popen(shell_io, "r")) != NULL ) {
 			                free(shell_io);
         				shell_io = malloc (sizeof(char) * 1);

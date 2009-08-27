@@ -326,7 +326,7 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
 int main (int argc, char *argv[], char *envp[])
 {
         int             cont_flag, opt_char, oper_mode, exit_flag;
-        int             cli_flag, ip_flag, help_flag, version_flag, info_flag;
+        int             cli_flag, ip_flag, help_flag, version_flag;
 	int 	        slave_mode = 0, master_socket = -1;
         DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
@@ -359,7 +359,7 @@ int main (int argc, char *argv[], char *envp[])
 	slavelist = dl_list_create();
 	work_module_item = DLListNULLIterator;
 	oper_mode = cli_flag = help_flag = version_flag = cont_flag = 0;
-        info_flag = exit_flag = ip_flag = 0;
+        ip_flag = 0;
         
         /* Detect commandline arguments */
 	while (1) {

@@ -388,9 +388,13 @@ LOCAL void interpreter_handle_keyword (TScripterKeyword keyword,
                 /* sendreceive <variable>=<value> */
                 mip_get_next_string (mip, &token);
                 p = strchr (token, '=');
-                *p = '\0';
-                p++;
-                sendreceive_slave_send (token, p);
+		if (p != NULL) {
+			*p = '\0';
+			p++;
+			sendreceive_slave_send (token, p);
+		} else {
+			MIN_WARN ("Sendreceive error");
+		}
                 break;
         case EKeywordExpect:
                 MIN_DEBUG ("EKeywordExpect");

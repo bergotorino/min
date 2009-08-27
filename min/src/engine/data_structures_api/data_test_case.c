@@ -138,7 +138,7 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
                 STRCPY (tc_data->tc_cfg_filename_, tc_cfg_filename,
                         strlen (tc_cfg_filename) + 1);
         } else {
-                tc_data = INITPTR;
+		DELETE (tc_data);
         }
 
         pthread_mutex_unlock (&TC_MUTEX);

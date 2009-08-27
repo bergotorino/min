@@ -123,9 +123,9 @@ ScripterDataItem *scripter_dsa_create (TSChar * DLL_name, TSChar * Class_name,
         }
 
         /* Something went incorrectly and creation failed */
-        if (complete == ESFalse)
-                scripter_data = INITPTR;
-
+        if (complete == ESFalse) {
+                DELETE (scripter_data);
+	}
         return scripter_data;
 }
 /* ------------------------------------------------------------------------- */

@@ -231,7 +231,10 @@ LOCAL MinSectionParser *mp_next_section_memory (MinParser * sp,
                 do {
                         read =
                             fread (buff, sizeof (TSChar), tmpsize, sp->file_);
-
+			if (read == 0) {
+				break;
+			}
+				
                         if (sp->is_unicode_ == EFileUnicode) {
 
                                 /* Not supported yet!! */

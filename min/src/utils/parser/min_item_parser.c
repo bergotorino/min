@@ -172,7 +172,7 @@ int mip_parse_start_and_end_pos (MinItemParser * mip, TSChar * start_tag,
         int             length = 0;
         TSBool          loop = ESFalse;
 
-        if (mip == INITPTR)
+        if (mip == INITPTR || mip == NULL)
                 goto EXIT;
 
         if ((mip->get_methods_indicator_ == ESTrue) &&
@@ -202,7 +202,9 @@ int mip_parse_start_and_end_pos (MinItemParser * mip, TSChar * start_tag,
         while (*start_pos == ' ' && *start_pos != '\0') {
                 start_pos++;
         }
-
+	
+	if (start_pos == NULL)
+		return;
         /*
          * Quotes have special meaning and information between quotes is 
          * handled as a one string. Quotes not included to information. 
@@ -324,7 +326,7 @@ int mip_get_string (MinItemParser * mip, TSChar * tag, TSChar ** string)
                                                          &extra_end_pos);
                         if (retval == 0) {
                                 *string = NEW2 (TSChar, length + 1);
-                                if (string) {
+                                if (*string) {
                                         STRCPY (*string, start_pos, length);
                                         (*string)[length] = '\0';
 
@@ -394,7 +396,7 @@ int mip_get_next_string (MinItemParser * mip, TSChar ** string)
                                 }
 
                                 *string = NEW2 (TSChar, length + 1);
-                                if (string) {
+                                if (*string) {
                                         STRCPY (*string, start_pos, length);
                                         (*string)[length] = '\0';
                                         /* Operation completed, no errors */

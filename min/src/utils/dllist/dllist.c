@@ -489,7 +489,7 @@ DLListIterator dl_list_at (const DLList * list_handle, unsigned int i)
         DLListItem     *current = INITPTR;
         int             k = 0;
         if (list_handle != INITPTR) {
-                if (i < 0 || i >= dl_list_size (list_handle))
+                if (i >= dl_list_size (list_handle))
                         errno = EFAULT;
                 else {
                         k = 0;

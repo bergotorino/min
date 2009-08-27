@@ -526,11 +526,11 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
 	current_slave_fd = -1;
 
         if (strcasecmp (command, "reserve") == 0) {
-		mip_get_next_int (extif_message, &result);
+		retval = mip_get_next_int (extif_message, &result);
 		
-                /*it seems that result was not send, assume success */
                 splithex (srcid, &slave_id, &case_id);
                 slave_entry->slave_id_ = slave_id;
+                /*it seems that result was not send, assume success */
                 if (retval == -1)
                         result = 0;
 		slave_entry->status_ = SLAVE_STAT_RESERVED;

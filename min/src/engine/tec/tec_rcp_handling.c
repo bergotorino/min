@@ -453,7 +453,6 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
         int             i = 0;  /*general purpose loop iterator */
         int             mod_found = 0, conf_found = 0;
         DLListIterator  work_module_item = DLListNULLIterator, it;
-        test_module_info_s *work_module = INITPTR;
         DLListIterator  work_case_item = DLListNULLIterator;
         char           *message;
         int             error_code = 0;
@@ -561,8 +560,6 @@ MODULE_PRESENT:
         /*Now fetch correct testcase */
         work_module_item = dl_list_head (instantiated_modules);
         while (work_module_item != DLListNULLIterator) {
-                work_module =
-                    (test_module_info_s *) dl_list_data (work_module_item);
                 tm_get_module_filename (work_module_item, module_filename);
                 if (strcmp (module_filename, module) == 0)
                         break;
@@ -1140,6 +1137,10 @@ send_to_slave (TMSCommand command, char *slave_name, int tc_id, char *message)
                 }
                 slave_entry_item = dl_list_next (slave_entry_item);
         }
+	if (slave_entry == INITPTR) {
+		MIN_WARN ("Slave  %s not found", slave_name);
+		return;
+	}
         /* scripter keeps tc_id as a combination of slave id and testcase 
          * number (slave number as last 4 digits), test case id needs to 
          * be stripped if given at all. Not used in current implementation, 
@@ -1370,14 +1371,10 @@ int tec_extif_message_received (char *message, int length)
 void
 master_report (int run_id, int execution_result, int test_result, char *desc)
 {
-        DLListIterator  finished_case_item = DLListNULLIterator;
-        DLListIterator  work_module_item = DLListNULLIterator;
         char           *extifmessage;
 
         MIN_DEBUG ("MIN CALLBACK");
         /*let's get module pid from finished case */
-        finished_case_item = dl_list_at (selected_cases, run_id);
-        work_module_item = tc_get_test_module_ptr (finished_case_item);
         extifmessage = NEW2 (char, 30);
         sprintf (extifmessage, "remote run ready result=%d", test_result);
         send_to_master (run_id + 1, extifmessage);

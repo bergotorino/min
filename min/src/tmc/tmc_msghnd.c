@@ -417,7 +417,7 @@ void gu_handle_message (TMC_t * tmc, const MsgBuffer * msg)
         case MSG_RET:
                 globaltcr.result_ = msg->param_;
                 STRCPY (globaltcr.desc_, msg->message_,
-                        MaxTestResultDescription + 1);
+                        MaxTestResultDescription);
 		if (tp_pid (&tmc->tpc_)) {
 			retval = kill (tp_pid (&tmc->tpc_), SIGUSR2);
 			if (retval == -1)

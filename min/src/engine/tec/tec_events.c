@@ -320,11 +320,11 @@ LOCAL min_event_t *add_state_event (minTestEventParam_t * param)
                 return INITPTR;
         }
         e = NEW (min_event_t);
-        e->registrations_ = dl_list_create ();
         if (e == NULL || e->registrations_ == NULL) {
                 MIN_FATAL ("%s OOM situation!");
                 return INITPTR;
         }
+        e->registrations_ = dl_list_create ();
         e->state_ = EState_UNSET;
         e->descr_ = param->event;
         param->event.event_name_ = NULL;
@@ -962,7 +962,7 @@ handle_remote_event (TScripterKeyword command, MinItemParser * parameters)
         }
 
         param.event.event_name_ = NEW2 (char, strlen (token) + 1);
-        STRCPY (param.event.event_name_, token, MaxMinEventName);
+        STRCPY (param.event.event_name_, token, strlen (token));
 
         switch (command) {
         case EKeywordRequest:
@@ -989,7 +989,7 @@ handle_remote_event (TScripterKeyword command, MinItemParser * parameters)
                                                 NEW2 (char, strlen (token) + 1);
                                                 STRCPY (param.event.event_name_,
                                                         token, 
-                                                        MaxMinEventName);
+                                                        strlen (token));
                                         }
                                         state_event_handle_wait (&param,
                                                                  &event_src,
@@ -1007,7 +1007,7 @@ handle_remote_event (TScripterKeyword command, MinItemParser * parameters)
                                         param.event.event_name_ =
                                             NEW2 (char, strlen (token) + 1);
                                         STRCPY (param.event.event_name_,
-                                                token, MaxMinEventName);
+                                                token, strlen (token));
                                 }
                                 ind_event_handle_wait (&param, &event_src,
                                                        &status);
@@ -1103,7 +1103,7 @@ int handle_remote_event_request_resp (MinItemParser * parameters)
                         return 1;
                 }
                 param.event.event_name_ = NEW2 (char, strlen (token2) + 1);
-                STRCPY (param.event.event_name_, token2, MaxMinEventName);
+                STRCPY (param.event.event_name_, token2, strlen (token2));
 
                 if (mip_get_next_tagged_string (parameters, "type", &token3)
                     == ENOERR) {

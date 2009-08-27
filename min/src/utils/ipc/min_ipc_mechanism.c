@@ -462,6 +462,8 @@ int mq_send_message2_block (int msqid, long adress, MINMsgType type,
         struct _MIBuff  ibuf;
         unsigned int    length = sizeof (struct _MIBuff) - sizeof (long);
 
+	memset (&ibuf, 0x0, sizeof (ibuf));
+
         /* construct the message */
         ibuf.receiver_ = adress;
         ibuf.sender_ = getpid ();

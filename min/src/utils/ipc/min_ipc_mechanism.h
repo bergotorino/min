@@ -120,7 +120,7 @@ struct _MIBuff {
         long            receiver_;
         char            mtext[1];
         long            sender_;
-        MINMsgType     type_;
+        MINMsgType      type_;
         int             param_;
         unsigned short  msgbeg_;
         int             special_;

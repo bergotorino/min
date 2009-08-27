@@ -807,7 +807,7 @@ int mmp_get_next_tagged_line (MinSectionParser * msp, const TSChar * tag,
         /* we can return found line */
         *line = NEW2 (TSChar, length + 1);
         if (start_pos != INITPTR) {
-                STRCPY (*line, start_pos, length + 1);
+                STRCPY (*line, start_pos, length);
                 (*line)[length] = '\0';
         } else {
                 (*line)[0] = '\0';

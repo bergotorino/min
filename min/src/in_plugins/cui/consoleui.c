@@ -335,6 +335,8 @@ LOCAL void create_log_window ()
 {
         /* get dimensions of the entire screen */
         getmaxyx (stdscr, maxy, maxx);
+	if (maxy < 0 || maxx < 0)
+		return;
 
         /* set up main window */
         log_window = newwin (LOG_WIN_ROWS, maxx, maxy - LOG_WIN_ROWS, WIN_X);
@@ -416,6 +418,8 @@ LOCAL void init_main_window ()
 {
         /* get dimensions of the entire screen */
         getmaxyx (stdscr, maxy, maxx);
+	if (maxy < 0 || maxx < 0)
+		return;
 	if (maxy > LOG_WIN_ENABLE_LIMIT) {
 		create_main_window (maxy - LOG_WIN_ROWS, maxx);
 		create_log_window ();
@@ -1089,6 +1093,9 @@ void side_scroll_line (char *line, int indent)
 
 	getyx (main_window, y, x);
 	maxx = getmaxx (menu_window);
+	if (y < 0 || x < 0 || maxx < 0)
+		return;
+
 	scroll_win = newwin (1, maxx, y , x);
 	cui_clear_win (scroll_win);
 	p = line;

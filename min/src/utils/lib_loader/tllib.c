@@ -237,7 +237,7 @@ int tl_open (test_libl_t *tlibl, const char *lib_name)
 	tlibl->get_cases_fun_ = get_fun;
 	tlibl->run_case_fun_  = run_fun;
 
-	STRCPY(tlibl->fname_, lib_name, 255);
+	STRCPY(tlibl->fname_, lib_name, 254);
 	
 	return 0;
 }

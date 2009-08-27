@@ -161,7 +161,7 @@ test_module_info_s *tm_create (filename_t tm_filename,
 
         } else {
                 /* Test Module Info data structure creation failed */
-                test_module = INITPTR;
+                DELETE (test_module);
         }
 
         pthread_mutex_unlock (&TM_MUTEX);

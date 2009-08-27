@@ -125,6 +125,7 @@ LOCAL void fo_write (struct output_typeinfo_t *fo,
         unsigned int    datalen = 0;
         unsigned int    currlen = 0;
         int             ret = 0;
+	TSChar         *malloced = NULL;
         TSChar         *buffer = INITPTR;
 
         if (fo == INITPTR) {
@@ -180,7 +181,8 @@ LOCAL void fo_write (struct output_typeinfo_t *fo,
                 }
         } else {
                 /* will use locally created buffer */
-                buffer = NEW2 (TSChar, datalen + extralength + 1);
+                malloced = NEW2 (TSChar, datalen + extralength + 1);
+		buffer = malloced;
                 if (buffer == NULL) {
                         MIN_WARN ("Buffer size to big [%d]",
                                    datalen + extralength + 1);
@@ -233,13 +235,15 @@ LOCAL void fo_write (struct output_typeinfo_t *fo,
 
         /* Clean-up */
         if (sxfo->buffersize_ == 0) {
-                DELETE (buffer);
+		if (buffer != malloced)
+			DELETE (buffer);
         }
         else {
                 memset (sxfo->databuf_, '\0', sxfo->buffersize_);
         }
 
       EXIT:
+	DELETE (malloced);
         return;
 }
 
@@ -306,6 +310,8 @@ LOCAL void fo_open_existing_file (struct min_logger_file_output_t *fo,
                 } else {
                         sprintf (fname, "%s/%s", path, file_new);
                 }
+
+		DELETE (file_new);
 
                 fo->file_ = fopen (fname, "a");
 

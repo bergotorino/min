@@ -729,6 +729,10 @@ LOCAL int ls_allocate_slave(lua_State *l)
         STRCPY(msg.desc_,slavetype,MaxDescSize);
         STRCPY(msg.message_,slavename,MaxMsgSize);
         mqid=mq_open_queue('a');
+	if (mqid < 0) {
+                MIN_WARN("mq_open_queue FAILED");
+                return 0;
+	}
         mq_send_message(mqid,&msg);
         stacktop = mq_read_message(mqid,getpid(),&msg);
         if(stacktop==-1) { ; }
@@ -785,6 +789,10 @@ LOCAL int ls_free_slave (lua_State *l)
         MIN_DEBUG("");
         STRCPY(msg.message_,slave->name_,MaxMsgSize);
         mqid=mq_open_queue('a');
+	if (mqid < 0) {
+                MIN_WARN("mq_open_queue FAILED");
+                return 0;
+	}
         mq_send_message(mqid,&msg);
         stacktop = mq_read_message(mqid,getpid(),&msg);
         if(stacktop==-1) { MIN_WARN("Message reading error from MQ"); }
@@ -842,6 +850,10 @@ LOCAL int ls_slave_request (lua_State *l)
         msg.param_=0;
         msg.extif_msg_type_=ERemoteSlave;
         mqid=mq_open_queue('a');
+	if (mqid < 0) {
+                MIN_WARN("mq_open_queue FAILED");
+                return 0;
+	}
         mq_send_message(mqid,&msg);
 
         return 0;
@@ -886,6 +898,10 @@ LOCAL int ls_slave_release (lua_State *l)
         msg.param_=0;
         msg.extif_msg_type_=ERemoteSlave;
         mqid=mq_open_queue('a');
+	if (mqid < 0) {
+                MIN_WARN("mq_open_queue FAILED");
+                return 0;
+	}
         mq_send_message(mqid,&msg);
 
         return 0;
@@ -959,6 +975,10 @@ LOCAL int ls_slave_run (lua_State *l)
         msg.param_=0;
         msg.extif_msg_type_=ERemoteSlave;
         mqid=mq_open_queue('a');
+	if (mqid < 0) {
+                MIN_WARN("mq_open_queue FAILED");
+                return 0;
+	}
         mq_send_message(mqid,&msg);
 
         while(1) {
@@ -1016,6 +1036,10 @@ LOCAL int ls_slave_expect (lua_State *l)
         msg.param_=0;
         msg.extif_msg_type_=ERemoteSlave;
         mqid=mq_open_queue('a');
+	if (mqid < 0) {
+                MIN_WARN("mq_open_queue FAILED");
+                return 0;
+	}
         mq_send_message(mqid,&msg);
         while(1) {
                 usleep(10000);
@@ -1087,6 +1111,10 @@ LOCAL int ls_slave_sendrecv (lua_State *l)
         msg.param_=0;
         msg.extif_msg_type_=ERemoteSlave;
         mqid=mq_open_queue('a');
+	if (mqid < 0) {
+                MIN_WARN("mq_open_queue FAILED");
+                return 0;
+	}
         mq_send_message(mqid,&msg);
 
         return 0;

@@ -223,6 +223,8 @@ DLListIterator ec_select_case (DLListIterator work_case_item, int group_id)
         test_result = tr_create_data_item (selected_case);
         work_result_item =
             tr_add (tc_get_tr_list (selected_case), test_result);
+	if (work_result_item == INITPTR)
+		MIN_WARN ("Test result list adding failure!");
 
         return selected_case;
 }
@@ -1102,8 +1104,6 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 
         work_case_item = dl_list_head (selected_cases);
         while (work_case_item != DLListNULLIterator) {
-
-                work_case = (test_case_s *) dl_list_data (work_case_item);
                 if (((tc_get_status (work_case_item)) == TEST_CASE_ONGOING) &&
                     ((tm_get_pid (tc_get_test_module_ptr (work_case_item))) ==
                      message->sender_))
@@ -1451,7 +1451,6 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
         DLListIterator  work_module_item = INITPTR;
         DLListIterator  work_case_item = INITPTR;
         DLListIterator  work_printout_item = INITPTR;
-        test_case_s    *work_case = INITPTR;
         DLListIterator  work_result_item = INITPTR;
         DLList         *work_list = INITPTR;
         test_result_printout_s *print_msg;
@@ -1491,8 +1490,6 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
         work_case_item = dl_list_head (selected_cases);
         while (work_case_item != DLListNULLIterator) {
 
-                work_case = (test_case_s *) dl_list_data (work_case_item);
-
                 if (((tc_get_status (work_case_item)) == TEST_CASE_ONGOING) &&
                     ((tm_get_pid (tc_get_test_module_ptr (work_case_item))) ==
                      message->sender_))
@@ -1502,7 +1499,6 @@ LOCAL int ec_msg_usr_handler (MsgBuffer * message)
                         break;
                 case_id++;
                 work_case_item = dl_list_next (work_case_item);
-
         }
 	
         pthread_mutex_unlock (&tec_mutex_);
@@ -1837,8 +1833,7 @@ LOCAL pid_t ec_start_tmc (DLListIterator work_module_item)
                             dl_list_data (dl_list_at
                                           (ec_settings.search_dirs,
                                            path_pos));
-                        if (conf_path)
-                                DELETE (conf_path);
+			DELETE (conf_path);
                         conf_path =
                             NEW2 (char,
                                   strlen (dir) + strlen (conf_name) + 2);
@@ -1931,7 +1926,7 @@ LOCAL int ec_read_module_section (MinParser * inifile)
 
                 if (bin_path == INITPTR) {
                         MIN_WARN ("Could not read module definition");
-			mip_destroy (&line_time);
+			mip_destroy (&line_item);
                         break;
                 }
                 /* make dummy list of cfgs for now */
