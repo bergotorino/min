@@ -33,12 +33,12 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
+#include <min_parser.h>
+#include <min_logger.h>
 #include <tec.h>
 #include <tec_events.h>
 #include <min_common.h>
 #include <dllist.h>
-#include <min_parser.h>
-#include <min_logger.h>
 #include <tec_rcp_handling.h>
 
 /* ------------------------------------------------------------------------- */
@@ -189,7 +189,12 @@ LOCAL void socket_read_rcp (slave_info *slave)
                 return;
         }
         len = len_buff [1] << 8  | len_buff [0];
+	if (len >= (INT_MAX - 1)) {
+		MIN_WARN ("Invalid msg len %d", len);
+		return;
+	}
         MIN_INFO ("Message from RCP socket of len %d", len);
+
         buff = NEW2 (char, len + 1);
         bytes_read = read (slave->fd_, buff, len);
         if (bytes_read != len) {

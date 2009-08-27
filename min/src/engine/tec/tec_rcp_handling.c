@@ -444,7 +444,7 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
         char           *module = NULL;
         filename_t      module_filename;
         char           *casefile = NULL;
-        char           *casefile_con = NULL;    /*test case's config */
+        filename_t      casefile_con;    /*test case's config */
         char           *temp_string = NULL;
         int             caseid = 0;
         int             result = 0;
@@ -596,7 +596,6 @@ MODULE_PRESENT:
                                                          casefile_con);
                                     check_result =
                                         strcmp (casefile_con, casefile);
-                                    DELETE (casefile_con);
                                     if (check_result == 0)
                                             break;
                                     /*id and testcase file match */
@@ -620,7 +619,6 @@ MODULE_PRESENT:
                                                          casefile_con);
                                     check_result =
                                         strcmp (casefile_con, casefile);
-                                    DELETE (casefile_con);
                                     if (check_result == 0)
                                             break;
                                     /*id and testcase file match */

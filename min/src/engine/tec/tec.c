@@ -1061,7 +1061,9 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         DLListIterator  work_case_item = INITPTR;
         DLListIterator  dest_case_item = INITPTR;
         DLListIterator  work_module_item = INITPTR;
+#ifndef MIN_EXTIF
         test_case_s    *work_case = INITPTR;
+#endif
         DLList         *work_result_list = INITPTR;
         DLListIterator  work_result_item = INITPTR;
         int             group_id;
@@ -1174,9 +1176,11 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 		goto EXIT;
         }
         MIN_DEBUG ("RESULT CODE = %s (%d)",
-                    test_result_type_str [tr_get_result_type
-                                          (work_result_item)],
-                    tr_get_result_type (work_result_item));
+		   (tr_get_result_type(work_result_item) >= 0) ?
+		   test_result_type_str [tr_get_result_type
+					 (work_result_item)] : "UNDEFINED",
+		   tr_get_result_type (work_result_item));
+	
         tm_set_status (work_module_item, TEST_MODULE_READY);
         tc_set_status (work_case_item, TEST_CASE_TERMINATED);
         group_id = tc_get_group_id (work_case_item);
@@ -1233,9 +1237,11 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         work_result_item = dl_list_head (tc_get_tr_list (dest_case_item));
         while (work_result_item != DLListNULLIterator) {
                 MIN_DEBUG ("RESULT CODE = %s (%d)",
-                             test_result_type_str
-                             [tr_get_result_type (work_result_item)],
-                             tr_get_result_type (work_result_item));
+			   (tr_get_result_type (work_result_item) >= 0) ?
+			   test_result_type_str
+			   [tr_get_result_type (work_result_item)] : 
+			   "UNDEFINED",
+			   tr_get_result_type (work_result_item));
 
                 work_result_item = dl_list_next (work_result_item);
         }
@@ -2248,15 +2254,16 @@ LOCAL void create_local_confdir ()
         tx_c_append (confpath, "/.min");
 
         memset (&dirstat, 0, sizeof (struct stat));
-        if (stat (tx_share_buf(confpath), &dirstat)) {
-                /* directory does not exist, try to create */
-                if (mkdir (tx_share_buf(confpath), S_IRWXU)) {
-                        MIN_FATAL ("Failed to create %s: %s\n"
-                                    "Exiting ...\n",tx_share_buf,
-                                    strerror (errno));
-                        goto err_exit;
-                }
-        } 
+	/* directory does not exist, try to create */
+	if (mkdir (tx_share_buf(confpath), S_IRWXU)) {
+		if (errno != EEXIST) {
+			MIN_FATAL ("Failed to create %s: %s\n"
+				   "Exiting ...\n",tx_share_buf,
+				   strerror (errno));
+			goto err_exit;
+		}
+	}
+
         /*
         ** Check that the directory has write permissions
         */
@@ -3019,13 +3026,21 @@ int ec_search_lib (char *mod_name)
  */
 int ec_configure ()
 {
-        MinParser     *inifile = INITPTR;
-        char           *home_d = getenv ("HOME");
-        char           *curr_d = getenv ("PWD");
+        MinParser      *inifile = INITPTR;
+        char           *home_d = NULL;
+        char           *curr_d = NULL;
         char           *def_d = MIN_CONF_DIR;
         char           *min_d;
         int             op_mode = ec_settings.operation_mode_;
 	int             retval = 0;
+	Text           *tx;
+
+	tx = tx_create (getenv("HOME"));
+	home_d = tx_get_buf (tx);
+	tx_c_copy (tx, getenv ("PWD"));
+	curr_d = tx_get_buf (tx);
+	tx_destroy (&tx);
+
         ec_init_logger_settings ();
 
         /*Initialize logger settings */
@@ -3045,7 +3060,7 @@ int ec_configure ()
         if (home_d != NULL) {
                 min_d = NEW2 (char, strlen (home_d) + 7);
                 sprintf (min_d, "%s/.min", home_d);
-                if (strcmp (min_d, curr_d) != 0) {
+                if (curr_d != NULL && strcmp (min_d, curr_d) != 0) {
                         inifile = mp_create (min_d, "min.conf", ENoComments);
                         
                         if (inifile == INITPTR) {
@@ -3092,6 +3107,8 @@ int ec_configure ()
         ec_settings_send ();
 
         min_log_open ("MIN", 3);
+	DELETE (home_d);
+	DELETE (curr_d);
 
         return retval;
 }
