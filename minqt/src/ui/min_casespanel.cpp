@@ -63,7 +63,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     , testRunsModel_(new Min::TestRunTreeModel(this))
     , availableProxy_(new QSortFilterProxyModel(this))
     , db_(Min::Database::getInstance())
-    , testRunTree_(new QTreeView(this))
+      //    , testRunTree_(new QTreeView(this))
 {
     // Proxies
     availableProxy_->setSourceModel(availableCasesModel_);
@@ -84,10 +84,10 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     // Main pane
     centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
     centralWidget_->addItem(executedTab_,QString("Test Runs"));
-    centralWidget_->addItem(testRunTree_,
-			    QString("Summary"));
+    //    centralWidget_->addItem(testRunTree_,
+    //		    QString("Summary"));
 
-    testRunTree_->setModel(testRunsModel_);
+    //testRunTree_->setModel(testRunsModel_);
 
     // Signals and slots
     connect (&db_,SIGNAL(updated()),

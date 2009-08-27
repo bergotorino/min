@@ -106,7 +106,8 @@ namespace Min
         /** Handler to the database */
         Min::Database &db_;
       
-        QTreeView *testRunTree_;
+        /* For Summary view 
+	    QTreeView *testRunTree_; */
     };
     // -------------------------------------------------------------------------
 }; // namespace Min

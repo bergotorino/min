@@ -314,11 +314,12 @@ void Min::RemoteControll::minCaseStarted(uint moduleid,
         tmp = exeRequest_[i];
         if (tmp->moduleid_==moduleid&&tmp->caseid_==caseid) {
             db.insertTestRun(db.getTestCaseDbId(db.getModuleDbId(1,moduleid),
-                                                                caseid),
-                            testrunid, 
-                            tmp->groupid_, // groupid
-                            TP_RUNNING,    // status
-                            0);            // start time FIXME: should be actual
+						caseid),
+			     testrunid, 
+			     tmp->groupid_, // groupid
+			     TP_RUNNING,    // status
+			     QDateTime::currentDateTime().toTime_t()// start time
+			     );
             delete tmp;
 	    //qDebug ("minCaseStarted: removing request index %d", i);
             exeRequest_.removeAt(i);

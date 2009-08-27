@@ -68,6 +68,8 @@ namespace Min
     Q_DISABLE_COPY(RemoteControll);
     Q_OBJECT
     public:
+        /** Default C++ Constructor. */
+        RemoteControll();
 
         /** Destructor. */
         ~RemoteControll();
@@ -78,9 +80,9 @@ namespace Min
         bool isValid() const;
 
         /** Tells wether we are connected to remote host
-         *  @return true if initialization was success, false otherwise
+         *  @return true the value of private remote_
          */
-	    bool isRemote() const { return remote_; };
+	 bool isRemote() const { return remote_; };
 
     public:
 
@@ -243,8 +245,6 @@ namespace Min
         };
 
       
-        /** Default C++ Constructor. */
-        RemoteControll();
 
         /** Connection to the DBus */
         QDBusConnection *bus_;
