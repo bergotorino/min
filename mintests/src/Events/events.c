@@ -83,8 +83,8 @@ LOCAL int       min_unit_wrapper (int __action__, const char *__cfg_file__,
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
 LOCAL int min_unit_wrapper (int __action__, const char *__cfg_file__,
-                             DLList ** __cases__, unsigned int __id__,
-                             TestCaseResult * __result__)
+			    DLList ** __cases__, unsigned int __id__,
+			    TestCaseResult * __result__)
 {
         /*
          * Needed variables, please do not edit this section 

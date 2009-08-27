@@ -42,7 +42,8 @@ MIN_SETUP {
  * MIN_TEARDOWN defines activities needed after every test case
  */
 MIN_TEARDOWN {
-        min_event_destroy (e);
+	if (e)
+		min_event_destroy (e);
 }
 
 /**
