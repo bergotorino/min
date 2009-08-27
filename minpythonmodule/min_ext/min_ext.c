@@ -149,6 +149,10 @@ LOCAL char           *find_lib (char *l_name)
         char           *end_pos = NULL;
 
         sh_mem_id = sm_create ('a', sizeof (struct logger_settings_t));
+	if (sh_mem_id < 0) {
+		MIN_WARN ("sm_create() failed");
+		return NULL;
+	}
         sh_mem_handle = sm_attach (sh_mem_id);
         tmp_ptr = sh_mem_handle + sizeof (struct logger_settings_t);
         data_size = strlen (tmp_ptr) + 1;
@@ -174,6 +178,7 @@ LOCAL char           *find_lib (char *l_name)
                 sprintf (path_to_check, "%s/%s", start_pos, l_name);
                 if (access (path_to_check, F_OK) == 0)
                         break;
+                DELETE (path_to_check);
                 path_to_check = NULL;
                 start_pos = end_pos + 1;
         } while (end_pos != NULL);
@@ -226,6 +231,10 @@ LOCAL void *thread_exec (void *args)
         run_case_func = ((case_args *) args)->exec_;
 
         end_flags_id = sm_create ('p', sizeof (AsyncOpFlags));
+	if (end_flags_id < 0) {
+		MIN_WARN ("sm_create() failed");
+		return NULL;
+	}
         end_flags_cont = sm_attach (end_flags_id);
         sm_read (end_flags_cont, (void *)&end_flags, sizeof (AsyncOpFlags));
         end_flags.parallel_test_ongoing_ = ESTrue;
@@ -243,6 +252,8 @@ LOCAL void *thread_exec (void *args)
         sm_write (end_flags_cont, (void *)&end_flags, sizeof (AsyncOpFlags));
         sm_detach (end_flags_cont);
 
+	DELETE (((case_args *) args)->file_);
+	DELETE (args);
         MIN_DEBUG ("end thread here");
         return NULL;
 }
@@ -250,7 +261,7 @@ LOCAL void *thread_exec (void *args)
 /** Wait for remote run response (master/slave)
  *  @param mq_id POSIX mail queue identifier
  *  @param re_type response type
- *  @return 0 if response comes, -1 on timeout
+ *  @return 0 if response comes, 1 on timeout
  */
 LOCAL int wait_response (int mq_id, TMSCommand re_type)
 {
@@ -289,6 +300,10 @@ LOCAL int wait_response (int mq_id, TMSCommand re_type)
                         
                         end_flags_id = sm_create ('p', sizeof 
                                                   (AsyncOpFlags));
+			if (end_flags_id < 0) {
+				MIN_WARN ("sm_create() failed");
+				return 1;
+			}
                         end_flags_cont = sm_attach (end_flags_id);
                         sm_read (end_flags_cont, &end_flags,
                                  sizeof (AsyncOpFlags));
@@ -310,7 +325,7 @@ LOCAL int wait_response (int mq_id, TMSCommand re_type)
         /*we got so far, so message did not come. Assume protocol 
           timeout */
         MIN_WARN ("assume timeout");
-        return -1;
+        return 1;
 }
 /* ------------------------------------------------------------------------- */
 /** min_ext.Print_to_CUI 
@@ -551,7 +566,7 @@ LOCAL PyObject *p_tm_event_wait (PyObject * self, PyObject * Args)
 LOCAL PyObject *p_tm_complete_case (PyObject * self, PyObject * Args)
 {
         int             result_c = 0;
-        PyObject       *result;
+        PyObject       *result = NULL;
         DLList         *min_cases = dl_list_create ();
         ptr2case        get_cases_func = NULL;
         ptr2run         run_cases_func = NULL;
@@ -570,18 +585,18 @@ LOCAL PyObject *p_tm_complete_case (PyObject * self, PyObject * Args)
                 if (!PyArg_ParseTuple
                     (Args, /*Format string */ "ss", /*adresses of variables */
                      &module_name, &testcase_title))
-                        return NULL;
+                        goto out;
                 break;
         case 3:
                 if (!PyArg_ParseTuple (Args, /*Format string */ "sss",
                                        /*adresses of variables */
                                        &module_name, &testcase_file,
                                        &testcase_title))
-                        return NULL;
+                        goto out;
                 break;
         default:
                 MIN_WARN ("Arguments not specified correctly");
-                return NULL;
+		goto out;
                 break;
         }
 
@@ -591,19 +606,19 @@ LOCAL PyObject *p_tm_complete_case (PyObject * self, PyObject * Args)
 
         if (lib_ptr == NULL) {
                 MIN_WARN ("Could not load test module library");
-                return NULL;
+		goto out;
         }
 
         get_cases_func = (ptr2case) dlsym (lib_ptr, "tm_get_test_cases");
         if (get_cases_func == NULL) {
                 MIN_WARN ("Faulty library (no \"tm_get_test_cases\")");
-                return NULL;
+		goto out;
         }
 
         run_cases_func = (ptr2run) dlsym (lib_ptr, "tm_run_test_case");
         if (run_cases_func == NULL) {
                 MIN_WARN ("Faulty library (no \"tm_run_test_case\")");
-                return NULL;
+		goto out;
         }
 
         if (testcase_file != NULL)
@@ -617,17 +632,18 @@ LOCAL PyObject *p_tm_complete_case (PyObject * self, PyObject * Args)
         if (!(case_index > 0)) {
                 MIN_DEBUG ("could not find testcase : %s in module: %s",
                             testcase_title, module_name);
-                return NULL;
+		goto out;
         }
 
         result_c = run_cases_func (case_index, testcase_file, &min_result);
 
         result_c = min_result.result_;
 
-        dlclose (lib_ptr);
+out:
+	if (lib_ptr)
+		dlclose (lib_ptr);
         DELETE (mod_path);
-        if (tc_file != NULL)
-                DELETE (tc_file);
+	DELETE (tc_file);
 
 
         result =
@@ -635,6 +651,7 @@ LOCAL PyObject *p_tm_complete_case (PyObject * self, PyObject * Args)
                            result_c);
         return result;
 
+	
 }
 /* -------------------------------------------------------------------------- */
 /** min_ext.Start_case
@@ -642,7 +659,7 @@ LOCAL PyObject *p_tm_complete_case (PyObject * self, PyObject * Args)
 static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
 {
         int             result_c = 0;
-        PyObject       *result;
+        PyObject       *result = NULL;
 
         int             thread_creation_result;
         pthread_t       exec_thread;
@@ -656,7 +673,7 @@ static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
 
         /*struct needed as an argument for thread func */
         case_args      *execution_params = NEW (case_args);
-/*use pythonpath for now, switch to ModSearchPath later*/
+	/*use pythonpath for now, switch to ModSearchPath later*/
         char           *mod_path = NULL;
         char           *tc_file = NULL;
         int             arg_size = PyTuple_Size (Args);
@@ -664,23 +681,24 @@ static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
         int             case_index = 0;
 
         MIN_DEBUG ("start extension func.");
+
         switch (arg_size) {
         case 2:
                 if (!PyArg_ParseTuple
                     (Args, /*Format string */ "ss", /*adresses of variables */
                      &module_name, &testcase_title))
-                        return NULL;
+			goto errout;
                 break;
         case 3:
                 if (!PyArg_ParseTuple (Args, /*Format string */ "sss",
                                        /*adresses of variables */
                                        &module_name, &testcase_file,
                                        &testcase_title))
-                        return NULL;
+                        goto errout;
                 break;
         default:
                 MIN_WARN ("Arguments not specified correctly");
-                return NULL;
+                goto errout;
                 break;
         }
 
@@ -690,19 +708,19 @@ static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
 
         if (lib_ptr == NULL) {
                 MIN_WARN ("Could not load test module library: %s", mod_path);
-                return NULL;
+		goto errout;
         }
 
         get_cases_func = (ptr2case) dlsym (lib_ptr, "tm_get_test_cases");
         if (get_cases_func == NULL) {
                 MIN_WARN ("Faulty library (no \"tm_get_test_cases\")");
-                return NULL;
+                goto errout;
         }
 
         run_cases_func = (ptr2run) dlsym (lib_ptr, "tm_run_test_case");
         if (run_cases_func == NULL) {
                 MIN_WARN ("Faulty library (no \"tm_run_test_case\")");
-                return NULL;
+                goto errout;
         }
         if (testcase_file != NULL)
                 tc_file = find_lib (testcase_file);
@@ -715,9 +733,9 @@ static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
         if (!(case_index > 0)) {
                 MIN_WARN ("could not find testcase : %s in module: %s",
                            testcase_title, module_name);
-                return NULL;
+		goto errout;
         }
-
+	case_args->file_ = NULL;
         execution_params->id_ = case_index;
         if (testcase_file != NULL) {
                 execution_params->file_ =
@@ -744,7 +762,13 @@ static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
         result =
             Py_BuildValue ( /*Format string */ "i", /*variable(s) */
                            result_c);
+
         return result;
+ errout:
+	DELETE (tc_file);
+	DELETE (mod_path);
+	DELETE (execution_params);
+	return result;
 }
 /* -------------------------------------------------------------------------- */
 /** min_ext.Create_logger

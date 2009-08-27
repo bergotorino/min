@@ -103,6 +103,10 @@ LOCAL TSBool check_end_conditions()
 
         sched_yield();
         cond_container_id = sm_create('p',sizeof(AsyncOpFlags));
+	if (cond_container_id < 0) {
+		MIN_WARN ("sm_create() failed");
+		return retval;
+	}
         cond_container = sm_attach(cond_container_id);
         sm_read(cond_container,&end_conditions,sizeof(AsyncOpFlags));
         sm_detach(cond_container);
@@ -206,6 +210,10 @@ int tm_run_test_case( unsigned int      id
                         else{
                                 /*testcase was found*/
                                 cond_container_id = sm_create('p',sizeof(AsyncOpFlags));
+				if (cond_container_id < 0) {
+					MIN_WARN ("sm_create() failed");
+					return -1;
+				}
                                 cond_container = sm_attach(cond_container_id);
                                 end_conditions.remote_cases_list_ = INITPTR;
                                 end_conditions.parallel_test_ongoing_ = ESFalse;

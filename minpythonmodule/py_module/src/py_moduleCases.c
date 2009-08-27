@@ -219,6 +219,7 @@ int tm_get_test_cases( const char * cfg_file, DLList ** cases )
         workstring = NEW2(char,strlen(cfg_file)+1);
         sprintf(workstring,"%s",cfg_file);
         workstring2 = cut_file_from_path(workstring);
+	DELETE(workstring);
         workstring = cutname(workstring2);
         DELETE(workstring2);
         scriptname = PyString_FromString(workstring);
@@ -295,7 +296,12 @@ void tm_initialize()
         unsigned int data_size;
         char *paths;
         Text *py_paths;
+
         sh_mem_id = sm_create('a',sizeof(struct logger_settings_t));
+	if (sh_mem_id < 0) {
+		MIN_WARN ("sm_create() failed");
+		return;
+	}
         sh_mem_handle = sm_attach(sh_mem_id);
         tmp_ptr = sh_mem_handle + sizeof(struct logger_settings_t);
         data_size = strlen(tmp_ptr)+1;
@@ -315,6 +321,7 @@ void tm_initialize()
         MIN_DEBUG("PYTHONPATH is %s",getenv("PYTHONPATH"));
         python_lib_handle = dlopen("libpython2.5.so",RTLD_GLOBAL|RTLD_LAZY);
         Py_Initialize();
+	tx_destroy (&py_paths);
         MIN_DEBUG("python initialized in %d",getpid());
 }
 /* ------------------------------------------------------------------------- */
