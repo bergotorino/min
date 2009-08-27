@@ -100,6 +100,8 @@ LOCAL void* tl_load_lib( const char *libname )
 
         /* Get paths from settings system. */
         shmid = sm_create ('a', sizeof (struct logger_settings_t));
+	if (shmid < 0)
+		return INITPTR;
         shmaddr = sm_attach (shmid);
         tmp = shmaddr + sizeof (struct logger_settings_t);
         plen = strlen (tmp);

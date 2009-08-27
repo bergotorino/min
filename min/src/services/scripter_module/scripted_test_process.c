@@ -103,6 +103,11 @@ LOCAL void stp_handle_run (const MsgBuffer * msg)
         int             mq = mq_open_queue ('a');
         MsgBuffer       result;
 
+        if (mq < 0) {
+                MIN_WARN ("mq_open_queue() FAILED");
+                goto EXIT;
+        }
+
         /* 1) look-up for the class on the list */
         it = dl_list_find (dl_list_head (tp_handlers)
                            , dl_list_tail (tp_handlers)

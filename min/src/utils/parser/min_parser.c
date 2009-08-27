@@ -220,6 +220,10 @@ LOCAL MinSectionParser *mp_next_section_memory (MinParser * sp,
 
         whole_section = NEW2 (TSChar, size + 1);
         buff = NEW2 (TSChar, tmpsize + 1);
+	if (buff == NULL) {
+                errno = EINVAL;
+                goto EXIT;
+	}
         current_section = NEW2 (TSChar, tmpsize + 1);
 
         /* Create parser */

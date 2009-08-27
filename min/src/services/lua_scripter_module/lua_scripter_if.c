@@ -191,6 +191,7 @@ LOCAL int ls_load_testmodule (lua_State *l)
                                     "function from test module %s, error: %s"
                                    ,testmodule,dlerror());
                         dlclose(dllhandle);
+			return 0;
                 }
                 tclist=dl_list_create();
                 tsgettestcases(&tclist);

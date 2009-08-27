@@ -600,6 +600,9 @@ void mq_resend_buffered ()
         DLListIterator  it = dl_list_head (msg_buffer);
         struct _MIBuff *ptr2ibf = INITPTR;
 
+	if (msqid < 0)
+		return;
+
         /* sending was successfull, lets try to send some buffered */
         while ((it != DLListNULLIterator)) {
 
