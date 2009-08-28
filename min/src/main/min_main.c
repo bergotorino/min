@@ -92,7 +92,8 @@ LOCAL int       add_command_line_modules (DLList * modulelist);
 /* ------------------------------------------------------------------------- */
 LOCAL int       add_ip_slaves (DLList * slavelist);
 /* ------------------------------------------------------------------------- */
-LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf);
+LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf,
+			     void **p_plugin_handle);
 /* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
@@ -254,9 +255,12 @@ LOCAL int add_ip_slaves (DLList * slavelist)
 /** Loads the plugin with given name and starts executing it in a thread
  *  @param plugin_name short name for the plugin e.g. "cui" loads "min_cui.so" 
  *  @param plugin_conf passed as is to the plugin
+ *  @param p_plugin_handle [out] used to pass the handler for dynamically 
+ *         loaded plugin to caller
  *  @return handler for the created thread
  */
-LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
+LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf,
+			     void **p_plugin_handle)
 {
         void *pluginhandle = INITPTR;
         void (*pl_attach) (eapiIn_t **out_callback, 
@@ -264,6 +268,8 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
         void (*pl_open) (void *arg);
         pthread_t plugin_thread;
         int retval = 0;
+
+	*p_plugin_handle = NULL;
 
         /* Construct plugin name */
         Text *plugin = tx_create("/usr/lib/min/min_");
@@ -310,6 +316,7 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf)
         }
 
 	tx_destroy (&plugin);
+	*p_plugin_handle  = pluginhandle;
 
         return plugin_thread;
 }
@@ -330,7 +337,10 @@ int main (int argc, char *argv[], char *envp[])
 	int 	        slave_mode = 0, master_socket = -1;
         DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
-        pthread_t       plugin_thread[10];
+	struct {
+		pthread_t       plugin_thread_;
+		void           *plugin_handle_;
+	} plugin_cont[10];
 	void           *plugin_opts = NULL;
 	cli_opts        cli_opts;
 	tcpip_opts      tcpip_opts;
@@ -501,7 +511,9 @@ int main (int argc, char *argv[], char *envp[])
 	do {
 		c3 = strchr (c2,':');
 		if (c3!=NULL) (*c3) = '\0';
-		plugin_thread[0] = load_plugin(c2, plugin_opts);
+		plugin_cont[0].plugin_thread_ = 
+			load_plugin(c2, plugin_opts,
+				    &plugin_cont[0].plugin_handle_);
 		num_of_plugins++;
                         /* Multiple plugins not supported yet by engine.
                          * FIXME: remove in future following line. */
@@ -515,8 +527,8 @@ int main (int argc, char *argv[], char *envp[])
 		exit (-1);
         }
 	
-	pthread_join (plugin_thread[0], &tmp);
-
+	pthread_join (plugin_cont[0].plugin_thread_, &tmp);
+	dlclose (plugin_cont[0].plugin_handle_);
 	
 	dl_list_free (&modulelist);
 	dl_list_free (&slavelist);
