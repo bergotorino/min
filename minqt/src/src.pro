@@ -11,7 +11,8 @@ INCLUDEPATH +=  ./ui                                    \
                 ../../min/src/utils/dllist              \
                 ../../min/src/utils/logger              \
                 ../../min/src/utils/text                \
-                ../../min/src/utils/ipc
+                ../../min/src/utils/ipc                 \
+                ../../min/src/in_plugins/tcpip
 
 # UI first, then CORE, please obey for sake of clarity!
 
