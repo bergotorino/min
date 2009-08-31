@@ -35,7 +35,7 @@ Package: min-tests
 Section: tests
 Priority: optional
 Architecture: any
-Depends: min (>= 2009w22)
+Depends: ${shlibs:Depends}, ${misc:Depends}, min (>= 2009w36)
 Description: MIN Basic Acceptance Tests.
  Tests of MIN
 
@@ -43,7 +43,7 @@ Package: mindbusplugin
 Section: devel
 Priority: extra
 Architecture: any
-Depends: ${shlibs:Depends}, min
+Depends: ${shlibs:Depends}, ${misc:Depends}, min
 Description: DBus plugin for MIN
  Allows interaction with MIN through DBus intreface.
 
@@ -51,7 +51,7 @@ Package: min-qt
 Section: devel
 Priority: extra
 Architecture: any
-Depends: ${shlibs:Depends}, min
+Depends: ${shlibs:Depends}, ${misc:Depends}, min
 Description: Qt GUI for MIN
  MIN graphical user interface written in Qt
 
