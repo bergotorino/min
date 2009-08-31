@@ -1307,6 +1307,7 @@ LOCAL int ec_msg_tcd_handler (MsgBuffer * message)
                                 tm_set_status (work_module_item,
                                                TEST_MODULE_READY);
                                 result = 0;
+
                                 MINAPI_PLUGIN_CALL (module_ready, 
 						    module_ready 
 						    (tm_get_module_id 
@@ -1616,9 +1617,7 @@ LOCAL int ec_message_dispatch (MsgBuffer * rcvd_message)
 {
         int             msg_handling_result = -1;
 
-        MIN_DEBUG ("MsgBuffer::message = %s", rcvd_message->message_);
-        MIN_DEBUG ("MsgBuffer::desc = %s", rcvd_message->desc_);
-        MIN_DEBUG ("MsgBuffer::type = %d", rcvd_message->type_);
+        MIN_DEBUG ("Received message type = %d", rcvd_message->type_);
         switch (rcvd_message->type_) {
         case MSG_OK:
 

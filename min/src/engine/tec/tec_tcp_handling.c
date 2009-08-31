@@ -32,6 +32,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <limits.h>
 
 #include <min_parser.h>
 #include <min_logger.h>
