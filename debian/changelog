@@ -1,3 +1,11 @@
+min-all (2009w36) unstable; urgency=low
+  * Thirteenth MIN Release
+  * Fixed: around 300 defects from static analysis tool.
+  * Fixed: MIN Qt GUI missed start time for "ongoing cases"
+  * Added: tcp/ip plugin for MIN and the use of plugin from GUI
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   31 Aug 2009 13:03:21 +0100
+
 min-all (2009w34) unstable; urgency=low
   * Twelfth MIN Release
   * Fixed: Doxygen tags updated and harmonized.
