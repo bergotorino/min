@@ -235,14 +235,15 @@ LOCAL void fo_write (struct output_typeinfo_t *fo,
 
         /* Clean-up */
         if (sxfo->buffersize_ == 0) {
-		if (buffer != malloced)
-			DELETE (buffer);
+		if (malloced == NULL) {
+			DELETE (buffer); /* buffer points to sxfo->databuf */
+		}
         }
         else {
                 memset (sxfo->databuf_, '\0', sxfo->buffersize_);
         }
 
-      EXIT:
+ EXIT:
 	DELETE (malloced);
         return;
 }
