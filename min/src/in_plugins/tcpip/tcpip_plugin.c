@@ -226,6 +226,7 @@ LOCAL void write_to_socket (int fd)
 				break;
 			default:
 				MIN_WARN ("write failed %s", strerror (errno));
+				pthread_mutex_unlock (&tcpip_mutex_);
 				return;
 				break;
 			}
