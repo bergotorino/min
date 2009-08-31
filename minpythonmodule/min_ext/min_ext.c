@@ -732,10 +732,10 @@ static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
 
         if (!(case_index > 0)) {
                 MIN_WARN ("could not find testcase : %s in module: %s",
-                           testcase_title, module_name);
+			  testcase_title, module_name);
 		goto errout;
         }
-	case_args->file_ = NULL;
+	execution_params->file_ = NULL;
         execution_params->id_ = case_index;
         if (testcase_file != NULL) {
                 execution_params->file_ =
