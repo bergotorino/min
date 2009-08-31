@@ -332,7 +332,7 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf,
  */
 int main (int argc, char *argv[], char *envp[])
 {
-        int             cont_flag, opt_char, oper_mode, exit_flag;
+        int             cont_flag, opt_char, oper_mode;
         int             cli_flag, ip_flag, help_flag, version_flag;
 	int 	        slave_mode = 0, master_socket = -1;
         DLList         *modulelist, *slavelist;
@@ -484,10 +484,6 @@ int main (int argc, char *argv[], char *envp[])
 		display_help();
 		exit (0);
 	}
-
-        if (exit_flag) {
-                exit (0);
-        }
 
 	/* Perform application start-up */
 	ec_min_init (envp, oper_mode);
