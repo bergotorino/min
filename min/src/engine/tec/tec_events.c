@@ -320,7 +320,7 @@ LOCAL min_event_t *add_state_event (minTestEventParam_t * param)
                 return INITPTR;
         }
         e = NEW (min_event_t);
-        if (e == NULL || e->registrations_ == NULL) {
+        if (e == NULL) {
                 MIN_FATAL ("%s OOM situation!");
                 return INITPTR;
         }
