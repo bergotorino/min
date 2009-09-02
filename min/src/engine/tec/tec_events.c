@@ -961,8 +961,8 @@ handle_remote_event (TScripterKeyword command, MinItemParser * parameters)
                 goto err_out;
         }
 
-        param.event.event_name_ = NEW2 (char, strlen (token) + 1);
-        STRCPY (param.event.event_name_, token, strlen (token));
+        param.event.event_name_ = NEW2 (char, MaxMinEventName + 1);
+        STRCPY (param.event.event_name_, token, MaxMinEventName);
 
         switch (command) {
         case EKeywordRequest:
@@ -986,10 +986,10 @@ handle_remote_event (TScripterKeyword command, MinItemParser * parameters)
                                         param.command_ = EWaitEvent;
                                         if (!param.event.event_name_) {
                                                 param.event.event_name_ =
-                                                NEW2 (char, strlen (token) + 1);
+                                                NEW2 (char, MaxMinEventName + 1);
                                                 STRCPY (param.event.event_name_,
                                                         token, 
-                                                        strlen (token));
+                                                        MaxMinEventName);
                                         }
                                         state_event_handle_wait (&param,
                                                                  &event_src,
@@ -1005,9 +1005,9 @@ handle_remote_event (TScripterKeyword command, MinItemParser * parameters)
                                 param.command_ = EWaitEvent;
                                 if (!param.event.event_name_) {
                                         param.event.event_name_ =
-                                            NEW2 (char, strlen (token) + 1);
+                                            NEW2 (char, MaxMinEventName + 1);
                                         STRCPY (param.event.event_name_,
-                                                token, strlen (token));
+                                                token, MaxMinEventName);
                                 }
                                 ind_event_handle_wait (&param, &event_src,
                                                        &status);
@@ -1102,8 +1102,8 @@ int handle_remote_event_request_resp (MinItemParser * parameters)
                         MIN_WARN ("%s: event name missing!", __FUNCTION__);
                         return 1;
                 }
-                param.event.event_name_ = NEW2 (char, strlen (token2) + 1);
-                STRCPY (param.event.event_name_, token2, strlen (token2));
+                param.event.event_name_ = NEW2 (char, MaxMinEventName + 1);
+                STRCPY (param.event.event_name_, token2, MaxMinEventName);
 
                 if (mip_get_next_tagged_string (parameters, "type", &token3)
                     == ENOERR) {
