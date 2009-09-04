@@ -1067,6 +1067,7 @@ int mnl_log (MinLogger * mnl, TSStyle style, const TSChar * format, ...)
                 logtype = (struct logger_typeinfo_t *)dl_list_data (it);
                 logtype->send_ (logtype, style, msg);
                 it = dl_list_next (it);
+
         }
       EXIT:
         return retval;

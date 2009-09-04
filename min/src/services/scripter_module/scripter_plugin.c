@@ -1909,8 +1909,6 @@ char           *validate_test_case (MinSectionParser * testcase)
                         break;
                 }
         }
-        if (token != INITPTR)
-                DELETE (token);
 
         /* check if script's loop counter is 0, otherwise fail syntax check */
         if (nest_level != 0) {
@@ -2041,6 +2039,8 @@ char           *validate_test_case (MinSectionParser * testcase)
         }
         /*free all allocated memory */
       EXIT_VALIDATE:
+        if (token != INITPTR)
+                DELETE (token);
 
         call_item = dl_list_head (slaves);
         while (call_item != DLListNULLIterator) {

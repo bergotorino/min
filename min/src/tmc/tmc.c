@@ -93,6 +93,18 @@ void gu_init_tmc (TMC_t * tmc, int argc, char *argv[])
 
         min_log_open ("TMC", 3);
 
+	if (argc <= 0) {
+		MIN_WARN ("invalid argument count");
+		return;
+	}
+	/* 2. untaint argv */
+	for (i = 0; i < argc; i++) {
+		if (strchr (argv[1], '%') != NULL) {
+			MIN_WARN ("argv is tainted - exiting .. ");
+			return;
+		}
+	}
+
         MIN_INFO ("TMC: Build date [%s %s]",__DATE__,__TIME__);
         MIN_DEBUG ("Process started; param: %s",
                      argc > 1 ? argv[1] : "NULL");
@@ -101,7 +113,7 @@ void gu_init_tmc (TMC_t * tmc, int argc, char *argv[])
                 MIN_DEBUG ("-- Config file: %s", argv[i]);
         }
 
-        /* Fill list of config files */
+        /* 3. Fill list of config files */
         tmc->config_list_ = dl_list_create ();
         if (argc > 2) {
                 for (i = 2; i < argc; ++i) {
@@ -112,33 +124,27 @@ void gu_init_tmc (TMC_t * tmc, int argc, char *argv[])
                 dl_list_add (tmc->config_list_, (void *)&tmp);
         }
 
-        /* set handler */
+        /* 4. set handler */
         sl_set_sighandler (SIGCHLD, gu_handle_sigchld);
 
         tp_init (&tmc->tpc_);
         ip_init (&tmc->tmcipi_, getppid ());
 
-        /* 2. open MQ */
+        /* 5. open MQ */
         if (ip_status (&tmc->tmcipi_) == -1) {
                 MIN_FATAL ("Unable to open Message Queue: %s",
                           strerror (errno));
                 exit (-3);
         }
 
-        /* 3. load library and resolve functions */
-
-        if (argc <= 0) {
-                MIN_ERROR ("Incorrect number of arguments %d",argc);
-                goto NOT_OK;
-        }
-
+        /* 6. load library and resolve functions */
         if (tl_open (&tmc->lib_loader_, argv[1])) {
                 tm_print_err ("Library could not be loaded %s",argv[1]);
                 MIN_ERROR ("Library could not be loaded %s",argv[1]);
                 goto NOT_OK;
         }
 
-        /* 4. send status message */
+        /* 7. send status message */
         ip_send_ok (&tmc->tmcipi_);
         tmc->run_ = 1;
         return;

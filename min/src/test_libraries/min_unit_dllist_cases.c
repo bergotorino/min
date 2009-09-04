@@ -220,12 +220,15 @@ MIN_TESTDEFINE (test_dllist_add_multiple_item)
 MIN_TESTDEFINE (test_dllist_two_lists)
 {
         DLList         *ll = dl_list_create ();
+	int             size1, size2;
         MIN_ASSERT_NOT_EQUALS (l, INITPTR);
         MIN_ASSERT_NOT_EQUALS (ll, INITPTR);
         retval = dl_list_add (l, &a);
-        MIN_ASSERT_NOT_EQUALS (retval, -1);
-        MIN_ASSERT_NOT_EQUALS (dl_list_size (l), dl_list_size (ll));
+	size1 = dl_list_size (l);
+	size2 = dl_list_size (ll);
         dl_list_free (&ll);
+        MIN_ASSERT_NOT_EQUALS (retval, -1);
+        MIN_ASSERT_NOT_EQUALS (size1, size2);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -240,7 +243,7 @@ MIN_TESTDEFINE (test_dllist_alter_item_by_iterator)
         MIN_ASSERT_NOT_EQUALS (retval, -1);
         value = (int *)dl_list_data (dl_list_head (l));
         MIN_ASSERT_EQUALS (*value, aaa[2]);
-        dl_list_alter_it (dl_list_head (l), INITPTR);
+        retval = dl_list_alter_it (dl_list_head (l), INITPTR);
         MIN_ASSERT_NOT_EQUALS (retval, -1);
         dl_list_free (&l);
         retval = dl_list_alter_it (INITPTR, &aaa[2]);

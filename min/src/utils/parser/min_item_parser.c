@@ -199,12 +199,13 @@ int mip_parse_start_and_end_pos (MinItemParser * mip, TSChar * start_tag,
                 start_pos = section;
         }
 
+	if (start_pos == NULL)
+		return;
+
         while (*start_pos == ' ' && *start_pos != '\0') {
                 start_pos++;
         }
 	
-	if (start_pos == NULL)
-		return;
         /*
          * Quotes have special meaning and information between quotes is 
          * handled as a one string. Quotes not included to information. 
@@ -263,7 +264,7 @@ int mip_parse_start_and_end_pos (MinItemParser * mip, TSChar * start_tag,
         /* Quotes style parsing is in use. 
          * Special handling when empty quotes "" */
         if ((mip->parsing_type_ == EQuoteStyleParsing) &&
-            (length <= 0) && (start_pos != NULL) &&
+            (length <= 0) &&
             (search_type == EQuoteStartSearch)) {
                 /* Set new positions */
                 start_pos--;

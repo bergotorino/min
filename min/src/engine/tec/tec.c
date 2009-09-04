@@ -1070,7 +1070,8 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         filename_t      orig_conf;
         filename_t      work_conf;
         test_result_s  *result;
-	int		fun_result = 0;
+	int		fun_result = 0, res_code;
+
         const char     *test_result_type_str[] = {
                 "not run",
                 "passed",
@@ -1175,11 +1176,11 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 		fun_result = -1;
 		goto EXIT;
         }
+	res_code = tr_get_result_type(work_result_item);
         MIN_DEBUG ("RESULT CODE = %s (%d)",
-		   (tr_get_result_type(work_result_item) >= 0) ?
-		   test_result_type_str [tr_get_result_type
-					 (work_result_item)] : "UNDEFINED",
-		   tr_get_result_type (work_result_item));
+		   (res_code >= 0) ?
+		   test_result_type_str [res_code] : "UNDEFINED",
+		   res_code);
 	
         tm_set_status (work_module_item, TEST_MODULE_READY);
         tc_set_status (work_case_item, TEST_CASE_TERMINATED);
@@ -1236,12 +1237,12 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
                     dl_list_size (tc_get_tr_list (dest_case_item)));
         work_result_item = dl_list_head (tc_get_tr_list (dest_case_item));
         while (work_result_item != DLListNULLIterator) {
+		res_code = tr_get_result_type(work_result_item);
                 MIN_DEBUG ("RESULT CODE = %s (%d)",
-			   (tr_get_result_type (work_result_item) >= 0) ?
-			   test_result_type_str
-			   [tr_get_result_type (work_result_item)] : 
+			   (res_code >= 0) ?
+			   test_result_type_str [res_code] : 
 			   "UNDEFINED",
-			   tr_get_result_type (work_result_item));
+			   res_code);
 
                 work_result_item = dl_list_next (work_result_item);
         }
@@ -1904,7 +1905,7 @@ LOCAL int ec_read_module_section (MinParser * inifile)
         test_module_info_s     *module     = INITPTR;
         DLListIterator          module_item = DLListNULLIterator;
         MinSectionParser       *module_def = INITPTR;
-        MinItemParser          *line_item; 
+        MinItemParser          *line_item  = INITPTR; 
         char           *bin_path = INITPTR, *tc_file_path = NULL;
         int            it = 1;
         DLList         *work_list;
@@ -1945,6 +1946,7 @@ LOCAL int ec_read_module_section (MinParser * inifile)
                 if (module_item == DLListNULLIterator) {
                         MIN_WARN ("Could not insert %s into list",
                                    bin_path);
+			DELETE (bin_path);
 			DELETE (module);
                         break;
                 }
@@ -1980,6 +1982,10 @@ LOCAL int ec_read_module_section (MinParser * inifile)
                                          "[New_Module]", "[End_Module]", it);
 
         }
+
+	mip_destroy(&line_item);
+	mmp_destroy (&module_def);
+
         return 0;
 }
 
@@ -2129,6 +2135,7 @@ LOCAL int ec_read_conf (MinParser * inifile, int operation_mode)
 			DELETE (ec_settings.debugger_);
 		ec_settings.debugger_ = debugger_cmd;
         }
+	mip_destroy (&line_item);
 
         line_item = mmp_get_item_line(engine_def,
                                       "TmcBinPath",

@@ -803,15 +803,11 @@ int mmp_get_next_tagged_line (MinSectionParser * msp, const TSChar * tag,
         if (retval != ENOERR || length <= 0 || start_pos == INITPTR) {
                 goto EXIT;
         }
-
+	
         /* we can return found line */
         *line = NEW2 (TSChar, length + 1);
-        if (start_pos != INITPTR) {
-                STRCPY (*line, start_pos, length);
-                (*line)[length] = '\0';
-        } else {
-                (*line)[0] = '\0';
-        }
+	STRCPY (*line, start_pos, length);
+	(*line)[length] = '\0';
 
       EXIT:
         return retval;

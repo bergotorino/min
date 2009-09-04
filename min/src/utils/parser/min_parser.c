@@ -238,7 +238,7 @@ LOCAL MinSectionParser *mp_next_section_memory (MinParser * sp,
 			if (read == 0) {
 				break;
 			}
-				
+			buff [read] = '\0';
                         if (sp->is_unicode_ == EFileUnicode) {
 
                                 /* Not supported yet!! */

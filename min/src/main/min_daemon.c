@@ -150,6 +150,10 @@ LOCAL int poll_sockets (char *envp[])
 
 	rcp_listen_socket = create_listen_socket (MIN_TCP_PORT);
 	eapi_listen_socket = create_listen_socket (MIN_EAPI_LISTEN_PORT);
+
+	if (rcp_listen_socket < 0 || eapi_listen_socket < 0)
+		return -1;
+
 	args [0] = NEW2 (char, 100);
 	args [1] = NEW2 (char, 100);
 

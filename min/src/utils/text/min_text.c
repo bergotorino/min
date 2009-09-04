@@ -26,6 +26,8 @@
 /* ------------------------------------------------------------------------- */
 /* INCLUDE FILES */
 #include <stdio.h>
+#include <limits.h>
+
 #include <min_text.h>
 
 /* ------------------------------------------------------------------------- */
@@ -104,7 +106,12 @@ Text           *tx_create (const char *txt)
         }
 
         tmp = ((int)((float)tlen / (float)MaxTextBufferSize)) + 1;
-
+	if ((tmp * MaxTextBufferSize) > (INT_MAX - 1)) {
+		/* The string is HUGE, should not ever happen */
+		DELETE (retval->buf_);
+		DELETE (retval);
+		return INITPTR;
+	}
         if (tmp > 1) {
                 DELETE (retval->buf_);
                 retval->max_size_ = tmp * MaxTextBufferSize;

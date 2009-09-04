@@ -321,10 +321,15 @@ LOCAL min_event_t *add_state_event (minTestEventParam_t * param)
         }
         e = NEW (min_event_t);
         if (e == NULL) {
-                MIN_FATAL ("%s OOM situation!");
+                MIN_FATAL ("OOM situation!");
                 return INITPTR;
         }
         e->registrations_ = dl_list_create ();
+        if (e->registrations_ == INITPTR) {
+                MIN_FATAL ("OOM situation!");
+		DELETE (e);
+                return INITPTR;
+        }
         e->state_ = EState_UNSET;
         e->descr_ = param->event;
         param->event.event_name_ = NULL;

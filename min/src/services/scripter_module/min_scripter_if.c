@@ -1775,6 +1775,7 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
                 /* At the end exit gracefully. */
                 exit (TP_EXIT_SUCCESS);
         } else {
+		DELETE (stpd);
                 SCRIPTER_RTERR ("Test Process NOT created");
                 MIN_ERROR ("Combined Test Process NOT created");
                 goto EXIT;
@@ -2844,7 +2845,7 @@ int test_remote_exe (const char *slave_name, MinItemParser * mip)
 	if (token != INITPTR)
 		DELETE (token);
 	if (token2 != INITPTR)
-		DELETE (token);
+		DELETE (token2);
 
         return retval;
 }

@@ -252,8 +252,12 @@ LOCAL int ls_release_testmodule (lua_State *l)
                             ", expected one, got %d",stacktop);
                 return 0;
         }
-        if(lua_isuserdata(l,1)) { ti = (TMInfo*)lua_touserdata(l,1); }
-        else {
+        if(lua_isuserdata(l,1)) { 
+		ti = (TMInfo*)lua_touserdata(l,1); 
+		if (ti == NULL) {
+			MIN_WARN ("TMInfo NULL");
+		}
+	} else {
                 MIN_WARN("Wrong argument type for min.unload, expected"
                             " test module handle.");
                 return 0;
@@ -618,13 +622,14 @@ LOCAL int ls_run( lua_State *l )
         TestCaseResult tcr;
         DLList *cases = INITPTR;
         DLListIterator it = DLListNULLIterator;
-        if(stacktop<2) {
+	/* Coverity reports as DEADCODE
+        if(stacktop < 2) {
                 ret=1;
                 lua_pushnumber(l,ret);
                 MIN_WARN("Incorrect number of arguments for min.run:"
                             " expected at least two arguments");
                 return 1;
-        }
+		} */
         if(lua_isstring(l,1)) { tmname = (char*)lua_tostring(l,1); }
         if(lua_isnumber(l,2)) { tcid = lua_tonumber(l,2); }
         else {

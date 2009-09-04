@@ -25,6 +25,7 @@
 
 /* ------------------------------------------------------------------------- */
 /* INCLUDE FILES */
+#include <min_text.h>
 #include <min_logger.h>
 #include <min_lego_interface.h>
 

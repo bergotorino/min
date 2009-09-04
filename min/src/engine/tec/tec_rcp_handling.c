@@ -476,6 +476,7 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
                 MIN_WARN ("test case file not specified");
                 error_code = -1;
                 casefile = NULL;
+		goto FAULT;
         }
         result = mip_get_int (extif_message, "testcasenum=", &caseid);
         if (result != 0) {
@@ -535,6 +536,7 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
 			   "" : temp_string);
 #else
         ec_add_module (module, conf_list, 0, 0);
+	conf_list = INITPTR;
 #endif
 	DELETE (temp_string);
         /*wait for module to return testcases */
@@ -652,6 +654,10 @@ MODULE_PRESENT:
         DELETE (module);
         DELETE (casefile);
 	DELETE (casetitle);
+	dl_list_foreach (dl_list_head (conf_list), dl_list_tail (conf_list),
+			 free);
+	dl_list_free (&conf_list);
+
         return 0;
 
       FAULT:
@@ -1304,6 +1310,8 @@ int ec_msg_ms_handler (MsgBuffer * message)
                         DELETE (extifmessage);
 			DELETE (param1);
 			DELETE (param2);
+			mip_destroy (&params);
+
                         return 0;
                         break;
                 case EKeywordRelease:

@@ -147,6 +147,10 @@ LOCAL void     *ti_mem_controller (void *Arg)
         char          **exec_args = NEW2 (char *, 3);
         testInterference *Ainterference = (testInterference *) Arg;
         MIN_TRACE ("-->");
+	if (exec_args == NULL) {
+		MIN_FATAL ("OOM");
+		return NULL;
+	}
 	exec_args[0] = exec_args[1] = exec_args[2] = NULL;
         if (Ainterference->idle_time_ != 0) {
                 MIN_DEBUG ("enter IDLE/BUSY cycle (%d/%d)",
@@ -168,6 +172,7 @@ LOCAL void     *ti_mem_controller (void *Arg)
                                                  Ainterference->memory_load_);
                                         exec_args[2] = NULL;
                                         execv (exec_args[0], exec_args);
+					fclose (output);
                                 } else {
                                         Ainterference->instance_pid_ =
                                             inst_pid;
@@ -208,6 +213,7 @@ LOCAL void     *ti_mem_controller (void *Arg)
                                  Ainterference->memory_load_);
                         exec_args[2] = NULL;
                         execv (exec_args[0], exec_args);
+			fclose (output);
                 } else {
                         Ainterference->instance_pid_ = inst_pid;
                 }
@@ -222,8 +228,6 @@ LOCAL void     *ti_mem_controller (void *Arg)
 		DELETE (exec_args [2]);
 		DELETE (exec_args);
 	}
-	if (output)
-		fclose (output);
 
         MIN_TRACE ("<--");
         return NULL;            //only to satisfy compiler
@@ -370,10 +374,12 @@ testInterference *ti_start_interference_timed (TInterferenceType aType,
                                  interf_controller->cpu_load_);
                         exec_args[2] = NULL;
                         execv (exec_args[0], exec_args);
+			fclose (output);
                         break;
                 case (EMemLoad):
                         /*memload is treated differently, since pausing it
                            doesn't stop the memory from being taken */
+			fclose (output);
                         exit (0);
                 case (EIOLoad):
                         ret = system
@@ -384,6 +390,7 @@ testInterference *ti_start_interference_timed (TInterferenceType aType,
 				 strlen ("/tmp/workfile"));
                         exec_args[2] = NULL;
                         execv (exec_args[0], exec_args);
+			fclose (output);
                         break;
                 }
         }
@@ -393,8 +400,6 @@ testInterference *ti_start_interference_timed (TInterferenceType aType,
 		DELETE (exec_args[2]);
 		DELETE (exec_args);
 	}
-	if (output)
-		fclose (output);
 
         return interf_controller;
 }

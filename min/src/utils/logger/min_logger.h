@@ -30,6 +30,7 @@
 /* INCLUDES */
 #include <stdarg.h>
 #include <stdio.h>
+
 #include <min_logger_common.h>
 #include <min_system_logger.h>
 #include <min_logger_output.h>
@@ -37,6 +38,8 @@
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
+
+
 
 /* ------------------------------------------------------------------------- */
 /* MACROS */

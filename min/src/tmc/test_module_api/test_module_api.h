@@ -116,17 +116,17 @@
         return 0;                                                       \
         } while(0);
 /* ------------------------------------------------------------------------- */
-#define RESULT2(_tcr_,_r_,_d_,...)                                      \
-        do {                                                            \
-        char tmp[MaxTestResultDescription];                             \
-        char* hack = &_d_[0];                                           \
-        if(strlen(hack)>(MaxTestResultDescription-1)) {                 \
-                hack[MaxTestResultDescription-1] = '\0';                \
-        }                                                               \
-        sprintf(tmp,hack,__VA_ARGS__);                                  \
-        _tcr_->result_ = _r_;                                           \
-        STRCPY(_tcr_->desc_,tmp,MaxTestResultDescription);              \
-        return 0;                                                         \
+#define RESULT2(_tcr_,_r_,_d_,...)                                         \
+        do {                                                               \
+		char tmp[MaxTestResultDescription];			   \
+		char* hack = &_d_[0];					   \
+		if(strlen(hack)>(MaxTestResultDescription-1)) {		   \
+			hack[MaxTestResultDescription-1] = '\0';	   \
+		}							   \
+		snprintf(tmp,hack,__VA_ARGS__, MaxTestResultDescription-1);\
+		_tcr_->result_ = _r_;					   \
+		STRCPY(_tcr_->desc_,tmp,MaxTestResultDescription);	   \
+		return 0;						   \
         } while(0);
 /* ------------------------------------------------------------------------- */
 /** Macro for veryfy boolean value.

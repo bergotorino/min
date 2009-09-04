@@ -504,19 +504,18 @@ int main (int argc, char *argv[], char *envp[])
 	 *  Load plugin and go
 	 */
 	c2 = tx_get_buf(plugin);
-	do {
-		c3 = strchr (c2,':');
-		if (c3!=NULL) (*c3) = '\0';
-		plugin_cont[0].plugin_thread_ = 
-			load_plugin(c2, plugin_opts,
-				    &plugin_cont[0].plugin_handle_);
-		num_of_plugins++;
-                        /* Multiple plugins not supported yet by engine.
-                         * FIXME: remove in future following line. */
-		break;
-		/* if (c3==NULL) break;
-		   c2 = c3+1;*/
-	} while (c3!=NULL);
+	/* do { */
+	c3 = strchr (c2,':');
+	if (c3 != NULL) (*c3) = '\0';
+	plugin_cont[0].plugin_thread_ = 
+		load_plugin(c2, plugin_opts,
+			    &plugin_cont[0].plugin_handle_);
+	num_of_plugins++;
+	/* Multiple plugins not supported yet by engine.
+	 * FIXME: remove in future following lines. */
+	/* if (c3==NULL) break;
+	   c2 = c3+1;*/
+	/* } while (c3!=NULL); */
 	tx_destroy (&plugin);
 	if (add_command_line_modules (modulelist) ||
 	    add_ip_slaves (slavelist)) {

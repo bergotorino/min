@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <arpa/inet.h>
+#include <limits.h>
 #include <errno.h>
 
 #include <tcpip_plugin.h>
@@ -174,6 +175,11 @@ LOCAL void read_from_socket (int fd)
 		return;
 	}
 	len = read16 ((unsigned char *)&hdr_buff[1]);
+	if (len >= (INT_MAX - 1)) {
+		MIN_WARN ("Invalid msg len %d", len);
+		goto err_out;
+		return;
+	}
 	MIN_DEBUG ("message len %u", len);
 	buff = NEW2 (char, len);
 	while (total_read < len) {
@@ -971,8 +977,6 @@ LOCAL void pl_test_files (char *files)
 			       msg_len,
 			       buff);
 }
-
-
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
