@@ -241,7 +241,7 @@ MIN_TESTDEFINE (test_dllist_alter_item_by_iterator)
         MIN_ASSERT_NOT_EQUALS_DESC (retval, -1, "dl_list_alter_it failed");
         value = (int *)dl_list_data (dl_list_head (l));
         MIN_ASSERT_EQUALS_DESC (*value, aaa[2], "Alter error");
-        dl_list_alter_it (dl_list_head (l), INITPTR);
+        retval = dl_list_alter_it (dl_list_head (l), INITPTR);
         MIN_ASSERT_NOT_EQUALS_DESC (retval, -1, "dl_list_alter_it failed when value NULL.");
         dl_list_free (&l);
         retval = dl_list_alter_it (INITPTR, &aaa[2]);
