@@ -1,0 +1,12 @@
+Source: TemplateQtScriptXXX
+Section: libs
+Priority: optional
+Maintainer: John Doe <John.Doe@example.com>
+Build-Depends: debhelper, min-dev, libqt4-dev
+Standards-Version: 3.8.0
+
+Package: TemplateQtScriptXXX
+Architecture: any
+Depends: ${shlibs:Depends}, min, libqt4-core
+Description: MIN QtTestClassXXX qt test module
+ Extended description goes here.

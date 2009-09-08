@@ -29,12 +29,14 @@ my $hardcoded = "hardcoded";
 my $testclass = "testclass";
 my $minunit = "minunit";
 my $luatestclass = "luatestclass";
+my $qttestclass = "qttestclass";
 
 my $normali = "n";
 my $hardcodedi = "h";
 my $testclassi = "t";
 my $luatestclassi = "l";
 my $minuniti = "m";
+my $qti = "q"; 
 my $exiti = "e"; 
 
 
@@ -66,6 +68,7 @@ use Term::ANSIColor qw(:constants);
 	print BOLD UNDERLINE"\t$testclassi"; print "estclass = creates test class which is used with TestScripter.\n";
 	print BOLD UNDERLINE"\t$luatestclassi"; print "uatestclass = creates test class which is used with LuaScripter.\n";
 	print BOLD UNDERLINE"\t$minuniti"; print "inunit =  creates xUnit compatible test module\n";
+	print BOLD UNDERLINE"\t$qti"; print "ttestclass =  creates test class suitbale for Qt testing\n";
 	print BOLD UNDERLINE"\t$exiti"; print "xit = Exit.\n";  
     $moduletype = $term->readline($prompttype);
     if( $moduletype eq $exit || $moduletype eq $exiti)
@@ -74,7 +77,7 @@ use Term::ANSIColor qw(:constants);
     }
 }
 if( $moduletype ne $normal && $moduletype ne $hardcoded && $moduletype ne $testclass && $moduletype ne $minunit && $moduletype ne $luatestclass &&
-$moduletype ne $normali && $moduletype ne $hardcodedi && $moduletype ne $testclassi  && $moduletype ne $minuniti && $moduletype ne $luatestclassi )
+$moduletype ne $normali && $moduletype ne $hardcodedi && $moduletype ne $testclassi  && $moduletype ne $minuniti && $moduletype ne $luatestclassi  && $moduletype ne $qti)
     {
         print "\nInvalid module type\n";
         print "See createtestmodule help\n";
@@ -106,6 +109,10 @@ else
 	elsif( $moduletype eq $minunit || $moduletype eq $minuniti)
 	{
 		print "$minunit module selected.\n";
+	}
+	elsif( $moduletype eq $qttestclass || $moduletype eq $qti)
+	{
+		print "$qttestclass module selected.\n";
 	}
 	
     print "Enter ModuleName which has to be a valid C++ variable name.\n";
@@ -187,6 +194,13 @@ elsif( $moduletype eq $luatestclass || $moduletype eq $luatestclassi)
     chdir $path."TemplateLuaScriptXXX";
     system("perl -x createluatestclass @args");
 }
+
+elsif( $moduletype eq $qttestclass || $moduletype eq $qti)
+{
+    chdir $path."TemplateQtScriptXXX";
+    system("perl -x createqttestclass @args");
+}
+
 
 exit;
 

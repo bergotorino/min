@@ -1,7 +1,7 @@
 /*
  * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
  * and/or its subsidiary(-ies).
- * Contact: Konrad Marek Zapalowicz
+ * Contact: Sampo Saaristo
  * Contact e-mail: DG.MIN-Support@nokia.com
  * 
  * This program is free software: you can redistribute it and/or modify it 
@@ -16,17 +16,15 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-
 /**
- *  @file       TemplateScriptXXX.cpp
+ *  @file       TemplateQtScriptXXX.cpp
  *  @version    0.1
- *  @brief      This file contains implementation of the TemplateQtScriptXXX
+ *  @brief      This file contains implementation of the TemplateScriptXXX
  *              test module of MIN Test Framework.
  */
-
 /* ------------------------------------------------------------------------- */
 /* INCLUDE FILES */
-#include "TemplateScriptXXX.hpp"
+#include "TemplateQtScriptXXX.h"
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -77,6 +75,7 @@ ScriptVariable *_find_var (const char *varname);
 /* FORWARD DECLARATIONS */
 /* None */
 
+/* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
 /** Compare function for callname
@@ -371,7 +370,6 @@ int ts_run_method (MinItemParser * item)
       EXIT:
         return retval;
 }
-
 extern "C" {
 /* ------------------------------------------------------------------------- */
 /** return  test module type */
@@ -385,11 +383,11 @@ unsigned int get_module_version()
 /** return build date */
 char* get_module_date()
 { return module_date; }
-/* ------------------------------------------------------------------------- */
+
 /** return build time */
 char* get_module_time()
 { return module_time; }
-/* ------------------------------------------------------------------------- */
+
 }
 /* ------------------------------------------------------------------------- */
 /** Assign string value to script variable
@@ -504,3 +502,4 @@ int GetLocalValue (const char *varname, char **value)
 
 /* ------------------------------------------------------------------------- */
 /* End of file */
+
