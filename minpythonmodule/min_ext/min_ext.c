@@ -574,7 +574,7 @@ LOCAL PyObject *p_tm_complete_case (PyObject * self, PyObject * Args)
         char           *testcase_file = NULL;
         char           *testcase_title = NULL;
         TestCaseResult  min_result;
-        char           *mod_path;
+        char           *mod_path = NULL;
         char           *tc_file = NULL;
         int             arg_size = PyTuple_Size (Args);
         void           *lib_ptr = NULL;
@@ -644,14 +644,15 @@ out:
 		dlclose (lib_ptr);
         DELETE (mod_path);
 	DELETE (tc_file);
-
+	
+	dl_list_foreach (dl_list_head (min_cases), dl_list_tail (min_cases),
+			  free);
+	dl_list_free (&min_cases);
 
         result =
             Py_BuildValue ( /*Format string */ "i", /*variable(s) */
                            result_c);
         return result;
-
-	
 }
 /* -------------------------------------------------------------------------- */
 /** min_ext.Start_case
@@ -765,6 +766,10 @@ static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
 
         return result;
  errout:
+	dl_list_foreach (dl_list_head (min_cases), dl_list_tail (min_cases),
+			  free);
+	dl_list_free (&min_cases);
+
 	DELETE (tc_file);
 	DELETE (mod_path);
 	DELETE (execution_params);
@@ -885,7 +890,7 @@ LOCAL PyObject *p_tm_allocate_slave (PyObject * self, PyObject * args)
              &slavename))
                 return NULL;
         mq_id = mq_open_queue ('a');
-        if (mq_id == 0) {
+        if (mq_id <= 0) {
                 MIN_WARN ("message queue fault");
                 return NULL;
         }
@@ -926,7 +931,7 @@ LOCAL PyObject *p_tm_release_slave (PyObject * self, PyObject * args)
              &slavename))
                 return NULL;
         mq_id = mq_open_queue ('a');
-        if (mq_id == 0) {
+        if (mq_id <= 0) {
                 MIN_WARN ("message queue fault");
                 return NULL;
         }
@@ -1002,6 +1007,11 @@ LOCAL PyObject *p_tm_request_remote_event (PyObject * self, PyObject * Args)
                 events_list = dl_list_create ();
         }
         mq_id = mq_open_queue ('a');
+        if (mq_id <= 0) {
+                MIN_WARN ("message queue fault");
+		DELETE (event);
+                return NULL;
+        }
         sprintf (message.message_, "%s", slave_name);
         message.type_ = MSG_EXTIF;
         message.sender_ = getpid ();
@@ -1062,6 +1072,11 @@ LOCAL PyObject *p_tm_remote_event_release (PyObject * self, PyObject * Args)
         }
 
         mq_id = mq_open_queue ('a');
+        if (mq_id <= 0) {
+                MIN_WARN ("message queue fault");
+                return NULL;
+        }
+
         sprintf (message.message_, "%s", slave_name);
         message.type_ = MSG_EXTIF;
         message.sender_ = getpid ();
@@ -1120,6 +1135,11 @@ LOCAL PyObject *p_tm_remote_run_case (PyObject * self, PyObject * Args)
         }
 
         mq_id = mq_open_queue ('a');
+        if (mq_id <= 0) {
+                MIN_WARN ("message queue fault");
+                return NULL;
+        }
+
         sprintf (message.message_, "%s", slave_name);
         message.type_ = MSG_EXTIF;
         message.sender_ = getpid ();
