@@ -59,7 +59,7 @@ extern TSBool   stprun;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
-/* None */
+MsgBuffer       result;
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
@@ -101,7 +101,6 @@ LOCAL void stp_handle_run (const MsgBuffer * msg)
         MinItemParser  mip;
         int             ret = 0;
         int             mq = mq_open_queue ('a');
-        MsgBuffer       result;
 
         if (mq < 0) {
                 MIN_WARN ("mq_open_queue() FAILED");
@@ -133,32 +132,71 @@ LOCAL void stp_handle_run (const MsgBuffer * msg)
                 goto EXIT;
         }
 
-        /* 4) call test function */
-        ret = tcd->runtc_ (&mip);
-
-        /* 5) when the test is finished we have to do something... */
-        /*    sending result back via IPC looks like a good idea.  */
         result.receiver_ = getppid ();
         result.sender_ = getpid ();
         result.type_ = MSG_RET;
-        result.param_ = ret;
         STRCPY (result.desc_, msg->desc_, MaxDescSize);
         STRCPY (result.message_, msg->desc_, MaxMsgSize);
+
+        /* 4) call test function */
+        ret = tcd->runtc_ (&mip);
+        result.param_ = ret;
+
+        /* 5) when the test is finished we have to do something... */
+        /*    sending result back via IPC looks like a good idea.  */
         result.special_ = 0;
         mq_send_message (mq, &result);
         DELETE (mip.item_line_section_);
       EXIT:
         return;
 }
-
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
-/** SIGUSR2 handler 
+/** SIGUSR2 handler.
+ *  @param signum not used. 
  */
 void stp_handle_sigusr2 (int signum)
 {
         stprun = ESFalse;
+}
+/* ------------------------------------------------------------------------- */
+/** SIGSEGV handler 
+ *  @param signum not used.
+ */
+void stp_handle_sigsegv (int signum)
+{
+
+        int             mq = mq_open_queue ('a');
+        stprun = ESFalse;
+
+        if (mq < 0) {
+                MIN_WARN ("mq_open_queue() FAILED");
+		return;
+        }
+        result.param_ = TP_CRASHED;
+        result.special_ = 0;
+        mq_send_message (mq, &result);
+	exit (0);
+}
+/* ------------------------------------------------------------------------- */
+/** SIGABORT handler 
+ *  @param signum not used.
+ */
+void stp_handle_sigabort (int signum)
+{
+
+        int             mq = mq_open_queue ('a');
+        stprun = ESFalse;
+
+        if (mq < 0) {
+                MIN_WARN ("mq_open_queue() FAILED");
+		return;
+        }
+        result.param_ = TP_CRASHED;
+        result.special_ = 0;
+        mq_send_message (mq, &result);
+	exit (0);
 }
 /* ------------------------------------------------------------------------- */
 /** Handles IPC message in the Scripted Test Process way. 

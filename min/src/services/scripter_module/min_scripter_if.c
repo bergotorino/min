@@ -106,7 +106,7 @@ do {			                                                   \
 /* MODULE DATA STRUCTURES */
 /* ------------------------------------------------------------------------- */
 struct scripter_mod_ {
-        minScripterIf  min_scripter_if;/**< Interface to parser plugin     */
+        minScripterIf   min_scripter_if; /**< Interface to parser plugin     */
         DLList         *req_events;      /**< Local requested events.        */
         DLList         *tp_details;      /**< Global list of loaded modules. */
         int             mqid;            /**< Message Queue Id               */
@@ -647,7 +647,7 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
         TestCaseResult *tcr;
         char            tmp2[12];
 	TSBool		complete_used=ESFalse;
-
+	
         if (message == INITPTR) {
                 errno = EINVAL;
                 SCRIPTER_RTERR ("empty message");
@@ -698,7 +698,7 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
                 if (param == stpd->options_.expect_) {
                         tcr->result_ = TP_PASSED;
                 } else {
-                        tcr->result_ = TP_FAILED;
+                        tcr->result_ = param;
                 }
                 update_variables (tcr->result_);
 
@@ -753,11 +753,10 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
                                    , dl_list_tail (stpd->allowed_results_)
                                    , _findallowedresult,
                                    (const void *)&param);
-                if (it == DLListNULLIterator) {
-                        param = TP_FAILED;
-                } else {
+                if (it != DLListNULLIterator) {
                         param = TP_PASSED;
                 }
+
                 update_variables (param);
                 /* Now we can destroy the list. No need to keep allowed
                  * result any more. */
@@ -1049,6 +1048,7 @@ LOCAL void scripter_sigalrm_handler (int sig)
                 it2 = it;
         } while (it != DLListNULLIterator);
 }
+
 /* ------------------------------------------------------------------------- */
 /** List find compare function
  *  @param a comparison lvalue
@@ -1383,18 +1383,18 @@ LOCAL void scripter_final_verdict (DLList * tp_details, TestCaseResult * tcr)
                         case TP_TIMEOUTED:
                         case TP_LEAVE:
                                 num_fail++;
-                                if (strlen (tcr->desc_) > 0) 
+				if (strlen (tcr->desc_) > 0) 
                                         break;
-                                if (stpd->mod_type_ == EDLLTypeClass)
-                                        snprintf (tcr->desc_, 
-                                                  MaxTestResultDescription - 1,
+                                if (stpd->mod_type_ == EDLLTypeClass) {
+					snprintf (tcr->desc_, 
+						  MaxTestResultDescription - 1,
                                                   "Test Method call \"%s.%s\""
                                                   "  %s",
                                                   stpd->testclass_, 
                                                   res->desc_,
                                                   result_str 
                                                   [res->result_ + 2]);
-                                else {
+                                } else {
                                         snprintf (tcr->desc_,
                                                   MaxTestResultDescription - 1, 
                                                   "Run %s(%d) %s: %s ",
@@ -1531,7 +1531,8 @@ int testclass_create (filename_t dllName, char *className)
                 min_log_open ("ScriptedTP", 3);
                 mq_init_buffer ();
                 signal (SIGUSR2, stp_handle_sigusr2);
-                
+                signal (SIGSEGV, stp_handle_sigsegv);
+		signal (SIGABRT, stp_handle_sigabort);
                 fetch_ptr2run (dllpath, className);
 
                 while (stprun) {
@@ -1757,6 +1758,8 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
                 mq_init_buffer ();
                 sched_yield ();
                 signal (SIGUSR2, ctp_handle_sigusr2);
+                signal (SIGSEGV, ctp_handle_sigsegv);
+		signal (SIGABRT, ctp_handle_sigabort);
 
                 pause_action.sa_sigaction = ctp_hande_sigtstp;
                 sigfillset (&pause_action.sa_mask);
@@ -2141,6 +2144,7 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         memset (scripter_mod.script_tcr.desc_, 0x0, MaxTestResultDescription);
 
         signal (SIGCHLD, SIG_IGN);
+
         /* 7) The uEngine main loop */
         while (!scripter_mod.script_finished || _pending_tests ()) {
 

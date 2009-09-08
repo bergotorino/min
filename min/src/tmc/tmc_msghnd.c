@@ -88,6 +88,8 @@ LOCAL void      gu_handle_event (TMC_t * tmc, const MsgBuffer * msg);
 /* ------------------------------------------------------------------------- */
 LOCAL void      gu_handle_sigsegv (int sig);
 /* ------------------------------------------------------------------------- */
+LOCAL void      gu_handle_sigabrt (int sig);
+/* ------------------------------------------------------------------------- */
 LOCAL void      gu_handle_sigusr2 (int sig);
 /* ------------------------------------------------------------------------- */
 LOCAL void      gu_create_tp (TMC_t * tmc, int id, const char *cfg_file, 
@@ -283,13 +285,24 @@ void dummy_handler (int sig)
  */
 void gu_handle_sigsegv (int sig)
 {
-	MIN_DEBUG ("SIGSEGV!");
-        ip_send_ret (&ptmc->tmcipi_, TP_CRASHED, "Crashed");
+        ip_send_ret (&ptmc->tmcipi_, TP_CRASHED, "Crashed - SIGSEGV");
         sleep (1);
         exit (TP_EXIT_FAILURE);
         return;
 }
-
+/* ------------------------------------------------------------------------- */
+/** SIGABRT handler
+ *  @param sig number of the signal
+ *
+ *  Handles Test Process crashing event. Called async. by the system.
+ */
+void gu_handle_sigabrt (int sig)
+{
+        ip_send_ret (&ptmc->tmcipi_, TP_CRASHED, "Crashed - SIGABRT");
+        sleep (1);
+        exit (TP_EXIT_FAILURE);
+        return;
+}
 /* ------------------------------------------------------------------------- */
 /** SIGUSR2 handler
  *  @param sig number of the signal
@@ -317,6 +330,8 @@ LOCAL void gu_create_tp (TMC_t * tmc, int id, const char *cfg_file, int delay)
         ip_init (&tmc->tmcipi_, getppid ());
 
         sl_set_sighandler (SIGSEGV, gu_handle_sigsegv);
+        sl_set_sighandler (SIGABRT, gu_handle_sigabrt);
+
         sl_set_sighandler (SIGUSR2, gu_handle_sigusr2);
 	if (delay) 
 		sleep (5);

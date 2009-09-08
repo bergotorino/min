@@ -116,6 +116,58 @@ void ctp_hande_sigtstp (int signo, siginfo_t * info, void *context)
         }
 
 }
+/* ------------------------------------------------------------------------- 
+ *  Handler for SIGSEGV signal.
+ *  @param signum not used.
+ */
+void ctp_handle_sigsegv (int signum)
+{
+
+        int             mq = mq_open_queue ('a');
+	MsgBuffer       result;
+
+        ctprun = ESFalse;
+        if (mq < 0) {
+                MIN_WARN ("mq_open_queue() FAILED");
+		return;
+        }
+        result.receiver_ = getppid ();
+        result.sender_ = getpid ();
+        result.type_ = MSG_RET;
+        result.param_ = TP_CRASHED;
+        result.special_ = 0;
+	result.desc_[0] = '\0';
+	STRCPY (result.message_, "SIGSEGV caught", MaxMsgSize);
+        mq_send_message (mq, &result);
+	sleep (1);
+	exit (0);
+}
+/* ------------------------------------------------------------------------- 
+ *  Handler for SIGABORT signal.
+ *  @param signum not used.
+ */
+void ctp_handle_sigabort (int signum)
+{
+
+        int             mq = mq_open_queue ('a');
+	MsgBuffer       result;
+
+        ctprun = ESFalse;
+        if (mq < 0) {
+                MIN_WARN ("mq_open_queue() FAILED");
+		return;
+        }
+        result.receiver_ = getppid ();
+        result.sender_ = getpid ();
+        result.type_ = MSG_RET;
+        result.param_ = TP_CRASHED;
+        result.special_ = 0;
+	result.desc_[0] = '\0';
+	STRCPY (result.message_, "SIGABORT caught", MaxMsgSize);
+        mq_send_message (mq, &result);
+	sleep (1);
+	exit (0);
+}
 
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
