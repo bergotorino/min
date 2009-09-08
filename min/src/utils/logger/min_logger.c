@@ -70,13 +70,13 @@ LOCAL void      mnl_overwrite_settings (struct logger_settings_t *ls,
                                         TLogLevel * loglevel);
 /* ------------------------------------------------------------------------- */
 LOCAL MinTxtLogger *stl_create (const TSChar * path, const TSChar * file,
-                                 TSLoggerType loggertype, unsigned int output,
-                                 TSBool overwrite, TSBool withtimestamp,
-                                 TSBool withlinebreak,
-                                 TSBool witheventranking,
-                                 TSBool pididtologfile, TSBool createlogdir,
-                                 unsigned int staticbuffersize,
-                                 TSBool unicode);
+				TSLoggerType loggertype, unsigned int output,
+				TSBool overwrite, TSBool withtimestamp,
+				TSBool withlinebreak,
+				TSBool witheventranking,
+				TSBool pididtologfile, TSBool createlogdir,
+				unsigned int staticbuffersize,
+				TSBool unicode);
 /* ------------------------------------------------------------------------- */
 LOCAL void      stl_destroy (MinTxtLogger ** stl);
 /* ------------------------------------------------------------------------- */
@@ -84,13 +84,13 @@ LOCAL int       stl_send (struct logger_typeinfo_t *lt, int style,
                           const TSChar * msg);
 /* ------------------------------------------------------------------------- */
 LOCAL MinHtmlLogger *mhl_create (const TSChar * path, const TSChar * file,
-                                  TSLoggerType loggertype,
-                                  unsigned int output, TSBool overwrite,
-                                  TSBool withtimestamp, TSBool withlinebreak,
-                                  TSBool witheventranking,
-                                  TSBool pididtologfile, TSBool createlogdir,
-                                  unsigned int staticbuffersize,
-                                  TSBool unicode);
+				 TSLoggerType loggertype,
+				 unsigned int output, TSBool overwrite,
+				 TSBool withtimestamp, TSBool withlinebreak,
+				 TSBool witheventranking,
+				 TSBool pididtologfile, TSBool createlogdir,
+				 unsigned int staticbuffersize,
+				 TSBool unicode);
 /* ------------------------------------------------------------------------- */
 LOCAL void      mhl_destroy (MinHtmlLogger ** shl);
 /* ------------------------------------------------------------------------- */
