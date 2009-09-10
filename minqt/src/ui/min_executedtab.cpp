@@ -51,8 +51,8 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
 {
     // Proxies for model
     ongoingProxy_->setSourceModel(executedCasesModel_);
-    ongoingProxy_->setFilterKeyColumn(6);
-    ongoingProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_RUNNING));
+    ongoingProxy_->setFilterKeyColumn(3);
+    ongoingProxy_->setFilterWildcard(" is ");
     passedProxy_->setSourceModel(executedCasesModel_);
     passedProxy_->setFilterKeyColumn(6);
     passedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_PASSED));
@@ -60,9 +60,11 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
     failedProxy_->setFilterKeyColumn(6);
     failedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_FAILED));
     abortedProxy_->setSourceModel(executedCasesModel_);
-    abortedProxy_->setFilterKeyColumn(6);
+    abortedProxy_->setFilterKeyColumn(3);
+    abortedProxy_->setFilterWildcard(" has ");
+
     //  abortedProxy_->setFilterWildcard(Min::DescriptionProvider::getTestCaseResultDescription(TP_CRASHED));
-    abortedProxy_->setFilterRegExp("[nrNR]");
+    //    abortedProxy_->setFilterRegExp("[nrNR]");
 
     // Prints
     printMsgModel_->setStringList(db_.getPrintoutView(1));
@@ -103,11 +105,11 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
     hideViewColumns();
 
     // Construct the executed cases view
-    executedCasesView_->addTab(executedTable_,"All cases");
-    executedCasesView_->addTab(ongoingTable_,"Ongoing cases");
-    executedCasesView_->addTab(passedTable_,"Passed cases");
-    executedCasesView_->addTab(failedTable_,"Failed cases");
-    executedCasesView_->addTab(abortedTable_,"Aborted/Crashed cases");
+    executedCasesView_->addTab(executedTable_,"All");
+    executedCasesView_->addTab(ongoingTable_,"Ongoing");
+    executedCasesView_->addTab(passedTable_,"Passed");
+    executedCasesView_->addTab(failedTable_,"Failed");
+    executedCasesView_->addTab(abortedTable_,"Aborted/Crashed");
     executedCasesView_->setMinimumWidth(100);
 
     // Set-up Main pane
