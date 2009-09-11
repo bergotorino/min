@@ -188,12 +188,17 @@ unsigned int Min::Database::insertTestRun(unsigned int test_case_dbid,
 };
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::insertPrintout(unsigned int test_run_dbid,
-                                        const QString &content)
+					   const QString &content)
 {
     QSqlQuery query;
+    // untaint
+    QString cont(content);
+    if (cont.contains ('\"'))
+	    cont.remove ('\"');
+    
     query.prepare("INSERT INTO printout(test_run_id, content) VALUES (:runid, :content);");
     query.bindValue(QString(":runid"), QVariant(test_run_dbid));
-    query.bindValue(QString(":content"), QVariant(content));
+    query.bindValue(QString(":content"), QVariant(cont));
     if (query.exec()) {
         // Notify
         query.finish();
@@ -215,9 +220,13 @@ bool Min::Database::updateTestRun(unsigned int dbid,
     // Update existing test run
     QSqlQuery query;
     QString raw_query("");
+    QString result_d (result_description);
+
     //qDebug ("updateTestRun: %u %d %ld %ld %d %s",
     //    dbid, status, start_time, end_time, result, 
     //    result_description.toStdString().c_str());
+    if (result_d.contains ('\"'))
+	    result_d.remove ('\"');
     raw_query.append("UPDATE test_run SET status=");
     raw_query.append(QString::number(status));
     if (0!=start_time) {
@@ -230,7 +239,7 @@ bool Min::Database::updateTestRun(unsigned int dbid,
         raw_query.append(" , result=");
         raw_query.append(QString::number(result));
         raw_query.append(" , result_description=\"");
-        raw_query.append(result_description);
+        raw_query.append(result_d);
         raw_query.append("\"");
     }
     raw_query.append(" WHERE id=");
