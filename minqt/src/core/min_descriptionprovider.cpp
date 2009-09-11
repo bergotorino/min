@@ -38,7 +38,6 @@ Min::DescriptionProvider::~DescriptionProvider()
 // ----------------------------------------------------------------------------
 QString Min::DescriptionProvider::getTestCaseStatusDescription(int tcstatus)
 {
-	qDebug ("TCSTATUS = %d", tcstatus);
 
 	switch(tcstatus){
 		case TP_NONE:
@@ -69,7 +68,6 @@ QString Min::DescriptionProvider::getTestCaseStatusDescription(int tcstatus)
 // ----------------------------------------------------------------------------
 QString Min::DescriptionProvider::getTestCaseResultDescription(int tcresult)
 {
-	qDebug ("TCRESULT = %d", tcresult);
 	switch(tcresult){
 		case TP_CRASHED:
 			return QString("Test Case Crashed");

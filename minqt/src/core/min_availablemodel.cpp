@@ -62,13 +62,13 @@ QVariant Min::AvailableModel::data(const QModelIndex &index, int role) const
         if (row < data_.count() && column < 5 ) {
             return data_[row][column];
         } else return "Nothing";
-    }
+    } 
     return QVariant();
 }
 // -----------------------------------------------------------------------------
 QVariant Min::AvailableModel::headerData(int section,
-                                        Qt::Orientation orientation,
-                                        int role) const
+					 Qt::Orientation orientation,
+					 int role) const
 {
     if (orientation==Qt::Horizontal) {
         if (role==Qt::DisplayRole ) {
