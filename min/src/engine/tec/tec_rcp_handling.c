@@ -58,8 +58,8 @@ extern char    *strcasestr (__const char *__haystack, __const char *__needle);
 /* GLOBAL VARIABLES */
 /** List containing association data for master - slave system
 (slave_info structures)*/
-DLList         *ms_assoc;
-DLList         *EXTIF_received_data;
+DLList         *ms_assoc = INITPTR;
+DLList         *EXTIF_received_data = INITPTR;
 #ifdef MIN_EXTIF
 min_case_complete_func original_complete_callback;
 #endif

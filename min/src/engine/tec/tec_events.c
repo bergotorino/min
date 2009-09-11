@@ -90,7 +90,7 @@ const char     *regstate_str[] = {
 	"set registered"
 };
 
-DLList         *state_events, *ind_events;
+DLList         *state_events = INITPTR, *ind_events = INITPTR;
 
 
 /* ------------------------------------------------------------------------- */
@@ -544,6 +544,7 @@ int event_system_up (void)
  */
 void event_system_cleanup (void)
 {
+
         if (dl_list_size (ind_events) > 0)
                 dl_list_foreach (ind_events->head_, ind_events->tail_,
                                  free_event);

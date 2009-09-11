@@ -2259,7 +2259,6 @@ LOCAL void create_local_confdir ()
         confpath = tx_create (home);
         tx_c_append (confpath, "/.min");
 
-        memset (&dirstat, 0, sizeof (struct stat));
 	/* directory does not exist, try to create */
 	if (mkdir (tx_share_buf(confpath), S_IRWXU)) {
 		if (errno != EEXIST) {
@@ -2270,23 +2269,12 @@ LOCAL void create_local_confdir ()
 		}
 	}
 
-        /*
-        ** Check that the directory has write permissions
-        */
-        else if (!(dirstat.st_mode & S_IWUSR)) {
-                MIN_FATAL ("User does not have write permission to %s\n"
-                            "Exiting ...\n", tx_share_buf (confpath));
-                
-                goto err_exit;
-                
-        }
 
         tx_destroy (&confpath);
         return; 
        
 err_exit:
         tx_destroy (&confpath);
-        ec_cleanup ();
         exit (-1);
         return;
 }
