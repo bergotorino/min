@@ -12,14 +12,14 @@ if [ ! -e $CONFFILE ] ; then
 fi
 
 if [ $# -lt 2 ] ; then
-    return 1;
+    exit 1;
 fi
 
 
 if [ $# -eq 2 ] ; then
     grep $CONFSTR $CONFFILE
     if [ $? -eq 0 ] ; then
-	return 0;
+	exit 0;
     fi
     cp $CONFFILE $CONFFILE.backup
     echo "[New_Module]" >> $CONFFILE;
@@ -30,7 +30,7 @@ fi
 if [ $# -eq 3 ] ; then
     grep $TESTFILE $CONFFILE
     if [ $? -eq 0 ] ; then
-	return 0;
+	exit 0;
     fi
     cp $CONFFILE $CONFFILE.backup
     echo "[New_Module]" >> $CONFFILE;
