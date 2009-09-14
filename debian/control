@@ -19,7 +19,7 @@ Package: min-dev
 Section: devel
 Priority: extra
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: build-essential, ${shlibs:Depends}, ${misc:Depends}
 Description: MIN libraries, headers and testmodule wizard
  The headers and libraries needed to develop MIN test modules
 
