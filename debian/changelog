@@ -1,3 +1,15 @@
+min-all (2009w38) unstable; urgency=low
+  * Fourteenth MIN Release
+  * Fixed: Around 100 defects from static analysis tool.
+  * Fixed: MIN Qt GUI: first test run fails to start sporadically.
+  * Fixed: Crashes from test method not caught properly by scripter-module.
+  * Fixed: MIN Qt GUI: menu titles more intuitive.
+  * Fixed: MIN Qt GUI: problems in ongoing cases view.
+  * Fixed: MIN crashes if .min directory does not exist.
+  * Added: Qt test class for C++ Test Module Template Wizard.
+	
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   14 Sep 2009 11:39:40 +0100
+
 min-all (2009w36) unstable; urgency=low
   * Thirteenth MIN Release
   * Fixed: Around 300 defects from static analysis tool.
