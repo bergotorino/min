@@ -431,7 +431,8 @@ int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
        }
        
        if (found == 0) {
-	       MIN_WARN ("no slave of type %s found from ip slave pool");
+	       MIN_WARN ("no slave of type %s found from ip slave pool",
+			 slavetype);
 	       return -1;
        }
 
