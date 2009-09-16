@@ -654,8 +654,6 @@ MODULE_PRESENT:
         DELETE (module);
         DELETE (casefile);
 	DELETE (casetitle);
-	dl_list_foreach (dl_list_head (conf_list), dl_list_tail (conf_list),
-			 free);
 	dl_list_free (&conf_list);
 
         return 0;
