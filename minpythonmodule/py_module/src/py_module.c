@@ -93,6 +93,10 @@ TSBool check_end_conditions()
         TSBool retval = ESFalse;
         int *saved_caseid;
         DLListIterator it = DLListNULLIterator;
+        if (mq_id <= 0) {
+                MIN_WARN ("message queue fault");
+                return NULL;
+        }
         /*connect to shared memory segment and fetch info about status of
         asynchroneous operations.*/
 
