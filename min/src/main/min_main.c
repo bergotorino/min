@@ -206,7 +206,7 @@ LOCAL int add_command_line_modules (DLList * modulelist)
 				dl_list_foreach (dl_list_head (configs_list),
 						 dl_list_tail (configs_list),
 						 free);
-				dl_list_free (&config_list);
+				dl_list_free (&configs_list);
                                 return 1;
                         }
                         fclose (f);
@@ -221,7 +221,7 @@ LOCAL int add_command_line_modules (DLList * modulelist)
 			dl_list_foreach (dl_list_head (configs_list),
 					 dl_list_tail (configs_list),
 					 free);
-			dl_list_free (&config_list);
+			dl_list_free (&configs_list);
                         return 1;
                 }
                 fclose (f);
