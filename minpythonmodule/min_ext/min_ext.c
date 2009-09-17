@@ -233,6 +233,7 @@ LOCAL void *thread_exec (void *args)
         end_flags_id = sm_create ('p', sizeof (AsyncOpFlags));
 	if (end_flags_id < 0) {
 		MIN_WARN ("sm_create() failed");
+		dlclose (((case_args *) args)->mod_);
 		return NULL;
 	}
         end_flags_cont = sm_attach (end_flags_id);
@@ -769,7 +770,7 @@ static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
 	dl_list_foreach (dl_list_head (min_cases), dl_list_tail (min_cases),
 			  free);
 	dl_list_free (&min_cases);
-
+	dl_close (lib_ptr);
 	DELETE (tc_file);
 	DELETE (mod_path);
 	DELETE (execution_params);
