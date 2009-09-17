@@ -176,7 +176,7 @@ LOCAL MinSectionParser *mp_next_section_memory (MinParser * sp,
         TSChar         *whole_section = INITPTR;
         TSChar         *current_section = INITPTR;
         TSChar         *buff = INITPTR;
-        unsigned int    size = 0;
+        int    size = 0;
         const unsigned int tmpsize = 128;
         int             read = 0;
         int             tag_count = 0;

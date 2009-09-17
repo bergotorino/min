@@ -200,7 +200,7 @@ int mip_parse_start_and_end_pos (MinItemParser * mip, TSChar * start_tag,
         }
 
 	if (start_pos == NULL)
-		return;
+		return -1;
 
         while (*start_pos == ' ' && *start_pos != '\0') {
                 start_pos++;
