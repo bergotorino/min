@@ -106,8 +106,6 @@ namespace Min
 		int fd_;
 		/** Socket file descriptor */
 		QTcpSocket *sock;
-		/** Transaction id */
-		int tid_;
 		/** List implementing socket write queue
 		 */
 		QList<QByteArray*> writeQueue_;

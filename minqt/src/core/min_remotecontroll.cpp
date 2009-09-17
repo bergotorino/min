@@ -45,6 +45,7 @@ Min::RemoteControll::RemoteControll()
     , exeRequest_()
     , remote_(false)
     , closed_(true)
+    , sock_(-1)
 { ; }
 // -----------------------------------------------------------------------------
 Min::RemoteControll::~RemoteControll()
