@@ -1713,6 +1713,8 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
         if (tl_is_ok (&testlib) == 0) {
                 retval = -1;
                 SCRIPTER_RTERR_ARG ("Error opening", modulename);
+		dl_list_destory (&stpd->tcr_list_);
+		DELETE (stpd);
                 goto EXIT;
         }
         /* Now we can execute a test. If test case title is
@@ -1774,10 +1776,12 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
                 /* resend buffered, flush message buffer */
                 mq_resend_buffered ();
                 mq_flush_msg_buffer ();
+		dl_list_destory (&stpd->tcr_list_);
 		DELETE (stpd);
                 /* At the end exit gracefully. */
                 exit (TP_EXIT_SUCCESS);
         } else {
+		dl_list_destory (&stpd->tcr_list_);
 		DELETE (stpd);
                 SCRIPTER_RTERR ("Test Process NOT created");
                 MIN_ERROR ("Combined Test Process NOT created");
