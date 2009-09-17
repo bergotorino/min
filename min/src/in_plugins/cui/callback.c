@@ -1376,7 +1376,12 @@ LOCAL int get_cases_by_result_type (callback_s ** cb, int result_type)
       empty_menu:
         /* allocate memory for empty menu */
         *cb = NEW2(callback_s,2);
-        if (*cb==NULL) return -1;
+        if (*cb==NULL) {
+		dl_list_free(&passed_cases);
+		dl_list_free(&failed_cases);
+		dl_list_free(&abocra_cases);
+		return -1;
+	}
         memset(*cb,0x0,sizeof(callback_s)*2);
 
         set_cbs (&(*cb)[0], "", NULL, NULL, case_menu, NULL, NULL, 0);
