@@ -219,9 +219,10 @@ MIN_TESTDEFINE (test_dllist_add_multiple_item)
 /* ------------------------------------------------------------------------- */
 MIN_TESTDEFINE (test_dllist_two_lists)
 {
-        DLList         *ll = dl_list_create ();
+        DLList         *ll;
 	int             size1, size2;
         MIN_ASSERT_NOT_EQUALS (l, INITPTR);
+	ll = dl_list_create ();
         MIN_ASSERT_NOT_EQUALS (ll, INITPTR);
         retval = dl_list_add (l, &a);
 	size1 = dl_list_size (l);
