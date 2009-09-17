@@ -2049,6 +2049,7 @@ LOCAL int ec_read_slaves_section (MinParser * inifile)
 		slave_def = mp_section (inifile, "[Slaves]", "[End_Slaves]", i);
 	}
 
+	mip_destroy (&line);
         return 0;
 }
 #endif /* ndef MIN_EXTIF */

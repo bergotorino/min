@@ -454,6 +454,8 @@ LOCAL int eapi_query_test_files(char **filelist)
 							   " 2>/dev/null") + 1);
 			        strncpy(shell_io, "which file 2>/dev/null",
 					strlen("which file 2>/dev/null") + 1);
+				shell_io[strlen("which file 2>/dev/null")] 
+					= '\0';
 			        if ((shell_pipe=popen(shell_io, "r")) != NULL ) {
 			                free(shell_io);
         				shell_io = malloc (sizeof(char) * 1);
