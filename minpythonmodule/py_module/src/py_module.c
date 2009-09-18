@@ -95,7 +95,7 @@ TSBool check_end_conditions()
         DLListIterator it = DLListNULLIterator;
         if (mq_id <= 0) {
                 MIN_WARN ("message queue fault");
-                return NULL;
+                return ESFalse;
         }
         /*connect to shared memory segment and fetch info about status of
         asynchroneous operations.*/
