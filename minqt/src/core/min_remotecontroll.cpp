@@ -43,9 +43,9 @@ Min::RemoteControll::RemoteControll()
     : obj_(0)
     , testCaseFiles_()
     , exeRequest_()
+    , sock_(NULL)
     , remote_(false)
     , closed_(true)
-    , sock_(-1)
 { ; }
 // -----------------------------------------------------------------------------
 Min::RemoteControll::~RemoteControll()
