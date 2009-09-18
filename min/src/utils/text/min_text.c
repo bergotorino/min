@@ -119,7 +119,7 @@ Text           *tx_create (const char *txt)
                 memset (retval->buf_, '\0', retval->max_size_);
         }
 
-        STRCPY (retval->buf_, txt, tlen);
+        STRCPY (retval->buf_, txt, tlen + 1);
         retval->size_ = tlen;
       EXIT:
         return retval;
@@ -170,13 +170,13 @@ void tx_append (Text * dest, const Text * src)
                 dest->max_size_ = tmp * MaxTextBufferSize;
                 tmpbuf = NEW2 (char, dest->max_size_);
                 memset (tmpbuf, '\0', dest->max_size_);
-                STRCPY (tmpbuf, dest->buf_, dest->size_);
-                STRCPY (&tmpbuf[dest->size_], src->buf_, src->size_);
+                memcpy (tmpbuf, dest->buf_, dest->size_);
+                STRCPY (&tmpbuf[dest->size_], src->buf_, src->size_ + 1);
                 dest->size_ = totalsize;
                 DELETE (dest->buf_);
                 dest->buf_ = tmpbuf;
         } else {
-                STRCPY (&dest->buf_[dest->size_], src->buf_, src->size_);
+                STRCPY (&dest->buf_[dest->size_], src->buf_, src->size_ + 1);
                 dest->size_ += src->size_;
         }
 
@@ -207,7 +207,7 @@ void tx_copy (Text * dest, const Text * src)
         memset (dest->buf_, '\0', dest->max_size_);
         dest->size_ = src->size_;
 
-        STRCPY (dest->buf_, src->buf_, dest->size_);
+        STRCPY (dest->buf_, src->buf_, dest->size_ + 1);
       EXIT:
         return;
 }
@@ -241,13 +241,13 @@ void tx_c_append (Text * dest, const char *src)
                 dest->max_size_ = tmpsize * MaxTextBufferSize;
                 tmpbuf = NEW2 (char, dest->max_size_);
                 memset (tmpbuf, '\0', dest->max_size_);
-                STRCPY (tmpbuf, dest->buf_, dest->size_);
-                STRCPY (&tmpbuf[dest->size_], src, slen);
+                memcpy (tmpbuf, dest->buf_, dest->size_);
+                STRCPY (&tmpbuf[dest->size_], src, slen + 1);
                 dest->size_ = totalsize;
                 DELETE (dest->buf_);
                 dest->buf_ = tmpbuf;
         } else {
-                STRCPY (&dest->buf_[dest->size_], src, slen);
+                STRCPY (&dest->buf_[dest->size_], src, slen + 1);
                 dest->size_ += slen;
         }
 
@@ -314,7 +314,7 @@ void tx_c_copy (Text * dest, const char *src)
         memset (dest->buf_, '\0', dest->max_size_);
         dest->size_ = slen;
 
-        STRCPY (dest->buf_, src, slen);
+        STRCPY (dest->buf_, src, slen + 1);
       EXIT:
         return;
 }
@@ -384,7 +384,7 @@ void tx_back_trim (Text * txt, const char *chars)
                 txt->max_size_ = tmp2 * MaxTextBufferSize;
                 c = NEW2 (char, txt->max_size_);
                 memset (c, '\0', txt->max_size_);
-                STRCPY (c, txt->buf_, txt->size_);
+                STRCPY (c, txt->buf_, txt->size_ + 1);
                 DELETE (txt->buf_);
                 txt->buf_ = c;
         }

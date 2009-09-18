@@ -200,7 +200,7 @@ LOCAL void mnl_overwrite_settings (struct logger_settings_t *ls,
 
         if (ls->is_defined_.path_ == ESTrue) {
                 STRCPY (path, ls->emulator_path_,
-                        strlen (ls->emulator_path_));
+                        strlen (ls->emulator_path_) + 1);
         }
         if (ls->is_defined_.format_ == ESTrue) {
                 *loggertype = ls->emulator_format_;

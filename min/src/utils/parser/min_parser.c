@@ -229,7 +229,7 @@ LOCAL MinSectionParser *mp_next_section_memory (MinParser * sp,
         /* Create parser */
         if (sp->parsing_mode_ == EBufferParsing) {
                 /* Parser is created straight with data */
-                STRCPY (whole_section, sp->buffer_, size + 1);
+                memcpy (whole_section, sp->buffer_, size + 1);
         } else {
                 /* Parser is created with path and file information */
                 do {
@@ -246,11 +246,11 @@ LOCAL MinSectionParser *mp_next_section_memory (MinParser * sp,
                         } else {
 
                                 /* This should be: 8bit to 16bit */
-                                STRCPY (current_section, buff,
+                                memcpy (current_section, buff,
                                         strlen (buff) + 1);
 
                                 /* Appends current section to whole section */
-                                STRCPY (&whole_section
+                                memcpy (&whole_section
                                         [strlen (whole_section) + 1]
                                         , current_section,
                                         strlen (current_section) + 1);
@@ -458,9 +458,9 @@ LOCAL void mp_parse_comments_off (TSChar * buff)
                 if (search_type == EDoRemove) {
                         length = strlen (end_pos);
                         tmp = NEW2 (TSChar, length + 2);
-                        STRCPY (tmp, end_pos, length + 1);
+                        memcpy (tmp, end_pos, length + 1);
 
-                        STRCPY (start_pos, tmp, strlen (tmp) + 1);
+                        memcpy (start_pos, tmp, strlen (tmp) + 1);
 
                         DELETE (tmp);
                         tmp = INITPTR;
@@ -478,9 +478,9 @@ LOCAL void mp_parse_comments_off (TSChar * buff)
 
                 length = strlen (end_pos);
                 tmp = NEW2 (TSChar, length + 2);
-                STRCPY (tmp, end_pos, length + 1);
+                memcpy (tmp, end_pos, length + 1);
 
-                STRCPY (start_pos, tmp, length + 1);
+                memcpy (start_pos, tmp, length + 1);
 
                 DELETE (tmp);
                 tmp = INITPTR;
@@ -519,11 +519,11 @@ LOCAL void mp_handle_special_marks (TSChar * buff)
                                         c++;
                                         if (*(c + 1) == '/'
                                             || *(c + 1) == '*') {
-                                                STRCPY (secondpos,
+                                                memcpy (secondpos,
                                                         secondpos + 1,
                                                         strlen (secondpos +
                                                                 1));
-                                                STRCPY (firstpos,
+                                                memcpy (firstpos,
                                                         firstpos + 1,
                                                         strlen (firstpos +
                                                                 1));
@@ -537,11 +537,11 @@ LOCAL void mp_handle_special_marks (TSChar * buff)
                                 if (*(c + 1) == '\\') {
                                         c++;
                                         if (*(c + 1) == '/') {
-                                                STRCPY (secondpos,
+                                                memcpy (secondpos,
                                                         secondpos + 1,
                                                         strlen (secondpos +
                                                                 1));
-                                                STRCPY (firstpos,
+                                                memcpy (firstpos,
                                                         firstpos + 1,
                                                         strlen (firstpos +
                                                                 1));
@@ -616,12 +616,12 @@ MinParser     *mp_create (const TSChar * path, const TSChar * file,
         tmp->file_parser_ = INITPTR;
 
         /* Concatenate path and file and make sure that slash will be present */
-        STRCPY (filename, path, plen);
+        memcpy (filename, path, plen);
         if (*(c - 1) != '/') {
                 *c = '/';
                 c++;
         }
-        STRCPY (c, file, flen + 1);
+        memcpy (c, file, flen + 1);
         c[flen] = '\0';
 
         /* Open file */
@@ -672,7 +672,7 @@ MinParser     *mp_create_mem (const TSChar * buffer, TCommentType comments)
         tmp->file_parser_ = INITPTR;
         tmp->buffer_tmp_ = NEW2 (TSChar, strlen (buffer) + 1);
         tmp->buffer_ = &tmp->buffer_tmp_[0];
-        STRCPY (tmp->buffer_, buffer, strlen (buffer) + 1);
+        memcpy (tmp->buffer_, buffer, strlen (buffer) + 1);
       EXIT:
         return tmp;
 }

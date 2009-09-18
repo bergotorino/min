@@ -103,7 +103,7 @@ MinItemParser *mip_create (TSChar * section, int start_pos, int length)
                         mip->item_line_section_ = NEW2 (TSChar, length + 1);
 
                         if (mip->item_line_section_) {
-                                STRCPY (mip->item_line_section_,
+                                memcpy (mip->item_line_section_,
                                         (section + start_pos), length);
                                 mip->item_line_section_[length] = '\0';
                                 mip->item_skip_and_mark_pos_ = INITPTR;
@@ -328,7 +328,7 @@ int mip_get_string (MinItemParser * mip, TSChar * tag, TSChar ** string)
                         if (retval == 0) {
                                 *string = NEW2 (TSChar, length + 1);
                                 if (*string) {
-                                        STRCPY (*string, start_pos, length);
+                                        memcpy (*string, start_pos, length);
                                         (*string)[length] = '\0';
 
                                         if (extra_end_pos == INITPTR) {
@@ -398,7 +398,7 @@ int mip_get_next_string (MinItemParser * mip, TSChar ** string)
 
                                 *string = NEW2 (TSChar, length + 1);
                                 if (*string) {
-                                        STRCPY (*string, start_pos, length);
+                                        memcpy (*string, start_pos, length);
                                         (*string)[length] = '\0';
                                         /* Operation completed, no errors */
                                         errno = 0;
@@ -449,7 +449,7 @@ int mip_get_next_tagged_string (MinItemParser * mip, TSChar * tag,
                                 mip->item_skip_and_mark_pos_ = end_pos;
                                 *string = NEW2 (TSChar, length + 1);
                                 if (*string) {
-                                        STRCPY (*string, start_pos, length);
+                                        memcpy (*string, start_pos, length);
                                         (*string)[length] = '\0';
                                         /* Operation completed, no errors */
                                         errno = 0;
@@ -902,7 +902,7 @@ int mip_get_remainder (MinItemParser * mip, TSChar ** string)
                                         *string =
                                             NEW2 (TSChar, strlen (pos) + 1);
                                         if (*string) {
-                                                STRCPY (*string, pos,
+                                                memcpy (*string, pos,
                                                         strlen (pos) + 1);
                                                 errno = 0;
                                                 retval = 0;
@@ -1019,9 +1019,9 @@ int mip_replace (MinItemParser * mip, const TSChar * label,
                         i++;
                 }
 
-                STRCPY (&newstr[i], value, vlen);
+                memcpy (&newstr[i], value, vlen);
                 c = c + llen;
-                STRCPY (&newstr[i + vlen], c, strlen (c));
+                memcpy (&newstr[i + vlen], c, strlen (c));
 
                 /* replace buffers inside of item parser */
                 DELETE (mip->item_line_section_);

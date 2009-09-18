@@ -778,10 +778,15 @@ int min_if_module_add (char *module_name, char *conf_name)
 		** we can remove it now.
 		*/
 		pthread_mutex_lock (&tfwif_mutex_);
+		it = dl_list_find (dl_list_head (tfwif_modules_),
+				   dl_list_tail (tfwif_modules_),
+				   _find_mod_by_id,
+				   (const void *)&mi->module_id_);
+
 		dl_list_remove_it (it);
 		_del_internal_mod_info (mi);
 		pthread_mutex_unlock (&tfwif_mutex_);
-
+		
 	}
 
 	return 0;

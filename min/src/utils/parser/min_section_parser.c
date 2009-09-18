@@ -690,7 +690,7 @@ int mmp_get_line (MinSectionParser * msp, const TSChar * tag, TSChar ** line,
 
         /* we can return found line */
         *line = NEW2 (TSChar, length + 1);
-        STRCPY (*line, start_pos, length);
+        memcpy (*line, start_pos, length);
         (*line)[length] = '\0';
       EXIT:
         return retval;
@@ -744,7 +744,7 @@ int mmp_get_next_line (MinSectionParser * msp, TSChar ** line)
 
         /* we can return found line */
         *line = NEW2 (TSChar, length + 1);
-        STRCPY (*line, start_pos, length);
+        memcpy (*line, start_pos, length);
         (*line)[length] = '\0';
       EXIT:
         return retval;
@@ -806,7 +806,7 @@ int mmp_get_next_tagged_line (MinSectionParser * msp, const TSChar * tag,
 	
         /* we can return found line */
         *line = NEW2 (TSChar, length + 1);
-	STRCPY (*line, start_pos, length);
+	memcpy (*line, start_pos, length);
 	(*line)[length] = '\0';
 
       EXIT:
@@ -879,7 +879,7 @@ void mmp_set_data (MinSectionParser * msp, const TSChar * data,
                 goto EXIT;
         }
 
-        STRCPY (msp->section_, start_pos, length);
+        memcpy (msp->section_, start_pos, length);
         if (length < msp->length_)
                 msp->section_[length] = '\0';
         else

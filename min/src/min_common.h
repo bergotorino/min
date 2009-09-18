@@ -81,7 +81,15 @@
  *  Copies whole source string if it is shorter than max size of destination,
  *  otherwise copies n chcracter from the source string.
  */
-#define STRCPY(d,s,n)   strncpy(d,s,(strlen(s)>(n-1))?n:strlen(s)+1);
+#define STRCPY(d,s,n) \
+        do {								\
+		if (strlen (s) > ((n)-1)) {				\
+			strncpy (d, s, (n)-1);				\
+			*(d + ((n) - 1)) = '\0';			\
+		} else {						\
+			strncpy (d, s, strlen(s) + 1);			\
+		}							\
+        } while (0)            						\
 /* ------------------------------------------------------------------------- */
 /** Wraps around malloc to make it simpler to use.
  *  @param _object_ type of variable to be allocated

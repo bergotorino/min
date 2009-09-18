@@ -237,7 +237,7 @@ LOCAL void mfp_replace_comments_line (const TSChar * src_buff,
                         if (*c == quota) {
                                 find = EQuota;
                                 append[0] = space;
-                                STRCPY (cc, append, strlen (append));
+                                STRCPY (cc, append, strlen (append) + 1);
                                 cc = cc + strlen (append);
                         } else if (*c == slash) {
                                 if (*(c + 1) == slash) {
@@ -249,15 +249,15 @@ LOCAL void mfp_replace_comments_line (const TSChar * src_buff,
                                         find = EEndOfComment;
                                         c++;
                                         append[0] = space;
-                                        STRCPY (cc, append, strlen (append));
+                                        STRCPY (cc, append, strlen (append) + 1);
                                         cc = cc + strlen (append);
-                                        STRCPY (cc, append, strlen (append));
+                                        STRCPY (cc, append, strlen (append) + 1);
                                         cc = cc + strlen (append);
                                 } else {
                                         /* No start of comment - add read
                                            slash */
                                         append[0] = *c;
-                                        STRCPY (cc, append, strlen (append));
+                                        STRCPY (cc, append, strlen (append) + 1);
                                         cc = cc + strlen (append);
                                 }
                         } else if (*c == hash) {
@@ -268,7 +268,7 @@ LOCAL void mfp_replace_comments_line (const TSChar * src_buff,
                                 /* Append readed TSCharacter to the destination
                                    buffer */
                                 append[0] = *c;
-                                STRCPY (cc, append, strlen (append));
+                                STRCPY (cc, append, strlen (append) + 1);
                                 cc = cc + strlen (append);
                         }
 
@@ -278,7 +278,7 @@ LOCAL void mfp_replace_comments_line (const TSChar * src_buff,
                                 find = EStart;
                         }
                         append[0] = space;
-                        STRCPY (cc, append, strlen (append));
+                        STRCPY (cc, append, strlen (append) + 1);
                         cc = cc + strlen (append);
                 } else if (find == EEndOfComment) {
                         /* We're looking for the end of comment */
@@ -289,16 +289,16 @@ LOCAL void mfp_replace_comments_line (const TSChar * src_buff,
                                         find = EStart;
                                         c++;
                                         append[0] = space;
-                                        STRCPY (cc, append, strlen (append));
+                                        STRCPY (cc, append, strlen (append) + 1);
                                         cc = cc + strlen (append);
-                                        STRCPY (cc, append, strlen (append));
+                                        STRCPY (cc, append, strlen (append) + 1);
                                         cc = cc + strlen (append);
                                 } else {
                                         /* It is not the end of a comment,
                                            add this TSCharacter to the
                                            destinaton buffer */
                                         append[0] = *c;
-                                        STRCPY (cc, append, strlen (append));
+                                        STRCPY (cc, append, strlen (append) + 1);
                                         cc = cc + strlen (append);
                                 }
                         } else {
@@ -306,7 +306,7 @@ LOCAL void mfp_replace_comments_line (const TSChar * src_buff,
                                    add this TSCharacter to the destinaton
                                    buffer */
                                 append[0] = space;
-                                STRCPY (cc, append, strlen (append));
+                                STRCPY (cc, append, strlen (append) + 1);
                                 cc = cc + strlen (append);
                         }
                 }
@@ -369,14 +369,14 @@ LOCAL void mfp_replace_hash_comments_line (const TSChar * src_buff,
                         break;
                 else {
                         append[0] = *c;
-                        STRCPY (cc, append, strlen (append));
+                        STRCPY (cc, append, strlen (append) + 1);
                         cc = cc + strlen (append);
                 }
                 c++;
         }
 
         append[0] = '\0';
-        STRCPY (cc, append, strlen (append));
+        STRCPY (cc, append, strlen (append) + 1);
         cc = cc + strlen (append);
 
         /* Point buff to the output */
@@ -725,7 +725,7 @@ TSChar         *mfp_next_section (MinFileParser * sfp,
 
                                                 STRCPY (line,
                                                         without_comments_buff,
-                                                        buff_len);
+                                                        buff_len + 1);
 
                                                 STRCPY (&line[buff_len - 1]
                                                         , &end_of_line_buff[0]

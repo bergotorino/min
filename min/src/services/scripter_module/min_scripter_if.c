@@ -869,17 +869,17 @@ LOCAL void uengine_handle_extif_response (int result, int caseid)
 			   
                 stpd = NEW (ScriptedTestProcessDetails);
                 stpd->tcr_list_ = dl_list_create ();
-                STRCPY (stpd->testclass_, "", 1);
+                STRCPY (stpd->testclass_, "", 2);
                 stpd->pid_ = 0;
-                STRCPY (stpd->dllname_, "", 1);
-                STRCPY (stpd->cfgfile_, "", 1);
+                STRCPY (stpd->dllname_, "", 2);
+                STRCPY (stpd->cfgfile_, "", 2);
                 stpd->mod_type_ = EDLLTypeNormal;
                 stpd->options_.expect_ = ENOERR;
                 sprintf (stpd->options_.testid_, "%d", caseid); /* caseid */
-                STRCPY (stpd->options_.ini_, "", 1);
+                STRCPY (stpd->options_.ini_, "", 2);
                 stpd->options_.category_ = ECategoryNormal;
                 stpd->options_.timeout_ = 0;
-                STRCPY (stpd->options_.title_, "", 1);
+                STRCPY (stpd->options_.title_, "", 2);
                 stpd->status_ = TP_RUNNING;
 
                 /* Handle result allowing. */
@@ -1520,7 +1520,7 @@ int testclass_create (filename_t dllName, char *className)
                 goto EXIT;
         }
 
-        STRCPY (dllpath, dllName, strlen (dllName));
+        memcpy (dllpath, dllName, strlen (dllName));
         STRCPY (&dllpath[strlen (dllName)], ".so", 4);
 
         pid = fork ();
@@ -1713,7 +1713,7 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
         if (tl_is_ok (&testlib) == 0) {
                 retval = -1;
                 SCRIPTER_RTERR_ARG ("Error opening", modulename);
-		dl_list_destroy (&stpd->tcr_list_);
+		dl_list_free (&stpd->tcr_list_);
 		DELETE (stpd);
                 goto EXIT;
         }
@@ -1776,12 +1776,12 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
                 /* resend buffered, flush message buffer */
                 mq_resend_buffered ();
                 mq_flush_msg_buffer ();
-		dl_list_destroy (&stpd->tcr_list_);
+		dl_list_free (&stpd->tcr_list_);
 		DELETE (stpd);
                 /* At the end exit gracefully. */
                 exit (TP_EXIT_SUCCESS);
         } else {
-		dl_list_destroy (&stpd->tcr_list_);
+		dl_list_free (&stpd->tcr_list_);
 		DELETE (stpd);
                 SCRIPTER_RTERR ("Test Process NOT created");
                 MIN_ERROR ("Combined Test Process NOT created");
@@ -2253,7 +2253,7 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
         Text *homemindir = INITPTR;
         char *dir = INITPTR;
         char *file = INITPTR;
-       
+
         /* 0) First call initializes global list of libraries and ptrs
          *    to api functions from them. Deallocating of this list is
          *    unfortunatelly quite problematical.

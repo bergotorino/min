@@ -205,18 +205,18 @@ LOCAL void fo_write (struct output_typeinfo_t *fo,
         }
 
         /* The real message: copy data */
-        STRCPY (&buffer[currlen], data, datalen);
+        memcpy (&buffer[currlen], data, datalen);
         currlen = strlen (buffer);
 
         /* Postfix: line ending */
         if ((sxfo->loggertype_ == ESHtml) && sxfo->withlinebreak_
             && with_linebreak) {
-                STRCPY (&buffer[currlen], "<br />", 6);
+                memcpy (&buffer[currlen], "<br />", 6);
                 currlen += 6;
         }
 
         if (sxfo->withlinebreak_ && with_linebreak) {
-                STRCPY (&buffer[currlen], "\n", 2);
+                memcpy (&buffer[currlen], "\n", 2);
                 currlen += 1;
         }
 
@@ -292,8 +292,8 @@ LOCAL void fo_open_existing_file (struct min_logger_file_output_t *fo,
                         fo_test_file_with_pid (file, file_tmp);
                         file_new = NEW2 (TSChar, MaxFileName);
                         len = c - file;
-                        STRCPY (file_new, file, len);
-                        STRCPY (file_new + len, file_tmp,
+                        memcpy (file_new, file, len);
+                        memcpy (file_new + len, file_tmp,
                                 strlen (file_tmp) + 1);
                 } else {
                         file_new =
@@ -372,8 +372,8 @@ LOCAL void fo_create_new_file (struct min_logger_file_output_t *fo,
                         fo_test_file_with_pid (file, file_tmp);
                         file_new = NEW2 (TSChar, MaxFileName);
                         len = c - file;
-                        STRCPY (file_new, file, len);
-                        STRCPY (file_new + len, file_tmp,
+                        memcpy (file_new, file, len);
+                        memcpy (file_new + len, file_tmp,
                                 strlen (file_tmp) + 1);
                 } else {
                         file_new =

@@ -2000,7 +2000,7 @@ LOCAL int ec_read_slaves_section (MinParser * inifile)
 	char *hostname = NULL;
 	char *slavetype = NULL;
 	MinSectionParser *slave_def;
-        MinItemParser    *line; 
+        MinItemParser    *line = INITPTR; 
 	struct addrinfo hints, *result = NULL;
 	int i = 1, ret;
 

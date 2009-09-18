@@ -188,8 +188,8 @@ LOCAL void mq_msgbuf_to_internal (struct _MIBuff *ibuf, const MsgBuffer * buf)
         ibuf->extif_msg_type_ = buf->extif_msg_type_;
 
         ibuf->msgbeg_ = strlen (buf->desc_) + 1;
-        STRCPY (ibuf->desc_, buf->desc_, ibuf->msgbeg_);
-        STRCPY (&ibuf->desc_[ibuf->msgbeg_], buf->message_,
+        memcpy (ibuf->desc_, buf->desc_, ibuf->msgbeg_);
+        memcpy (&ibuf->desc_[ibuf->msgbeg_], buf->message_,
                 strlen (buf->message_) + 1);
 }
 
@@ -216,8 +216,8 @@ LOCAL void mq_internal_to_msgbuf (MsgBuffer * buf, const struct _MIBuff *ibuf)
         buf->special_ = ibuf->special_;
         buf->extif_msg_type_ = ibuf->extif_msg_type_;
 
-        STRCPY (buf->desc_, ibuf->desc_, ibuf->msgbeg_);
-        STRCPY (buf->message_, &ibuf->desc_[ibuf->msgbeg_], MaxMsgSize);
+        memcpy (buf->desc_, ibuf->desc_, ibuf->msgbeg_);
+        memcpy (buf->message_, &ibuf->desc_[ibuf->msgbeg_], MaxMsgSize);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -438,7 +438,7 @@ int mq_send_message2 (int msqid, long adress, MINMsgType type, int param,
         buf.sender_ = getpid ();
         buf.type_ = type;
         buf.param_ = param;
-        STRCPY (buf.desc_, "\0", MaxDescSize);
+        memcpy (buf.desc_, "\0", MaxDescSize);
         STRCPY (buf.message_, msg, MaxMsgSize);
 
 	MIN_DEBUG ("%d -> %d [%d]\n", buf.sender_, buf.receiver_, type);
@@ -469,7 +469,7 @@ int mq_send_message2_block (int msqid, long adress, MINMsgType type,
         ibuf.sender_ = getpid ();
         ibuf.type_ = type;
         ibuf.param_ = param;
-        STRCPY (ibuf.desc_, "\0", MaxDescSize);
+        memcpy (ibuf.desc_, "\0", MaxDescSize);
         STRCPY (ibuf.desc_, msg, MaxMsgSize);
 
         MIN_DEBUG ("%d -> %d [%d]\n", ibuf.sender_, ibuf.receiver_, type);
