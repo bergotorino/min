@@ -612,7 +612,6 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number,
 				       "not defined");
                 return (-1);
         }
-
         /* check if the "msec" is stated */
         result = mip_get_next_string (line, &opt_msec);
         if (result == 0) {
@@ -628,7 +627,7 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number,
 
 	DELETE (opt_msec);
 
-        return result;
+        return 0;
 }
 /*------------------------------------------------------------------------- */
 /** Checks validity of line with "allocate" keyword
