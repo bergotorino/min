@@ -69,17 +69,17 @@ desktop.files += minqt.desktop
 iconxpm.path = $$DATADIR/pixmap
 iconxpm.files += data/maemo/minqt.xpm 
 
-icon26.path = $$DATADIR/icons/hicolor/26x26/apps
-icon26.files += data/26x26/minqt.png 
+icon16.path = $$DATADIR/icons/hicolor/16x16/hildon
+icon16.files += data/16x16/minqt.png 
 
-icon40.path = $$DATADIR/icons/hicolor/40x40/apps
-icon40.files += data/40x40/minqt.png
+icon32.path = $$DATADIR/icons/hicolor/32x32/hildon
+icon32.files += data/32x32/minqt.png
 
-icon64.path = $$DATADIR/icons/hicolor/64x64/apps
+icon64.path = $$DATADIR/icons/hicolor/64x64/hildon
 icon64.files += data/64x64/minqt.png
 
 MOC_DIR     =   ./.moc
 OBJECTS_DIR =   ./.moc
 target.path = /usr/bin
-INSTALLS    = target desktop icon26 icon40 icon64
+INSTALLS    = target desktop icon16 icon32 icon64
 
