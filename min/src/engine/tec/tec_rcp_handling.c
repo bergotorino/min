@@ -537,6 +537,7 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
 #else
         ec_add_module (module, conf_list, 0, 0);
 	conf_list = INITPTR;
+	temp_string = NULL;
 #endif
 	DELETE (temp_string);
         /*wait for module to return testcases */
