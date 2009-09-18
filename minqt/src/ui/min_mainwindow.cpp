@@ -190,9 +190,9 @@ void Min::MainWindow::handleRunTestCase()
     for (int i = 0; i < modules.count(); i++) {
 	    unsigned int moduleId = modules[i].data().toUInt();
 	    unsigned int caseId   = cases[i].data().toUInt();
-		    //db.getTestCaseDbId(moduleId,cases[i].data().toString());
-//	    qDebug("handleRunTestCase: moduleId = %u, caseId = %u",
-	    //	   moduleId, caseId);
+	    //db.getTestCaseDbId(moduleId,cases[i].data().toString());
+	    //qDebug("handleRunTestCase: moduleId = %u, caseId = %u",
+	    //moduleId, caseId);
 	    if (caseId != 0)
 		    rc.minStartCase(db.getModuleEngineId(1,moduleId),
 				    db.getTestCaseEngineId(moduleId,caseId),

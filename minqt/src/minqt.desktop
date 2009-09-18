@@ -1,0 +1,14 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Name=MIN Qt GUI
+Exec=/usr/bin/minqt
+Icon=minqt-icon
+StartupWMClass=minqt
+X-Window-Icon=minqt
+X-HildonDesk-ShowInToolbar=true
+X-Osso-Type=application/x-executable
+Terminal=false
+
+	

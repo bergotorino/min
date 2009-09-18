@@ -3,6 +3,7 @@ TARGET      = minqt
 RESOURCES   = icons.qrc  
 
 QT += dbus sql network
+QMAKE_CXXFLAGS += -D$(DEB_HOST_ARCH)
 
 INCLUDEPATH +=  ./ui                                    \
                 ./core                                  \
@@ -59,7 +60,26 @@ HEADERS     +=  ui/min_mainwidget.hpp                   \
                 core/min_statusbarprovider.hpp          \
                 core/min_executedalldelegate.cpp
 
+PREFIX = /usr
+DATADIR = $$PREFIX/share
+DEFINES += DATADIR=\\\"$$DATADIR\\\" PKGDATADIR=\\\"$$PKGDATADIR\\\"
+desktop.path = $$DATADIR/applications/hildon
+desktop.files += minqt.desktop
+
+iconxpm.path = $$DATADIR/pixmap
+iconxpm.files += data/maemo/minqt.xpm 
+
+icon26.path = $$DATADIR/icons/hicolor/26x26/apps
+icon26.files += data/26x26/minqt.png 
+
+icon40.path = $$DATADIR/icons/hicolor/40x40/apps
+icon40.files += data/40x40/minqt.png
+
+icon64.path = $$DATADIR/icons/hicolor/64x64/apps
+icon64.files += data/64x64/minqt.png
+
 MOC_DIR     =   ./.moc
 OBJECTS_DIR =   ./.moc
 target.path = /usr/bin
-INSTALLS    = target
+INSTALLS    = target desktop icon26 icon40 icon64
+

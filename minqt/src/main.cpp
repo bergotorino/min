@@ -41,21 +41,30 @@ int main( int argc, char* argv[] )
 {
     // 1. Init the application
     QApplication app(argc,argv);
+    QPalette palette = app.palette();
+
+    palette.setColor(QPalette::Text,
+		     palette.brush(QPalette::ButtonText).color());
+
+    app.setPalette (palette);
 
     Min::Database::getInstance();
     Min::RemoteControll &rc = Min::RemoteControll::getInstance();
 
     // 2. Dialog that selects DBus connection
     Min::DBusConnectionDialog dlg(0);
-
+    /* Show the connection dialog only in pc environment */
+#ifdef i386
     QObject::connect (&dlg,SIGNAL(selectedDBusConnection(const QString &)),
-                    &rc,SLOT(open(const QString&)));
-
+		      &rc,SLOT(open(const QString&)));
+    
     if (!dlg.exec()||!rc.isValid()) {
-        qDebug("Exiting - bye!");
-        return EXIT_SUCCESS;
+	    qDebug("Exiting - bye!");
+      return EXIT_SUCCESS;
     }        
-
+#else
+    rc.open ("localhost");
+#endif
     // 4. Create window
     Min::MainWindow mw;
     mw.show();

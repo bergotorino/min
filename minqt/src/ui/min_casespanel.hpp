@@ -28,6 +28,7 @@
 
 // System includes
 #include <QWidget>
+#include <QTabWidget>
 
 // Forward declarations
 class QResizeEvent;
@@ -84,7 +85,7 @@ namespace Min
         void hideViewColumns();
     private:
         /** Main area on the window. */
-        QToolBox *centralWidget_;
+        QTabWidget *centralWidget_;
 
 	/** Will display modules and cases we can run. */
         QTableView *availableCasesView_;

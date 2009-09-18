@@ -124,14 +124,24 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
 	        this, SLOT(hideViewColumns()));
     connect (executedTable_, SIGNAL(clicked(QModelIndex)),
 			    this, SLOT(handleClick(QModelIndex)));
+    connect (executedCasesModel_,SIGNAL(layoutChanged()),
+	     ongoingTable_, SLOT(resizeColumnsToContents()));
     connect (ongoingTable_, SIGNAL(clicked(QModelIndex)),
 			    this, SLOT(handleClick(QModelIndex)));
+    connect (executedCasesModel_,SIGNAL(layoutChanged()),
+	     passedTable_, SLOT(resizeColumnsToContents()));
+
     connect (passedTable_, SIGNAL(clicked(QModelIndex)),
 			    this, SLOT(handleClick(QModelIndex)));
+    connect (executedCasesModel_,SIGNAL(layoutChanged()),
+	     failedTable_, SLOT(resizeColumnsToContents()));
     connect (failedTable_, SIGNAL(clicked(QModelIndex)),
 			    this, SLOT(handleClick(QModelIndex)));
     connect (abortedTable_, SIGNAL(clicked(QModelIndex)),
 			    this, SLOT(handleClick(QModelIndex)));
+    connect (executedCasesModel_,SIGNAL(layoutChanged()),
+	     abortedTable_, SLOT(resizeColumnsToContents()));
+
 }
 // -----------------------------------------------------------------------------
 Min::ExecutedTab::~ExecutedTab()
@@ -151,6 +161,8 @@ QItemSelectionModel* Min::ExecutedTab::getSelectionFromOngoingCasesView()
 void Min::ExecutedTab::handleClick(const QModelIndex& index)
 {
 	const QTableView *tab=static_cast<QTableView*>(executedCasesView_->currentWidget());
+
+
 	const QItemSelectionModel *selection=tab->selectionModel();
 	if(!selection->hasSelection()) return;
 

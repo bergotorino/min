@@ -27,7 +27,6 @@
 #include "min_casespanel.hpp"
 
 // System includes
-#include <QToolBox>
 #include <QTableView>
 #include <QTabWidget>
 #include <QLabel>
@@ -56,7 +55,7 @@
 // -----------------------------------------------------------------------------
 Min::CasesPanel::CasesPanel(QWidget *parent)
     : QWidget(parent)
-    , centralWidget_(new QToolBox(this))
+    , centralWidget_(new QTabWidget(this))
     , availableCasesView_(new QTableView(this))
     , executedTab_(new Min::ExecutedTab(this))
     , availableCasesModel_(new Min::AvailableModel(this))
@@ -75,15 +74,10 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     availableCasesView_->setColumnWidth(0,200);
     availableCasesView_->horizontalHeader()->setStretchLastSection(true);
     hideViewColumns();
-/*
     availableCasesView_->setAutoFillBackground(true);
-    QPalette pal = availableCasesView_->palette();
-    pal.setColor(QPalette::Base, palette().color(QPalette::Window));
-    availableCasesView_->setPalette(pal);
-*/
     // Main pane
-    centralWidget_->addItem(availableCasesView_,QString("Available Cases"));
-    centralWidget_->addItem(executedTab_,QString("Test Runs"));
+    centralWidget_->addTab(availableCasesView_,QString("Available Cases"));
+    centralWidget_->addTab(executedTab_,QString("Test Runs"));
     //    centralWidget_->addItem(testRunTree_,
     //		    QString("Summary"));
 
