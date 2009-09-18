@@ -47,8 +47,7 @@ unsigned int Min::Database::insertDevice(unsigned int device_id)
     QSqlQuery query;
     query.prepare("SELECT id FROM test_case WHERE device_id=:devid;");
     query.bindValue(":devid", QVariant(device_id));
-    query.exec();
-    if (query.size()>0) return 0;
+    if (query.exec() && query.size()>0) return 0;
     query.finish();
 
     // Insert device id
@@ -75,8 +74,8 @@ unsigned int Min::Database::insertModule(unsigned int device_dbid,
     query.bindValue(QString(":devid"), QVariant(device_dbid));
     query.bindValue(QString(":modid"), QVariant(module_id));
     query.bindValue(QString(":name"), QVariant(module_name));
-    query.exec();
-    if (query.size()>0) return 0;
+
+    if (query.exec() && query.size()>0) return 0;
     query.finish();
 
     // Insert module
@@ -139,8 +138,7 @@ unsigned int Min::Database::insertTestCase(unsigned int module_dbid,
     query.bindValue(QString(":modid"), QVariant(module_dbid));
     query.bindValue(QString(":title"), QVariant(test_case_title));
     query.bindValue(QString(":descr"), QVariant(test_case_description));
-    query.exec();
-    if (query.size()>0) return 0;
+    if (query.exec() && query.size()>0) return 0;
     query.finish();
 
     // Insert test case
@@ -393,9 +391,11 @@ unsigned int Min::Database::getTestCaseEngineId(unsigned int moduleDbId,
     query.bindValue(QString(":moddbid"), QVariant(moduleDbId));
     query.bindValue(QString(":casedbid"), QVariant(testCaseDbId));
     if(query.exec()){
-        if(query.next()) {
-            id=query.value(0);
-        }
+	    //	    qDebug ("query ok");
+	    if(query.next()) {
+		    //    qDebug ("query.next ok");
+		    id=query.value(0);
+	    }
     }
     query.finish();
 
