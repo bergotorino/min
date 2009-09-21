@@ -1,1 +1,32 @@
-To debug a test case, go to @b{Debug case} under the @b{Case} menu and select the case you want to debug from list. MIN leaves ncurses temprorarily, starts the selected test case and attaches debugger (configured in @code{min.conf}) file to the test process running the case. The execution should stop in a @code{sleep()} function just before the test function is called. Note that in order to succesfully return the execution back to MIN ConsoleUI, you should detach the debugger latest at the end of test function. 
+To debug a test case, go to @b{Start case in debugger} under the @b{Case} menu and select the case you want to debug from list. MIN leaves ncurses temprorarily, starts the selected test case and attaches debugger (configured in @code{min.conf}) file to the test process running the case. The execution should stop in a @code{sleep()} function just before the test function is called. Note that in order to succesfully return the execution back to MIN ConsoleUI, you should detach the debugger latest at the end of test function. The following example shows how to enter test case implemented with function test_1. 
+
+Test case is selected from @b{Start case in debugger} menu. Execution leaves console UI and enters the debugger.
+@example 
+New Thread 0xb7e6e6b0 (LWP 20196)] 
+Loaded symbols for /lib/tls/i686/cmov/libpthread.so.0
+0xb804d7d2 in ?? () from /lib/ld-linux.so.2 
+@end example
+
+Set breakpoint to test case function.
+@example
+(gdb) b test_1
+Breakpoint 1 at 0xb8048b33: file ./src/hcCases.c, line 88.
+@end example
+
+Continue execution to break point.
+@example
+(gdb) c
+Continuing.
+[Switching to Thread 0xb7e6e6b0 (LWP 20196)]
+Breakpoint 1, test_1 (tcr=0xbfd68380) at ./src/hcCases.c:88
+88	
+@end example
+When done with debugging detach from test process.
+@example
+(gdb) det
+Detaching from program: /usr/bin/tmc, process 20196
+@end example
+And quit debugger in order to return to Console UI.
+@example
+(gdb) q
+@end example
