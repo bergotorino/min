@@ -54,6 +54,18 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, min
 Description: Qt GUI for MIN
  MIN graphical user interface written in Qt
+XB-Maemo-Icon-26:
+iVBORw0KGgoAAAANSUhEUgAAABgAAAAaCAYAAACtv5zzAAAABHNCSVQICAgI
+fAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3
+Lmlua3NjYXBlLm9yZ5vuPBoAAAFVSURBVEiJ1ZS7SgNBFIa/swkJJN5ik06w
+FCsLQSxFUgUrGyux9xkcB3yaFKawEwWRvICFpZY2NoqXmOtYZBdnZ9eYyE6R
+Hw6c+c8cPubMMMIpL/yoZZSpRwvR0gD2rHrVKPMqOriGYAPyRZjPwfG6Ueph
+1KPPge2oIQAWrZgjrgJQtEJGdnkNBhXolOCrCNSsnmWgGkXAv9R9c4xa6rbw
+BAnJmaz+AWg7xo5onZ8IIFoaDHgULRfjITEtAFuTAArAfpjXEUpTQFLH5AL6
+wHuYtzF0swYMEQ6BG4SjEDipNkXrimsmLsacmCbQBBAtB1MAAmA3zcxSiTFl
+ADDGM2DYsxYrEH95GQAG7kuLXXQGgL5vwLAHPFvGUsYAAK6sPOcDcPlbYTYA
+Rqkn4N4bIFTqKWYKcAt0vAGMUp9AyxsgVGJM3gF54nNz/5WuUzeM1x3wAZQj
+4xupfVB1ukIwMAAAAABJRU5ErkJggg==
 
 Package: min-all
 Section: devel
