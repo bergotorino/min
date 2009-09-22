@@ -51,7 +51,7 @@ Package: min-qt
 Section: devel
 Priority: extra
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libqt4-dbus, libqt4-network, libqt4-sql, libqtcore4, libqtgui4, min, mindbusplugin
+Depends: ${shlibs:Depends}, ${misc:Depends}, min, mindbusplugin
 Description: Qt GUI for MIN
  MIN graphical user interface written in Qt
 
@@ -59,7 +59,7 @@ Package: min-qt-maemo
 Section: devel
 Priority: extra
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libqt4-dbus, libqt4-network, libqt4-sql, libqtcore4, libqtgui4, min, mindbusplugin
+Depends: libc6, libgcc1, libqt4-dbus, libqt4-network, libqt4-sql, libqtcore4, libqtgui4, min, mindbusplugin
 Description: Qt GUI for MIN in Maemo environment
  MIN graphical user interface written in Qt
 Maemo-Icon-26:
