@@ -55,7 +55,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, libqt4-dbus, libqt4-network, libqt4
 Description: Qt GUI for MIN
  MIN graphical user interface written in Qt
 
-Package: min-qt-hildon
+Package: min-qt-maemo
 Section: devel
 Priority: extra
 Architecture: any
