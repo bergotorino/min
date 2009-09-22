@@ -471,7 +471,7 @@ LOCAL void read_optional_run_params (MinItemParser * mip, ExtraParams * ep)
                         token = INITPTR;
                 }
         } else {
-                STRCPY (ep->testid_, "\0", 128);
+                strcpy (ep->testid_, "\0");
         }
 
         /* ini parameter */
@@ -484,7 +484,7 @@ LOCAL void read_optional_run_params (MinItemParser * mip, ExtraParams * ep)
                         token = INITPTR;
                 }
         } else {
-                STRCPY (ep->ini_, "\0", 512);
+                strcpy (ep->ini_, "\0");
         }
 
         /* category parameter */
@@ -517,7 +517,7 @@ LOCAL void read_optional_run_params (MinItemParser * mip, ExtraParams * ep)
                         token = INITPTR;
                 }
         } else {
-                STRCPY (ep->title_, "\0", 128);
+                strcpy (ep->title_, "\0");
         }
         mip_set_parsing_type (mip, parsing);
       EXIT:
@@ -869,17 +869,17 @@ LOCAL void uengine_handle_extif_response (int result, int caseid)
 			   
                 stpd = NEW (ScriptedTestProcessDetails);
                 stpd->tcr_list_ = dl_list_create ();
-                STRCPY (stpd->testclass_, "", 2);
+                strcpy (stpd->testclass_, "");
                 stpd->pid_ = 0;
-                STRCPY (stpd->dllname_, "", 2);
-                STRCPY (stpd->cfgfile_, "", 2);
+                strcpy (stpd->dllname_, "");
+                strcpy (stpd->cfgfile_, "");
                 stpd->mod_type_ = EDLLTypeNormal;
                 stpd->options_.expect_ = ENOERR;
                 sprintf (stpd->options_.testid_, "%d", caseid); /* caseid */
-                STRCPY (stpd->options_.ini_, "", 2);
+                strcpy (stpd->options_.ini_, "");
                 stpd->options_.category_ = ECategoryNormal;
                 stpd->options_.timeout_ = 0;
-                STRCPY (stpd->options_.title_, "", 2);
+                strcpy (stpd->options_.title_, "");
                 stpd->status_ = TP_RUNNING;
 
                 /* Handle result allowing. */
@@ -938,7 +938,7 @@ LOCAL void uengine_handle_extif_remote_response (int testresult, int caseid)
         /* set test result */
         tcr = NEW (TestCaseResult);
         tcr->result_ = testresult;
-        STRCPY (tcr->desc_, "", MaxTestResultDescription);
+        strcpy (tcr->desc_, "");
         dl_list_add (stpd->tcr_list_, tcr);
 
 
@@ -1521,7 +1521,7 @@ int testclass_create (filename_t dllName, char *className)
         }
 
         memcpy (dllpath, dllName, strlen (dllName));
-        STRCPY (&dllpath[strlen (dllName)], ".so", 4);
+        strcpy (&dllpath[strlen (dllName)], ".so");
 
         pid = fork ();
         if (pid == 0) {
@@ -1744,7 +1744,7 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
         stpd->pid_ = fork ();
         if (stpd->pid_ > 0) {
                 /* Parent */
-                STRCPY (stpd->testclass_, "\0", 1);
+                strcpy (stpd->testclass_, "\0");
                 STRCPY (stpd->dllname_, modulename, MaxFileName);
                 STRCPY (stpd->cfgfile_, configfile, MaxFileName);
                 stpd->tc_id_ = id;
@@ -3025,7 +3025,7 @@ int sendreceive_slave_expect (char *variable)
         scripter_mod.extif_pending = ESTrue;
         gettimeofday (&scripter_mod.blocking_since, NULL);
 
-        STRCPY (msg.message_, "master", MaxMsgSize);
+        strcpy (msg.message_, "master");
         sprintf (msg.desc_, "expect %s", variable);
         mq_send_message (scripter_mod.mqid, &msg);
 

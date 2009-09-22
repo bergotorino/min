@@ -82,7 +82,7 @@ int statetest_register (TestCaseResult * tcr)
         event           e;
 
         e.event.event_type_ = EState;
-        STRCPY (e.event.event_name_, "statetest", MAX_MIN_EVENT_NAME);
+        strcpy (e.event.event_name_, "statetest");
         /* 
          ** Register for event 
          */

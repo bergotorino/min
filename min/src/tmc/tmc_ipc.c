@@ -97,8 +97,8 @@ void ip_init (TMCIPCInterface * tmcipi, int receiver)
         tmcipi->in_.sender_ = 0;
         tmcipi->in_.type_ = 0;
         tmcipi->in_.param_ = 0;
-        STRCPY (tmcipi->in_.desc_, "\0", MaxDescSize);
-        STRCPY (tmcipi->in_.message_, "\0", MaxMsgSize);
+        tmcipi->in_.desc_[0] = '\0';
+        tmcipi->in_.message_[0] =  '\0';
 }
 
 /* ------------------------------------------------------------------------- */

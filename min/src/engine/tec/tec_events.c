@@ -461,8 +461,8 @@ LOCAL void send_event_ind (minEventSrc_t * receiver, int status)
                 message.sender_ = getpid ();
                 message.receiver_ = receiver->pid;
                 message.param_ = status;
-                STRCPY (message.desc_, "\0", MaxDescSize);
-                STRCPY (message.message_, "\0", MaxMsgSize);
+                message.desc_[0] =  '\0';
+                message.message_[0] = '\0';
                 mq_send_message (mq_id, &message);
         } else
                 MIN_DEBUG ("remote event (status %d)", status);

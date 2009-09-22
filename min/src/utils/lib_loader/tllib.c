@@ -188,34 +188,34 @@ int tl_open (test_libl_t *tlibl, const char *lib_name)
                 switch(ty())
                 {
                 case 0x1:
-                        STRCPY(tlibl->type_,"Hardcoded",10);
+                        strcpy(tlibl->type_,"Hardcoded");
                         break;
                 case 0x2:
-                        STRCPY(tlibl->type_,"Normal",7);
+                        strcpy(tlibl->type_,"Normal");
                         break;
                 case 0x3:
-                        STRCPY(tlibl->type_,"MINUnit",9);
+                        strcpy(tlibl->type_,"MINUnit");
                         break;
                 case 0x4:
-                        STRCPY(tlibl->type_,"TestClass",10);
+                        strcpy(tlibl->type_,"TestClass");
                         break;
                 case 0x5:
-                        STRCPY(tlibl->type_,"LuaTestClass",13);
+                        strcpy(tlibl->type_,"LuaTestClass");
                         break;
                 default:
-                        STRCPY(tlibl->type_,"Unknown",8);
+                        strcpy(tlibl->type_,"Unknown");
                 }
         } else {
-                STRCPY(tlibl->type_,"Unknown",8);
+                strcpy(tlibl->type_,"Unknown");
         }
         ve = (ptr2internals)dlsym(tlibl->test_library_,"get_module_version");
         if(ve!=NULL) { tlibl->version_=ve(); }
         da = (ptr2internals2)dlsym(tlibl->test_library_,"get_module_date");
         if(da!=NULL) { STRCPY(tlibl->date_,da(),12); }
-        else         { STRCPY(tlibl->date_,"Unknown",8); }
+        else         { strcpy(tlibl->date_,"Unknown"); }
         te = (ptr2internals2)dlsym(tlibl->test_library_,"get_module_time");
         if(te!=NULL) { STRCPY(tlibl->time_,te(),9); }
-        else         { STRCPY(tlibl->time_,"Unknown",8); }
+        else         { strcpy(tlibl->time_,"Unknown"); }
         MIN_INFO ("Module: %s, Version: %d, Build: %s %s"
                    ,tlibl->type_,tlibl->version_,tlibl->date_,tlibl->time_);
 
@@ -276,34 +276,34 @@ void* tl_open_tc( const char* file )
                 switch(ty())
                 {
                 case 0x1:
-                        STRCPY(type,"Hardcoded",9);
+                        strcpy(type,"Hardcoded");
                         break;
                 case 0x2:
-                        STRCPY(type,"Normal",6);
+                        strcpy(type,"Normal");
                         break;
                 case 0x3:
-                        STRCPY(type,"MINUnit",8);
+                        strcpy(type,"MINUnit");
                         break;
                 case 0x4:
-                        STRCPY(type,"TestClass",9);
+                        strcpy(type,"TestClass");
                         break;
                 case 0x5:
-                        STRCPY(type,"LuaTestClass",12);
+                        strcpy(type,"LuaTestClass");
                         break;
                 default:
-                        STRCPY(type,"Unknown",7);
+                        strcpy(type,"Unknown");
                 }
         } else {
-                STRCPY(type,"Unknown",7);
+                strcpy(type,"Unknown");
         }
         ve = (ptr2internals)dlsym(retval,"get_module_version");
         if(ve!=NULL) { version=ve(); }
         da = (ptr2internals2)dlsym(retval,"get_module_date");
         if(da!=NULL) { STRCPY(date,da(),11); }
-        else         { STRCPY(date,"Unknown",7); }
+        else         { strcpy(date,"Unknown"); }
         te = (ptr2internals2)dlsym(retval,"get_module_time");
         if(te!=NULL) { STRCPY(time,te(),8); }
-        else         { STRCPY(time,"Unknown",7); }
+        else         { strcpy(time,"Unknown"); }
         MIN_INFO ("Module: %s, Version: %d, Build: %s %s"
                    ,type,version,date,time);
 EXIT:

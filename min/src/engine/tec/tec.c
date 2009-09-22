@@ -741,7 +741,7 @@ LOCAL int ec_exec_case_temp (DLListIterator work_module_item)
         message.sender_ = ec_settings.engine_pid_;
         message.receiver_ = tm_get_pid (work_module_item);
         message.param_ = tc_get_id (work_case_item);
-        STRCPY (message.desc_, "\0", MaxDescSize);
+        message.desc_[0] =  '\0';
         tc_get_cfg_filename (work_case_item, message.message_);
         mq_send_message (mq_id, &message);
 	
@@ -2579,7 +2579,7 @@ int ec_exec_case (DLListIterator work_case_item)
                 message.sender_ = ec_settings.engine_pid_;
                 message.receiver_ = tm_get_pid (work_module_item);
                 message.param_ = tc_get_id (work_case_item);
-                STRCPY (message.desc_, "\0", MaxDescSize);
+                message.desc_[0] =  '\0';
                 tc_get_cfg_filename (work_case_item, message.message_);
                 res = mq_send_message (mq_id, &message);
                 break;
@@ -2648,7 +2648,7 @@ int ec_debug_case (DLListIterator work_case_item)
                 message.sender_ = ec_settings.engine_pid_;
                 message.receiver_ = tm_get_pid (work_module_item);
                 message.param_ = tc_get_id (work_case_item);
-                STRCPY (message.desc_, "\0", MaxDescSize);
+                message.desc_[0] =  '\0';
                 tc_get_cfg_filename (work_case_item, message.message_);
                 res = mq_send_message (mq_id, &message);
                 break;

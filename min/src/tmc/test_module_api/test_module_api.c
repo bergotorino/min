@@ -159,7 +159,7 @@ int tm_print_err (char *format, ...)
         buff.sender_ = getpid ();
         buff.type_ = MSG_USR;
         buff.param_ = 0;
-        STRCPY (buff.desc_, "__error_console__", MaxUsrMessage);
+        strcpy (buff.desc_, "__error_console__");
         STRCPY (buff.message_, tmp_msg, MaxUsrMessage);
 
         mqid = mq_open_queue ('a');

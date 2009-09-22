@@ -137,7 +137,7 @@ void ctp_handle_sigsegv (int signum)
         result.param_ = TP_CRASHED;
         result.special_ = 0;
 	result.desc_[0] = '\0';
-	STRCPY (result.message_, "SIGSEGV caught", MaxMsgSize);
+	strcpy (result.message_, "SIGSEGV caught");
         mq_send_message (mq, &result);
 	sleep (1);
 	exit (0);
@@ -163,7 +163,7 @@ void ctp_handle_sigabort (int signum)
         result.param_ = TP_CRASHED;
         result.special_ = 0;
 	result.desc_[0] = '\0';
-	STRCPY (result.message_, "SIGABORT caught", MaxMsgSize);
+	strcpy (result.message_, "SIGABORT caught");
         mq_send_message (mq, &result);
 	sleep (1);
 	exit (0);

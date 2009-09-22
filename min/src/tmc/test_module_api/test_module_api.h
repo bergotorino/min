@@ -81,7 +81,10 @@
         do {                                                            \
         TestCaseInfo* tc = (TestCaseInfo*)malloc(sizeof(TestCaseInfo)); \
         if( tc == NULL ) break;                                         \
-        STRCPY(tc->name_,_n_,MaxTestCaseName);                          \
+	if (strlen (_n_) > MaxTestCaseName - 1)                         \
+		strcpy (tc->name_, "<too long test case name>");        \
+	else								\
+		strcpy (tc->name_, _n_);				\
         tc->test_ = _f_;                                                \
         tc->id_   = dl_list_size(_l_)+1;                                \
         dl_list_add( _l_, (void*)tc );                                  \
@@ -98,7 +101,10 @@
         do {                                                            \
         TestCaseInfo* tc = NEW(TestCaseInfo);                           \
         if( tc == NULL ) break;                                         \
-        STRCPY(tc->name_,_n_,MaxTestCaseName);                          \
+	if (strlen (_n_) > MaxTestCaseName - 1)                         \
+		strcpy (tc->name_, "<too long test case name>");        \
+	else								\
+		strcpy (tc->name_, _n_);				\
         tc->test_ = (ptr2test)INITPTR;                                  \
         tc->id_   = _id_;                                               \
         dl_list_add( _l_, (void*)tc );                                  \
@@ -112,7 +118,10 @@
 #define RESULT(_tcr_,_r_,_d_)                                           \
         do {                                                            \
         _tcr_->result_ = _r_;                                           \
-        STRCPY(_tcr_->desc_,_d_,MaxTestResultDescription);              \
+	if (strlen (_d_) > MaxTestResultDescription - 1)		\
+		strcpy (_tcr_->desc_, "<too long result description>"); \
+	else								\
+		strcpy(_tcr_->desc_,_d_);				\
         return 0;                                                       \
         } while(0);
 /* ------------------------------------------------------------------------- */

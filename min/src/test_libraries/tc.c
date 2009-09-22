@@ -392,7 +392,7 @@ int SetLocalValue (const char *varname, const char *varval)
                 STRCPY (var->var_value_, varval, strlen(varval) + 1);
         } else {
                 var->var_value_ = NEW2 (char, strlen ("NULL") + 1);
-                STRCPY (var->var_value_, "NULL", strlen("NULL") + 1);
+                strcpy (var->var_value_, "NULL");
         }
 
         return 0;
