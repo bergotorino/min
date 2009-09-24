@@ -353,6 +353,7 @@ void *ec_poll_sockets (void *arg)
 		ret = select (nfds + 1, &rd, &wr, &er, &tv);
 		
 		rw_rcp_sockets (&rd, &wr);
+		usleep (100000);
 	}
 
 	return NULL;
