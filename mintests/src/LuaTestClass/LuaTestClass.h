@@ -56,7 +56,10 @@
         do {                                                            \
         TestCaseInfoTC* tc = (TestCaseInfoTC*)malloc(sizeof(TestCaseInfoTC));\
         if( tc == NULL ) break;                                         \
-        STRCPY(tc->name_,_n_,MaxTestCaseName);                          \
+	if (strlen (_n_) > MaxTestCaseName - 1)                         \
+		strcpy (tc->name_, "<too long method name>");		\
+	else								\
+		strcpy (tc->name_,_n_);					\
         tc->test_ = _f_;                                                \
         tc->id_   = dl_list_size(_l_)+1;                                \
         dl_list_add( _l_, (void*)tc );                                  \
