@@ -630,6 +630,7 @@ LOCAL void pl_msg_print (long testrunid, char *message)
 		dl_list_add (etc->printlist_, tx_create (message));
 	}
 
+	cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
 /** Engine calls this for each module it is configured with
@@ -846,7 +847,21 @@ void update_menu (callback_s * cb, char *string, int update,
         focus_pos = position;
         restore_focus_pos ();
 }
-
+/* ------------------------------------------------------------------------- */
+/** Use the log view to display copyright and contact information.
+ */
+void add_copyright_info ()
+{
+	Text *tx = tx_create ("Contact: Pekka Nuotio, "
+			      "DG.MIN-Support@nokia.com");
+	dl_list_add (error_list_, tx);
+	tx = tx_create ("licensed under the Gnu General "
+			"Public License version 2,");
+	dl_list_add (error_list_, tx);
+	tx = tx_create ("MIN Test Framework, (c) Nokia 2008,"
+			" All rights reserved,");
+	dl_list_add (error_list_, tx);
+}
 /* ------------------------------------------------------------------------- */
 /** Starts the console UI program
  */
@@ -871,6 +886,7 @@ void cui_exec ()
 
         /* create linked list for test cases */
         error_list_ = dl_list_create ();
+	add_copyright_info ();
 
         /* Acquire keystroke */
         while (continue_ && (key = wgetch (main_window))) {

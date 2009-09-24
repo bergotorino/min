@@ -2721,8 +2721,10 @@ LOCAL int get_test_sets (void)
 
         /* return the number of directory entries */
         n = scandir (path, &namelist, 0, alphasort);
-
+	
         DELETE (path);
+	if (n < 0)
+		return -1;
 
         /* add .set files to test sets list */
         while (n--) {
