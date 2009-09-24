@@ -311,17 +311,6 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf,
         retval = pthread_create (&plugin_thread, NULL, (void *)pl_open,
                                  plugin_conf);
 
-        /* In this fancy way we do display legal and contact information on
-         * consoleUI. */
-        if (!strcmp (plugin_name, "cui") &&  in->error_report) {
-                usleep (100000);
-                in->error_report ("Contact: Pekka Nuotio, "
-                                  "DG.MIN-Support@nokia.com");
-                in->error_report ("licensed under the Gnu General "
-                                  "Public License version 2,");
-                in->error_report ("MIN Test Framework, (c) Nokia 2008,"
-                                  " All rights reserved,");
-        }
 
 	tx_destroy (&plugin);
 	*p_plugin_handle  = pluginhandle;
