@@ -59,7 +59,13 @@ Min::AddModuleDialog::AddModuleDialog(QWidget *parent)
     tcModel_.setStringList(testCaseFiles_);
     tcView_->setModel(&tcModel_);
     tcView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
+#ifndef i368 
+    QPalette palette =  moduleEdit_->palette();
 
+    palette.setColor(QPalette::Text,
+		     Qt::black);
+    moduleEdit_->setPalette (palette);
+#endif
     // Layout stuff
     layout_->addWidget(moduleLabel_,0,0);
     layout_->addWidget(moduleEdit_,0,1);
@@ -100,7 +106,7 @@ QString Min::AddModuleDialog::displayFileOpenDialog(const QString &title,
 void Min::AddModuleDialog::selectModule()
 {
     QString moduleName = displayFileOpenDialog("Load test module",
-						   "Modules (*.so)");
+					       "Modules (*.so)");
     //Min::Database &db = Min::Database::getInstance();
 
     //QString moduleName = db.getTestModuleFiles().join('\0');
