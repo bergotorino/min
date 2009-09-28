@@ -199,7 +199,7 @@ LOCAL ScriptVar *var_find (const char *varname);
 /* ------------------------------------------------------------------------- */
 LOCAL const char *var_value (const char *varname);
 /* ------------------------------------------------------------------------- */
-LOCAL void var_assign (const char *varname, const char *varval)
+LOCAL void       var_assign (const char *varname, const char *varval);
 /* ------------------------------------------------------------------------- */
 LOCAL void       update_variables (TPResult res);
 /* ------------------------------------------------------------------------- */
