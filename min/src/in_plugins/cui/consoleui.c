@@ -861,6 +861,8 @@ void add_copyright_info ()
 	tx = tx_create ("MIN Test Framework, (c) Nokia 2008,"
 			" All rights reserved,");
 	dl_list_add (error_list_, tx);
+	cui_refresh_log_view ();
+
 }
 /* ------------------------------------------------------------------------- */
 /** Starts the console UI program
