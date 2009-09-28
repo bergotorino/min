@@ -341,5 +341,8 @@ void            tm_macro_error (unsigned int macro_type, const char *file,
                                 int result, int expected1, int expected2,
                                 int expected3, int expected4, int expected5);
 /* ------------------------------------------------------------------------- */
+char           *tm_get_caller_name (void);
+/* ------------------------------------------------------------------------- */
+
 #endif                          /* TEST_MODULE_API_H */
 /* End of file */

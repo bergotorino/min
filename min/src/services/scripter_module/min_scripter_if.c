@@ -199,7 +199,7 @@ LOCAL ScriptVar *var_find (const char *varname);
 /* ------------------------------------------------------------------------- */
 LOCAL const char *var_value (const char *varname);
 /* ------------------------------------------------------------------------- */
-LOCAL void       var_assign (const char *varname, const char *varval);
+LOCAL void var_assign (const char *varname, const char *varval)
 /* ------------------------------------------------------------------------- */
 LOCAL void       update_variables (TPResult res);
 /* ------------------------------------------------------------------------- */
@@ -981,6 +981,34 @@ LOCAL void uengine_handle_sndrcv (int mqid, const MsgBuffer * msg)
         return;
 }
 /* ------------------------------------------------------------------------- */
+/** Assigns a value to script variable
+ *  @param varname [in] variable name
+ *  @param varval [in] variable value
+ */
+LOCAL void var_assign (const char *varname, const char *varval)
+{
+        ScriptVar      *var;
+
+        var = var_find (varname);
+        if (var != INITPTR) {
+                var->initialized_ = ESTrue;
+                if (var->value_ != INITPTR)
+                        DELETE (var->value_);
+                var->value_ = NEW2 (char, strlen (varval) + 1);
+                STRCPY (var->value_, varval, strlen (varval) + 1);
+                MIN_DEBUG ("%s=%s", varname, varval);
+        } else {
+                SCRIPTER_RTERR_ARG ("Trying to assign undeclared variable",
+                                    varname);
+                MIN_WARN ("Trying to assign undeclared variable %s",
+                           varname);
+        }
+
+        return;
+}
+
+
+/* ------------------------------------------------------------------------- */
 /** Updates the scriter internal variables 
  *  @param res [in] Test Process result
  */
@@ -1144,32 +1172,6 @@ LOCAL const char *var_value (const char *varname)
         }
 
         return varname;
-}
-/* ------------------------------------------------------------------------- */
-/** Assigns a value to script variable
- *  @param varname [in] variable name
- *  @param varval [in] variable value
- */
-LOCAL void var_assign (const char *varname, const char *varval)
-{
-        ScriptVar      *var;
-
-        var = var_find (varname);
-        if (var != INITPTR) {
-                var->initialized_ = ESTrue;
-                if (var->value_ != INITPTR)
-                        DELETE (var->value_);
-                var->value_ = NEW2 (char, strlen (varval) + 1);
-                STRCPY (var->value_, varval, strlen (varval) + 1);
-                MIN_DEBUG ("%s=%s", varname, varval);
-        } else {
-                SCRIPTER_RTERR_ARG ("Trying to assign undeclared variable",
-                                    varname);
-                MIN_WARN ("Trying to assign undeclared variable %s",
-                           varname);
-        }
-
-        return;
 }
 /* ------------------------------------------------------------------------- */
 /** Interpretes the variable value as integer and increments by one
@@ -3125,7 +3127,6 @@ TSBool eval_if (char *condition) {
 
         return ESTrue;
 }
-
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

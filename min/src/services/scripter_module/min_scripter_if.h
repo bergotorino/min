@@ -214,6 +214,7 @@ TSBool          eval_if (char *condition);
 /* ------------------------------------------------------------------------- */
 int             set_block_timeout (unsigned long timeout);
 /* ------------------------------------------------------------------------- */
+
 #endif                          /* MIN_SCRIPTER_IF_H */
 
 /* End of file */

@@ -40,6 +40,8 @@
 /* EXTERNAL FUNCTION PROTOTYPES */
 extern void     gu_handle_sigchld (int);
 extern void     gu_handle_sigalrm (int);
+extern void     set_caller_name (const char *caller); /* test_module_api.c */
+
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 TestCaseResult  globaltcr; 
@@ -92,6 +94,7 @@ void gu_init_tmc (TMC_t * tmc, int argc, char *argv[])
         /* 1. open log */
 
         min_log_open ("TMC", 3);
+	set_caller_name ("TMC");
 
 	if (argc <= 0) {
 		MIN_WARN ("invalid argument count");

@@ -38,6 +38,10 @@
 extern DLList  *defines;
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
+/* ------------------------------------------------------------------------- */
+extern void set_caller_name (const char *caller); /* test_module_api.c */
+/* ------------------------------------------------------------------------- */
+
 //extern char *strcasestr (const char *haystack,const char *needle);
 //extern char *strchr(const char *s, int c);
 
@@ -225,6 +229,7 @@ LOCAL void interpreter_handle_keyword (TScripterKeyword keyword,
         case EKeywordTitle:
                 MIN_DEBUG ("EKeywordTitle");
                 /* "title <testcasename>" */
+		set_caller_name(mip->item_skip_and_mark_pos_);
                 mip_get_next_string (mip, &token);
                 break;
         case EKeywordSkipIt:
