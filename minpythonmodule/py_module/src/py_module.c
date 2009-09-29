@@ -46,6 +46,8 @@
 extern char* cut_file_from_path(char* path);
 extern char* cutname(const char* file);
 extern char* strcasestr (const char *haystack, const char *needle);
+extern void  set_caller_name(const char *caller); /* test_module_api.c */
+
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 /* None */
@@ -209,6 +211,7 @@ int tm_run_test_case( unsigned int      id
                      && strcasestr(PyString_AS_STRING(p_key),"case_") != NULL)  {
                         if (count != id) count ++;
                         else{
+				set_caller_name (PyString_AS_STRING(p_key));
                                 /*testcase was found*/
                                 cond_container_id = sm_create('p',sizeof(AsyncOpFlags));
 				if (cond_container_id < 0) {

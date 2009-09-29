@@ -770,7 +770,7 @@ static PyObject *p_tm_start_case (PyObject * self, PyObject * Args)
 	dl_list_foreach (dl_list_head (min_cases), dl_list_tail (min_cases),
 			  free);
 	dl_list_free (&min_cases);
-	dl_close (lib_ptr);
+	dlclose (lib_ptr);
 	DELETE (tc_file);
 	DELETE (mod_path);
 	DELETE (execution_params);
