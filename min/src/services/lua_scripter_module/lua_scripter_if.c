@@ -37,7 +37,7 @@
 
 /* -------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
-/* None */
+extern void set_caller_name(const char *caller); /* test_module_api.c */
 
 /* -------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
@@ -308,7 +308,7 @@ LOCAL int ls_register_testcase (lua_State *l)
         memset(tcinfo->name_,'\0',MaxTestCaseName);
         STRCPY(tcinfo->name_
               ,(tctitle==INITPTR)?funname:tctitle
-              ,(tctitle==INITPTR)?strlen(funname):strlen(tctitle));
+              ,(tctitle==INITPTR)?strlen(funname) + 1:strlen(tctitle) + 1);
         tcinfo->test_ = INITPTR;
         tcinfo->id_   = dl_list_size(ls_tc_list)+1;
         dl_list_add(ls_tc_list,(void*)tcinfo);
@@ -1211,6 +1211,7 @@ int tm_run_test_case( unsigned int      id
         }
         stacktop = lua_gettop(l);
         tcname = tx_create( (char*)lua_tostring(l,stacktop) );
+	set_caller_name (tx_share_buf (tcname));
         /* === 2. Call test case, return result and so on === */
         luastatus = luaL_loadfile(l,scriptfile);
         luastatus = lua_pcall(l,0,LUA_MULTRET,0);
