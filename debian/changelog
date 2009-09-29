@@ -1,3 +1,14 @@
+min-all (2009w40) unstable; urgency=low
+  * Fifteenth MIN Release
+  * Fixed: The wrapper macro around strncpy  (STRCPY) and checked it's usage. 
+  * Fixed: Remaining resource leaks reported by static analysis tool.
+  * Fixed: Scripter: error in loop keyword syntax validation
+  * Fixed: Bug in remote run handling.
+  * Fixed: ConsoleUI: View output for ongoing case does not update automatically.
+  * Added: Debian package for Embedded version of Qt GUI
+  * Added: Mechanism to get the name of currently running test case from c-code.
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   28 Sep 2009 13:39:36 +0100
+
 min-all (2009w38) unstable; urgency=low
   * Fourteenth MIN Release
   * Fixed: Around 100 defects from static analysis tool.
