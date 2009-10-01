@@ -1,0 +1,41 @@
+#!/usr/bin/make -f
+export DH_VERBOSE=1
+package = min-doc
+
+build: build-stamp
+
+build-stamp:
+	dh_testdir
+	./autogen.sh 
+	./configure --prefix=/usr 
+	$(MAKE) || exit 1 
+	touch NEWS 
+	touch ChangeLog
+	touch build-stamp
+clean: 
+	dh_clean
+	rm -f build-stamp
+	$(MAKE) distclean
+
+install: build
+	dh_clean
+	$(MAKE) install "DESTDIR = $(CURDIR)/debian/tmp"
+	$(MAKE) install-html "DESTDIR = $(CURDIR)/debian/tmp"
+	$(MAKE) install-pdf "DESTDIR = $(CURDIR)/debian/tmp"
+	$(MAKE) doxyhtml
+
+binary-indep: install
+	dh_installdirs -A
+	dh_fixperms -A
+	dh_installdocs -a NEWS
+	dh_installchangelogs -a ChangeLog
+	dh_install --sourcedir=debian/tmp
+	dh_makeshlibs -A
+	dh_compress -A
+	dh_installdeb 
+	dh_shlibdeps
+	dh_gencontrol 
+	dh_builddeb -a
+
+binary: binary-indep
+.PHONY: binary binari-indep clean checkroot

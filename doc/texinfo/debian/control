@@ -1,0 +1,12 @@
+Source: min-doc
+Section: doc
+Priority: optional
+Maintainer: Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>
+Standards-Version: 3.8.0
+
+Package: min-doc
+Section: doc
+Architecture: any
+Depends:
+Description: Documentation for MIN Test Framework
+  Documentation for MIN Test Framework in html and pdf formats.
