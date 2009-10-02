@@ -1107,9 +1107,10 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 
         work_case_item = dl_list_head (selected_cases);
         while (work_case_item != DLListNULLIterator) {
-                if (((tc_get_status (work_case_item)) == TEST_CASE_ONGOING) &&
-                    ((tm_get_pid (tc_get_test_module_ptr (work_case_item))) ==
-                     message->sender_))
+                if ((tc_get_status (work_case_item) == TEST_CASE_ONGOING ||
+		     tc_get_status (work_case_item) == TEST_CASE_PAUSED) &&
+		    (tm_get_pid (tc_get_test_module_ptr (work_case_item)) ==
+		     message->sender_))
                         /* we found ongoing case with module matching message 
 			 * sender's pid, co we can stop
 			 * iterating through list 
@@ -2250,7 +2251,6 @@ err_exit:
  */
 LOCAL void create_local_confdir ()
 {
-        struct stat dirstat;
         Text *confpath;
         char *home = getenv ("HOME");
         
@@ -2264,7 +2264,7 @@ LOCAL void create_local_confdir ()
 	if (mkdir (tx_share_buf(confpath), S_IRWXU)) {
 		if (errno != EEXIST) {
 			MIN_FATAL ("Failed to create %s: %s\n"
-				   "Exiting ...\n",tx_share_buf,
+				   "Exiting ...\n",tx_share_buf(confpath),
 				   strerror (errno));
 			goto err_exit;
 		}
