@@ -25,7 +25,10 @@ doxyhtml:
 ## ----------------------------- ##
 ## Other documentation formats.  ##
 ## ----------------------------- ##
-
-
+install-html-local:
+	mkdir -p $(DESTDIR)/usr/share/doc/min-doc/min.html/images
+	cp images/*.png $(DESTDIR)/usr/share/doc/min-doc/min.html/images
+	mkdir -p $(DESTDIR)/usr/share/doc/min-doc/min-reference.html/images
+	cp images/*.png $(DESTDIR)/usr/share/doc/min-doc/min-reference.html/images
 
 .PHONY: html pdf doxyhtml

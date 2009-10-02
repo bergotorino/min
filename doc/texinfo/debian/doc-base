@@ -1,0 +1,35 @@
+Document: min
+Title: MIN User's Guide
+Author: Maciej Jablonski, Sampo Saaristo and Konrad Zapalowicz
+Abstract: This manual introduces MIN Test Framework and 
+      and how it can be used to
+            develop and run test cases.
+Section: Apps/Programming
+	         
+Format: Info
+Index: /usr/share/info/min.info.gz
+	         
+Format: PDF
+Files: /usr/share/doc/min-doc/min.pdf.gz
+	         
+Format: HTML
+Index: /usr/share/doc/doc-base/min.html/index.html
+Files: /usr/share/doc/doc-base/min.html/*.html
+
+Document: min-reference
+Title: MIN Reference Guide
+Author: Maciej Jablonski, Sampo Saaristo and Konrad Zapalowicz
+Abstract: This manual introduces MIN Test Framework and 
+      and how it can be used to
+            develop and run test cases.
+Section: Apps/Programming
+	         
+Format: Info
+Index: /usr/share/info/min-reference.info.gz
+	         
+Format: PDF
+Files: /usr/share/doc/min-doc/min-reference.pdf.gz
+	         
+Format: HTML
+Index: /usr/share/doc/doc-base/min-reference.html/index.html
+Files: /usr/share/doc/doc-base/min-reference.html/*.html
