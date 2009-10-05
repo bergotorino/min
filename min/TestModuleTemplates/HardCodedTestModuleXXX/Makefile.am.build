@@ -15,7 +15,7 @@ group_files = `ls -a ./ | grep -v CVS | grep -v debian | grep -v src | grep -v c
 
 install-data-local:
 		mkdir -p $(HOME)/.min
-		cp ./tmp/usr/lib/HardCodedTestModuleXXX/* $(HOME)/.min
+		cp ./tmp/usr/lib/min/* $(HOME)/.min
 		exec patchminconf.sh '$(HOME)/.min/min.conf' 'HardCodedTestModuleXXX' 
 
 oldstyle:
