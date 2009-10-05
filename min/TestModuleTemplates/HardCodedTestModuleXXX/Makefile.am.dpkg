@@ -1,0 +1,10 @@
+METASOURCES=Auto
+AM_FLAGS=-fPIC
+pkglib_LTLIBRARIES = HardCodedTestModuleXXX.la
+TOPDIR=.
+
+HardCodedTestModuleXXX_la_LDFLAGS = -shared -module
+HardCodedTestModuleXXX_la_SOURCES = $(TOPDIR)/src/HardCodedTestModuleXXX.c $(TOPDIR)/src/HardCodedTestModuleXXXCases.c
+HardCodedTestModuleXXX_la_LIBADD = -lminutils -lmintmapi -lminevent -lmininterference -lpthread
+
+sysconf_DATA=data/HardCodedTestModuleXXX.min.conf

@@ -1,7 +1,10 @@
 #!/bin/sh
-if [ ! -e Makefile ]
+if [ -e Makefile ] # run distclean everytime but the "first"
 then
-WANT_AUTOCONF_2_5="1" WANT_AUTOMAKE_1_6="1" make -f Makefile.cvs && ./configure --libdir=/usr/lib  --sysconfdir=/etc
+   make distclean
 fi
-WANT_AUTOCONF_2_5="1" WANT_AUTOMAKE_1_6="1" make | tee build.log 2>&1 && make install
+cp ./Makefile.am.build ./Makefile.am
+./autogen.sh && \
+./configure CFLAGS='-g -Wall ' --prefix=/usr --sysconfdir=/etc  && \
+make | tee build.log 2>&1
 
