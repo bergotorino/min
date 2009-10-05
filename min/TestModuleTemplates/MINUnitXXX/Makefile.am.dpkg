@@ -1,0 +1,10 @@
+METASOURCES=Auto
+AM_FLAGS=-fPIC
+pkglib_LTLIBRARIES = MINUnitXXX.la
+TOPDIR=.
+
+MINUnitXXX_la_LDFLAGS = -shared -module
+MINUnitXXX_la_SOURCES = $(TOPDIR)/src/MINUnitXXX.c $(TOPDIR)/src/MINUnitXXXCases.c
+MINUnitXXX_la_LIBADD = -lminutils -lmintmapi -lminevent -lmininterference -lpthread
+
+sysconf_DATA=data/MINUnitXXX.min.conf
