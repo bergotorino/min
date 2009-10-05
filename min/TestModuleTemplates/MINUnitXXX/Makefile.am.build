@@ -8,7 +8,6 @@ TESTS = $(DESTDIR)/usr/lib/MINUnitXXX/MINUnitXXX.so
 CASESFILE=MINUnitXXXCases.c
 
 MINUnitXXX_la_CFLAGS = -I$(TOPDIR)/src -DCASES_FILE='"$(CASESFILE)"'
-#MINUnitXXXTestModule_la_CXXFLAGS = $(MINUnitXXXTestModule_la_CFLAGS)
 MINUnitXXX_la_LDFLAGS = -shared -module
 MINUnitXXX_la_SOURCES = $(TOPDIR)/src/MINUnitXXX.c
 MINUnitXXX_la_LIBADD =  -lminutils -lmintmapi -lminevent  -lmininterference -lpthread
