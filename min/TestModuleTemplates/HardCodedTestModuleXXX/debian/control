@@ -8,8 +8,7 @@ Standards-Version: 3.8.0
 Package: HardCodedTestModuleXXX
 Version: 1.0
 Priority: extra
-Essential: no
-Maintainer: john.doe@nokia.com
 Architecture: any
 Depends: ${shlibs:Depends}, min
-Description: MIN (HardCoded) test module HardCodedTestModuleXXX
+Description: MIN  test module HardCodedTestModuleXXX
+ Fill description for HardCodedTestModuleXXX
