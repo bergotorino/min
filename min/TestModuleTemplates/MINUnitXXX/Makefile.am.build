@@ -4,7 +4,7 @@ pkglib_LTLIBRARIES = MINUnitXXX.la
 DESTDIR = $(PWD)/tmp
 TOPDIR=.
 TESTS_ENVIRONMENT = min --console --execute
-TESTS = $(DESTDIR)/usr/lib/MINUnitXXX/MINUnitXXX.so
+TESTS = $(DESTDIR)/usr/lib/min/MINUnitXXX.so
 CASESFILE=MINUnitXXXCases.c
 
 MINUnitXXX_la_CFLAGS = -I$(TOPDIR)/src -DCASES_FILE='"$(CASESFILE)"'

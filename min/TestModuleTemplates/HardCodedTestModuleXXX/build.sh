@@ -6,5 +6,4 @@ fi
 cp ./Makefile.am.build ./Makefile.am
 ./autogen.sh && \
 ./configure CFLAGS='-g -Wall ' --prefix=/usr --sysconfdir=/etc  && \
-make | tee build.log 2>&1
-
+make && make install
