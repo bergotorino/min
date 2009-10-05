@@ -3,10 +3,10 @@ Section: libs
 Priority: optional
 Maintainer: John Doe <John.Doe@example.com>
 Build-Depends: debhelper, min-dev
+Version: 1.0
 Standards-Version: 3.8.0
 
 Package: MINUnitXXX
-Version: 1.0
 Priority: extra
 Architecture: any
 Depends: ${shlibs:Depends}, min
