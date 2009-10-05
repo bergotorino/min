@@ -5,20 +5,22 @@
 
 CFLAGS = -Wall -g
 
-config.status: configure
-	dh_testdir
 
-configure:
+build:  build-stamp
+
+build-stamp:
+	dh_testdir
 	cp ./Makefile.am.dpkg Makefile.am
 	./autogen.sh --prefix=/usr --sysconfdir=/etc/min.d/
 	./configure --prefix=/usr --sysconfdir=/etc/min.d/
-	
-build:  configure
 	$(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)"
+	touch build-stamp
 
 clean:
 	dh_testdir
 	dh_clean 
+	rm -f build-stamp
+	[ ! -f Makefile ] || $(MAKE) distclean
 
 install:
 	dh_testdir
