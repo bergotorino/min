@@ -1,0 +1,14 @@
+Source: MINUnitXXX
+Section: libs
+Priority: optional
+Maintainer: John Doe <John.Doe@example.com>
+Build-Depends: debhelper, min-dev
+Standards-Version: 3.8.0
+
+Package: MINUnitXXX
+Version: 1.0
+Priority: extra
+Architecture: any
+Depends: ${shlibs:Depends}, min
+Description: MIN test module MINUnitXXX
+ Fill description for MINUnitXXX
