@@ -5,12 +5,12 @@ DESTDIR = $(PWD)/tmp
 TOPDIR=.
 TESTS_ENVIRONMENT = min --console --execute
 TESTS = $(DESTDIR)/usr/lib/min/MINUnitXXX.so
-CASESFILE=MINUnitXXXCases.c
+CASESFILE=MINUnitXXXCases.cpp
 CC=g++
 
 MINUnitXXX_la_CXXFLAGS = -I$(TOPDIR)/src -DCASES_FILE='"$(CASESFILE)"'
 MINUnitXXX_la_LDFLAGS = -shared -module
-MINUnitXXX_la_SOURCES = $(TOPDIR)/src/MINUnitXXX.c
+MINUnitXXX_la_SOURCES = $(TOPDIR)/src/MINUnitXXX.cpp
 MINUnitXXX_la_LIBADD =  -lminutils -lmintmapi -lminevent  -lmininterference -lpthread
 
 group_files = `ls -a ./ | grep -v CVS | grep -v debian | grep -v src | grep -v createminunitmodule | grep -v group | grep -v Makefile.am | grep -v ^\\[.\\]*$$`
