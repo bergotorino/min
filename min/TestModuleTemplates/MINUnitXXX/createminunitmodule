@@ -51,6 +51,8 @@ find(\&renamerename, '.');
 
 # chmod build.sh
 chmod 0755, $targetDir."/build.sh";
+chmod 0755, $targetDir."/autogen.sh";
+chmod 0755, $targetDir."/debian/rules";
 
 unlink $targetDir."createminunitmodule";
 print "Module created to $targetDir\n";
