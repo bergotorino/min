@@ -3,7 +3,7 @@ AM_FLAGS=-fPIC
 pkglib_LTLIBRARIES = HardCodedTestModuleXXX.la
 TESTS_ENVIRONMENT = min --console --execute
 DESTDIR = $(PWD)/tmp
-TESTS = $(DESTDIR)/usr/lib/HardCodedTestModuleXXX/HardCodedTestModuleXXX.so
+TESTS = $(DESTDIR)/usr/lib/min/HardCodedTestModuleXXX.so
 TOPDIR=.
 CC=g++
 
