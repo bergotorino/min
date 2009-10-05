@@ -1,0 +1,12 @@
+METASOURCES=Auto
+AM_FLAGS=-fPIC
+pkglib_LTLIBRARIES = MINUnitXXX.la
+TOPDIR=.
+CASESFILE=MINUnitXXXCases.cpp
+
+MINUnitXXX_la_CXXFLAGS = -I$(TOPDIR)/src -DCASES_FILE='"$(CASESFILE)"'
+MINUnitXXX_la_LDFLAGS = -shared -module
+MINUnitXXX_la_SOURCES = $(TOPDIR)/src/MINUnitXXX.cpp
+MINUnitXXX_la_LIBADD = -lminutils -lmintmapi -lminevent -lmininterference -lpthread
+
+sysconf_DATA=data/MINUnitXXX.min.conf
