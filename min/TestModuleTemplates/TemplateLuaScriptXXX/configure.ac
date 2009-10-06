@@ -1,6 +1,6 @@
-AC_INIT(configure.in)
+AC_INIT(configure.ac)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(LuaTestClassXXX, 0.1)
+AM_INIT_AUTOMAKE(min, 0.1)
 AM_PROG_CC_C_O
 AC_LANG_C
 AC_PROG_LIBTOOL
