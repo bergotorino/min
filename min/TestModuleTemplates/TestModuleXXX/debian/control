@@ -1,9 +1,14 @@
-Package: min-testlib-TestModuleXXX
+Source: TestModuleXXX
+Section: libs
+Priority: optional
+Maintainer: John Doe <John.Doe@example.com>
+Build-Depends: debhelper, min-dev
+Standards-Version: 3.8.0
+
+Package: TestModuleXXX
 Version: 1.0
-Section: devel
 Priority: extra
-Maintainer: john.doe@nokia.com
-Essential: no
-Architecture: i386
-Depends: min
-Description: MIN (Normal) test module TestModuleXXX
+Architecture: any
+Depends: ${shlibs:Depends}, min
+Description: MIN  test module TestModuleXXX
+ Fill description for TestModuleXXX

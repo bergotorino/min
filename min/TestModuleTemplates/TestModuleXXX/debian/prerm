@@ -1,9 +1,0 @@
-#!/bin/sh
-set -e
-# Uncomment this if you want to use perl
-#perl -V > /dev/null 2>&1
-#if [ $? -eq 0 ]; then
-# perl /usr/bin/mindelmod.pl /etc/min.conf ModuleName=/usr/lib/MINUnitXXXTestModule.so
-#else
-# echo "Can not remove test module from min.conf (need perl)\n"
-#fi
