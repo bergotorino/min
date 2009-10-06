@@ -1,6 +1,6 @@
-AC_INIT(configure.in)
+AC_INIT(configure.ac)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(TestModuleXXXTestModule, 0.1)
+AM_INIT_AUTOMAKE(min, 0.1)
 AC_PROG_CXX
 AC_PROG_LIBTOOL
 

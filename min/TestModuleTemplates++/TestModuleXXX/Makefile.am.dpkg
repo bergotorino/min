@@ -1,0 +1,11 @@
+METASOURCES=Auto
+AM_FLAGS=-fPIC
+pkglib_LTLIBRARIES = TestModuleXXX.la
+TOPDIR=.
+CC=g++
+
+TestModuleXXX_la_LDFLAGS = -shared -module
+TestModuleXXX_la_SOURCES = $(TOPDIR)/src/TestModuleXXX.cpp $(TOPDIR)/src/TestModuleXXXCases.cpp
+TestModuleXXX_la_LIBADD = -lminutils -lmintmapi -lminevent -lmininterference -lpthread
+
+sysconf_DATA=data/TestModuleXXX.min.conf
