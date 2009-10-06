@@ -1,4 +1,4 @@
 etc/*
 usr/lib/*.so*
 usr/lib/min/LuaTestClassXXX*.so*
-usr/lib/min/LuaTestClassXXX.cfg
+usr/lib/min/LuaTestClassXXX.lua
