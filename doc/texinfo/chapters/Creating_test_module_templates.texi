@@ -1,8 +1,6 @@
 Within MIN, there is a specific MIN Test Module Template Wizard for automatically creating a test module template, for example, a Hardcoded test module, based on the templates.
 
-The test module template type can be hardcoded, normal, testclass or minunit. These test module template types can be seen in figure in @ref{Using MIN for test cases implementation}. In the figure, the test module template types are indicated with cursive font. The figure does not contain detailed information for each test module; for example, the test case files are not shown.
-
-Note: In order to use make, you need to have Makefile generated which is done by executing @code{$sh build.sh} in the test module directory (see examples).
+The test module template type can be hardcoded, normal, testclass or minunit. These test module template types can be seen in figure in @ref{Using MIN for test cases implementation}. In the figure, the test module template types are indicated with cursive font. The figure does not contain detailed information for each test module; for example, the test case files are not shown. In addition to test module templates, the template wizard can be used to create test class templates used by MIN @ref{Using Test Scripter for creating scripted test cases} or Lua @ref{Using LuaScripter for creating scripted test cases} scripter.
 
 MIN Test Module Template Wizard can be launched by running the @code{createtestmodule} script.
 
@@ -16,39 +14,49 @@ The test module template type minunit creates MINUnit type of template.
 
 An example of the test module creation process is shown in Example below
 @example
-maemo@@maemo:~/MIN/TestModuleTemplates$ ./createtestmodule 
+user@@ubuntu:~$ createtestmodule 
 Enter ModuleType:
-        normal = creates an empty test module.
-        hardcoded = creates test module that uses Hardcoded test cases.
-        testclass = creates test class which is used with TestScripter.
-        minunit = creates xUnit compatible test module
-        exit = Exit.
-Enter ModuleType: minunit
-Enter ModuleName which has to be a valid C++ variable name.
-Enter ModuleName (or exit): example_module
-Enter path [default is drive root] (or exit): /tmp
-Create test module of type minunit with name example_module to /tmp/
-Starting module creation to /tmp/example_module/
+	normal = creates an empty test module.
+	hardcoded = creates test module that uses hardcoded test cases.
+	testclass = creates test class which is used with TestScripter.
+	luatestclass = creates test class which is used with LuaScripter.
+	minunit =  creates xUnit compatible test module
+	exit = Exit.
+Enter ModuleType (name/shortcut): m
+minunit module selected.
+Enter ModuleName which has to be a valid C variable name.
+Enter ModuleName (or exit): minunitexample
+Enter path [default is home directory ~] (or exit): 
+Create test module of type m with name minunitexample to ~/
+Starting module creation to /home/user/minunitexample/
 Processing .
-Processing CreateMINUnitModule
-Processing inc
-Processing MINUnitXXX.h
-Processing min_unit_macros.h
-Processing group
-Processing AUTHORS
-Processing Makefile.cvs
-Processing NEWS
-Processing MINUnitXXX_DoxyFile.txt
-Processing build.sh
-Processing README
-Processing configure.in
+Processing Makefile.am.build
+Processing createminunitmodule
 Processing ChangeLog
-Processing Makefile.am
+Processing NEWS
+Processing autogen.sh
+Processing build.sh
+Processing AUTHORS
+Processing README
+Processing configure.ac
+Processing Makefile.am.dpkg
 Processing src
 Processing MINUnitXXX.c
 Processing MINUnitXXXCases.c
-Module created to /tmp/example_module/
-maemo@@maemo-desktop:~/MIN/TestModuleTemplates$ 
+Processing MINUnitXXX.h
+Processing data
+Processing MINUnitXXX.min.conf
+Processing debian
+Processing rules
+Processing postinst
+Processing control
+Processing changelog
+Processing install
+Processing copyright
+Processing compat
+Processing postrm
+Processing prerm
+Module created to /home/user/minunitexample/
 @end example
 
 An example of compiling the recently created module is shown in below.
@@ -57,3 +65,5 @@ maemo@@maemo:/tmp/example_module$ sh build.sh
 @end example
 The build script defines your test library automatically to @code{min.conf} file (@code{min.conf} path is @code{/home/<user name>/.min/}).
 If you now start MIN newly created module should be visible on the console UI.
+
+Another option is create debian package of the test module. This can be achieved by issuing command @code{dpkg-buildpackage -r fakeroot} on the module directory. The created debian package installs the module to @code{/usr/lib/min} and its' configuration file to @code{/etc/min.d}. 
