@@ -1,15 +1,15 @@
 METASOURCES=Auto
 AM_FLAGS=-fPIC
-pkglib_LTLIBRARIES = TemplateLuaScriptXXX.la
+pkglib_LTLIBRARIES = XTestClassXXX.la
 TOPDIR=.
 
-TemplateLuaScriptXXX_la_CFLAGS = -I$(TOPDIR)/src
-TemplateLuaScriptXXX_la_LDFLAGS = -shared -module
-TemplateLuaScriptXXX_la_SOURCES = $(TOPDIR)/src/TemplateLuaScriptXXX.c \
+LuaTestClassXXX_la_CFLAGS = -I$(TOPDIR)/src
+LuaTestClassXXX_la_LDFLAGS = -shared -module
+LuaTestClassXXX_la_SOURCES = $(TOPDIR)/src/TemplateLuaScriptXXX.c \
 			       $(TOPDIR)/src/TemplateLuaScriptXXXCases.c
-TemplateLuaScriptXXX_la_LIBADD = -lminutils -lmintmapi -lminevent -lmininterference -lpthread
+LuaTestClassXXX_la_LIBADD = -lminutils -lmintmapi -lminevent -lmininterference -lpthread
 
-sysconf_DATA=data/TemplateLuaScriptXXX.min.conf
+sysconf_DATA=data/LuaTestClassXXX.min.conf
 
 install-data-local:
 		mkdir -p $(DESTDIR)/usr/lib/min/
