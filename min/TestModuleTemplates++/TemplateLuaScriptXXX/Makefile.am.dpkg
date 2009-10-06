@@ -1,0 +1,17 @@
+METASOURCES=Auto
+AM_FLAGS=-fPIC
+pkglib_LTLIBRARIES = LuaTestClassXXX.la
+TOPDIR=.
+CC=g++
+
+LuaTestClassXXX_la_CFLAGS = -I$(TOPDIR)/src
+LuaTestClassXXX_la_LDFLAGS = -shared -module
+LuaTestClassXXX_la_SOURCES = $(TOPDIR)/src/LuaTestClassXXX.cpp \
+			       $(TOPDIR)/src/LuaTestClassXXXCases.cpp
+LuaTestClassXXX_la_LIBADD = -lminutils -lmintmapi -lminevent -lmininterference -lpthread
+
+sysconf_DATA=data/LuaTestClassXXX.min.conf
+
+install-data-local:
+		mkdir -p $(DESTDIR)/usr/lib/min/
+		cp data/LuaTestClassXXX.lua $(DESTDIR)/usr/lib/min/
