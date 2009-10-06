@@ -1,4 +1,4 @@
 etc/*
 usr/lib/*.so*
 usr/lib/min/TemplateScriptXXX*.so*
-usr/lib/min/TemplateScriptXXX.conf
+usr/lib/min/TemplateScriptXXX.cfg
