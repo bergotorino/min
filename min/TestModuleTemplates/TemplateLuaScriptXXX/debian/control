@@ -10,5 +10,5 @@ Package: LuaTestClassXXX
 Priority: extra
 Architecture: any
 Depends: ${shlibs:Depends}, min
-Description: MIN test module TemplateLuaScriptXXX
- Fill description for TemplateLuaScriptXXX
+Description: MIN test module LuaTestClassXXX
+ Fill description for LuaTestClassXXX

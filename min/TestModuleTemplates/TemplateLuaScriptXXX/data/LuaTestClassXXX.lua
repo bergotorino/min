@@ -1,7 +1,7 @@
 -- =============================================================================
 -- GLOBAL VARIABLES
 -- =============================================================================
-MOD="/home/user/.min/TemplateLuaScriptXXX.so";
+MOD="/home/user/.min/LuaTestClassXXX.so";
 
 -- =============================================================================
 -- TEST CASES
@@ -9,7 +9,7 @@ MOD="/home/user/.min/TemplateLuaScriptXXX.so";
 
 --------------------------------------------------------------------------------
 
-function case_test1() -- Example test case for TemplateLuaScriptXXX
+function case_test1() -- Example test case for LuaTestClassXXX
         local a = min.load(MOD);
         local ret = a.Example();
         return ret,"Passed";
