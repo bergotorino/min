@@ -13,4 +13,4 @@ sysconf_DATA=data/TemplateScriptXXX.min.conf
 
 install-data-local:
 		mkdir -p $(DESTDIR)/usr/lib/min/
-		cp data/TemplateScriptXXX.conf $(DESTDIR)/usr/lib/min/
+		cp data/TemplateScriptXXX.cfg $(DESTDIR)/usr/lib/min/
