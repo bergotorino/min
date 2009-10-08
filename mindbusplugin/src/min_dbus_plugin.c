@@ -102,6 +102,7 @@ typedef enum {
         E_SIGNAL_MSG_PRINT,
         E_SIGNAL_TEST_MODULES,
         E_SIGNAL_TEST_FILES,
+	E_SIGNAL_ERROR_REPORT,
         E_SIGNAL_COUNT        
 } MinSignalId;
 
@@ -204,18 +205,19 @@ static void min_object_class_init (MinObjectClass *klass)
 
         /* new_module */
         klass->signals[0] = g_signal_new (SIGNAL_NEW_MODULE,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,2,G_TYPE_STRING,G_TYPE_UINT);
+					  G_OBJECT_CLASS_TYPE(klass),
+					  G_SIGNAL_RUN_LAST,
+					  0,NULL,NULL,
+					  g_cclosure_marshal_VOID__STRING,
+					  G_TYPE_NONE,2,G_TYPE_STRING,
+					  G_TYPE_UINT);
         /* no_module */
         klass->signals[1] = g_signal_new (SIGNAL_NO_MODULE,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,1,G_TYPE_STRING);
+					  G_OBJECT_CLASS_TYPE(klass),
+					  G_SIGNAL_RUN_LAST,
+					  0,NULL,NULL,
+					  g_cclosure_marshal_VOID__STRING,
+					  G_TYPE_NONE,1,G_TYPE_STRING);
         /* module_ready */
         klass->signals[2] = g_signal_new (SIGNAL_MODULE_READY,
 					  G_OBJECT_CLASS_TYPE(klass),
@@ -233,61 +235,68 @@ static void min_object_class_init (MinObjectClass *klass)
 					  G_TYPE_UINT,G_TYPE_UINT,G_TYPE_STRING);
         /* case_started */
         klass->signals[4] = g_signal_new (SIGNAL_CASE_STARTED,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,3,
-                                        G_TYPE_UINT,G_TYPE_UINT,G_TYPE_LONG);
+					  G_OBJECT_CLASS_TYPE(klass),
+					  G_SIGNAL_RUN_LAST,
+					  0,NULL,NULL,
+					  g_cclosure_marshal_VOID__STRING,
+					  G_TYPE_NONE,3,
+					  G_TYPE_UINT,G_TYPE_UINT,G_TYPE_LONG);
         /* case_paused */
         klass->signals[5] = g_signal_new (SIGNAL_CASE_PAUSED,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,1,
-                                        G_TYPE_LONG);
+					  G_OBJECT_CLASS_TYPE(klass),
+					  G_SIGNAL_RUN_LAST,
+					  0,NULL,NULL,
+					  g_cclosure_marshal_VOID__STRING,
+					  G_TYPE_NONE,1,
+					  G_TYPE_LONG);
         /* case_resumed */
         klass->signals[6] = g_signal_new (SIGNAL_CASE_RESUMED,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,1,
-                                        G_TYPE_LONG);
+					  G_OBJECT_CLASS_TYPE(klass),
+					  G_SIGNAL_RUN_LAST,
+					  0,NULL,NULL,
+					  g_cclosure_marshal_VOID__STRING,
+					  G_TYPE_NONE,1,
+					  G_TYPE_LONG);
         /* case_result */
         klass->signals[7] = g_signal_new (SIGNAL_CASE_RESULT,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,5,
-                                        G_TYPE_LONG,G_TYPE_INT,G_TYPE_STRING,
-                                        G_TYPE_LONG,G_TYPE_LONG);
+					  G_OBJECT_CLASS_TYPE(klass),
+					  G_SIGNAL_RUN_LAST,
+					  0,NULL,NULL,
+					  g_cclosure_marshal_VOID__STRING,
+					  G_TYPE_NONE,5,
+					  G_TYPE_LONG,G_TYPE_INT,G_TYPE_STRING,
+					  G_TYPE_LONG,G_TYPE_LONG);
         /* msg_print */
         klass->signals[8] = g_signal_new (SIGNAL_MSG_PRINT,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,2,
-                                        G_TYPE_LONG,G_TYPE_STRING);
+					  G_OBJECT_CLASS_TYPE(klass),
+					  G_SIGNAL_RUN_LAST,
+					  0,NULL,NULL,
+					  g_cclosure_marshal_VOID__STRING,
+					  G_TYPE_NONE,2,
+					  G_TYPE_LONG,G_TYPE_STRING);
         /* test_modules */
         klass->signals[9] = g_signal_new (SIGNAL_TEST_MODULES,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,1,
-                                        G_TYPE_STRING);
+					  G_OBJECT_CLASS_TYPE(klass),
+					  G_SIGNAL_RUN_LAST,
+					  0,NULL,NULL,
+					  g_cclosure_marshal_VOID__STRING,
+					  G_TYPE_NONE,1,
+					  G_TYPE_STRING);
         /* test_files */
         klass->signals[10] = g_signal_new (SIGNAL_TEST_FILES,
-                                        G_OBJECT_CLASS_TYPE(klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,NULL,NULL,
-                                        g_cclosure_marshal_VOID__STRING,
-                                        G_TYPE_NONE,1,
-                                        G_TYPE_STRING);
+					   G_OBJECT_CLASS_TYPE(klass),
+					   G_SIGNAL_RUN_LAST,
+					   0,NULL,NULL,
+					   g_cclosure_marshal_VOID__STRING,
+					   G_TYPE_NONE,1,
+					   G_TYPE_STRING);
+        /* error_report */
+        klass->signals[11] = g_signal_new (SIGNAL_ERROR_REPORT,
+					   G_OBJECT_CLASS_TYPE(klass),
+					   G_SIGNAL_RUN_LAST,
+					   0,NULL,NULL,
+					   g_cclosure_marshal_VOID__STRING,
+					   G_TYPE_NONE,1,G_TYPE_STRING);
 
         dbus_g_object_type_install_info (MIN_TYPE_OBJECT,
                                         &dbus_glib_min_object_object_info);
@@ -369,11 +378,26 @@ static void pl_msg_print (long testrunid, char *message)
         if (!global_obj) return;
         MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
         g_signal_emit (global_obj,
-                        klass->signals[E_SIGNAL_MSG_PRINT],
-                        0,
-                        testrunid,message);
+		       klass->signals[E_SIGNAL_MSG_PRINT],
+		       0,
+		       testrunid,message);
 
 }
+/* ------------------------------------------------------------------------- */
+/** MIN Engine calls this for error reports from engine.
+ */
+static void pl_error_report (char *message)
+{
+        /* emit signal */
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+		       klass->signals[E_SIGNAL_ERROR_REPORT],
+		       0,
+		       message);
+
+}
+
 /* ------------------------------------------------------------------------- */
 /** MIN Engine calls this when new module has been succesfully added
  */
@@ -468,6 +492,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         (*out_callback)->case_paused            = pl_case_paused;
         (*out_callback)->case_resumed           = pl_case_resumed;
         (*out_callback)->module_prints          = pl_msg_print;
+        (*out_callback)->error_report           = pl_error_report;
         (*out_callback)->new_module             = pl_new_module;
         (*out_callback)->no_module              = pl_no_module;
         (*out_callback)->module_ready           = pl_module_ready;

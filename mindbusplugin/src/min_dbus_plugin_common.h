@@ -23,6 +23,7 @@
 #define SIGNAL_MSG_PRINT        "min_case_msg"
 #define SIGNAL_TEST_MODULES     "min_test_modules"
 #define SIGNAL_TEST_FILES       "min_test_files"
+#define SIGNAL_ERROR_REPORT     "min_error_report"
 
 
 #endif /* MIN_DBUS_PLUGIN_COMMON_H */

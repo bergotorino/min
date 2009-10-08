@@ -118,5 +118,11 @@
                         <arg type="t" name="testrunid"/>
                         <arg type="s" name="message"/>
                 </signal>
+
+                <!-- error_report -->
+                <signal name="min_error_report">
+                        <arg type="s" name="message"/>
+                </signal>
+
         </interface>
 </node>
