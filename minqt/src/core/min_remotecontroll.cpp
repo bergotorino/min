@@ -285,6 +285,7 @@ void Min::RemoteControll::minCaseResult(int testrunid, int result,
     msg += " result: ";
     msg += Min::DescriptionProvider::getTestCaseResultDescription(result);
     Min::StatusBar::update(msg,3000);
+    db.insertLogMessage ("info",msg);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minCaseResumed(int testrunid)
@@ -338,6 +339,8 @@ void Min::RemoteControll::minCaseStarted(uint moduleid,
     msg += "::";
     msg += db.getCaseTitleFromEngineId(db.getModuleDbId(1,moduleid),caseid);
     Min::StatusBar::update(msg,3000);
+    db.insertLogMessage ("info",msg);
+
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minModuleReady(uint moduleid)
@@ -348,6 +351,8 @@ void Min::RemoteControll::minModuleReady(uint moduleid)
     Min::Database &db = Min::Database::getInstance();
     QString tmp = db.getModuleNameFromEngineId(moduleid);
     Min::StatusBar::update("Module ready: "+tmp,3000);
+    db.insertLogMessage ("info","Module ready: "+tmp);
+
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
@@ -385,7 +390,6 @@ void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
 	// Display stuff on status bar
 	Min::StatusBar::update("New test case: "+casetitle,3000);
 	db.insertLogMessage ("info","New test case: "+casetitle);
-
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNoModule(const QString &modulename)
@@ -394,6 +398,10 @@ void Min::RemoteControll::minNoModule(const QString &modulename)
 
 	// Display stuff on status bar
 	Min::StatusBar::update("Unable to load module: "+modulename,3000);
+	Min::Database &db = Min::Database::getInstance();
+
+	db.insertLogMessage ("error","Unable to load module: "+modulename);
+
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minTestFiles(const QString &files)
