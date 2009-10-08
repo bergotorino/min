@@ -135,6 +135,7 @@ void Min::MainWindow::setupToolBar()
             this,SLOT(handleResumeTestCase()));
     connect (abortcaseaction,SIGNAL(triggered(bool)),
             this,SLOT(handleAbortTestCase()));
+
 }
 // -----------------------------------------------------------------------------
 void Min::MainWindow::toggleToolBar()
@@ -287,5 +288,7 @@ void Min::MainWindow::handleAbortTestCase()
 
 	
 }
+
+
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

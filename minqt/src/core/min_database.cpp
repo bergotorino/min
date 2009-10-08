@@ -23,6 +23,8 @@
 #include "min_database.hpp"
 #include "tmc_common.h"
 
+#include <QDate>
+
 // ----------------------------------------------------------------------------
 Min::Database::Database()
     : db()
@@ -205,6 +207,31 @@ unsigned int Min::Database::insertPrintout(unsigned int test_run_dbid,
     }
     else return 0;
 };
+// ----------------------------------------------------------------------------
+unsigned int Min::Database::insertLogMessage(const QString &logtype,
+					     const QString &content)
+{
+    QSqlQuery query;
+    // untaint
+    QString cont(content);
+    if (cont.contains ('\"'))
+	    cont.remove ('\"');
+    
+    query.prepare("INSERT INTO log(logtype,content,logtime) VALUES (:logtype, :content, :logtime);");
+    query.bindValue(QString(":logtype"), QVariant(logtype));
+    query.bindValue(QString(":content"), QVariant(cont));
+    query.bindValue(QString(":logtime"), 
+		    QDateTime::currentDateTime().toTime_t());
+
+    if (query.exec()) {
+        // Notify
+        query.finish();
+        emit updated();
+        return query.lastInsertId().toUInt();
+    }
+    else return 0;
+};
+
 
 // ----------------------------------------------------------------------------
 bool Min::Database::updateTestRun(unsigned int dbid,
@@ -549,6 +576,28 @@ QStringList Min::Database::getPrintoutView(unsigned int test_run_dbid) const
     return retval;
 };
 // ----------------------------------------------------------------------------
+QVector<QStringList> Min::Database::getLogMessages(void) const
+{
+    QSqlQuery query;
+    QVector<QStringList> retval;
+    QStringList row;
+
+    query.prepare("SELECT * FROM log");
+    if(query.exec()){
+        while(query.next()) {
+	    row.clear();
+            row.append(query.value(0).toString());
+            row.append(query.value(1).toString());
+            row.append(query.value(2).toString());
+            row.append(query.value(3).toString());
+	    retval.append(row);
+        }
+    }
+    query.finish();
+
+    return retval;
+};
+// ----------------------------------------------------------------------------
 QVector<QStringList> Min::Database::getTestRunsInGroup(unsigned int device_dbid, unsigned int group_id) const
 {
     QSqlQuery query;
@@ -716,6 +765,8 @@ bool Min::Database::initDatabase()
         query.exec("CREATE TABLE test_case (id INTEGER PRIMARY KEY, test_case_id int, module_id int, test_case_title varchar, test_case_description varchar);");
         query.exec("CREATE TABLE test_run (id INTEGER PRIMARY KEY, test_run_pid int, test_case_id int, group_id int, status int, start_time int, end_time int, result int default 2, result_description varchar);");
         query.exec("CREATE TABLE printout (id INTEGER PRIMARY KEY, test_run_id int, content varchar);");
+        query.exec("CREATE TABLE log (id INTEGER PRIMARY KEY, content varchar, logtype varchar, logtime int);");
+
 	query.exec("CREATE TABLE test_case_file (test_case_file_name varchar);");
 	query.exec("CREATE TABLE test_module_file (test_module_file_name varchar);");
 

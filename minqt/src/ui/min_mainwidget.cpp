@@ -70,13 +70,15 @@ QItemSelectionModel* Min::MainWidget::getSelectedAvailableTestCases() const
 // -----------------------------------------------------------------------------
 QItemSelectionModel* Min::MainWidget::getSelectedOngoingTestCases() const
 {
-    return mainPanel_->getSelectionFromOngoingCasesView();
+	if (mainPanel_->getSelectionFromOngoingCasesView()->hasSelection())
+		return mainPanel_->getSelectionFromOngoingCasesView();
+	return mainPanel_->getSelectionFromAllCasesView();
 }
 // -----------------------------------------------------------------------------
 void Min::MainWidget::resizeEvent ( QResizeEvent * event )
 {
-    splitter_->resize(event->size());
-    QWidget::resizeEvent(event);
+	splitter_->resize(event->size());
+	QWidget::resizeEvent(event);
 }
 // -----------------------------------------------------------------------------
 // file created by generator.sh v1.08

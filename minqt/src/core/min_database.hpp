@@ -119,6 +119,14 @@ namespace Min
          */
         unsigned int insertPrintout(unsigned int test_run_dbid,
                                     const QString &content);
+        /**
+         * Error message from engine insertion
+	 * @param logtype - type of log message "error", "info" ..
+         * @param content - text of printout
+         * @ret - ID of message in database
+         */
+	    unsigned int insertLogMessage(const QString &logtype,
+					  const QString &content);
 
         /**
          * updates test run information ( of pause, resume etc.)
@@ -224,6 +232,10 @@ namespace Min
         QVector<QStringList> getAvailableView(unsigned int device_dbid = 1) const;
         /** Get printouts for specific test run */
         QStringList getPrintoutView(unsigned int test_run_dbid = 0) const;
+
+        /** Get error messages */
+        QVector<QStringList> getLogMessages (void) const;
+
         /** Get data for executed cases view */
         QVector<QStringList> getExecutedView(unsigned int device_dbid = 1) const;
         /** Get module name by module engine ID */

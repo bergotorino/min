@@ -51,6 +51,7 @@
 #include "tmc_common.h"
 #include "min_descriptionprovider.hpp"
 #include "min_executedtab.hpp"
+#include "min_logtab.hpp"
 
 // -----------------------------------------------------------------------------
 Min::CasesPanel::CasesPanel(QWidget *parent)
@@ -58,6 +59,7 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     , centralWidget_(new QTabWidget(this))
     , availableCasesView_(new QTableView(this))
     , executedTab_(new Min::ExecutedTab(this))
+    , logTab_(new Min::LogTab(this))
     , availableCasesModel_(new Min::AvailableModel(this))
     , testRunsModel_(new Min::TestRunTreeModel(this))
     , availableProxy_(new QSortFilterProxyModel(this))
@@ -73,11 +75,17 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     availableCasesView_->setModel(availableProxy_);
     availableCasesView_->setColumnWidth(0,200);
     availableCasesView_->horizontalHeader()->setStretchLastSection(true);
+
+
     hideViewColumns();
     availableCasesView_->setAutoFillBackground(true);
-    // Main pane
+    logTab_->setAutoFillBackground(true);
+
+    // Main panel
     centralWidget_->addTab(availableCasesView_,QString("Available Cases"));
     centralWidget_->addTab(executedTab_,QString("Test Runs"));
+    centralWidget_->addTab(logTab_,QString("Log Messages"));
+
     //    centralWidget_->addItem(testRunTree_,
     //		    QString("Summary"));
 
@@ -102,6 +110,11 @@ QItemSelectionModel* Min::CasesPanel::getSelectionFromAvailableCasesView()
 QItemSelectionModel* Min::CasesPanel::getSelectionFromOngoingCasesView()
 {
     return executedTab_->getSelectionFromOngoingCasesView();
+}
+// -----------------------------------------------------------------------------
+QItemSelectionModel* Min::CasesPanel::getSelectionFromAllCasesView()
+{
+    return executedTab_->getSelectionFromAllCasesView();
 }
 // -----------------------------------------------------------------------------
 void Min::CasesPanel::resizeEvent(QResizeEvent *event)

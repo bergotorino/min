@@ -8,8 +8,8 @@
  * Do not edit! All changes made to it will be lost.
  */
 
-#ifndef MIN_OBJECT_H_1241765736
-#define MIN_OBJECT_H_1241765736
+#ifndef MIN_OBJECT_H_1254481267
+#define MIN_OBJECT_H_1254481267
 
 #include <QtCore/QObject>
 #include <QtCore/QByteArray>
@@ -95,6 +95,13 @@ public Q_SLOTS: // METHODS
         return callWithArgumentList(QDBus::Block, QLatin1String("min_query_test_modules"), argumentList);
     }
 
+    inline QDBusReply<void> min_register_slave(const QString &host, const QString &slavetype)
+    {
+        QList<QVariant> argumentList;
+        argumentList << qVariantFromValue(host) << qVariantFromValue(slavetype);
+        return callWithArgumentList(QDBus::Block, QLatin1String("min_register_slave"), argumentList);
+    }
+
     inline QDBusReply<void> min_resume_case(int testrunid)
     {
         QList<QVariant> argumentList;
@@ -115,6 +122,7 @@ Q_SIGNALS: // SIGNALS
     void min_case_result(int testrunid, int result, const QString &desc, int starttime, int endttime);
     void min_case_resumed(int testrunid);
     void min_case_started(uint moduleid, uint caseid, int testrunid);
+    void min_error_report(const QString &message);
     void min_module_ready(uint moduleid);
     void min_new_module(const QString &modulename, uint moduleid);
     void min_new_test_case(uint moduleid, uint caseid, const QString &casetitle);

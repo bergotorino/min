@@ -200,6 +200,10 @@ void Min::RemoteControll::open(const QString &address)
 	  connect (obj_,SIGNAL(min_test_modules(const QString &)),
 		   this,SLOT(minTestModules(const QString &)));
 
+	  connect (obj_,SIGNAL(min_error_report(const QString &)),
+		   this,SLOT(minErrorReport(const QString &)));
+
+
 	  // 3.3 Open MinDBusPlugin
 	  obj_->min_open();
 	  return;
@@ -366,6 +370,8 @@ void Min::RemoteControll::minNewModule(const QString &modulename, uint moduleid)
 
     // Display stuff on status bar
     Min::StatusBar::update("Module loaded: "+modulename,3000);
+    Min::Database &db = Min::Database::getInstance();
+    db.insertLogMessage ("info","Module loaded: "+modulename);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
@@ -378,6 +384,8 @@ void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
 	
 	// Display stuff on status bar
 	Min::StatusBar::update("New test case: "+casetitle,3000);
+	db.insertLogMessage ("info","New test case: "+casetitle);
+
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNoModule(const QString &modulename)
@@ -409,6 +417,10 @@ void Min::RemoteControll::minTestModules(const QString &modules)
 void Min::RemoteControll::minErrorReport(const QString &error)
 {
 
+	qDebug ("Min::RemoteControll::minErrorReport: %s", 
+		error.toStdString().c_str());
+	Min::Database &db = Min::Database::getInstance();
+	db.insertLogMessage ("error", error);
 	Min::StatusBar::update("Error: "+error,3000);
 }
 

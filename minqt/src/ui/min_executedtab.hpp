@@ -51,6 +51,8 @@ namespace Min
         ~ExecutedTab();
 	/** Gets selection model from ongoing cases view */
         QItemSelectionModel* getSelectionFromOngoingCasesView();
+	/** Gets selection model from all cases view */
+        QItemSelectionModel* getSelectionFromAllCasesView();
 
     protected:
         /** Handles resize event that comes from the system. */

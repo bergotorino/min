@@ -48,6 +48,7 @@ namespace Min
 {
     class Database;
     class ExecutedTab;
+    class LogTab;
     // -------------------------------------------------------------------------
     /**
      * @class CasesPanel
@@ -73,6 +74,10 @@ namespace Min
          *  @return pointer to the QSelectionItemModel
          */
         QItemSelectionModel* getSelectionFromOngoingCasesView();
+        /** Gets information about selected test cases from all cases view
+         *  @return pointer to the QSelectionItemModel
+         */
+        QItemSelectionModel* getSelectionFromAllCasesView();
 
     protected:
         /** Handles resize event that comes from the system. */
@@ -91,9 +96,13 @@ namespace Min
         QTableView *availableCasesView_;
 
         /** Executed tab. Will display executed cases view and list
-         *  of pronts from test cases.
+         *  of prints from test cases.
          */
         Min::ExecutedTab *executedTab_;
+
+        /** Log tab. Displays log messages
+         */
+        Min::LogTab *logTab_;
 
         /** Model that feeds available cases view with the data. */
         QAbstractItemModel *availableCasesModel_;
