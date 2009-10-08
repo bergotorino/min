@@ -130,6 +130,7 @@ struct _ScriptedTestProcessDetails {
         DLList         *tcr_list_;       /**< result of the test case        */
         DLList         *allowed_results_;/**< allowed result of the test     */
         unsigned int    tc_id_;          /**< test case id (combiner)        */
+	char            has_crashed_;    /**< set if test class has crashed  */
 };
 /* ------------------------------------------------------------------------- */
 /** Information we need to call test function */

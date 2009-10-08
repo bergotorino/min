@@ -748,6 +748,9 @@ LOCAL void uengine_handle_ret (int mqid, int param, const char *message,
                 if (dl_list_size (variables) > 0) {
                         receive_variables();
                 }
+		/* If the test class has crashed, mark it so */
+		if (param == TP_CRASHED)
+			stpd->has_crashed_ = ESTrue;
                 /* Check result against allowed test result */
                 it = dl_list_find (dl_list_head (stpd->allowed_results_)
                                    , dl_list_tail (stpd->allowed_results_)
@@ -1555,6 +1558,7 @@ int testclass_create (filename_t dllName, char *className)
                 stpd->pid_ = pid;
                 stpd->mod_type_ = EDLLTypeClass;
                 stpd->status_ = TP_NONE;
+		stpd->has_crashed_ = ESFalse;
                 STRCPY (stpd->testclass_, className, 128);
                 STRCPY (stpd->dllname_, dllpath, MaxFileName);
                 dl_list_add (scripter_mod.tp_details, (void *)stpd);
@@ -1607,6 +1611,12 @@ int testclass_call_function (char *className, MinItemParser * mip)
         }
 
         stpd = (ScriptedTestProcessDetails *) dl_list_data (it);
+	/* Check That we still have test class process */
+	if (stpd->has_crashed_) {
+		MIN_WARN ("testclass %s has crashed can not call method %s",
+			  className, mip->item_skip_and_mark_pos_);
+		goto EXIT;
+	}
 
         /* 2) Fill msg structure with data */
         msg.receiver_ = stpd->pid_;
@@ -1832,6 +1842,10 @@ int testclass_destroy (char *className)
         stpd = (ScriptedTestProcessDetails *) dl_list_data (it);
 
         stpd->status_ = TP_ENDED;
+
+	if (stpd->has_crashed_)
+		return retval,
+
         retval = kill (stpd->pid_, SIGUSR2);
         if (retval == -1)
                 MIN_WARN ("Cannot kill %d", stpd->pid_);
