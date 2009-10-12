@@ -2,7 +2,7 @@ METASOURCES=Auto
 AM_FLAGS=-fPIC
 pkglib_LTLIBRARIES = TestModuleXXX.la
 TESTS_ENVIRONMENT = min --console --execute
-TESTS = $(DESTDIR)/usr/lib/TestModuleXXXTestModule/TestModuleXXXTestModule.so
+TESTS = $(DESTDIR)/usr/lib/min/TestModuleXXX.so
 DESTDIR=$(PWD)/tmp
 TOPDIR=.
 
