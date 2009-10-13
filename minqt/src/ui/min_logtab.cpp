@@ -20,6 +20,7 @@
 #include <QSplitter>
 #include <QListView>
 #include <QHeaderView>
+#include <QScrollBar>
 
 // Min includes
 #include "min_database.hpp"
@@ -45,11 +46,10 @@ Min::LogTab::LogTab(QWidget *parent)
 
     logAll_->setModel(logMsgModel_);
     logAll_->resizeColumnsToContents();
-    logAll_->horizontalHeader()->setStretchLastSection(true);
-
+    //    logAll_->horizontalHeader()->setStretchLastSection(true);
     logErrors_->setModel(errorProxy_);
     logErrors_->resizeColumnsToContents();
-    logErrors_->horizontalHeader()->setStretchLastSection(true);
+    //logErrors_->horizontalHeader()->setStretchLastSection(true);
 
     // Construct the log cases view
 
@@ -72,7 +72,8 @@ Min::LogTab::LogTab(QWidget *parent)
 // -----------------------------------------------------------------------------
 void Min::LogTab::resizeEvent(QResizeEvent *event)
 {
-    logView_->resize(event->size());
+	logView_->resize(event->size());
+	QWidget::resizeEvent(event);
 }
 // -----------------------------------------------------------------------------
 void Min::LogTab::hideViewColumns() {
