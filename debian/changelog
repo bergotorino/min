@@ -1,6 +1,11 @@
 min-all (2009w42) unstable; urgency=low
   * Sixteenth MIN Release
-  * 
+  * Fixed: Aborting paused test case fails.
+  * Fixed: Scripter gets stuck trying to call methods from a crashed test class process.
+  * Added: min-doc debian package.
+  * Added: Log messages menu to Qt GUI.
+  * Added: Debian packaging to test module templates.
+  * Added: Aborting/pausing/resuming possible also from "all cases" view in Qt GUI.
  -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   12 Oct 2009 10:11:31 +0100
 
 min-all (2009w40) unstable; urgency=low
