@@ -135,10 +135,17 @@ unsigned int Min::Database::insertTestCase(unsigned int module_dbid,
 {
     // Check if test case with this id exists
     QSqlQuery query;
+    // untaint
+    QString tctitle(test_case_title);
+    if (tctitle.contains ('\"'))
+	    tctitle.remove ('\"');
+    
+
+
     query.prepare("SELECT id FROM test_case WHERE module_id=:modid AND module_name=:title AND test_case_id=:caseid AND test_case_description=:descr;");
     query.bindValue(QString(":caseid"), QVariant(test_case_id));
     query.bindValue(QString(":modid"), QVariant(module_dbid));
-    query.bindValue(QString(":title"), QVariant(test_case_title));
+    query.bindValue(QString(":title"), QVariant(tctitle));
     query.bindValue(QString(":descr"), QVariant(test_case_description));
     if (query.exec() && query.size()>0) return 0;
     query.finish();
@@ -147,7 +154,7 @@ unsigned int Min::Database::insertTestCase(unsigned int module_dbid,
     query.prepare("INSERT INTO test_case(test_case_id, module_id, test_case_title, test_case_description) VALUES (:caseid, :modid, :title, :descr);");
     query.bindValue(QString(":caseid"), QVariant(test_case_id));
     query.bindValue(QString(":modid"), QVariant(module_dbid));
-    query.bindValue(QString(":title"), QVariant(test_case_title));
+    query.bindValue(QString(":title"), QVariant(tctitle));
     query.bindValue(QString(":descr"), QVariant(test_case_description));
     unsigned int retval = 0;
     if (query.exec()) retval = query.lastInsertId().toUInt();
