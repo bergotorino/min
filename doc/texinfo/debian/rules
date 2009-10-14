@@ -5,12 +5,14 @@ package = min-doc
 build: build-stamp
 
 build-stamp:
+	touch ChangeLog
+	touch NEWS
+	touch README
+	touch AUTHORS
 	dh_testdir
 	./autogen.sh 
 	./configure --prefix=/usr 
 	$(MAKE) || exit 1 
-	touch NEWS 
-	touch ChangeLog
 	touch build-stamp
 clean: 
 	dh_clean
