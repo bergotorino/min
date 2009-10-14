@@ -7,7 +7,7 @@ Standards-Version: 3.8.0
 
 Package: min-doc
 Section: doc
-Architecture: any
+Architecture: all
 Depends:
 Description: Documentation for MIN Test Framework
   Documentation for MIN Test Framework in html and pdf formats.

@@ -38,7 +38,7 @@ binary-indep: install
 	dh_installdeb 
 	dh_shlibdeps
 	dh_gencontrol 
-	dh_builddeb -a
+	dh_builddeb 
 
 binary: binary-indep
 .PHONY: binary binary-indep clean checkroot
