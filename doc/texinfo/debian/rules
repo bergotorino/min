@@ -30,7 +30,7 @@ install: build
 binary-indep: install
 	dh_installdirs -A
 	dh_fixperms -A
-	dh_installdocs -a NEWS
+	dh_installdocs -i 
 	dh_installchangelogs -a ChangeLog
 	dh_install --sourcedir=debian/tmp
 	dh_makeshlibs -A
@@ -38,7 +38,7 @@ binary-indep: install
 	dh_installdeb 
 	dh_shlibdeps
 	dh_gencontrol 
-	dh_builddeb 
+	dh_builddeb -i
 
 binary: binary-indep
 .PHONY: binary binary-indep clean checkroot

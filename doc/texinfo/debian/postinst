@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# Post-installation script for min-doc
+#
+
+if [ "$1" = configure ]; then
+   if which install-docs >/dev/null 2>&1; then
+           install-docs -i /usr/share/doc-base/min-ug
+           install-docs -i /usr/share/doc-base/min-ref
+#          install-docs -i /usr/share/doc-base/min-doxy
+   fi
+fi
