@@ -70,8 +70,11 @@ QItemSelectionModel* Min::MainWidget::getSelectedAvailableTestCases() const
 // -----------------------------------------------------------------------------
 QItemSelectionModel* Min::MainWidget::getSelectedOngoingTestCases() const
 {
-	if (mainPanel_->getSelectionFromOngoingCasesView()->hasSelection())
+	if (mainPanel_->getSelectionFromOngoingCasesView()->hasSelection() &&
+	    mainPanel_->getSelectionFromOngoingCasesView()->selectedRows(1).count() > 0) {
+
 		return mainPanel_->getSelectionFromOngoingCasesView();
+	}
 	return mainPanel_->getSelectionFromAllCasesView();
 }
 // -----------------------------------------------------------------------------
