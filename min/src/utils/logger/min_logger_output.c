@@ -768,7 +768,7 @@ MinLoggerSyslogOutput *so_create (const TSChar * path,
                                    unsigned int buffersize, TSBool unicode)
 {
         MinLoggerSyslogOutput *retval = INITPTR;
-
+#define SYSLOG_IDENT "minlog"
         if (file == INITPTR) {
                 goto EXIT;
         }
@@ -782,7 +782,7 @@ MinLoggerSyslogOutput *so_create (const TSChar * path,
         retval->unicode_ = unicode;
 
         /** Perform the init phase */
-        openlog (file, LOG_PID | LOG_CONS, LOG_LOCAL0);
+        openlog (SYSLOG_IDENT, LOG_PID | LOG_CONS, LOG_LOCAL0);
       EXIT:
         return retval;
 }
