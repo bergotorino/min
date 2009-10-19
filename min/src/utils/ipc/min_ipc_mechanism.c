@@ -562,9 +562,9 @@ int mq_peek_message (int msqid, long msg_type)
         int             result =
 		msgrcv (msqid, &ibuf, 0, msg_type, IPC_NOWAIT);
         if (result == -1 && errno == ENOMSG)
-                return 1;
-        } else
-                return 0;
+		return 1;
+	else
+		return 0;
 }
 
 /* ------------------------------------------------------------------------- */
