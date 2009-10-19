@@ -557,11 +557,13 @@ int mq_read_message (int msqid, long msg_type, MsgBuffer * buf)
  */
 int mq_peek_message (int msqid, long msg_type)
 {
+	struct _MIBuff  ibuf;
+
         int             result =
-            msgrcv (msqid, NULL, 0, msg_type, IPC_NOWAIT);
-        if (result == -1 && errno == E2BIG)
+		msgrcv (msqid, &ibuf, 0, msg_type, IPC_NOWAIT);
+        if (result == -1 && errno == ENOMSG)
                 return 1;
-        else
+        } else
                 return 0;
 }
 
