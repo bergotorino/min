@@ -50,6 +50,7 @@
 typedef struct min_logger_file_output_t MinLoggerFileOutput;
 typedef struct min_logger_null_output_t MinLoggerNullOutput;
 typedef struct min_logger_syslog_output_t MinLoggerSyslogOutput;
+typedef struct min_logger_std_output_t MinLoggerStdOutput;
 
 typedef void    (*ptr2write) (struct output_typeinfo_t *, TSBool, TSBool,
                               TSBool, const TSChar *);
@@ -76,7 +77,7 @@ struct output_typeinfo_t {
 };
 /* ------------------------------------------------------------------------- */
 struct min_logger_file_output_t {
-        /** Things that we have to have because this is 'derrived' from
+        /** Things that we have to have because this is 'derived' from
          *  output_typeinfo_t @{*/
 
         /** Type of the output plugin. */
@@ -109,7 +110,7 @@ struct min_logger_file_output_t {
 };
 /* ------------------------------------------------------------------------- */
 struct min_logger_null_output_t {
-        /** Things that we have to have because this is 'derrived' from
+        /** Things that we have to have because this is 'derived' from
          *  output_typeinfo_t @{*/
         /** Type of the output plugin. */
         TSOutput        output_type_;
@@ -123,7 +124,7 @@ struct min_logger_null_output_t {
 };
 /* ------------------------------------------------------------------------- */
 struct min_logger_syslog_output_t {
-        /** Things that we have to have because this is 'derrived' from
+        /** Things that we have to have because this is 'derived' from
          *  output_typeinfo_t @{*/
 
         /** Type of the output plugin. */
@@ -142,46 +143,88 @@ struct min_logger_syslog_output_t {
         /**@}*/
 };
 /* ------------------------------------------------------------------------- */
+struct min_logger_std_output_t {
+        /** Things that we have to have because this is 'derived' from
+         *  output_typeinfo_t @{*/
+
+        /** Type of the output plugin. */
+        TSOutput        output_type_;
+
+        /** Pointer to write function from file output plugin. */
+        ptr2write       write_;
+
+        /** Pointer to destroy function */
+        ptr2destroy     destroy_;
+
+
+        /**@}*/
+
+        /** min stdout output internal variables @{ */
+	TSLoggerType    loggertype_;            /**< the type of the logger */
+        TSBool          withtimestamp_;         /**< add timestamp flag */
+        TSBool          withlinebreak_;         /**< add linebreak flag */
+        TSBool          witheventranking_;      /**< do event ranking flag */
+        TSBool          pididtologfile_;        /**< log pid to logfile */
+        TSBool          unicode_;               /**< unicode flag */
+        /**@}*/
+};
+/* ------------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
 MinLoggerFileOutput *fo_create (const TSChar * path,
-                                 const TSChar * file,
-                                 unsigned int loggertype,
-                                 TSBool overwrite,
-                                 TSBool withtimestamp,
-                                 TSBool withlinebreak,
-                                 TSBool witheventranking,
-                                 TSBool pididtologfile,
-                                 TSBool createlogdir,
-                                 unsigned int buffersize, TSBool unicode);
+				const TSChar * file,
+				unsigned int loggertype,
+				TSBool overwrite,
+				TSBool withtimestamp,
+				TSBool withlinebreak,
+				TSBool witheventranking,
+				TSBool pididtologfile,
+				TSBool createlogdir,
+				unsigned int buffersize, TSBool unicode);
 /* ------------------------------------------------------------------------- */
 void            fo_destroy (struct output_typeinfo_t **o);
 /* ------------------------------------------------------------------------- */
 MinLoggerNullOutput *no_create (const TSChar * path,
-                                 const TSChar * file,
-                                 unsigned int loggertype,
-                                 TSBool overwrite,
-                                 TSBool withtimestamp,
-                                 TSBool withlinebreak,
-                                 TSBool witheventranking,
-                                 TSBool pididtologfile,
-                                 TSBool createlogdir,
-                                 unsigned int buffersize, TSBool unicode);
+				const TSChar * file,
+				unsigned int loggertype,
+				TSBool overwrite,
+				TSBool withtimestamp,
+				TSBool withlinebreak,
+				TSBool witheventranking,
+				TSBool pididtologfile,
+				TSBool createlogdir,
+				unsigned int buffersize, TSBool unicode);
 /* ------------------------------------------------------------------------- */
 void            no_destroy (struct output_typeinfo_t **o);
 /* ------------------------------------------------------------------------- */
 MinLoggerSyslogOutput *so_create (const TSChar * path,
-                                   const TSChar * file,
-                                   TSLoggerType loggertype,
-                                   TSBool overwrite,
-                                   TSBool withtimestamp,
-                                   TSBool withlinebreak,
-                                   TSBool witheventranking,
-                                   TSBool pididtologfile,
-                                   TSBool createlogdir,
-                                   unsigned int buffersize, TSBool unicode);
+				  const TSChar * file,
+				  TSLoggerType loggertype,
+				  TSBool overwrite,
+				  TSBool withtimestamp,
+				  TSBool withlinebreak,
+				  TSBool witheventranking,
+				  TSBool pididtologfile,
+				  TSBool createlogdir,
+				  unsigned int buffersize, TSBool unicode);
 /* ------------------------------------------------------------------------- */
 void            so_destroy (struct output_typeinfo_t **o);
+/* ------------------------------------------------------------------------- */
+MinLoggerStdOutput *stdo_create (const TSChar * path,
+				 const TSChar * file,
+				 TSLoggerType loggertype,
+				 TSBool overwrite,
+				 TSBool withtimestamp,
+				 TSBool withlinebreak,
+				 TSBool witheventranking,
+				 TSBool pididtologfile,
+				 TSBool createlogdir,
+				 unsigned int buffersize, TSBool unicode);
+/* ------------------------------------------------------------------------- */
+void            stdo_destroy (struct output_typeinfo_t **o);
+
 /* ------------------------------------------------------------------------- */
 #endif                          /* MIN_LOGGER_OUTPUT_H */
 /* End of file */

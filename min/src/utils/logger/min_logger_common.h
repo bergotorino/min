@@ -58,7 +58,8 @@ typedef enum {
 typedef enum {
         ESNull = 0x1,           /**< Null ouptut */
         ESFile = 0x2,           /**< File output */
-        ESSyslog = 0x4          /**< Syslog output */
+        ESSyslog = 0x4,         /**< Syslog output */
+	ESStdout = 0x8          /**< Stdout output */
 } TSOutput;
 /* ------------------------------------------------------------------------- */
 typedef enum {

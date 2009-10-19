@@ -1979,6 +1979,52 @@ START_TEST(test_so_write)
 }
 END_TEST
 /* ------------------------------------------------------------------------- */
+START_TEST(test_stdo_create)
+{
+        MinLoggerStdOutput* stdo = INITPTR;
+
+        stdo = stdo_create( NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+        
+        fail_unless( stdo != INITPTR
+                   , "Std Output: stdo == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_stdo_destroy)
+{
+        MinLoggerStdOutput* stdo = INITPTR;
+        stdo_destroy(&stdo);
+
+        fail_unless( stdo == INITPTR
+                   , "Std Output: stdo != INITPTR after destruction" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_stdo_destroy2)
+{
+        MinLoggerStdOutput* stdo = INITPTR;
+
+        stdo = stdo_create( NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0 );       
+        stdo_destroy(&stdo);
+ 
+        fail_unless( stdo == INITPTR
+                   , "Std Output: stdo != INITPTR after destruction" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_stdo_write)
+{
+        MinLoggerStdOutput* stdo = INITPTR;
+        TSChar data[] = "LOGGER UNIT TESTING: Std Output message";
+
+        stdo = stdo_create( NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 1000, 0 );
+        fail_unless( stdo != INITPTR
+                   , "Std Output: sxso == INITPTR" );
+
+        stdo_write( stdo, 0, 0, 0, data );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
 /* ========================== FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
 Suite* min_logger_file_output_suite()
@@ -2109,6 +2155,17 @@ Suite* min_logger_file_output_suite()
 
         /* so_write */
         tcase_add_test (tc_core, test_so_write);
+
+        /* stdo_create */
+        tcase_add_test (tc_core, test_stdo_create);
+        
+        /* stdo_destroy */
+        tcase_add_test (tc_core, test_stdo_destroy);
+        tcase_add_test (tc_core, test_stdo_destroy2);
+
+        /* stdo_write */
+        tcase_add_test (tc_core, test_stdo_write);
+
 
         suite_add_tcase (s, tc_core);
 

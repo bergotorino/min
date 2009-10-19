@@ -297,6 +297,14 @@ LOCAL MinTxtLogger *stl_create (const TSChar * path,
                     no_create (MinOutputPluginParams);
                 dl_list_add (retval->output_, (void *)out);
         }
+        if (output & ESStdout) {
+                /* create sdtout output plugin */
+                out = (struct output_typeinfo_t *)
+                    stdo_create (MinOutputPluginParams);
+                dl_list_add (retval->output_, (void *)out);
+        }
+
+
 
         return retval;
 }

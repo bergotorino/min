@@ -584,6 +584,120 @@ LOCAL inline void no_write (struct output_typeinfo_t *fo,
 }
 
 /* ------------------------------------------------------------------------- */
+/** Writes message through the stdout output. 
+ *  @param fo [in] file output plugin used for writing. 
+ *  @param with_timestamp [in] flag indicates presence of timestamp.
+ *  @param with_linebreak [in] flag indicating presence of linebreak. 
+ *  @param with_eventrank [in] on/off for event ranking feature.
+ *  @param data [in] the data to be written. 
+ */
+LOCAL void stdo_write (struct output_typeinfo_t *fo,
+		       TSBool with_timestamp,
+		       TSBool with_linebreak,
+		       TSBool with_eventrank, const TSChar * data)
+{
+        MinLoggerStdOutput *stdo = INITPTR;
+        unsigned int    extralength = 0;
+        unsigned int    datalen = 0;
+        unsigned int    currlen = 0;
+        int             ret = 0;
+        TSChar         *buffer = INITPTR;
+
+        if (fo == INITPTR) {
+                goto EXIT;
+        }
+        if (data == INITPTR) {
+                goto EXIT;
+        }
+
+        stdo = (MinLoggerStdOutput *) fo;
+        datalen = strlen (data);
+
+        /* Extra space calculation */
+        if (stdo->witheventranking_ && with_eventrank) {
+                extralength = MaxEventRanking;
+        }
+
+        if ((stdo->loggertype_ == ESHtml) && stdo->withlinebreak_
+            && with_linebreak) {
+                /* <br /> = 6 */
+                extralength += MaxHtmlLineBreak;
+        }
+
+        if (stdo->withlinebreak_ && with_linebreak) {
+                /* \n\0 */
+                extralength += 1 + 1;
+        }
+
+        if (stdo->withtimestamp_ && with_timestamp) {
+                extralength += MaxTimeString;
+        }
+
+        /* Data straight to the file */
+        if ((extralength == 0) && (stdo->unicode_ == ESFalse)) {
+                ret = fprintf (stdout, "%s", data);
+                if (ret != datalen) {
+                        MIN_WARN ("Error in writing to the file");
+                }
+                goto EXIT;
+        }
+
+	buffer = NEW2 (TSChar, datalen + extralength + 1);
+	if (buffer == NULL) {
+		MIN_WARN ("Buffer size to big [%d]",
+                                   datalen + extralength + 1);
+		goto EXIT;
+	}
+	memset (buffer, '\0', datalen + extralength + 1);
+
+        /* Prefix: eventranking, timestamp */
+        if (stdo->witheventranking_ && with_eventrank && stdo->withtimestamp_) {
+                fo_event_ranking (buffer);
+                currlen = strlen (buffer);
+        } else if (stdo->withtimestamp_ && with_timestamp) {
+                if (stdo->witheventranking_ && with_eventrank) {
+                        fo_event_ranking (buffer);
+                        currlen = strlen (buffer);
+                }
+                fo_add_timestamp_to_data (&buffer[currlen]);
+                currlen = strlen (buffer);
+        }
+
+        /* The real message: copy data */
+        memcpy (&buffer[currlen], data, datalen);
+        currlen = strlen (buffer);
+
+        /* Postfix: line ending */
+        if ((stdo->loggertype_ == ESHtml) && stdo->withlinebreak_
+            && with_linebreak) {
+                memcpy (&buffer[currlen], "<br />", 6);
+                currlen += 6;
+        }
+
+        if (stdo->withlinebreak_ && with_linebreak) {
+                memcpy (&buffer[currlen], "\n", 2);
+                currlen += 1;
+        }
+
+        /* Write data to the file */
+        if (stdo->unicode_ == ESTrue) {
+                /* Not supported yet */
+
+        } else {
+                /* Normal writing */
+                ret = fprintf (stdout, "%s", buffer);
+                fflush(stdout);
+                if (ret != currlen) {
+                        MIN_WARN ("Error in writing to the file");
+                }
+        }
+	if (buffer != INITPTR)
+		DELETE (buffer); 
+ EXIT:
+        return;
+}
+
+/* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
 /** Creates MIN FileOutput plugin 'object' 
@@ -601,15 +715,15 @@ LOCAL inline void no_write (struct output_typeinfo_t *fo,
  *  @return new instance of FileOutput or INITPTR in case of failure.
  */
 MinLoggerFileOutput *fo_create (const TSChar * path,
-                                 const TSChar * file,
-                                 TSLoggerType loggertype,
-                                 TSBool overwrite,
-                                 TSBool withtimestamp,
-                                 TSBool withlinebreak,
-                                 TSBool witheventranking,
-                                 TSBool pididtologfile,
-                                 TSBool createlogdir,
-                                 unsigned int buffersize, TSBool unicode)
+				const TSChar * file,
+				TSLoggerType loggertype,
+				TSBool overwrite,
+				TSBool withtimestamp,
+				TSBool withlinebreak,
+				TSBool witheventranking,
+				TSBool pididtologfile,
+				TSBool createlogdir,
+				unsigned int buffersize, TSBool unicode)
 {
         MinLoggerFileOutput *retval = INITPTR;
         unsigned int    flen = 0;
@@ -838,6 +952,65 @@ void so_destroy (struct output_typeinfo_t **o)
         *o = INITPTR;
       EXIT:
         return;
+}
+
+/* ------------------------------------------------------------------------- */
+/** Creates MIN stdout Output plugin 'object' 
+ *  @param path [in] output directory.
+ *  @param file [in] output idenfication string for syslog output.
+ *  @param loggertype [in] type of the logger that is in use.
+ *  @param overwrite [in] overwrite file if exists flag.
+ *  @param withtimestamp [in] add timestamp flag.
+ *  @param withlinebreak [in] add linebreak flag.
+ *  @param witheventranking [in] do event ranking flag.
+ *  @param pididtologfile [in] process id to logfile flag.
+ *  @param createlogdir [in] create output directory if not exists flag.
+ *  @param buffersize [in] size of the static buffer.
+ *  @param unicode [in] unicode flag.
+ *  @return new instance of StdOutput or INITPTR in case of failure.
+ */
+MinLoggerStdOutput *stdo_create (const TSChar * path,
+				 const TSChar * file,
+				 TSLoggerType loggertype,
+				 TSBool overwrite,
+				 TSBool withtimestamp,
+				 TSBool withlinebreak,
+				 TSBool witheventranking,
+				 TSBool pididtologfile,
+				 TSBool createlogdir,
+				 unsigned int buffersize, TSBool unicode)
+{
+        MinLoggerStdOutput *retval = INITPTR;
+
+        /* Attach pointers */
+        retval = NEW (MinLoggerStdOutput);
+        retval->write_ = stdo_write;
+        retval->destroy_ = stdo_destroy;
+
+	retval->loggertype_ = loggertype;
+        retval->withtimestamp_ = withtimestamp; 
+        retval->withlinebreak_ = withlinebreak;  
+        retval->witheventranking_ = witheventranking;
+        retval->pididtologfile_ = pididtologfile;  
+        retval->unicode_ = unicode;         
+
+
+	return retval;
+}
+
+/* ------------------------------------------------------------------------- */
+/** Destroys MIN stdout Output instance.
+ *  @param o [in:out] sfo instance to be destroyed.
+ *   
+ *  NOTE: after being freed the pointer is set to INITPTR;
+ */
+void stdo_destroy (struct output_typeinfo_t **o)
+{
+        if (o == INITPTR || *o == INITPTR) {
+                return;
+        }
+	
+	DELETE (*o);
 }
 
 /* ------------------------------------------------------------------------- */
