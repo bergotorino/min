@@ -1393,10 +1393,10 @@ LOCAL void scripter_final_verdict (DLList * tp_details, TestCaseResult * tcr)
                                 if (stpd->mod_type_ == EDLLTypeClass) {
 					snprintf (tcr->desc_, 
 						  MaxTestResultDescription - 1,
-                                                  "Test Method call \"%s.%s\""
+                                                  "Test Method call %s.%s"
                                                   "  %s",
                                                   stpd->testclass_, 
-                                                  res->desc_,
+                                                  &res->desc_[1],
                                                   result_str 
                                                   [res->result_ + 2]);
                                 } else {
@@ -1844,7 +1844,7 @@ int testclass_destroy (char *className)
         stpd->status_ = TP_ENDED;
 
 	if (stpd->has_crashed_)
-		return retval,
+		return retval;
 
         retval = kill (stpd->pid_, SIGUSR2);
         if (retval == -1)
