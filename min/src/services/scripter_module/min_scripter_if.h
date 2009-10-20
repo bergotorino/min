@@ -126,7 +126,7 @@ struct _ScriptedTestProcessDetails {
         filename_t      cfgfile_;        /**< config file used with Normal   */
         TDLLType        mod_type_;       /**< type of the module             */
         ExtraParams     options_;        /**< optional parameters            */
-        MINTPStatus    status_;         /**< overall status of the TP       */
+        MINTPStatus     status_;         /**< overall status of the TP       */
         DLList         *tcr_list_;       /**< result of the test case        */
         DLList         *allowed_results_;/**< allowed result of the test     */
         unsigned int    tc_id_;          /**< test case id (combiner)        */

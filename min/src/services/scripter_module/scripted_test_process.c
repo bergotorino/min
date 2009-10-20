@@ -140,8 +140,15 @@ LOCAL void stp_handle_run (const MsgBuffer * msg)
 
         /* 4) call test function */
         ret = tcd->runtc_ (&mip);
-        result.param_ = ret;
-
+	if (ret != ENOERR) {
+		snprintf (result.message_, MaxMsgSize, "%s (retval %d)",
+			  result.desc_, ret);
+		result.desc_[MaxMsgSize - 1] = '\0';
+		result.param_ = TP_FAILED;
+	}
+	else
+		result.param_ = TP_PASSED;
+		
         /* 5) when the test is finished we have to do something... */
         /*    sending result back via IPC looks like a good idea.  */
         result.special_ = 0;
