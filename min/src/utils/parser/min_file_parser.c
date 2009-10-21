@@ -104,8 +104,8 @@ LOCAL int compare_filename (const void *a, const void *b)
                 return 0;
         if (retval < 0)
                 return -1;
-        if (retval > 0)
-                return 1;
+	
+	return 1;
 }
 
 /* ------------------------------------------------------------------------- */

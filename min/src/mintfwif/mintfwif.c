@@ -339,7 +339,7 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 
 	if (it == INITPTR) {
 		pthread_mutex_unlock (&tfwif_mutex_);
-		MIN_WARN ("NO MODULE FOUND WITH ID %s",moduleid);
+		MIN_WARN ("NO MODULE FOUND WITH ID %d",moduleid);
 		return;
 	}
 	mi = dl_list_data (it);

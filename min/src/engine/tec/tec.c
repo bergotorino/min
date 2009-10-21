@@ -1941,7 +1941,10 @@ LOCAL int ec_read_module_section (MinParser * inifile)
                 work_list = dl_list_create ();
                 module = tm_create (bin_path, work_list, 0);
                 module_item = tm_add (available_modules, module);
-
+#ifdef MIN_EXTIF
+		MINAPI_PLUGIN_CALL(new_module,
+				   new_module (bin_path, module->module_id_));
+#endif
                 if (module_item == DLListNULLIterator) {
                         MIN_WARN ("Could not insert %s into list",
                                    bin_path);
@@ -2492,10 +2495,12 @@ int ec_start_modules ()
 			 * fault is needed 
 			 */
 			result++;
+#ifndef MIN_EXTIF
+
 			MINAPI_PLUGIN_CALL(new_module,
 					   new_module (work_module->module_filename_, 
 						       work_module->module_id_));
-
+#endif
                 }
 
                 work_list_item = dl_list_next (work_list_item);

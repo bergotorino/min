@@ -132,7 +132,7 @@
 		if(strlen(hack)>(MaxTestResultDescription-1)) {		   \
 			hack[MaxTestResultDescription-1] = '\0';	   \
 		}							   \
-		snprintf(tmp,hack,__VA_ARGS__, MaxTestResultDescription-1);\
+		snprintf(tmp,MaxTestResultDescription-1,hack,__VA_ARGS__); \
 		_tcr_->result_ = _r_;					   \
 		STRCPY(_tcr_->desc_,tmp,MaxTestResultDescription);	   \
 		return 0;						   \

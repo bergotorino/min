@@ -2017,11 +2017,11 @@ START_TEST(test_stdo_write)
         MinLoggerStdOutput* stdo = INITPTR;
         TSChar data[] = "LOGGER UNIT TESTING: Std Output message";
 
-        stdo = stdo_create( NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 1000, 0 );
+        stdo = stdo_create( NULL, NULL, 0, 1, 1, 1, 0, 0, 0, 1000, 0 );
         fail_unless( stdo != INITPTR
                    , "Std Output: sxso == INITPTR" );
 
-        stdo_write( stdo, 0, 0, 0, data );
+        stdo_write( stdo, 1, 1, 1, data );
 }
 END_TEST
 /* ------------------------------------------------------------------------- */
