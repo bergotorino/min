@@ -557,14 +557,26 @@ int mq_read_message (int msqid, long msg_type, MsgBuffer * buf)
  */
 int mq_peek_message (int msqid, long msg_type)
 {
-	struct _MIBuff  ibuf;
 
         int             result =
-		msgrcv (msqid, &ibuf, 0, msg_type, IPC_NOWAIT);
-        if (result == -1 && errno == ENOMSG)
-		return 1;
-	else
-		return 0;
+            msgrcv (msqid, NULL, 0, msg_type, IPC_NOWAIT);
+        if (result == -1) {
+		switch (errno) {
+		case E2BIG: /* Normal linux */
+			return 1;
+			break;
+		case EINVAL: /* qemu */
+			return 1;
+			break; 
+		case ENOMSG:
+			return 0;
+			break;
+		default:
+			MIN_FATAL("msgrcv: %s", strerror (errno));
+			return 0;
+		}
+	}
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
