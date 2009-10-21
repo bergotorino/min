@@ -46,7 +46,7 @@ namespace Min
 	/** default destructor */
         ~DescriptionProvider();
 	/** status description */
-	static QString getTestCaseStatusDescription(int tcstatus);
+	static QString getTestCaseStatusDescription(int tcstatus, int tcresult);
 	/** result description */
 	static QString getTestCaseResultDescription(int tcresult);
 

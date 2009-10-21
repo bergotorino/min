@@ -88,6 +88,8 @@ namespace Min
         void updateAvailableView();
         /** Hides columns we do not wish to display */
         void hideViewColumns();
+        /** Updates the label of "log messages" tab */
+         void updateLogHeader();
     private:
         /** Main area on the window. */
         QTabWidget *centralWidget_;

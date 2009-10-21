@@ -97,6 +97,8 @@ Min::CasesPanel::CasesPanel(QWidget *parent)
     connect (availableCasesModel_,SIGNAL(layoutChanged()),
                 this, SLOT(hideViewColumns()));
     connect (&db_, SIGNAL(updated()), testRunsModel_, SLOT(updateModelData()));
+    connect (&db_,SIGNAL(errors_updated()), this,SLOT(updateLogHeader()));
+
 }
 // -----------------------------------------------------------------------------
 Min::CasesPanel::~CasesPanel()
@@ -133,6 +135,19 @@ void Min::CasesPanel::hideViewColumns()
 	    availableCasesView_->setColumnHidden(2, true);
 	    availableCasesView_->setColumnHidden(3, true);
 	    availableCasesView_->setColumnHidden(4, true);
+}
+// -----------------------------------------------------------------------------
+void Min::CasesPanel::updateLogHeader() {
+	static int error_count = 0;
+	QString hdr ("Log Messages (");
+	QString ec; 
+
+	error_count++;
+	ec.setNum(error_count);
+	ec.append (")");
+	hdr.append (&ec);
+
+	centralWidget_->setTabText ( 2, hdr );
 }
 
 // -----------------------------------------------------------------------------

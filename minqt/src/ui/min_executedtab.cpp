@@ -124,7 +124,7 @@ Min::ExecutedTab::ExecutedTab(QWidget *parent)
 	        this, SLOT(hideViewColumns()));
 
     connect (executedCasesModel_,SIGNAL(layoutChanged()),
-	     ongoingTable_->selectionModel(), SLOT((clearSelection())));
+	     ongoingTable_->selectionModel(), SLOT(clearSelection()));
 
     connect (executedTable_, SIGNAL(clicked(QModelIndex)),
 			    this, SLOT(handleClick(QModelIndex)));

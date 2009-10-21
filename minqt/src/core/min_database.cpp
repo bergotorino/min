@@ -234,6 +234,9 @@ unsigned int Min::Database::insertLogMessage(const QString &logtype,
         // Notify
         query.finish();
         emit updated();
+	if (logtype.compare("error") == 0)
+		emit errors_updated();
+
         return query.lastInsertId().toUInt();
     }
     else return 0;

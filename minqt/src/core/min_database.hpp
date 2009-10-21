@@ -257,6 +257,8 @@ namespace Min
 
         /** Emitted when database contents are updated (inserted,removed, changed) */
         void updated();
+        /** Emitted when error message is inserted */
+        void errors_updated();
 
     private:
 	unsigned int groupCounter;

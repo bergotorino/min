@@ -51,8 +51,8 @@ namespace Min
 	 void resizeEvent (QResizeEvent *event);		 
 
     private slots:
+        /** Updates the view */
          void hideViewColumns();
-
     private:
 
         /** Feeds view with list of log messages */

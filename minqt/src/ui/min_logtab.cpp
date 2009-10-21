@@ -55,12 +55,11 @@ Min::LogTab::LogTab(QWidget *parent)
 
     logView_->addTab(logAll_,"All messages");
     logView_->addTab(logErrors_,"Error messages");
-    
 
- 
     // Signals and slots
     connect (logMsgModel_,SIGNAL(layoutChanged()),
 	     this, SLOT(hideViewColumns()));
+
     connect (logMsgModel_,SIGNAL(layoutChanged()),
 	     logAll_, SLOT(resizeColumnsToContents()));
     connect (logMsgModel_,SIGNAL(layoutChanged()),

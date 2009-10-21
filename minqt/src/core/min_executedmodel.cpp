@@ -58,7 +58,7 @@ QVariant Min::ExecutedModel::data(const QModelIndex &index, int role) const
 	    if (column==0) return data_[row][column];
 	    if (column==1) return data_[row][column];
 	    if (column==2) return data_[row][column];
-	    if (column==3) return Min::DescriptionProvider::getTestCaseStatusDescription(data_[row][column].toInt());
+	    if (column==3) return Min::DescriptionProvider::getTestCaseStatusDescription(data_[row][column].toInt(), data_[row][6].toInt());
 	    if (column==4) return QDateTime::fromTime_t(data_[row][column].toUInt()).toString();
 	    if (column==5) return QDateTime::fromTime_t(data_[row][column].toUInt()).toString();
 	    if (column==6) return Min::DescriptionProvider::getTestCaseResultDescription(data_[row][column].toInt());

@@ -63,7 +63,6 @@ namespace Min
         void hideViewColumns();
         /** Handles mouse click */ 
         void handleClick(const QModelIndex& index);
-
     private:
         /** Splitter/layout of the widget */
         QSplitter *splitter_;

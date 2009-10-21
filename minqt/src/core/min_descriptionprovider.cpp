@@ -36,7 +36,7 @@ Min::DescriptionProvider::~DescriptionProvider()
 	/* EMPTY BODY */
 };
 // ----------------------------------------------------------------------------
-QString Min::DescriptionProvider::getTestCaseStatusDescription(int tcstatus)
+QString Min::DescriptionProvider::getTestCaseStatusDescription(int tcstatus, int tcresult)
 {
 
 	switch(tcstatus){
@@ -50,7 +50,26 @@ QString Min::DescriptionProvider::getTestCaseStatusDescription(int tcstatus)
 			return QString("Test Case is currently Paused");
 			break;
 		case TP_ENDED:
-			return QString("Test Case Ended normally");
+			switch (tcresult) {
+			case TP_CRASHED:
+				return QString("Test Case Crashed");
+				break;
+			case TP_PASSED:
+				return QString("Test Case Passed");
+				break;
+			case TP_FAILED:
+				return QString("Test Case Failed");
+				break;
+			case TP_NC:
+				return QString("Test Case Not Completed");
+				break;
+			case TP_LEAVE:
+				return QString("Leaved");
+				break;
+			default:
+				return QString("Unknown");
+				break;
+			}
 			break;
 		case TP_TIMEOUT:
 			return QString("Timeout");
