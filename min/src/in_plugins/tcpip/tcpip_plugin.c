@@ -90,7 +90,7 @@ LOCAL void read_from_socket (int fd);
 /* ------------------------------------------------------------------------- */
 LOCAL void write_to_socket (int fd);
 /* ------------------------------------------------------------------------- */
-LOCAL void eapi_message_send_resp (unsigned tid, char resp_code);
+/*LOCAL void eapi_message_send_resp (unsigned tid, char resp_code); */
 /* ------------------------------------------------------------------------- */
 LOCAL void eapi_message_receive (char msg_type, unsigned short len,
 	                         char *msg);
@@ -330,7 +330,6 @@ LOCAL void eapi_message_send_ind (char msg_type,
 /** Send MIN Engine API message of type response
  *  @param tid transaction identifier
  *  @param resp_code response code value
- */
 LOCAL void eapi_message_send_resp (unsigned tid, char resp_code)
 {
 	char *buff, *p;
@@ -345,6 +344,8 @@ LOCAL void eapi_message_send_resp (unsigned tid, char resp_code)
 	eapi_build_header (buff, MIN_RESP, msg_len);
 	eapi_message_send (buff, msg_len + MIN_HDR_LEN);
 }
+ */
+
 /* ------------------------------------------------------------------------- */
 /** Send MIN Engine API protocol message.
  *  @param msg the message
