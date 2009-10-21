@@ -100,7 +100,7 @@ int ts_run_method (MinItemParser * item)
         retval = mip_get_next_string (item, &callname);
         if (retval != ENOERR) {
                 retval = -1;
-		dl_list_free (l);
+		dl_list_free (&l);
                 goto EXIT;
         }
 
