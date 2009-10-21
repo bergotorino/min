@@ -510,6 +510,7 @@ int mq_read_message (int msqid, long msg_type, MsgBuffer * buf)
                         retval = msgrcv (msqid, &ibuf, length, msg_type, 0);
 			if (retval==(ssize_t)-1) {
 				MIN_FATAL("Message in queue way too big to be recieved, error: %d",errno);
+				break;
 			} else {
 				MIN_DEBUG("Read message of size: %d",retval);
 			}
@@ -558,22 +559,22 @@ int mq_read_message (int msqid, long msg_type, MsgBuffer * buf)
 int mq_peek_message (int msqid, long msg_type)
 {
 
+        struct _MIBuff  ibuf;
+
         int             result =
-            msgrcv (msqid, NULL, 0, msg_type, IPC_NOWAIT);
+            msgrcv (msqid, &ibuf, 0, msg_type, IPC_NOWAIT);
         if (result == -1) {
 		switch (errno) {
-		case E2BIG: /* Normal linux */
+		case E2BIG: 
 			return 1;
 			break;
-		case EINVAL: /* qemu */
-			return 1;
-			break; 
 		case ENOMSG:
 			return 0;
 			break;
 		default:
 			MIN_FATAL("msgrcv: %s", strerror (errno));
 			return 0;
+			break;
 		}
 	}
 	return 0;
