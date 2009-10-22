@@ -58,7 +58,7 @@ Table below shows the possible logger settings in the @code{min.conf} file.
 @tab Output format, can be either TXT or HTML. Can be also both of them.
 @tab Optional
 @item EmulatorOutput
-@tab Output facility, can be NULL either FILE or SYSLOG, or both of them.
+@tab Output facility, can be NULL, FILE, SYSLOG, STDOUT or STDERR. (Note: do not use STDOUT or STDERR with consoleUI.)
 @tab Optional
 @item ThreadIdToLogFile
 @tab Indicates if PID should be a part of output file name
