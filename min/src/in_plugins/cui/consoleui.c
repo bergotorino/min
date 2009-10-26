@@ -704,7 +704,6 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 {
         CUICaseData *ccd = INITPTR;        
 
-        /* add new case to some list */
         if (case_list_==INITPTR) case_list_ = dl_list_create();
 
         MIN_DEBUG ("moduleid = %d, caseid = %d, casetitle = %s",
@@ -889,7 +888,7 @@ void cui_exec ()
         /* create linked list for test cases */
         error_list_ = dl_list_create ();
 	add_copyright_info ();
-
+	usleep (200000);
         /* Acquire keystroke */
         while (continue_ && (key = wgetch (main_window))) {
                 /* lock cui mutex */
