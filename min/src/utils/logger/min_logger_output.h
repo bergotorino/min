@@ -224,7 +224,19 @@ MinLoggerStdOutput *stdo_create (const TSChar * path,
 				 unsigned int buffersize, TSBool unicode);
 /* ------------------------------------------------------------------------- */
 void            stdo_destroy (struct output_typeinfo_t **o);
-
+/* ------------------------------------------------------------------------- */
+MinLoggerStdOutput *stde_create (const TSChar * path,
+				 const TSChar * file,
+				 TSLoggerType loggertype,
+				 TSBool overwrite,
+				 TSBool withtimestamp,
+				 TSBool withlinebreak,
+				 TSBool witheventranking,
+				 TSBool pididtologfile,
+				 TSBool createlogdir,
+				 unsigned int buffersize, TSBool unicode);
+/* ------------------------------------------------------------------------- */
+void            stde_destroy (struct output_typeinfo_t **o);
 /* ------------------------------------------------------------------------- */
 #endif                          /* MIN_LOGGER_OUTPUT_H */
 /* End of file */

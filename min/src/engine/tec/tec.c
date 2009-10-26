@@ -435,10 +435,22 @@ LOCAL void ec_get_logger_settings (MinSectionParser * settings)
                                     logger_settings.emulator_output_ | ESFile;
                                 logger_settings.is_defined_.output_ = ESTrue;
                         }
-                        if (strcasecmp (opt_val, "SYSLOG") == 0) {
+			if (strcasecmp (opt_val, "SYSLOG") == 0) {
                                 logger_settings.emulator_output_ =
                                     logger_settings.
                                     emulator_output_ | ESSyslog;
+                                logger_settings.is_defined_.output_ = ESTrue;
+                        }
+			if (strcasecmp (opt_val, "STDOUT") == 0) {
+                                logger_settings.emulator_output_ =
+                                    logger_settings.
+                                    emulator_output_ | ESStdout;
+                                logger_settings.is_defined_.output_ = ESTrue;
+                        }
+			if (strcasecmp (opt_val, "STDERR") == 0) {
+                                logger_settings.emulator_output_ =
+                                    logger_settings.
+                                    emulator_output_ | ESStderr;
                                 logger_settings.is_defined_.output_ = ESTrue;
                         }
 
@@ -1964,8 +1976,6 @@ LOCAL int ec_read_module_section (MinParser * inifile)
                                       "TestCaseFile",
                                       &bin_path);
 
-
-
                         if (bin_path != INITPTR) {
                                 tc_file_path = NEW2 (char,
                                                      strlen (bin_path) + 2);
@@ -2031,7 +2041,6 @@ LOCAL int ec_read_slaves_section (MinParser * inifile)
 					  strerror (h_errno));
 				return 1;
 			}
-       
 		
 			mip_get_next_string (line, &slavetype);
 

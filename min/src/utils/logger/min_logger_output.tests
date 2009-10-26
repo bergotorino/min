@@ -2025,6 +2025,41 @@ START_TEST(test_stdo_write)
 }
 END_TEST
 /* ------------------------------------------------------------------------- */
+START_TEST(test_stde_create)
+{
+        MinLoggerStdOutput* stde = INITPTR;
+
+        stde = stde_create( NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+        
+        fail_unless( stde != INITPTR
+                   , "Std Output: stde == INITPTR" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_stde_destroy)
+{
+        MinLoggerStdOutput* stde = INITPTR;
+        stde_destroy(&stde);
+
+        fail_unless( stde == INITPTR
+                   , "Std Output: stde != INITPTR after destruction" );
+}
+END_TEST
+/* ------------------------------------------------------------------------- */
+START_TEST(test_stde_write)
+{
+        MinLoggerStdOutput* stde = INITPTR;
+        TSChar data[] = "LOGGER UNIT TESTING: Stderr Output message";
+
+        stde = stde_create( NULL, NULL, 0, 1, 1, 1, 0, 0, 0, 1000, 0 );
+        fail_unless( stde != INITPTR
+                   , "Std Output: stde == INITPTR" );
+
+        stde_write( stde, 1, 1, 1, data );
+}
+END_TEST
+
+/* ------------------------------------------------------------------------- */
 /* ========================== FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
 Suite* min_logger_file_output_suite()
@@ -2165,6 +2200,15 @@ Suite* min_logger_file_output_suite()
 
         /* stdo_write */
         tcase_add_test (tc_core, test_stdo_write);
+
+        /* stde_create */
+        tcase_add_test (tc_core, test_stde_create);
+        
+        /* stde_destroy */
+        tcase_add_test (tc_core, test_stde_destroy);
+
+        /* stde_write */
+        tcase_add_test (tc_core, test_stde_write);
 
 
         suite_add_tcase (s, tc_core);
