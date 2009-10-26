@@ -10,6 +10,7 @@ usr/lib/min/min_tcpip*
 usr/lib/min/min_cli*
 usr/lib/pkgconfig/min.pc
 usr/lib/libminutils*
+usr/lib/libmintfwif*
 usr/lib/libminevent*
 usr/lib/libmintmapi*
 usr/lib/libmininterference*

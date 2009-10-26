@@ -2,11 +2,12 @@ Source: min-all
 Section: devel
 Priority: optional
 Maintainer: Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>
-Build-Depends: debhelper (>= 4.0.0), libncurses5-dev, python2.5-dev, libdbus-1-dev, libdbus-glib-1-dev, libqt4-dev
+Build-Depends: debhelper (>= 4.0.0), libtool, libncurses5-dev, python2.5-dev, libdbus-1-dev, libdbus-glib-1-dev, libqt4-dev
 Standards-Version: 3.8.0
 
 Package: min
 Section: devel
+Suggests: min-doc, min-dev
 Priority: extra
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ncurses-base (>= 5)
@@ -20,8 +21,8 @@ Section: devel
 Priority: extra
 Architecture: any
 Depends: build-essential, ${shlibs:Depends}, ${misc:Depends}
-Description: MIN libraries, headers and testmodule wizard
- The headers and libraries needed to develop MIN test modules
+Description: MIN headers and testmodule wizard
+ The headers and tools needed to develop MIN test modules
 
 Package: minpythonmodule
 Section: devel

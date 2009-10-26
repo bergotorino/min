@@ -30,7 +30,6 @@ usr/share/man/man3/*
 usr/share/min/TestModuleTemplates
 usr/share/min/TestModuleTemplates++
 usr/share/min/minunit.c
-usr/lib/libmintfwif*
 usr/lib/pkgconfig/min-dev.pc
 usr/bin/createtestmodule
 usr/bin/createtestmodule++
