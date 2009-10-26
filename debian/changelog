@@ -1,3 +1,17 @@
+min-all (2009w44) unstable; urgency=low
+  * Seventeenth MIN Release
+  * Fixed: Entering "start new case" menu very fast right after MIN has started can cause crash
+  * Fixed: Scripter test class method return value handled incorrectly.
+  * Fixed: Scripter leaves processes behind.
+  * Fixed: MIN prints invalid characters to syslog.
+  * Fixed: MIN -ct gets stuck if non-existing test modules are configured.
+  * Added: stdout and stderr outputs to MIN logger.
+  * Added: Make test case execution possible scratchbox armel emulation (sbox2).
+  * Added: Display case result in "all cases" view when the case has finnished.
+  * Added: Qt GUI: Display number of errors in the label of log messages tab. 
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   26 Oct 2009 11:58:02 +0100
+	
 min-all (2009w42) unstable; urgency=low
   * Sixteenth MIN Release
   * Fixed: Aborting paused test case fails.
