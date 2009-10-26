@@ -530,6 +530,8 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
                 dl_list_add (conf_list, (void *)temp_string);
         } else {
                 MIN_WARN ("test case file %s not found", temp_string);
+		DELETE (temp_string);
+		temp_string = NULL;
         }
 #ifdef MIN_EXTIF
 	min_if_module_add (module, !strcmp (casefile, "dummy.cfg") ?
