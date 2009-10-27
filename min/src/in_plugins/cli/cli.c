@@ -195,9 +195,21 @@ LOCAL struct ExecutedTestCase *get_executed_tcase_with_runid (long testrunid)
 LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 {
 	CLIModuleData *cld = INITPTR;
+	DLListIterator it;
 
 	if (available_modules == INITPTR) available_modules = dl_list_create();
 	
+	
+	it = dl_list_find (dl_list_head (available_modules),
+			   dl_list_tail (available_modules),
+			   _find_mod_by_id,
+			   (void *)&moduleid);
+	if (it != DLListNULLIterator) {
+	  /* user may have added a module from commandline that already 
+	     exits in min.conf */
+	  return;
+	}
+
 	/* add new module to list */
         cld = NEW(CLIModuleData);
         cld->moduleid_ = moduleid;
