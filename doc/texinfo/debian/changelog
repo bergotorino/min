@@ -1,3 +1,8 @@
+min-doc (2009w44) unstable; urgency=low
+  * Second release
+  * Added information about stdout and stderr outputs for MIN Logger.
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   28 Oct 2009 11:47:09 +0100
+
 min-doc (2009w42) unstable; urgency=low
   * Intial release
  -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   28 Sep 2009 13:39:36 +0100
