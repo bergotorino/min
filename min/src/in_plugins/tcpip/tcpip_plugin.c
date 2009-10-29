@@ -175,7 +175,7 @@ LOCAL void read_from_socket (int fd)
 		return;
 	}
 	len = read16 ((unsigned char *)&hdr_buff[1]);
-	if (len >= (INT_MAX - 1)) {
+	if (len >= (USHRT_MAX - 1)) {
 		MIN_WARN ("Invalid msg len %d", len);
 		goto err_out;
 		return;
