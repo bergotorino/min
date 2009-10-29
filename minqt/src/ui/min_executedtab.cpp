@@ -169,6 +169,10 @@ QItemSelectionModel* Min::ExecutedTab::getSelectionFromAllCasesView()
 // -----------------------------------------------------------------------------
 void Min::ExecutedTab::handleClick(const QModelIndex& index)
 {
+	
+	if (index.isValid() == false)
+		return;
+
 	const QTableView *tab=static_cast<QTableView*>(executedCasesView_->currentWidget());
 
 

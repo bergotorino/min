@@ -57,7 +57,7 @@ namespace Min
 		/** Destructor. */
 		~EapiClient();
 		/** Constructor */
-		EapiClient (QTcpSocket *s, QObject *parent);
+		EapiClient (QTcpSocket *s);
 		void init();
 		void min_abort_case(int testrunid);
 		void min_add_test_case_file(uint moduleid, 

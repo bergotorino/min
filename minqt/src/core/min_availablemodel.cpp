@@ -42,13 +42,19 @@ Min::AvailableModel::~AvailableModel()
 // -----------------------------------------------------------------------------
 int Min::AvailableModel::rowCount(const QModelIndex &parent) const
 {
-    return data_.count();
+	if (parent.isValid())
+		return 0;
+
+	return data_.count();
 }
 // -----------------------------------------------------------------------------
 int Min::AvailableModel::columnCount(const QModelIndex &parent) const
 {
-    /** we are removing description for now, at future it will be 3 */
-    return 5;
+	if (parent.isValid())
+		return 0;
+	/** we are removing description for now, at future it will be 3 */
+
+	return 5;
 }
 // -----------------------------------------------------------------------------
 QVariant Min::AvailableModel::data(const QModelIndex &index, int role) const

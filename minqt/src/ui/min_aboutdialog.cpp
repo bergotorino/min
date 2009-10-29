@@ -77,6 +77,7 @@ Min::AboutDialog::AboutDialog(QWidget * parent) : QDialog(parent)
 Min::AboutDialog::~AboutDialog()
 { ; }
 // -----------------------------------------------------------------------------
+#if 0
 void Min::AboutDialog::changeEvent(QEvent *event){
 	/** EMPTY BODY 
 	 * Function can be implemented if needed, currently "About" dialog is 
@@ -84,6 +85,7 @@ void Min::AboutDialog::changeEvent(QEvent *event){
 	 **/
 
 }
+#endif
 // -----------------------------------------------------------------------------
 
 

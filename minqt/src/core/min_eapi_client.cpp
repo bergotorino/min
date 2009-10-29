@@ -33,7 +33,7 @@
 #include <arpa/inet.h>
 
 // -----------------------------------------------------------------------------
-Min::EapiClient::EapiClient(QTcpSocket *s, QObject *parent)
+Min::EapiClient::EapiClient(QTcpSocket *s)
 	:  sock (s)
 { }
 

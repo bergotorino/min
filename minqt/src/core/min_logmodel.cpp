@@ -39,12 +39,18 @@ Min::LogModel::~LogModel()
 // -----------------------------------------------------------------------------
 int Min::LogModel::rowCount(const QModelIndex &parent) const
 {
-    return data_.count();
+	if (parent.isValid())
+		return 0;
+
+	return data_.count();
 }
 // -----------------------------------------------------------------------------
 int Min::LogModel::columnCount(const QModelIndex &parent) const
 {
-    return 4;
+	if (parent.isValid())
+		return 0;
+
+	return 4;
 }
 // -----------------------------------------------------------------------------
 QVariant Min::LogModel::data(const QModelIndex &index, int role) const

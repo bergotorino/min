@@ -39,12 +39,16 @@ Min::ExecutedModel::~ExecutedModel()
 // -----------------------------------------------------------------------------
 int Min::ExecutedModel::rowCount(const QModelIndex &parent) const
 {
-    return data_.count();
+	if (parent.isValid())
+		return 0;
+	return data_.count();
 }
 // -----------------------------------------------------------------------------
 int Min::ExecutedModel::columnCount(const QModelIndex &parent) const
 {
-    return 10;
+	if (parent.isValid())
+		return 0;
+	return 10;
 }
 // -----------------------------------------------------------------------------
 QVariant Min::ExecutedModel::data(const QModelIndex &index, int role) const

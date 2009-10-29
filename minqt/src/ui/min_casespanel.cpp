@@ -144,7 +144,7 @@ void Min::CasesPanel::updateLogHeader() {
 
 	error_count++;
 	ec.setNum(error_count);
-	ec.append (")");
+	ec.append (" errors)");
 	hdr.append (&ec);
 
 	centralWidget_->setTabText ( 2, hdr );

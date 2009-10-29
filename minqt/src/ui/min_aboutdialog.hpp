@@ -51,7 +51,7 @@ namespace Min
         virtual ~AboutDialog();
     protected:
         /** Handles event that comes from the system. */
-        virtual void changeEvent (QEvent *event);
+        /* virtual void changeEvent (QEvent *event); */
     private:
 	QDialogButtonBox *buttonBox;
 	QLabel *label_1;
