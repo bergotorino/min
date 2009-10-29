@@ -82,7 +82,7 @@ void Min::RemoteControll::handleSockError(QAbstractSocket::SocketError socketErr
 void Min::RemoteControll::handleSockConnected()
 {
 	qDebug ("Socket connected succesfully");
-	eapiClient_ = new EapiClient (sock_, this);
+	eapiClient_ = new EapiClient (sock_);
 	connect (eapiClient_,SIGNAL(min_case_msg(int, const QString &)),
 		 this,SLOT(minCaseMsg(int, const QString &)));
 	  
