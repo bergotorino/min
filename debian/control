@@ -33,12 +33,22 @@ Description: Python scripter module for MIN
  Python scripter for MIN.
 
 Package: min-tests
-Section: tests
 Priority: optional
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, min (>= 2009w36)
+XB-Maemo-CI-Packages: min
+XB-Maemo-CI-Stage: acceptance
+Depends: ${shlibs:Depends}, ${misc:Depends}, min 
 Description: MIN Basic Acceptance Tests.
  Tests of MIN
+
+Package: min-ci-tests
+Priority: optional
+Architecture: any
+XB-Maemo-CI-Packages: min
+XB-Maemo-CI-Stage: staging
+Depends: ${shlibs:Depends}, min
+Description: Tests for MIN utilities used for CI
+ This package includes MIN test modules that can be used to test MIN itself.
 
 Package: mindbusplugin
 Section: devel

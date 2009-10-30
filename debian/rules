@@ -14,8 +14,8 @@ DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 confflags += --build=$(DEB_BUILD_GNU_TYPE) --host=$(DEB_HOST_GNU_TYPE)
 
-SUBDIRS="min minpythonmodule mintests mindbusplugin"
-ALLDIRS="min minpythonmodule mintests mindbusplugin minqt"
+SUBDIRS="min minpythonmodule mintests mincitests mindbusplugin"
+ALLDIRS="min minpythonmodule mintests mincitests mindbusplugin minqt"
 INSTALL_ROOT = $(CURDIR)/debian/tmp
 build: build-stamp
 build-stamp:
@@ -72,7 +72,6 @@ binary-arch: install
 	dh_installdeb 
 	dh_shlibdeps
 	dh_gencontrol -A
-#	dh_md5sums -a
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
