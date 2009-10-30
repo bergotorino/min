@@ -4,10 +4,9 @@
 # Required-Start:    
 # Required-Stop:     
 # Default-Start:     2 3 4 5
-# Default-Stop:      S 0 1 6
+# Default-Stop:      0 1 6
 # Short-Description: MIN daemon init script
 # Description:       MIN daemon used in MIN tcp/ip master slave operation
-#
 ### END INIT INFO
 
 # Author: Sampo Saaristo <DG.MIN-Support@nokia.com>
