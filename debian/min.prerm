@@ -8,3 +8,4 @@ else
     /etc/init.d/min stop
 fi
 true
+#DEBHELPER#

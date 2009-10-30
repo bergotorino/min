@@ -13,4 +13,4 @@ else
     /etc/init.d/min stop
     /etc/init.d/min start
 fi
-ldconfig
+#DEBHELPER#

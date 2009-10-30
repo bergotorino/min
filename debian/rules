@@ -66,13 +66,13 @@ binary-arch: install
 	dh_installdirs -A
 	dh_install --sourcedir=debian/tmp
 	dh_strip  -A
-	dh_makeshlibs -A
+	dh_makeshlibs -A -Xdbus -Xpython 
 	dh_compress -A
 	dh_fixperms -A
 	dh_installdeb 
 	dh_shlibdeps
-	dh_gencontrol 
-	dh_md5sums -a
+	dh_gencontrol -A
+#	dh_md5sums -a
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
