@@ -5,6 +5,7 @@
 
 CFLAGS = -Wall -g
 
+package = min-ci-tests
 
 build:  build-stamp
 
@@ -51,7 +52,6 @@ binary-arch: build install
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
-	dh_md5sums
 	dh_builddeb
 
 binary: binary-indep binary-arch

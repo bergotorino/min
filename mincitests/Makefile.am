@@ -2,6 +2,7 @@ METASOURCES=Auto
 AM_FLAGS=-fPIC
 pkglib_LTLIBRARIES = min_unit_selftest.la dllist_tests.la item_parser_tests.la logger_tests.la
 TOPDIR=.
+SUBDIRS = data
 
 min_unit_selftest_la_CFLAGS = -DCASES_FILE='"src/min_unit_selftest_cases.c"'
 min_unit_selftest_la_LDFLAGS = -shared -module
@@ -24,4 +25,3 @@ logger_tests_la_SOURCES = /usr/share/min/minunit.c
 logger_tests_la_LIBADD = -lminutils -lmintmapi -lminevent  
 
 
-sysconf_DATA=data/min-ci-tests.min.conf

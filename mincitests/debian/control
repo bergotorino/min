@@ -3,7 +3,6 @@ Section: libs
 Priority: optional
 Maintainer: Sampo Saaristo <sampo.1.saaristo@nokia.com>
 Build-Depends: debhelper, min, min-dev
-Version: 1.0
 Standards-Version: 3.8.0
 
 Package: min-ci-tests
