@@ -1,0 +1,10 @@
+Package: min-ci-tests
+Version: 0.0.1
+Architecture: i386
+Maintainer: John Doe <John.Doe@example.com>
+Installed-Size: 181
+Depends: libc6 (>= 2.4), min
+Section: libs
+Priority: extra
+Description: MIN test module min-ci-tests
+ Fill description for min-ci-tests
