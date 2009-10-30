@@ -205,9 +205,9 @@ LOCAL void mnl_overwrite_settings (struct logger_settings_t *ls,
         if (ls->is_defined_.format_ == ESTrue) {
                 *loggertype = ls->emulator_format_;
         }
-        if (ls->is_defined_.output_ == ESTrue) {
-                *output = ls->emulator_output_;
-        }
+	//        if (ls->is_defined_.output_ == ESTrue) {
+	//      *output = ls->emulator_output_;
+        //}
 
         /* Rest of the overwrited values */
         if (ls->is_defined_.overwrite_ == ESTrue) {
