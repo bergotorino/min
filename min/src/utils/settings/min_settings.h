@@ -57,11 +57,14 @@ typedef struct {
         /** Name of setting section. (e.g. Logger_Defaults */
         Text           *tag_;
 
+        /** Name of setting section. (e.g. Logger_Defaults */
+        Text           *end_tag_;
+
 	/** Function for parsing settings for this section */
-	int           (*parse_func)(MinParser *);
+	int           (*parse_func)(void *data, MinSectionParser *);
 
 	/** Function for clean up */
-	void          (*clean_func)();
+	void          (*clean_func)(void *data);
 
 	/** Settings data for this section */
 	void          *data_;
@@ -70,8 +73,13 @@ typedef struct {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-SettingsSection *new_section (const char *tag, int (*parse_func)(MinParser *),
-			      void (*clean_func)());
+SettingsSection *new_section (const char *tag, const char *endtag,
+			      int (*parse_func)(void *data, MinSectionParser *),
+			      void (*clean_func)(void *data),
+			      int initial_data_size);
+/* ------------------------------------------------------------------------- */
+int              settings_read (SettingsSection *ss,
+				MinParser *mp);
 /* ------------------------------------------------------------------------- */
 void            *settings_get (const char *tag);
 /* ------------------------------------------------------------------------- */
