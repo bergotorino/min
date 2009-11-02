@@ -8,7 +8,7 @@ INCLUDES = -I$(top_srcdir)/. -I$(top_srcdir)/conf -I$(top_srcdir)/integration \
 	-I$(top_srcdir)/src/utils/dllist -I$(top_srcdir)/src/utils/ipc -I$(top_srcdir)/src/utils/logger \
 	-I$(top_srcdir)/src/utils/parser -I$(top_srcdir)/tests
 METASOURCES = AUTO
-SUBDIRS = text dllist ipc logger parser lua-5.1.3 lib_loader
+SUBDIRS = text dllist ipc logger parser lua-5.1.3 lib_loader settings
 lib_LTLIBRARIES = libminutils.la
 
 libminutils_la_SOURCES =
@@ -20,5 +20,6 @@ libminutils_la_LIBADD = $(top_builddir)/src/utils/logger/libminlogger.la \
                          $(top_builddir)/src/utils/dllist/libmindllist.la \
 			 $(top_builddir)/src/utils/text/libmintext.la \
 			 $(top_builddir)/src/utils/lib_loader/libmintl.la \
+			 $(top_builddir)/src/utils/settings/libminsettings.la \
 			 $(top_builddir)/src/utils/lua-5.1.3/src/libminlua.la -lm -ldl
 
