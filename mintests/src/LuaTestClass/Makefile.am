@@ -21,5 +21,4 @@ LuaTestClass_la_LIBADD = $(top_builddir)/../min/src/utils/libminutils.la \
 		      $(top_builddir)/../min/src/services/event_system/libminevent.la
 
 install-data-local:
-	chrpath -d .libs/LuaTestClass.so
 	cp .libs/LuaTestClass.so $(DESTDIR)/usr/lib/min-tests
