@@ -35,6 +35,7 @@ AC_OUTPUT(\
         src/utils/logger/Makefile \
         src/utils/parser/Makefile \
         src/utils/lib_loader/Makefile \
+	src/utils/settings/Makefile \
         tests/Makefile \
         mintests/Makefile \
         src/engine/tec/Makefile \
