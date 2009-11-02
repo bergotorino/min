@@ -25,7 +25,7 @@ min_unit_selftest_la_LIBADD =  \
 
 dllist_tests_la_CFLAGS = -DCASES_FILE='"src/dllist_cases.c"'
 dllist_tests_la_LDFLAGS = -shared -module
-dllist_tests_la_SOURCES = /usr/share/min/minunit.c src/equal.c
+dllist_tests_la_SOURCES = ../min/shared/minunit.c src/equal.c
 dllist_tests_la_LIBADD =  \
 	$(top_builddir)/../min/src/utils/libminutils.la \
 	$(top_builddir)/../min/src/tmc/test_module_api/libmintmapi.la \
