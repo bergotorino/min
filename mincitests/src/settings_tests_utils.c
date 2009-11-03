@@ -107,6 +107,8 @@ int test_settings_parse (void *data, MinSectionParser *msp)
 		dl_list_add (s->bar_list, token);
 	}
 	
+	
+	return 0;
 }
 /* ------------------------------------------------------------------------- */
 void test_settings_clean (void *data)
@@ -114,6 +116,7 @@ void test_settings_clean (void *data)
 	test_settings *s = (test_settings *)data;
 	dl_list_free_data (&s->bar_list);
 	dl_list_free (&s->bar_list);
+
 	return;
 }
 /* ------------------------------------------------------------------------- */

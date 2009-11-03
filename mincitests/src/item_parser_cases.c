@@ -67,6 +67,7 @@
 /* ------------------------------------------------------------------------- */
 /* ============================= TESTS ===================================== */
 /* ------------------------------------------------------------------------- */
+#ifdef TEST_CASES
 MIN_TESTDEFINE(test_mip_create_ok)
 {
         MinItemParser* mip  = INITPTR;
@@ -870,4 +871,4 @@ MIN_TESTDEFINE(test_mip_get_parsing_type)
         mip_destroy( &mip );
         MIN_ASSERT_EQUALS_DESC( mip, INITPTR, "SIP destroying failed." );
 }
-
+#endif /* TEST_CASES */
