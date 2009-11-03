@@ -1,5 +1,5 @@
 etc/min.d/min-ci-tests.min.conf
-usr/lib/min/dllist_tets*
+usr/lib/min/dllist_tests*
 usr/lib/min/min_unit_selftest*
 usr/lib/min/item_parser_tests*
 usr/lib/min/logger_tests*
