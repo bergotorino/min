@@ -59,6 +59,6 @@ typedef struct {
 /* ------------------------------------------------------------------------- */
 int test_settings_parse (void *data, MinSectionParser *);
 /* ------------------------------------------------------------------------- */
-void test_settings_clean (void);
+void test_settings_clean (void *data);
 /* ------------------------------------------------------------------------- */
 #endif                          /* SETTINGS_TESTS_UTILS_H */
