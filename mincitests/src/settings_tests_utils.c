@@ -18,9 +18,9 @@
 
 
 /**
- *  @file       equal.c
+ *  @file       settings_tests_utils.c
  *  @version    0.1
- *  @brief      equal utility used in dllist tests
+ *  @brief      Parse and clean functions used in settings testing.
  */
 
 /* ------------------------------------------------------------------------- */
@@ -114,6 +114,7 @@ int test_settings_parse (void *data, MinSectionParser *msp)
 void test_settings_clean (void *data)
 {
 	test_settings *s = (test_settings *)data;
+
 	dl_list_free_data (&s->bar_list);
 	dl_list_free (&s->bar_list);
 
