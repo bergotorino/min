@@ -5,19 +5,19 @@
   <suite name="min-tests" domain="example-domain"> 
     <!-- At least one set per suite, name and description mandatory -->
     <set name="utils-tests" description="Test MIN utilites with min" feature="min-feature">   
-      <case name="dllist" type="unit" description="unit tests for MIN dllist" requirement="10001, 1000" timeout="60" subfeature="" ci=true>
+      <case name="dllist" type="unit" description="unit tests for MIN dllist" requirement="10001, 1000" timeout="60" subfeature="" CI="true">
         <step expected_result="0">min -cx /usr/lib/min/dllist_tests.so</step>
       </case>
 
-      <case name="logger" type="unit" description="unit tests for MIN logger" requirement="10001, 1000" timeout="60" subfeature="" ci=true>
+      <case name="logger" type="unit" description="unit tests for MIN logger" requirement="10001, 1000" timeout="60" subfeature="" CI="true">
         <step expected_result="0">min -cx /usr/lib/min/logger_tests.so</step>
       </case>
 
-      <case name="minunit" type="unit" description="run MINUnit selftests" requirement="10001, 1000" timeout="60" subfeature="" ci=true>
+      <case name="minunit" type="unit" description="run MINUnit selftests" requirement="10001, 1000" timeout="60" subfeature="" CI="true">
         <step expected_result="8">min -cx /usr/lib/min/min_unit_selftest.so</step>
       </case>
 
-      <case name="min_item_parser" type="unit" description="run unit test for MIN item parser" requirement="10001, 1000" timeout="60" subfeature="" ci=true>
+      <case name="min_item_parser" type="unit" description="run unit test for MIN item parser" requirement="10001, 1000" timeout="60" subfeature="" CI="true">
         <step expected_result="0">min -cx /usr/lib/min/min_item_parser_tests.so</step>
       </case>
 
