@@ -163,7 +163,7 @@ MIN_TESTDEFINE(test_so_destroy)
 	
 	sxso = so_create( NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
 	
-	so_destroy((struct output_typeinfo_t**)&sxso);
+	so_destroy((struct output_typeinfo_t**)(void *)&sxso);
 	
         MIN_ASSERT_EQUALS_DESC( sxso, INITPTR,
 				"SysLog Output: sxso != INITPTR after destruction" );
@@ -175,7 +175,7 @@ MIN_TESTDEFINE(test_so_destroy2)
         MinLoggerSyslogOutput* sxso = INITPTR;
 	
         sxso = so_create( NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0 );       
-        so_destroy((struct output_typeinfo_t**)&sxso);
+        so_destroy((struct output_typeinfo_t**)(void *)&sxso);
 	
         MIN_ASSERT_EQUALS_DESC( sxso, INITPTR
 				, "SysLog Output: sxso != INITPTR after destruction" );
@@ -222,7 +222,7 @@ MIN_TESTDEFINE(test_stdo_create)
 MIN_TESTDEFINE(test_stdo_destroy)
 {
         MinLoggerStdOutput* stdo = INITPTR;
-        stdo_destroy((struct output_typeinfo_t**)&stdo);
+        stdo_destroy((struct output_typeinfo_t**)(void *)&stdo);
 
         MIN_ASSERT_EQUALS_DESC( stdo, INITPTR
                    , "Std Output: stdo != INITPTR after destruction" );
@@ -234,7 +234,7 @@ MIN_TESTDEFINE(test_stdo_destroy2)
         MinLoggerStdOutput* stdo = INITPTR;
 
         stdo = stdo_create( NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0 );       
-        stdo_destroy((struct output_typeinfo_t**)&stdo);
+        stdo_destroy((struct output_typeinfo_t**)(void *)&stdo);
  
         MIN_ASSERT_EQUALS_DESC( stdo, INITPTR
                    , "Std Output: stdo != INITPTR after destruction" );
@@ -281,7 +281,7 @@ MIN_TESTDEFINE(test_stde_create)
 MIN_TESTDEFINE(test_stde_destroy)
 {
         MinLoggerStdOutput* stde = INITPTR;
-        stde_destroy((struct output_typeinfo_t**)&stde);
+        stde_destroy((struct output_typeinfo_t**)(void *)&stde);
 
         MIN_ASSERT_EQUALS_DESC( stde, INITPTR
                    , "Std Output: stde != INITPTR after destruction" );
