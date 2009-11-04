@@ -32,6 +32,7 @@
 #include <min_logger.h>
 #include <data_api.h>
 #include <min_engine_api.h>
+#include <min_settings.h>
 
 #include <dirent.h>
 #include <netdb.h>
@@ -343,7 +344,7 @@ LOCAL DLListIterator tc_find_by_runid (DLList * list_handle, long runid)
 /* ------------------------------------------------------------------------- */
 /** Scan all the modules from search directories and add them to modulelist.
  *  @param [out] modulelist list of module file names.
- *  @return 0 always.
+ *  @return 0 on success, 1 on errror.
  */
 LOCAL int eapi_query_test_modules(char **modulelist)
 {
@@ -359,8 +360,13 @@ LOCAL int eapi_query_test_modules(char **modulelist)
         char *test_module;
         int n = 0;
         struct dirent **namelist;
+	EngineDefaults *ec_settings;
 
-        dl_item = dl_list_head (ec_settings.search_dirs);
+	ec_settings = (EngineDefaults *)settings_get("Engine_Defaults");
+	if (ec_settings == INITPTR)
+		return 1;
+
+        dl_item = dl_list_head (ec_settings->search_dirs);
         while (dl_item != INITPTR) {
                 /* get data from list iterator */
                 dir = (char *)dl_list_data (dl_item);
@@ -407,7 +413,7 @@ LOCAL int eapi_query_test_modules(char **modulelist)
 /** Scan all the test case files  from search directories and add them to 
  *  filelist.
  *  @param [out] filelist list of test case file names.
- *  @return 0 always.
+ *  @return 0 or 1 on error.
  */
 LOCAL int eapi_query_test_files(char **filelist)
 {
@@ -421,12 +427,16 @@ LOCAL int eapi_query_test_files(char **filelist)
         char *shell_io = INITPTR;
         int tmplen = 0;
         int currlength = 0;
-
+	EngineDefaults *ec_settings;
         DLListItem     *dl_item = INITPTR;
         int             i = 0;
         int             n = 0;
+	
+	ec_settings = (EngineDefaults *)settings_get("Engine_Defaults");
+	if (ec_settings == INITPTR)
+		return 1;
 
-        dl_item = dl_list_head (ec_settings.search_dirs);
+        dl_item = dl_list_head (ec_settings->search_dirs);
         while (dl_item != INITPTR) {
                 /* get data from list iterator */
                 dir = (char *)dl_list_data (dl_item);

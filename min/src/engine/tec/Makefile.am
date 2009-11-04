@@ -1,6 +1,7 @@
 INCLUDES = 	-I. -I../.. -I../../utils/dllist  \
 		-I../../utils/ipc -I../../utils/logger \
-		-I../../utils/parser -I../../in_plugins/cui \
+		-I../../utils/parser -I../../utils/settings \
+	        -I../../in_plugins/cui \
 		-I../data_structures_api \
 		-I../../services/event_system \
 		-I../../services/scripter_module -I../../utils/text \

@@ -38,12 +38,14 @@
 
 #include <min_parser.h>
 #include <tec.h>
+
 #include <min_common.h>
 #include <consoleui.h>
 #include <data_api.h>
 #include <tec_events.h>
 #include <min_logger.h>
 #include <min_engine_api.h>
+#include <min_settings.h>
 #ifndef MIN_EXTIF
 #include <tec_tcp_handling.h>
 #endif
@@ -55,13 +57,23 @@ char          **envp;
 #ifdef MIN_UNIT_TEST
 int             unit_test_result;
 #endif                          /*MINMIN_UNIT_TEST */
-struct logger_settings_t logger_settings; /** Logger setting for engine */
 eapiIn_t in_str;                          /** Holder for engine api in
 					   *  direction */
 eapiIn_t *in = &in_str;                   
 DLList   *available_modules = INITPTR;   /** list of available test modules.  */
 DLList   *filters = INITPTR;             /** list of test case title filters. */
 int       min_return_value = 0;          /** return value for the whole prog. */
+/** Mode of operation. 
+ *  0 - execute all configured test cases and exit. 
+ *  1 - exit when user so requests.
+ */     
+int             operation_mode_ = 0; 
+/** Shared memory segment identifier */
+int             sh_mem_id_ = -1;      
+EngineDefaults  *engine_defaults;
+SettingsSection *engine_section, *logger_section;
+struct logger_settings_t *logger_settings; /** Logger setting for engine */
+
 /* ----------------------------------------------------------------------------
  * EXTERNAL DATA STRUCTURES
  */
@@ -128,11 +140,7 @@ LOCAL void      create_local_confdir ();
 /* ------------------------------------------------------------------------- */
 LOCAL int       ec_filter_it(char *title);
 /* ------------------------------------------------------------------------- */
-LOCAL void      ec_get_logger_settings (MinSectionParser * settings);
-/* ------------------------------------------------------------------------- */
 LOCAL int       ec_start_module_temp (DLListIterator work_case_item);
-/* ------------------------------------------------------------------------- */
-LOCAL void      ec_init_logger_settings ();
 /* ------------------------------------------------------------------------- */
 LOCAL void      ec_check_next_in_group (int group_id);
 /* ------------------------------------------------------------------------- */
@@ -163,6 +171,7 @@ LOCAL void     *ec_message_listener (void *arg);
 /* ------------------------------------------------------------------------- */
 LOCAL int       ec_init_module_data (DLListItem * work_module_item);
 /* ------------------------------------------------------------------------- */
+
 #ifndef MIN_EXTIF
 LOCAL int      ec_read_slaves_section (MinParser * inifile);
 #endif
@@ -246,7 +255,7 @@ LOCAL void ec_settings_send ()
         DLListIterator  work_path_item = DLListNULLIterator;
         char           *concat_paths = INITPTR;
         void           *temp_ptr;
-        work_path_item = dl_list_head (ec_settings.search_dirs);
+        work_path_item = dl_list_head (engine_defaults->search_dirs);
 
         while (work_path_item != DLListNULLIterator) {
 
@@ -259,7 +268,7 @@ LOCAL void ec_settings_send ()
         if (paths_size > 0) {
                 concat_paths = NEW2 (char, paths_size);
                 *concat_paths = '\0';
-                work_path_item = dl_list_head (ec_settings.search_dirs);
+                work_path_item = dl_list_head (engine_defaults->search_dirs);
                 while (work_path_item != DLListNULLIterator) {
                         work_path = (char *)dl_list_data (work_path_item);
                         strcat (concat_paths, work_path);
@@ -297,10 +306,10 @@ LOCAL void ec_settings_send ()
                 exit (-1);
         }
 
-        ec_settings.sh_mem_id_ = shared_segm_id;
+        sh_mem_id_ = shared_segm_id;
         sh_mem_handle = sm_attach (shared_segm_id);
         sm_write (sh_mem_handle,
-                  (void *)(&logger_settings),
+                  (void *)(logger_settings),
                   sizeof (struct logger_settings_t));
         temp_ptr = sh_mem_handle + sizeof (struct logger_settings_t);
         if (paths_size > 0) {
@@ -355,222 +364,6 @@ ec_filter_it(char *title)
 	return 1;
 }
 /*---------------------------------------------------------------------------*/
-/** Used to read logger settings. It was moved to separate function to
- * keep functions shorter. It uses section andf item parser functionalities to
- * write data to logger settings struct.
- * @param section fetched from config file
- */
-LOCAL void ec_get_logger_settings (MinSectionParser * settings)
-{
-        MinItemParser *linebreaker = INITPTR;  /* used if it is necessary 
-                                                   to breakdown line into
-                                                   parts */
-        char           *opt_val = NULL; /* used to hold option value if 
-                                         * it is single */
-        int             fresult = 0;
-
-        fresult = mmp_get_line (settings,
-                                "CreateLogDirectories=", &opt_val, ESNoTag);
-        if (fresult == 0) {
-		logger_settings.is_defined_.create_log_dir_ = ESTrue;
-                if (strcasecmp (opt_val, "YES") == 0) {
-                        logger_settings.create_log_dir_ = ESTrue;
-                } else if (strcasecmp (opt_val, "NO") == 0) {
-                        logger_settings.create_log_dir_ = ESFalse;
-                } else {
-                        MIN_WARN ("Error in config file (CreateLogDirectories) !");
-			logger_settings.is_defined_.create_log_dir_ = ESFalse;
-                }
-                DELETE (opt_val);
-        }
-
-        fresult = mmp_get_line (settings,
-                                "EmulatorBasePath=", &opt_val, ESNoTag);
-        if (fresult == 0) {
-                sprintf (logger_settings.emulator_path_, "%s", opt_val);
-                logger_settings.is_defined_.path_ = ESTrue;
-                DELETE (opt_val);
-        }
-
-        linebreaker = mmp_get_item_line (settings,
-                                         "EmulatorFormat=", ESNoTag);
-
-        if (linebreaker != INITPTR) {
-                fresult = mip_get_string (linebreaker, "", &opt_val);
-                while (fresult == 0) {
-                        if (strcasecmp (opt_val, "HTML") == 0) {
-                                logger_settings.emulator_format_ =
-                                    logger_settings.emulator_format_ | ESHtml;
-                                logger_settings.is_defined_.format_ = ESTrue;
-                        }
-                        if (strcasecmp (opt_val, "TXT") == 0) {
-                                logger_settings.emulator_format_ =
-                                    logger_settings.emulator_format_ | ESTxt;
-                                logger_settings.is_defined_.format_ = ESTrue;
-                        }
-                        if (strcasecmp (opt_val, "DATA") == 0) {
-                                logger_settings.emulator_format_ =
-                                    logger_settings.emulator_format_ | ESData;
-                                logger_settings.is_defined_.format_ = ESTrue;
-                        }
-                        DELETE (opt_val);
-                        fresult = mip_get_next_string (linebreaker, &opt_val);
-                }
-        }
-
-        mip_destroy (&linebreaker);
-        linebreaker = mmp_get_item_line (settings,
-                                         "EmulatorOutput=", ESNoTag);
-
-        if (linebreaker != INITPTR) {
-                fresult = mip_get_string (linebreaker, "", &opt_val);
-                while (fresult == 0) {
-                        if (strcasecmp (opt_val, "NULL") == 0) {
-                                logger_settings.emulator_output_ =
-                                    logger_settings.emulator_output_ | ESNull;
-                                logger_settings.is_defined_.output_ = ESTrue;
-                        }
-                        if (strcasecmp (opt_val, "FILE") == 0) {
-                                logger_settings.emulator_output_ =
-                                    logger_settings.emulator_output_ | ESFile;
-                                logger_settings.is_defined_.output_ = ESTrue;
-                        }
-			if (strcasecmp (opt_val, "SYSLOG") == 0) {
-                                logger_settings.emulator_output_ =
-                                    logger_settings.
-                                    emulator_output_ | ESSyslog;
-                                logger_settings.is_defined_.output_ = ESTrue;
-                        }
-			if (strcasecmp (opt_val, "STDOUT") == 0) {
-                                logger_settings.emulator_output_ =
-                                    logger_settings.
-                                    emulator_output_ | ESStdout;
-                                logger_settings.is_defined_.output_ = ESTrue;
-                        }
-			if (strcasecmp (opt_val, "STDERR") == 0) {
-                                logger_settings.emulator_output_ =
-                                    logger_settings.
-                                    emulator_output_ | ESStderr;
-                                logger_settings.is_defined_.output_ = ESTrue;
-                        }
-
-                        DELETE (opt_val);
-                        fresult = mip_get_next_string (linebreaker, &opt_val);
-                }
-
-        }
-
-        mip_destroy (&linebreaker);
-
-        fresult = mmp_get_line (settings,
-                                "ThreadIdToLogFile=", &opt_val, ESNoTag);
-        if (fresult == 0) {
-		logger_settings.is_defined_.pidid_ = ESTrue;
-                if (strcasecmp (opt_val, "YES") == 0) {
-                        logger_settings.pidid_ = ESTrue;
-                } else if (strcasecmp (opt_val, "NO") == 0) {
-                        logger_settings.pidid_ = ESFalse;
-                } else {
-                        MIN_WARN ("Error in config file (ThreadIdToLogFile) !");
-			logger_settings.is_defined_.pidid_ = ESFalse;
-                }
-                DELETE (opt_val);
-        }
-
-        fresult = mmp_get_line (settings,
-                                "WithTimeStamp=", &opt_val, ESNoTag);
-        if (fresult == 0) {
-		logger_settings.is_defined_.time_stamp_ = ESTrue;
-                if (strcasecmp (opt_val, "YES") == 0) {
-                        logger_settings.time_stamp_ = ESTrue;
-                } else if (strcasecmp (opt_val, "NO") == 0) {
-                        logger_settings.time_stamp_ = ESFalse;
-                } else {
-                        MIN_WARN ("Error in config file (WithTimeStamp) !");
-			logger_settings.is_defined_.time_stamp_ = ESFalse;
-                }
-                DELETE (opt_val);
-        }
-
-        fresult = mmp_get_line (settings,
-                                "WithLineBreak=", &opt_val, ESNoTag);
-        if (fresult == 0) {
-		logger_settings.is_defined_.line_break_ = ESTrue;
-                if (strcasecmp (opt_val, "YES") == 0) {
-                        logger_settings.line_break_ = ESTrue;
-                } else if (strcasecmp (opt_val, "NO") == 0) {
-                        logger_settings.line_break_ = ESFalse;
-                } else {
-                        MIN_WARN ("Error in config file (WithLineBreak) !");
-			logger_settings.is_defined_.line_break_ = ESFalse;
-                }
-
-                DELETE (opt_val);
-        }
-
-        fresult = mmp_get_line (settings,
-                                "WithEventRanking=", &opt_val, ESNoTag);
-        if (fresult == 0) {
-		logger_settings.is_defined_.event_ranking_ = ESTrue;
-                if (strcasecmp (opt_val, "YES") == 0) {
-                        logger_settings.event_ranking_ = ESTrue;
-                } else if (strcasecmp (opt_val, "NO") == 0) {
-                        logger_settings.event_ranking_ = ESFalse;
-                } else {
-                        MIN_WARN ("Error in config file (WithEventRanking) !");
-			logger_settings.is_defined_.event_ranking_ = ESFalse;
-                }
-
-                DELETE (opt_val);
-        }
-
-        fresult = mmp_get_line (settings,
-                                "FileCreationMode=", &opt_val, ESNoTag);
-        if (fresult == 0) {
-		logger_settings.is_defined_.overwrite_ = ESTrue;
-                if (strcasecmp (opt_val, "APPEND") == 0) {
-                        logger_settings.overwrite_ = ESFalse;
-                } else if (strcasecmp (opt_val, "OVERWRITE") == 0) {
-                        logger_settings.overwrite_ = ESTrue;
-                } else {
-			logger_settings.is_defined_.overwrite_ = ESFalse;
-                        MIN_WARN ("Error in config file (FileCreationMode) !");
-                }
-
-                DELETE (opt_val);
-        }
-        
-        fresult = mmp_get_line (settings,
-                                "LogLevel=", &opt_val, ESNoTag);
-        if (fresult == 0) {
-                if (strcasecmp (opt_val, "fatal") == 0) {
-                        logger_settings.loglevel_ = ESFatal;
-                        logger_settings.is_defined_.loglevel_ = ESTrue;
-                } else if (strcasecmp (opt_val, "error")==0) {
-                        logger_settings.loglevel_ = ESError;
-                        logger_settings.is_defined_.loglevel_ = ESTrue;
-                } else if (strcasecmp (opt_val, "warn")==0) {
-                        logger_settings.loglevel_ = ESWarning;
-                        logger_settings.is_defined_.loglevel_ = ESTrue;
-                } else if (strcasecmp (opt_val, "info")==0) {
-                        logger_settings.loglevel_ = ESInfo;
-                        logger_settings.is_defined_.loglevel_ = ESTrue;
-                } else if (strcasecmp (opt_val, "notice")==0) {
-                        logger_settings.loglevel_ = ESNotice;
-                        logger_settings.is_defined_.loglevel_ = ESTrue;
-                } else if (strcasecmp (opt_val, "debug")==0) {
-                        logger_settings.loglevel_ = ESDebug;
-                        logger_settings.is_defined_.loglevel_ = ESTrue;
-                } else if (strcasecmp (opt_val, "trace")==0) {
-                        logger_settings.loglevel_ = ESTrace;
-                        logger_settings.is_defined_.loglevel_ = ESTrue;
-                } else {
-                        MIN_WARN ("Error in config file (LogLevel) !");
-                }
-                DELETE (opt_val);
-        }
-}
-/*---------------------------------------------------------------------------*/
 /** Used for temporary module instantiation and test case execution, 
  *  used when there is a need to execute two test cases from the same module 
  *  in parallel.
@@ -618,35 +411,6 @@ LOCAL int ec_start_module_temp (DLListIterator work_case_item)
         tc_set_test_module_ptr (work_case_item, temporary_module_item);
 
         return 0;
-}
-/*--------------------------------------------------------------------*/
-/** Initialize logger_settings structure
- */
-LOCAL void ec_init_logger_settings ()
-{
-        logger_settings.create_log_dir_ = ESFalse;
-        logger_settings.unicode_ = ESFalse;
-        logger_settings.time_stamp_ = ESFalse;
-        logger_settings.pidid_ = ESFalse;
-        logger_settings.overwrite_ = ESFalse;
-        logger_settings.line_break_ = ESFalse;
-        logger_settings.event_ranking_ = ESFalse;
-        *logger_settings.emulator_path_ = '\0';
-        logger_settings.emulator_output_ = ESNull;
-        logger_settings.emulator_format_ = 0;
-        logger_settings.is_defined_.create_log_dir_ = ESFalse;
-        logger_settings.is_defined_.unicode_ = ESFalse;
-        logger_settings.is_defined_.time_stamp_ = ESFalse;
-        logger_settings.is_defined_.pidid_ = ESFalse;
-        logger_settings.is_defined_.path_ = ESFalse;
-        logger_settings.is_defined_.overwrite_ = ESFalse;
-        logger_settings.is_defined_.output_ = ESFalse;
-        logger_settings.is_defined_.line_break_ = ESFalse;
-        logger_settings.is_defined_.hw_path_ = ESFalse;
-        logger_settings.is_defined_.hw_output_ = ESFalse;
-        logger_settings.is_defined_.hw_format_ = ESFalse;
-        logger_settings.is_defined_.format_ = ESFalse;
-        logger_settings.is_defined_.event_ranking_ = ESFalse;
 }
 /*----------------------------------------------------------------------------*/
 /** Used to check if there is a test case with given group id 
@@ -750,7 +514,7 @@ LOCAL int ec_exec_case_temp (DLListIterator work_module_item)
 		message.type_ = MSG_EXE_DLD;
 	else
 		message.type_ = MSG_EXE;
-        message.sender_ = ec_settings.engine_pid_;
+        message.sender_ = engine_pid;
         message.receiver_ = tm_get_pid (work_module_item);
         message.param_ = tc_get_id (work_case_item);
         message.desc_[0] =  '\0';
@@ -983,7 +747,7 @@ LOCAL int ec_msg_ok_handler (MsgBuffer * message)
                 tm_set_status (work_module, TEST_MODULE_TC_SENDING);
                 result = 0;
                 message_gtc.type_ = MSG_GTC;
-                message_gtc.sender_ = ec_settings.engine_pid_;
+                message_gtc.sender_ = engine_pid;
                 message_gtc.receiver_ = message->sender_;
                 message_gtc.param_ = 0;
                 message_gtc.special_ = ESTrue;  /*TCDs should be sent */
@@ -994,7 +758,7 @@ LOCAL int ec_msg_ok_handler (MsgBuffer * message)
 
                 result = 0;
                 message_gtc.type_ = MSG_GTC;
-                message_gtc.sender_ = ec_settings.engine_pid_;
+                message_gtc.sender_ = engine_pid;
                 message_gtc.receiver_ = message->sender_;
                 message_gtc.param_ = 0;
                 message_gtc.special_ = ESFalse; /*don't care about 
@@ -1609,7 +1373,7 @@ LOCAL int ec_msg_run_id_handler (MsgBuffer * message)
 	** attach a debugger
 	*/
 	if (work_case->debug_case_) {
-		cmd = tx_create(ec_settings.debugger_);
+		cmd = tx_create(engine_defaults->debugger_);
 		tx_c_append (cmd, " tmc ");
 		sprintf (buf, "%u", message->param_);
 		tx_c_append (cmd, buf);
@@ -1701,7 +1465,7 @@ LOCAL void     *ec_message_listener (void *arg)
 	 * listener function as a pointer has proven to be unreliable, 
 	 * especially on ARM targets. 
 	 */
-        own_address = ec_settings.engine_pid_;  
+        own_address = engine_pid;  
         pthread_mutex_unlock (&tec_mutex_);
 
 #ifdef MIN_UNIT_TEST
@@ -1770,7 +1534,7 @@ LOCAL pid_t ec_start_tmc (DLListIterator work_module_item)
 
         work_list  = tm_get_cfg_filenames (work_module_item);
         exec_args = NEW2 (char *, dl_list_size (work_list) + 3);
-        exec_args[it++] = ec_settings.tmc_app_path_;
+        exec_args[it++] = engine_defaults->tmc_app_path_;
 
         if (*((test_module_info_s *) dl_list_data (work_module_item))->
             module_filename_ == '/') {
@@ -1798,7 +1562,7 @@ LOCAL pid_t ec_start_tmc (DLListIterator work_module_item)
                         dir =
                             (char *)
                             dl_list_data (dl_list_at
-                                          (ec_settings.search_dirs,
+                                          (engine_defaults->search_dirs,
                                            path_pos));
                         mod_fpath_new =
                             NEW2 (char, strlen (dir) + strlen (mod_name) + 2);
@@ -1828,13 +1592,13 @@ LOCAL pid_t ec_start_tmc (DLListIterator work_module_item)
                 conf_path = NEW2 (char, strlen (conf_name) +
                                   strlen ((char *)
                                           dl_list_data (dl_list_at
-                                                        (ec_settings.
+                                                        (engine_defaults->
                                                          search_dirs,
                                                          path_pos))) + 2);
                 sprintf (conf_path, "%s/%s",
                          (char *)
                          dl_list_data (dl_list_at
-                                       (ec_settings.search_dirs, path_pos)),
+                                       (engine_defaults->search_dirs, path_pos)),
                          conf_name);
                 /* now check if config exists in the same directory as 
                    module */
@@ -1850,7 +1614,7 @@ LOCAL pid_t ec_start_tmc (DLListIterator work_module_item)
                         dir =
                             (char *)
                             dl_list_data (dl_list_at
-                                          (ec_settings.search_dirs,
+                                          (engine_defaults->search_dirs,
                                            path_pos));
 			DELETE (conf_path);
                         conf_path =
@@ -2104,157 +1868,24 @@ LOCAL int ec_read_module_confdir (int op_mode)
 
         return 0;
 }
-/* ------------------------------------------------------------------------- */
-/** Reads data from config file given as argument
- *  @param inifile configuration file read in to MIN parser instance.
- *  @param operation_mode MIN operation mode.
- *  @return 0 on ok, -1 on error.
- */
+
 LOCAL int ec_read_conf (MinParser * inifile, int operation_mode)
 {
-        MinSectionParser *engine_def = INITPTR;
-        MinSectionParser *logger_def = INITPTR;
-        MinItemParser    *line_item  = INITPTR;
-        struct  stat    tmcstat;   
-        char           *search_path = INITPTR;
-        char           *path_string = NULL;
-        char           *bin_path = INITPTR;
-	char           *debugger_cmd = INITPTR;
-        char           *locdir = NULL;
-        char           *home_d = getenv ("HOME");
-        /*int res = 0;for checking funtion return values */
+	int ret = 0;
 
-        /*read engine's settings */
-        engine_def = mp_section (inifile,
-                                 "[Engine_Defaults]", "[End_Defaults]", 1);
+	ret += settings_read (engine_section, inifile);
+	ret += settings_read (logger_section, inifile);
 
-        if (engine_def == INITPTR) {
-                MIN_FATAL ("For information about mandatory min.conf"
-			     " contents refer to manual");
-        }
-	
-        line_item = mmp_get_item_line(engine_def,
-                                      "Debugger",
-                                      ESTag);
-        mip_get_string(line_item,
-                       "Debugger",
-                       &debugger_cmd);
-	/*
-	** Default to gdb
-	*/
-        if (debugger_cmd != INITPTR) {
-		if (ec_settings.debugger_ != NULL)
-			DELETE (ec_settings.debugger_);
-		ec_settings.debugger_ = debugger_cmd;
-        }
-	mip_destroy (&line_item);
-
-        line_item = mmp_get_item_line(engine_def,
-                                      "TmcBinPath",
-                                      ESTag);
-        mip_get_string(line_item,
-                       "TmcBinPath",
-                       &bin_path);
-        if (bin_path == INITPTR) {
-                bin_path = NEW2(char, 
-                                strlen(MIN_BIN_DIR) + strlen("/tmc") + 1 );
-                sprintf (bin_path, "%s/tmc", MIN_BIN_DIR);
-        }
-        /*
-        ** Check if tmc lies in the specified place
-        */
-        memset (&tmcstat, 0, sizeof (struct stat));
-        if (stat (bin_path, &tmcstat)) {
-                MIN_FATAL ("TMC binary not available: %s. Exiting..\n",
-                            strerror (errno));
-                goto err_exit;
-        }
-        if (!(tmcstat.st_mode & S_IXUSR &&
-              tmcstat.st_mode & S_IXGRP &&
-              tmcstat.st_mode & S_IXOTH)) {
-                MIN_FATAL ("TMC binary %s does not have execution permission."
-                            "Exiting..\n", bin_path);
-                goto err_exit;
-
-        }
-        STRCPY (ec_settings.tmc_app_path_, bin_path, MaxFileName);
-
-
-        if (line_item != INITPTR) mip_destroy(&line_item);
-
-        line_item = mmp_get_item_line(engine_def,
-                                      "ModSearchPath",
-                                      ESTag);
-
-        mip_get_string(line_item,
-                       "ModSearchPath",
-                       &search_path);
-
-        while (search_path != INITPTR) {
-                if (strstr (search_path, "$HOME") == NULL) {
-                        path_string = NEW2 (char, strlen (search_path) + 1);
-                        sprintf (path_string, "%s", search_path);
-                        dl_list_add (ec_settings.search_dirs,
-                                     (void *)path_string);
-                } else {
-                        if (home_d == NULL) {
-                                MIN_WARN ("$HOME == NULL, not adding "
-                                           "%s to engine settings", 
-                                           search_path);
-                                goto next_item;
-                        }
-                        locdir = strchr (search_path, '/');
-                        if (locdir != NULL) {
-                                path_string =
-                                        NEW2 (char,
-                                              strlen (locdir) 
-                                              + strlen (home_d) +
-                                              1);
-                                sprintf (path_string, "%s%s", home_d, locdir);
-                                dl_list_add (ec_settings.search_dirs,
-                                             (void *)path_string);
-                        } else {
-                                MIN_WARN ("Invalid path");
-                        }
-                }
-        next_item:
-                mip_destroy (&line_item);
-                line_item = mmp_get_next_item_line(engine_def);
-                DELETE(search_path);
-                mip_get_string(line_item,
-                               "ModSearchPath",
-                               &search_path);
-                
-                
-        }
-	mip_destroy (&line_item);
-        if (bin_path != INITPTR) {
-                DELETE (bin_path);
-        }
-        mmp_destroy (&engine_def);
-        /* check if logger settings are present and read them */
-        logger_def = mp_section (inifile,
-                                 "[Logger_Defaults]",
-                                 "[End_Logger_Defaults]", 1);
-
-        if (logger_def != INITPTR) {
-                ec_get_logger_settings (logger_def);
-                mmp_destroy (&logger_def);
-        }
         if (operation_mode == 0) {
                 /*we should read module definitions only
-                   if we don't use external controller */
+		  if we don't use external controller */
                 ec_read_module_section (inifile);
         }
 #ifndef MIN_EXTIF
 	ec_read_slaves_section (inifile);
 #endif
-        return 0;
-err_exit:
-        ec_cleanup();
-        exit (-1);
-        
-        return -1;
+
+	return ret;
 }
 /* ------------------------------------------------------------------------- */
 /** Checks if the user configuration dir exists and creates it if not
@@ -2364,7 +1995,7 @@ void ec_min_init (char *envp_[], int operation_mode)
 #endif
 	long            tmp = 0;
   
-        ec_settings.operation_mode_ = operation_mode;
+        operation_mode_ = operation_mode;
 
         envp = envp_;
         if (operation_mode == 0)
@@ -2380,9 +2011,20 @@ void ec_min_init (char *envp_[], int operation_mode)
         pthread_mutex_lock (&tec_mutex_);
 	rcp_handling_init ();
 
-        ec_settings.engine_pid_ = getpid ();
+	/* 
+	** Initialize settings system 
+	*/
+	settings_init();
+
+	engine_section = settings_get_section ("Engine_Defaults");
+	engine_defaults = settings_get ("Engine_Defaults");
+
+	logger_section = settings_get_section ("Logger_Defaults");
+	logger_settings = settings_get ("Logger_Defaults");
+	
+
+        engine_pid = getpid ();
         pthread_mutex_unlock (&tec_mutex_);
-        ec_settings.search_dirs = dl_list_create ();
 
 
 #ifndef MIN_EXTIF
@@ -2592,7 +2234,7 @@ int ec_exec_case (DLListIterator work_case_item)
                 tr_set_start_time (test_result_item, time (NULL));
                 tr_set_priontouts_list (test_result_item, dl_list_create ());
                 message.type_ = MSG_EXE;
-                message.sender_ = ec_settings.engine_pid_;
+                message.sender_ = engine_pid;
                 message.receiver_ = tm_get_pid (work_module_item);
                 message.param_ = tc_get_id (work_case_item);
                 message.desc_[0] =  '\0';
@@ -2661,7 +2303,7 @@ int ec_debug_case (DLListIterator work_case_item)
                 tr_set_start_time (test_result_item, time (NULL));
                 tr_set_priontouts_list (test_result_item, dl_list_create ());
                 message.type_ = MSG_EXE_DLD;
-                message.sender_ = ec_settings.engine_pid_;
+                message.sender_ = engine_pid;
                 message.receiver_ = tm_get_pid (work_module_item);
                 message.param_ = tc_get_id (work_case_item);
                 message.desc_[0] =  '\0';
@@ -2856,20 +2498,18 @@ void ec_cleanup ()
         event_system_cleanup ();
 	rcp_handling_cleanup ();
 	ec_reinit();
-
+	settings_destroy();
         dl_list_free (&instantiated_modules);
         dl_list_free (&available_modules);
         dl_list_free (&selected_cases);
 	dl_list_free (&filters);
-        dl_list_free_data (&ec_settings.search_dirs);
-        dl_list_free (&ec_settings.search_dirs);
 
         /* This sleep period allows for handling of all sent messages before
 	 * destroying message queue 
 	 */
 
         usleep (50000);
-        sm_destroy (ec_settings.sh_mem_id_);
+        sm_destroy (sh_mem_id_);
         mq_close_queue (mq_id);
         min_log_close();
         usleep (30000);
@@ -3013,8 +2653,8 @@ int ec_search_lib (char *mod_name)
         char           *work_path = NULL;
         int             retval = -1;
 
-        for (pos = 0; pos < dl_list_size (ec_settings.search_dirs); pos++) {
-                work_path_item = dl_list_at (ec_settings.search_dirs, pos);
+        for (pos = 0; pos < dl_list_size (engine_defaults->search_dirs); pos++) {
+                work_path_item = dl_list_at (engine_defaults->search_dirs, pos);
                 work_path = (char *)dl_list_data (work_path_item);
                 full_path =
                     NEW2 (char, strlen (work_path) + strlen (mod_name) + 2);
@@ -3042,7 +2682,7 @@ int ec_configure ()
         char           *curr_d = NULL;
         char           *def_d = MIN_CONF_DIR;
         char           *min_d;
-        int             op_mode = ec_settings.operation_mode_;
+        int             op_mode = operation_mode_;
 	int             retval = 0;
 	Text           *tx;
 
@@ -3052,9 +2692,7 @@ int ec_configure ()
 	curr_d = tx_get_buf (tx);
 	tx_destroy (&tx);
 
-        ec_init_logger_settings ();
 
-        /*Initialize logger settings */
         /*Read settings from global .conf */
         if (curr_d == NULL || strcmp (MIN_CONF_DIR, curr_d) != 0) {
                 inifile = mp_create (def_d, "min.conf", ENoComments);
@@ -3108,8 +2746,8 @@ int ec_configure ()
 	/* 
 	** Default to gdb
 	*/
-	if (ec_settings.debugger_ == NULL) {
-		ec_settings.debugger_ = "gdb";
+	if (engine_defaults->debugger_ == NULL) {
+		engine_defaults->debugger_ = "gdb";
 	}
         /*
          ** Read module definitions from /etc/min.d/
@@ -3169,7 +2807,7 @@ int ec_read_settings (char *engine_ini)
 	mp_destroy (&passed_config);
 
         /*in case settings shared memory segment exists already, destroy it */
-        sm_destroy (ec_settings.sh_mem_id_);
+        sm_destroy (sh_mem_id_);
         /*now send new settings */
         ec_settings_send ();
 

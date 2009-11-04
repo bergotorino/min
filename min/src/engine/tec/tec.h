@@ -54,18 +54,9 @@ typedef struct {
 	filename_t      tmc_app_path_;
         /** Debugger used */
 	char           *debugger_;       
-        /** PID of engine */  
-	long            engine_pid_;
         /** Directories used in searching modules and configuration files */
         DLList         *search_dirs;
-        /** Mode of operation. 
-	 *  0 - execute all configured test cases and exit. 
-	 *  1 - exit when user so requests.
-	 */     
-        int             operation_mode_; 
-        /** Shared memory segment identifier */
-        int             sh_mem_id_;      
-} ec_settings_s;
+} EngineDefaults;
 
 /** Holds data used in m/s sendreceive */
 typedef struct {
@@ -94,8 +85,10 @@ DLList         *results;        /** list of result structures for executed
 char           *UiMessage;      /** Message text to be dispalyed on UI in 
                                  * case of fault */
 int             mq_id;          /** message queue id */
-ec_settings_s   ec_settings;    /** structure containing global settings */
+
 int             own_id;         /** Our identifier in m/s communication */
+long            engine_pid;    /** PID of engine */  
+
 /* ----------------------------------------------------------------------------
  * MACROS
  */

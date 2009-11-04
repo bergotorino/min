@@ -543,7 +543,7 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
                         result = 0;
 		slave_entry->status_ = SLAVE_STAT_RESERVED;
 
-                ipc_message.sender_ = ec_settings.engine_pid_;
+                ipc_message.sender_ = engine_pid;
                 ipc_message.receiver_ = slave_entry->pid_;
                 ipc_message.type_ = MSG_EXTIF;
                 ipc_message.special_ = 0;
@@ -561,7 +561,7 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
                 if (retval == -1)
                         result = 0;
                 /*it seems that result was not send, assume success */
-                ipc_message.sender_ = ec_settings.engine_pid_;
+                ipc_message.sender_ = engine_pid;
                 ipc_message.receiver_ = slave_entry->pid_;
                 ipc_message.type_ = MSG_EXTIF;
                 ipc_message.param_ = result;
@@ -589,7 +589,7 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
                         case_id = (slave_id<<16) + case_id;
                         mip_get_next_string (extif_message, &param1);
                         if (strcasecmp (param1, "started") == 0) {
-                                ipc_message.sender_ = ec_settings.engine_pid_;
+                                ipc_message.sender_ = engine_pid;
                                 ipc_message.receiver_ = slave_entry->pid_;
                                 ipc_message.type_ = MSG_EXTIF;
                                 ipc_message.special_ = case_id;
@@ -600,7 +600,7 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
                                 retval = 0;
                         } else if (strcasecmp (param1, "ready") == 0) {
                                 mip_get_int (extif_message, "result=", &result);
-                                ipc_message.sender_ = ec_settings.engine_pid_;
+                                ipc_message.sender_ = engine_pid;
                                 ipc_message.receiver_ = slave_entry->pid_;
                                 ipc_message.type_ = MSG_EXTIF;
                                 ipc_message.special_ = case_id;
@@ -622,7 +622,7 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
 				}
                         } else if (strcasecmp (param1, "error") == 0) {
                                 mip_get_int (extif_message, "result=", &result);
-                                ipc_message.sender_ = ec_settings.engine_pid_;
+                                ipc_message.sender_ = engine_pid;
                                 ipc_message.receiver_ = slave_entry->pid_;
                                 ipc_message.type_ = MSG_EXTIF;
                                 ipc_message.special_ = case_id;
