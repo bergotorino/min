@@ -1,4 +1,4 @@
-INCLUDES =  -I. -I../.. -I../dllist -I../text -I../parser
+INCLUDES =  -I. -I../.. -I../dllist -I../text -I../parser -I../logger -I../../engine/tec
 METASOURCES = AUTO
 include_HEADERS = min_settings.h
 noinst_LTLIBRARIES = libminsettings.la
