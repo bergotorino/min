@@ -18,7 +18,11 @@
       </case>
 
       <case name="min_item_parser" type="unit" description="run unit test for MIN item parser" requirement="10001, 1000" timeout="60" subfeature="" CI="true">
-        <step expected_result="0">min -cx /usr/lib/min/min_item_parser_tests.so</step>
+        <step expected_result="0">min -cx /usr/lib/min/item_parser_tests.so</step>
+      </case>
+
+      <case name="min_settings" type="unit" description="run unit test for MIN settings utility" requirement="10001, 1000" timeout="60" subfeature="" CI="true">
+        <step expected_result="0">min -cx /usr/lib/min/settings_tests.so</step>
       </case>
 
  
