@@ -3,5 +3,6 @@ usr/lib/min/dllist_tests*
 usr/lib/min/min_unit_selftest*
 usr/lib/min/item_parser_tests*
 usr/lib/min/logger_tests*
+usr/lib/min/settings_tests*
 usr/share/min-ci-tests/test.xml
 

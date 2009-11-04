@@ -1,3 +1,8 @@
 #!/bin/sh
 
+if [ "$1" = "remove" ]; then
+    rm /etc/min.d/min-ci-test.min.conf
+fi
+
+
 #DEBHELPER#

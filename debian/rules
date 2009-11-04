@@ -66,7 +66,7 @@ binary-arch: install
 	dh_installdirs -A
 	dh_install --sourcedir=debian/tmp
 	dh_strip  -A
-	dh_makeshlibs -A -Xdbus -Xpython 
+	dh_makeshlibs -A -X usr/lib/min 
 	dh_compress -A
 	dh_fixperms -A
 	dh_installdeb 
