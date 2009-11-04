@@ -82,9 +82,6 @@ int test_settings_parse (void *data, MinSectionParser *msp)
 	int fooval, ret;
 	char *token;
 
-	if (s->bar_list == NULL)
-		s->bar_list = dl_list_create();
-
 	line = mmp_get_item_line(msp,
 				 "Foo",
 				 ESTag);
@@ -120,6 +117,17 @@ void test_settings_clean (void *data)
 
 	return;
 }
+/* ------------------------------------------------------------------------- */
+void test_settings_init (void *data)
+{
+	test_settings *s = (test_settings *)data;
+
+	s->bar_list = dl_list_create();
+
+
+	return;
+}
+
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

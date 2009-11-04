@@ -61,4 +61,6 @@ int test_settings_parse (void *data, MinSectionParser *);
 /* ------------------------------------------------------------------------- */
 void test_settings_clean (void *data);
 /* ------------------------------------------------------------------------- */
+void test_settings_init (void *data);
+
 #endif                          /* SETTINGS_TESTS_UTILS_H */

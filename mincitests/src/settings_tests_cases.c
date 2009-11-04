@@ -81,23 +81,27 @@ SettingsSection *ss = INITPTR;
 #ifdef TEST_CASES
 /* ------------------------------------------------------------------------- */
 MIN_SETUP {
-	ss = new_section ("Test", 
-			  INITPTR,
-			  test_settings_parse, 
-			  test_settings_clean,
-			  sizeof (SettingsSection));
+	settings_init ();
+
+	if (new_section ("Test", 
+			 INITPTR,
+			 test_settings_parse, 
+			 test_settings_init,
+			 test_settings_clean,
+			 sizeof (test_settings)) == 0)
+		ss = settings_get_section ("Test");
 }
 /* ------------------------------------------------------------------------- */
 MIN_TEARDOWN {
-	settings_destroy ("Test");
+	settings_destroy_section ("Test");
 }
 /* ------------------------------------------------------------------------- */
 MIN_TESTDEFINE(test_new_section_inv_param)
 {
-	SettingsSection *s;
 	
-	s = new_section (NULL, INITPTR, NULL, NULL, 0);
-	MIN_ASSERT_EQUALS (s, INITPTR);
+	
+	MIN_ASSERT_NOT_EQUALS (0, new_section (NULL, INITPTR, 
+					       NULL,NULL, NULL, 0));
 }
 /* ------------------------------------------------------------------------- */
 MIN_TESTDEFINE(test_new_section)
