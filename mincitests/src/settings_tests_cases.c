@@ -126,13 +126,11 @@ MIN_TESTDEFINE(test_section_read)
 {
 	int ret;
 	MinParser *mp = INITPTR;
-	char      path[4096];
 	
 	MIN_ASSERT_NOT_EQUALS (ss, INITPTR);
         
-	sprintf(path, "%s", getenv("PWD"));
 	
-        mp = mp_create (path,
+        mp = mp_create ("/usr/share/min-ci-tests",
 			"test.cfg",
 			ENoComments );
 
@@ -154,7 +152,7 @@ MIN_TESTDEFINE(test_section_get)
         
 	sprintf(path, "%s", getenv("PWD"));
 	
-        msp = mp_create( path
+        msp = mp_create( "/usr/share/min-ci-tests"
 			 , "test.cfg"
 			 , ENoComments );
 	
@@ -181,7 +179,7 @@ MIN_TESTDEFINE(test_section_get_twice)
         
 	sprintf(path, "%s", getenv("PWD"));
 	
-        msp = mp_create( path
+        msp = mp_create( "/usr/share/min-ci-tests"
 			 , "test.cfg"
 			 , ENoComments );
 	
