@@ -63,7 +63,7 @@ typedef struct {
 	/** Function for parsing settings for this section */
 	int           (*parse_func)(void *data, MinSectionParser *);
 
-	/** Function for clean up */
+	/** Function for clean up, can be NULL */
 	void          (*clean_func)(void *data);
 
 	/** Settings data for this section */
@@ -73,17 +73,25 @@ typedef struct {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-SettingsSection *new_section (const char *tag, const char *endtag,
+int              settings_init (void);
+/* ------------------------------------------------------------------------- */
+int              new_section (const char *tag, const char *endtag,
 			      int (*parse_func)(void *data, MinSectionParser *),
+			      void (*init_func) (void *data),
 			      void (*clean_func)(void *data),
 			      int initial_data_size);
 /* ------------------------------------------------------------------------- */
 int              settings_read (SettingsSection *ss,
 				MinParser *mp);
 /* ------------------------------------------------------------------------- */
+SettingsSection *settings_get_section (const char *tag);
+/* ------------------------------------------------------------------------- */
 void            *settings_get (const char *tag);
 /* ------------------------------------------------------------------------- */
-void             settings_destroy (const char *tag);
+void             settings_destroy_section (const char *tag);
 /* ------------------------------------------------------------------------- */
+void             settings_destroy (void);
+/* ------------------------------------------------------------------------- */
+
 #endif                          /* MIN_SETTINGS_H */
 /* End of file */
