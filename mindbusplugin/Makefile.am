@@ -3,7 +3,8 @@
 AUTOMAKE_OPTIONS = foreign 1.4
 
 SUBDIRS = src data
-DISTCLEANFILES = config.guess configure config.h.in compile missing ltmain.shaclocal.m4 depcomp config.sub build.log min/min.conf
+DISTCLEANFILES = config.guess configure config.h.in compile missing ltmain.shaclocal.m4 depcomp config.sub build.log min/min.conf digsigsums
+
 
 tags:	
 	 find . -name '*'.c | xargs etags -o TAGS  --declarations --globals --defines --members

@@ -1,3 +1,4 @@
 METASOURCES = AUTO
 SUBDIRS = src
+DISTCLEANFILES = digsigsums
 

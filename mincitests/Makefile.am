@@ -1,5 +1,6 @@
-METASOURCES=Auto
-AM_FLAGS=-fPIC
+METASOURCES = Auto
+AM_FLAGS = -fPIC
+DISTCLEANFILES = digsigsums
 pkglib_LTLIBRARIES = min_unit_selftest.la dllist_tests.la item_parser_tests.la logger_tests.la settings_tests.la
 SUBDIRS = data
 INCLUDES = -I. \

@@ -35,7 +35,7 @@ build-stamp:
 	touch build-stamp
 
 clean: 
-	dh_clean digsigsums
+	dh_clean
 	rm -f build-stamp
 	for FILE in "$(ALLDIRS)"; do \
 		cd "$$FILE"; \
@@ -43,9 +43,8 @@ clean:
 		cd ..;\
 	done
 
-
 install: build
-	dh_clean digsigsums
+	dh_clean
 	dh_installdirs -A etc usr/lib/min/ 
 	mkdir -p $(CURDIR)/debian/tmp/usr/lib/min
 	mkdir -p $(CURDIR)/debian/tmp/usr/lib/min-tests

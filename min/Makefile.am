@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS = foreign 1.4
 
 SUBDIRS = src tests mintests data pkgconfig shared man
-DISTCLEANFILES = config.guess configure config.h.in compile missing ltmain.shaclocal.m4 depcomp config.sub build.log min/min.conf
+DISTCLEANFILES = config.guess configure config.h.in compile missing ltmain.shaclocal.m4 depcomp config.sub build.log min/min.conf digsigsums
 install-data-local:
 	mkdir -p $(DESTDIR)/usr/share/min/TestModuleTemplates
 	cp -r TestModuleTemplates/*  $(DESTDIR)/usr/share/min/TestModuleTemplates

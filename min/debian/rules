@@ -11,12 +11,12 @@ endif
 export DH_VERBOSE=1
 
 clean:
-	dh_clean
+	dh_clean digsigsums
 	rm -f build
 	[ ! -f Makefile ] || $(MAKE) distclean
 
 install: build
-	dh_clean
+	dh_clean digsigsums
 	dh_installdirs -A etc usr/lib/min/ 
 	mkdir -p $(CURDIR)/debian/tmp/usr/lib/min
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
@@ -44,7 +44,6 @@ binary-arch: install
 	dh_installdeb 
 	dh_shlibdeps
 	dh_gencontrol 
-	dh_md5sums -a
 	dh_builddeb -a
 
 binary: binary-indep binary-arch

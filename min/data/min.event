@@ -7,4 +7,3 @@ stop on starting shutdown
 console output
 
 exec /etc/init.d/min start
-
