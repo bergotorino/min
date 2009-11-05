@@ -21,5 +21,6 @@ HardCoded_la_LIBADD = $(top_builddir)/../min/src/utils/libminutils.la \
 		      $(top_builddir)/../min/src/services/event_system/libminevent.la
 
 install-data-local:
+	chrpath -d .libs/HardCoded.so
 	cp .libs/HardCoded.so $(DESTDIR)/usr/lib/min-tests
 
