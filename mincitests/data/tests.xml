@@ -8,7 +8,6 @@
       <case name="dllist" type="unit" description="unit tests for MIN dllist"  timeout="600" subfeature="" CI="true">
         <step expected_result="0">min -cx /usr/lib/min/dllist_tests.so</step>
       </case>
- <!--
       <case name="logger" type="unit" description="unit tests for MIN logger"  timeout="600" subfeature="" CI="true">
         <step expected_result="0">min -cx /usr/lib/min/logger_tests.so</step>
       </case>
@@ -24,7 +23,6 @@
       <case name="min_settings" type="unit" description="run unit test for MIN settings utility"  timeout="60" subfeature="" CI="true">
         <step expected_result="0">min -cx /usr/lib/min/settings_tests.so</step>
       </case>
--->
  
       <!-- Environments optional - tells where the tests are run -->
       <environments>

@@ -2,7 +2,7 @@ Source: min-all
 Section: devel
 Priority: optional
 Maintainer: Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>
-Build-Depends: debhelper (>= 4.0.0), libncurses5-dev, python2.5-dev, libdbus-1-dev, libdbus-glib-1-dev, libqt4-dev
+Build-Depends: debhelper (>= 4.0.0), chrpath, libncurses5-dev, python2.5-dev, libdbus-1-dev, libdbus-glib-1-dev, libqt4-dev
 Standards-Version: 3.8.0
 
 Package: min
@@ -46,7 +46,7 @@ Priority: optional
 Architecture: any
 XB-Maemo-CI-Packages: min
 XB-Maemo-CI-Stage: staging
-Depends: ${shlibs:Depends}, min
+Depends: ${shlibs:Depends}, min, ci-testing
 Description: Tests for MIN utilities used for CI
  This package includes MIN test modules that can be used to test MIN itself.
 

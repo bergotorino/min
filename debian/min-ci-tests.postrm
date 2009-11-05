@@ -1,2 +1,6 @@
 #!/bin/sh
+if [ "$1" = "remove" ]; then
+    rm -rf /usr/share/min-ci-tests
+fi
+
 #DEBHELPER#
