@@ -661,7 +661,6 @@ void *settings_get (const char *tag)
  */
 SettingsSection *settings_get_section (const char *tag)
 {
-	SettingsSection *s;
 	
 	return section_find (tag);
 }
