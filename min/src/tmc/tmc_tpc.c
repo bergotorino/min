@@ -112,15 +112,18 @@ void tp_init (TestProcessController * tpc)
 void tp_pause (TestProcessController * tpc)
 {
         int             retval = 0;
+	MIN_DEBUG ("About to pause %d", tpc->tp_pid_);
         if (tpc->tp_status_ == TP_RUNNING) {
+		tpc->tp_status_ = TP_PAUSED;
                 retval = kill (tpc->tp_pid_, SIGSTOP);
-                if (retval == -1)
-                        MIN_ERROR ("Pausing Test Proces failed");
-                else {
-                        tpc->tp_status_ = TP_PAUSED;
-                        MIN_INFO ("Test Process paused");
+                if (retval == -1) {
+		  tpc->tp_status_ = TP_RUNNING;
+		  MIN_ERROR ("Pausing Test Proces failed");
+                } else {
+		  MIN_INFO ("Test Process paused");
                 }
         }
+	MIN_DEBUG ("Paused %d", tpc->tp_pid_);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -130,15 +133,20 @@ void tp_pause (TestProcessController * tpc)
 void tp_resume (TestProcessController * tpc)
 {
         int             retval = 0;
+	MIN_DEBUG ("About to resume %d", tpc->tp_pid_);
+
         if (tpc->tp_status_ == TP_PAUSED) {
                 retval = kill (tpc->tp_pid_, SIGCONT);
                 if (retval == -1)
                         MIN_ERROR ("Resuming Test Proces failed");
                 else {
+		        sched_yield();
                         tpc->tp_status_ = TP_RUNNING;
                         MIN_INFO ("Test Process resumed");
                 }
         }
+	MIN_DEBUG ("Resumed %d", tpc->tp_pid_);
+
 }
 
 /* ------------------------------------------------------------------------- */

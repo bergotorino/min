@@ -544,6 +544,10 @@ void gu_handle_sigchld (int sig)
         int             status;
         int             reason = TP_NONE;
         int             pid;
+
+	if (tp_status (&ptmc->tpc_) == TP_PAUSED)
+	       return;
+
         while ((pid = waitpid (-1, &status, 0)) > 0) {
                 tp_set_pid (&ptmc->tpc_, 0);
                 reason = tp_status (&ptmc->tpc_);

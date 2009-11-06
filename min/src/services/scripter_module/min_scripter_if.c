@@ -2578,6 +2578,7 @@ int test_pause (char *testid, MinItemParser * mip)
         stpd = (ScriptedTestProcessDetails *) dl_list_data (it);
 
         if (stpd->status_ == TP_RUNNING) {
+	        signal (SIGCHLD, SIG_IGN);
                 sched_yield ();
                 retval = sigqueue (stpd->pid_, SIGTSTP, val);
                 if (retval == -1) {
