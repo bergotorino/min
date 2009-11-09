@@ -1,0 +1,24 @@
+The following example gets ``engine defaults'' parameters from @code{/tmp/example.conf} file.
+@example
+/* the structure containing "engine defaults" parameters */
+EngineDefaults  *engine_defaults == INITPTR;
+/* MIN parser */
+MinParser       *msp = INITPTR;
+
+/* get the settings section for Engine defaults */
+SettingsSection *ss = settings_get_section ("Engine_Defaults");
+
+/* create MIN parser from configuration file */
+msp = mp_create ("/tmp", "example.conf", ENoComments);
+if (msp == INITPTR)
+   ; /* error do something .. */
+/* read the settings from file */
+if (settings_read (ss, msp) == 0) {
+      /* obtain the settings */
+      engine_defauls = (EngineDefaults  *)
+                        settings_get ("Engine_Defaults");
+}
+@end example
+
+
+

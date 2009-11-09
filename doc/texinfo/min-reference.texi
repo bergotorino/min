@@ -980,7 +980,23 @@ Project home page: http://garage.maemo.org/projects/min/
 @section MIN Text interface API description
 @include chapters/MIN_Text_interface_API_description.texi
 
-@node Test interference, Overview, MIN Text interface API description, Top
+@node MIN Settings utility, MIN Settings example, MIN Text interface API description, Top
+@chapter MIN Settings utility
+@include chapters/MIN_Settings_utility.texi
+@menu
+* MIN Settings example: MIN Settings example.
+* MIN Settings API description: MIN Settings API description.
+@end menu
+
+@node MIN Settings example, MIN Settings API description, MIN Settings utility, MIN Settings utility
+@section MIN Settings example
+@include chapters/MIN_Settings_example.texi
+
+@node MIN Settings API description, Test interference, MIN Settings example,MIN Settings utility
+@section MIN Settings API description
+@include chapters/MIN_Settings_api.texi
+
+@node Test interference, Overview, MIN Settings API description, Top
 @chapter Test interference
 @include chapters/Test_interference.texi
 @menu

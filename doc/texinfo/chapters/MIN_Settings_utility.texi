@@ -1,0 +1,2 @@
+The settings utility provides means to hide reading of settings behind an easy to use interface. The settings are identified by a tag (normally the start tag of settings section for example @code{Engine_Defaults}). The settings utility comes with two ready implementatios for @code{Engine_Defaults} and @code{Logger_Defaults} sections. 
+

@@ -1,0 +1,84 @@
+@table @code
+@item int settings_init (void)
+Initializes the settings system. 
+@table @code
+@item @b{Return value}
+@code{0} on success
+@end table
+@end table
+
+@table @code
+@item int              new_section (const char *tag, const char *endtag, int (*parse_func)(void *data, MinSectionParser *), void (*init_func) (void *data), void (*clean_func)(void *data), int initial_data_size)
+Creates a new settings section.
+@table @code
+@item const char * tag
+Settings tag, C-string.
+@item const char * endtag
+Settings end tag, C-string. Can be @code{INITPTR}.
+@item int (*parse_func)(void *data, MinSectionParser *)
+Parser function for this settings section.
+@item void (*init_func) (void *data)
+Init function for settings data. Can be @code{INITPTR}.
+@item void (*clean_func)(void *data)
+Clean up function for settings data. Can be @code{INITPTR}.
+@item int initial_data_size
+The size in bytes to allocate for the settings data.
+@item @b{Return value}
+@code{0} on success.
+@end table
+@end table
+
+@table @code
+@item int settings_read (SettingsSection *ss, MinParser *mp)
+Uses @code{SettingsSection} to read data from @code{MinParser}. 
+@table @code 
+@item SettingsSection *ss
+Settings section to be used.
+@item MinParser *mp
+Data to parse.
+@item @b{Return value}
+@code{0} on success.
+@end table
+@end table
+
+@table @code
+@item SettingsSection *settings_get_section (const char *tag)
+Obtains a pointer to previously initialized @code{SettingsSection} with tag.
+@table @code 
+@item const char *tag, C-string.
+Tag used to identify the section.
+@item @b{Return value}
+@code{SettingsSection} or @code{INITPTR} if a section matching the tag is not found.
+@end table
+@end table
+
+@table @code
+@item SettingsSection *settings_get (const char *tag)
+Obtains a pointer to settings data.
+@table @code 
+@item const char *tag, C-string.
+Tag used to identify the section.
+@item @b{Return value}
+Pointer to settings data or @code{INITPTR} if settings section matching the tag is not found. 
+@end table
+@end table
+
+@table @code
+@item void settings_destroy_section (const char *tag)
+Destroy a settings section.
+@table @code 
+@item const char *tag, C-string.
+Tag used to identify the section.
+@item @b{Return value}
+None.
+@end table
+@end table
+
+@table @code
+@item void settings_destroy (void)
+Destroy the settings system.
+@table @code 
+@item @b{Return value}
+None.
+@end table
+@end table
