@@ -1,3 +1,12 @@
+min-all (2009w46) unstable; urgency=low
+  * Eighteenth MIN Release
+  * Fixed: Test case pausing fails in scratchbox ARM emulation.
+  * Fixed: Compile warnings, most lintian warnings.
+  * Added: min-ci-tests debian package for ci testing.
+  * Added: min settings utility.
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   9 Nov 2009 09:23:44 +0100 
+
 min-all (2009w44) unstable; urgency=low
   * Seventeenth MIN Release
   * Fixed: Entering "start new case" menu very fast right after MIN has started can cause crash
