@@ -13,11 +13,10 @@ msp = mp_create ("/tmp", "example.conf", ENoComments);
 if (msp == INITPTR)
    ; /* error do something .. */
 /* read the settings from file */
-if (settings_read (ss, msp) == 0) {
+if (settings_read (ss, msp) == 0) 
       /* obtain the settings */
       engine_defauls = (EngineDefaults  *)
                         settings_get ("Engine_Defaults");
-}
 @end example
 
 
