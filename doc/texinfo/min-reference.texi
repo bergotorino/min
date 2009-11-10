@@ -249,6 +249,9 @@ Project home page: http://garage.maemo.org/projects/min/
 * Critical information: Critical information.
 * Usage example: Usage example.
 * MIN Text interface API description: MIN Text interface API description.
+* MIN Settings utility: MIN Settings utility.
+* MIN Settings example: MIN Settings example.
+* MIN Text interface API description: MIN Text interface API description.
 * Test interference: Test interference.
 * Overview: Overview.
 * Prerequisites: Prerequisites.
@@ -976,7 +979,7 @@ Project home page: http://garage.maemo.org/projects/min/
 @section Usage example
 @include chapters/Usage_example.texi
 
-@node MIN Text interface API description, Test interference, Usage example, MIN Text interface usage
+@node MIN Text interface API description, MIN Settings utility, Usage example, MIN Text interface usage
 @section MIN Text interface API description
 @include chapters/MIN_Text_interface_API_description.texi
 
