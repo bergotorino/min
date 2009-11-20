@@ -26,7 +26,7 @@
  
       <!-- Environments optional - tells where the tests are run -->
       <environments>
-        <scratchbox>false</scratchbox>
+        <scratchbox>true</scratchbox>
         <hardware>true</hardware>    
       </environments>
 
