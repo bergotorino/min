@@ -63,7 +63,7 @@ MIN_TESTDEFINE (Demo_1)
 /*
 ** This one fails
 */
-MIN_TESTDEFINE (Demo_2)
+MIN_TESTDEFINE_DESC (Demo_2, sleep 5 seconds and pass)
 {
         sleep (5);
         tm_printf (0, "", "This is from the case Demo_2");

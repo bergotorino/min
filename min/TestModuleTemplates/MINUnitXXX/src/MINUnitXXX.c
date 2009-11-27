@@ -53,7 +53,7 @@ char *module_time = __TIME__;
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 TTestModuleType module_type     = ESUnit;
-unsigned int    module_version  = 200830;
+unsigned int    module_version  = 200950;
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -80,8 +80,8 @@ unsigned int    module_version  = 200830;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 LOCAL int       min_unit_wrapper (int __action__, const char *__cfg_file__,
-                                   DLList ** __cases__, unsigned int __id__,
-                                   TestCaseResult * __result__);
+				  DLList ** __cases__, unsigned int __id__,
+				  TestCaseResult * __result__);
 
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */

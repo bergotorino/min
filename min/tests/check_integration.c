@@ -31,6 +31,7 @@
 #include <data_api.h>
 #include <tec.h>
 
+extern EngineDefaults  *engine_defaults;
 
 #include "integration.tests"
 /* ----------------------------------------------------------------------------

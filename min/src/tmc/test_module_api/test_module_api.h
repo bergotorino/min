@@ -48,6 +48,10 @@
 #undef ENTRY2
 #endif
 
+#ifdef ENTRYD
+#undef ENTRYD
+#endif
+
 #ifdef TL
 #undef TL
 #endif
@@ -80,6 +84,7 @@
 #define ENTRY(_l_, _n_,_f_)                                             \
         do {                                                            \
         TestCaseInfo* tc = (TestCaseInfo*)malloc(sizeof(TestCaseInfo)); \
+	memset (tc, 0x0, sizeof (TestCaseInfo));                        \
         if( tc == NULL ) break;                                         \
 	if (strlen (_n_) > MaxTestCaseName - 1)                         \
 		strcpy (tc->name_, "<too long test case name>");        \
@@ -89,6 +94,31 @@
         tc->id_   = dl_list_size(_l_)+1;                                \
         dl_list_add( _l_, (void*)tc );                                  \
         } while(0)
+/* ------------------------------------------------------------------------- */
+/** Macro that makes adding test cases easier.
+ *  @param _l_ pointer to list on which new test case will be stored
+ *  @param _n_ is the name of the test case
+ *  @param _f_ is the name of test function
+ *  @param _d_ is a short description for the test case
+ */
+#define ENTRYD(_l_, _n_,_f_,_d_)					\
+        do {                                                            \
+        TestCaseInfo* tc = (TestCaseInfo*)malloc(sizeof(TestCaseInfo)); \
+	memset (tc, 0x0, sizeof (TestCaseInfo));                        \
+        if( tc == NULL ) break;                                         \
+	if (strlen (_n_) > MaxTestCaseName - 1)                         \
+		strcpy (tc->name_, "<too long test case name>");        \
+	else								\
+		strcpy (tc->name_, _n_);				\
+	if (strlen (_d_) > MaxUsrMessage - 1)                           \
+		strcpy (tc->desc_, "<too long test case desc>");        \
+	else								\
+		strcpy (tc->desc_, _d_);				\
+        tc->test_ = _f_;                                                \
+        tc->id_   = dl_list_size(_l_)+1;                                \
+        dl_list_add( _l_, (void*)tc );                                  \
+        } while(0)
+
 /* ------------------------------------------------------------------------- */
 /** Macro that makes adding a new test case easier
  *  @param _l_ pointer to list on which new test case will be stored

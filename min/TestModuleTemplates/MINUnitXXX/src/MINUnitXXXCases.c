@@ -56,14 +56,13 @@ MIN_TEARDOWN {
  */
 MIN_TESTDEFINE (XXX_1)
 {
-
         MIN_ASSERT_NOT_EQUALS (0, 1);
 }
 
 /*
 ** This one fails
 */
-MIN_TESTDEFINE (XXX_2)
+MIN_TESTDEFINE_DESC (XXX_2, <description for case XXX_2>)
 {
         MIN_ASSERT_EQUALS (0, 1);
 }

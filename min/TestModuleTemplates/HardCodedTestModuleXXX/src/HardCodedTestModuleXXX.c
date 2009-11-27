@@ -51,7 +51,7 @@ extern char *module_time;
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 TTestModuleType module_type     = EHardcoded;
-unsigned int    module_version  = 200830;
+unsigned int    module_version  = 200950;
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */

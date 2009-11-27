@@ -165,6 +165,8 @@ LOCAL int       ec_msg_usr_handler (MsgBuffer * message);
 /* ------------------------------------------------------------------------- */
 LOCAL int       ec_msg_run_id_handler (MsgBuffer * message);
 /* ------------------------------------------------------------------------- */
+LOCAL int       ec_msg_tcdesc_handler (MsgBuffer * message);
+/* ------------------------------------------------------------------------- */
 LOCAL int       ec_message_dispatch (MsgBuffer * rcvd_message);
 /* ------------------------------------------------------------------------- */
 LOCAL void     *ec_message_listener (void *arg);
@@ -1385,6 +1387,45 @@ EXIT:
 	return result;
 }
 /* ------------------------------------------------------------------------- */
+/** Handler for MSG_TCDESC message. 
+ * @param message - pointer to MsgBuffer containing message
+ * @return result of message handling, 0 if message was handled, -1 otherwise
+ */
+LOCAL int       ec_msg_tcdesc_handler (MsgBuffer * message)
+{
+	DLListIterator  mod_it, it = DLListNULLIterator;
+	DLList         *case_list;
+        test_case_s    *tc;
+
+	MIN_INFO ("TCDESC: %s", message->message_);
+
+	mod_it = tm_get_ptr_by_pid (instantiated_modules, message->sender_);
+	if (mod_it == DLListNULLIterator)
+		goto EXIT;
+
+	case_list = tm_get_tclist (mod_it);
+	if (case_list == INITPTR)
+		goto EXIT;
+	
+	for (it = dl_list_head (case_list); it != DLListNULLIterator; 
+	     it = dl_list_next (it)) {
+		tc = dl_list_data (it);
+		if (tc->tc_id_ == message->param_ && !strcmp (message->desc_,
+							   tc->tc_cfg_filename_)) {
+			MINAPI_PLUGIN_CALL (case_desc,
+					    case_desc (tm_get_module_id (mod_it),
+						       tc->tc_ext_id_,
+						       message->message_));
+			
+		}
+	}
+	return 0;
+ EXIT:
+	MIN_WARN ("Error handling TCDESC message");
+	return -1;
+}
+
+/* ------------------------------------------------------------------------- */
 /** Message dispatcher. Recognizes message type and calls appropriate handler.
  *  If received message is not of the type
  *  expected by engine, function logs error information.
@@ -1398,30 +1439,20 @@ LOCAL int ec_message_dispatch (MsgBuffer * rcvd_message)
         MIN_DEBUG ("Received message type = %d", rcvd_message->type_);
         switch (rcvd_message->type_) {
         case MSG_OK:
-
                 msg_handling_result = ec_msg_ok_handler (rcvd_message);
                 break;
-
         case MSG_USR:
-
                 msg_handling_result = ec_msg_usr_handler (rcvd_message);
                 break;
-
         case MSG_RET:
-
                 msg_handling_result = ec_msg_ret_handler (rcvd_message);
                 break;
-
         case MSG_KO:
-
                 msg_handling_result = ec_msg_ko_handler (rcvd_message);
-                break;
-
+		break;
         case MSG_TCD:
-
                 msg_handling_result = ec_msg_tcd_handler (rcvd_message);
                 break;
-
         case MSG_EVENT:
                 msg_handling_result = ec_msg_event_handler (rcvd_message);
                 break;
@@ -1434,7 +1465,9 @@ LOCAL int ec_message_dispatch (MsgBuffer * rcvd_message)
 	case MSG_RUN_ID:
                 msg_handling_result = ec_msg_run_id_handler (rcvd_message);
 		break;
-		
+	case MSG_TCDESC:
+		msg_handling_result = ec_msg_tcdesc_handler (rcvd_message);
+		break;
         default:
 
                 MIN_WARN ("Faulty message received of type: %d", 

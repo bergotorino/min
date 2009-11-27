@@ -43,6 +43,13 @@ if (__action__ == GET_CASES) { \
       ENTRY(*__cases__,#__test_name__,NULL); \
 } else if (__action__ == RUN_CASE && __test_case_index__ == __id__ )
 
+#define MIN_TESTDEFINE_DESC( __test_name__, __test_desc__ )	\
+__test_case_index__++; \
+if (__action__ == GET_CASES) { \
+	ENTRYD(*__cases__,#__test_name__,NULL, #__test_desc__ );	\
+} else if (__action__ == RUN_CASE && __test_case_index__ == __id__ )
+
+
 #define MIN_SETUP if (__action__ == RUN_SETUP)
 
 #define MIN_TEARDOWN if (__action__ == RUN_TEARDOWN)

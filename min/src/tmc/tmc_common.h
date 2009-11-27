@@ -89,6 +89,8 @@ struct _TestCaseInfo {
         ptr2test        test_;
         /** id of the test case */
         unsigned int    id_;
+	/** Test Case Description */
+	char            desc_[MaxUsrMessage];
 };
 /* ------------------------------------------------------------------------- */
 /** Result of a single test case. */

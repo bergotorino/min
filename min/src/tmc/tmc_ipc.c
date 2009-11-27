@@ -153,9 +153,10 @@ void ip_send_ko (const TMCIPCInterface * tmcipi, int errnum, const char *desc)
  *  @param tmcipi adress of the TMC's inter process communication entity.
  *  @param file configuration file that was used to retrieve test cases.
  *  @param it DLList iterator pointing on the beginning of the test cases list.
+ *  @param module version 
  */
 void ip_send_tcd (const TMCIPCInterface * tmcipi, const char *file,
-                  DLListIterator it)
+                  DLListIterator it, int module_version)
 {
         MsgBuffer       out;
         TestCaseInfo   *tci = INITPTR;
@@ -178,6 +179,13 @@ void ip_send_tcd (const TMCIPCInterface * tmcipi, const char *file,
                         STRCPY (out.desc_, file, MaxFileName);
                         STRCPY (out.message_, tci->name_, MaxTestCaseName);
                         mq_send_message (tmcipi->mqid_, &out);
+			if (module_version >= 200950 
+			    && strlen (tci->desc_) > 0) {
+				out.type_ = MSG_TCDESC;
+				STRCPY (out.message_, tci->desc_, 
+					MaxUsrMessage);
+				mq_send_message (tmcipi->mqid_, &out);
+			}
                 } else {
                         MIN_WARN ("Test Case not found on list.");
                 }

@@ -120,6 +120,7 @@ typedef struct {
         unsigned moduleid_;
         unsigned caseid_;
         Text *casetitle_;
+        Text *casedesc_;
 	CLIModuleData *module_;
 } CLICaseData;
 /** Executed test case */
@@ -255,10 +256,13 @@ LOCAL void pl_module_ready (unsigned moduleid)
 	     it = dl_list_next (it)) {
 		c  = (CLICaseData*)dl_list_data(it);
 		if (c->moduleid_ == moduleid) {
-			if (cliopts.display_info_)
+			if (cliopts.display_info_) {
 				printf ("%s\n", 
 					tx_share_buf (c->casetitle_));
-			else if (cliopts.debug_ &&
+				if (c->casedesc_ != INITPTR)
+					printf ("-- %s\n", 
+						tx_share_buf(c->casedesc_));
+			} else if (cliopts.debug_ &&
 				 min_clbk_.debug_case) {
 				min_clbk_.debug_case 
 					(c->moduleid_,
@@ -303,9 +307,44 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
         ccd->moduleid_ = moduleid;
         ccd->caseid_  = caseid;
         ccd->casetitle_ = tx_create(casetitle);
+	ccd->casedesc_ = INITPTR;
 	ccd->module_ = dl_list_data (it);
 	
         dl_list_add (case_list_,(void*)ccd);
+}
+/* ------------------------------------------------------------------------- */
+/** Engine calls this when description for test case is available
+ *  @param moduleid id of the module this test case belongs to
+ *  @param caseid id of the test case
+ *  @param description test case description
+ */ 
+LOCAL void pl_case_desc (unsigned moduleid, unsigned caseid, char *description)
+{
+        CLICaseData *ccd = INITPTR;        
+	DLListIterator it, begin;
+
+	
+	begin = dl_list_head (case_list_);
+        do {
+                it = dl_list_find (begin,
+				   dl_list_tail (case_list_),
+				   _find_case_by_id,
+				   (void *)&caseid);
+                if (it==DLListNULLIterator) break;
+                ccd = (CLICaseData*)dl_list_data(it);
+                if (ccd == INITPTR) break;
+                if (ccd->moduleid_!=moduleid) begin = dl_list_next(it);
+                else break;
+        } while (it != DLListNULLIterator);
+
+        if (it == DLListNULLIterator) {
+		fprintf (stderr, "pl_case_desc(): error no case found with id %d:%d",
+			 moduleid,caseid);
+		return;
+        }
+
+        ccd->casedesc_ = tx_create(description);
+
 }
 /* ------------------------------------------------------------------------- */
 /** Engine calls this when test case has been started
@@ -501,7 +540,7 @@ LOCAL char *patch_path (char *p)
 /** Displays information of test module library 
  *  @param libname the test module name coming from commandline
  */
-LOCAL void test_module_info(char *libname)
+LOCAL void test_module_info (char *libname)
 {
         test_libl_t tlibl;
         int ret;
@@ -554,6 +593,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         (*out_callback)->no_module              = pl_no_module;
         (*out_callback)->module_ready           = pl_module_ready;
         (*out_callback)->new_case               = pl_new_case;
+        (*out_callback)->case_desc              = pl_case_desc;
         (*out_callback)->error_report           = pl_error_report;
 
         return;

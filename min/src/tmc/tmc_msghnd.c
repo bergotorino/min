@@ -503,7 +503,8 @@ void gu_handle_gtc (TMC_t * tmc, TSBool send)
                         tmc->lib_loader_.get_cases_fun_ (cfgfile, &list);
                         it = dl_list_head (list);
                         if (send == ESTrue) {
-                                ip_send_tcd (&tmc->tmcipi_, cfgfile, it);
+                                ip_send_tcd (&tmc->tmcipi_, cfgfile, it,
+					     tmc->lib_loader_.version_);
                         }
                         dl_list_foreach (dl_list_head (list),
                                          dl_list_tail (list), free);

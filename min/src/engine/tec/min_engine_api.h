@@ -87,6 +87,11 @@ typedef struct  {
         void (*new_case) (unsigned module_id, unsigned case_id, 
 			  char *casetitle);
 	/* --------------------------------------------------------------------
+	** Description for test case.
+	*/
+        void (*case_desc) (unsigned module_id, unsigned case_id, 
+			   char *description);
+	/* --------------------------------------------------------------------
 	** MIN engine reports each started test case. The test_run_id 
 	** identifies the test run. The identifier is to be considred valid 
 	** while test case is running (ongoing/paused).   

@@ -81,7 +81,8 @@ typedef enum {
         MSG_EXTIF = 43,           /**< ( uE--->G--->E ) Master/Slave command */
         MSG_SNDRCV = 47,          /**< ( E--->G--->uE ) sendreceive response */
 	MSG_RUN_ID = 59,          /**< ( G--->E ) Identifier for test run    */
-	MSG_EXE_DLD = 61          /**< ( E--->G ) Execute test after a delay */
+	MSG_EXE_DLD = 61,         /**< ( E--->G ) Execute test after a delay */
+	MSG_TCDESC = 67           /**< ( G--->E ) Test case description      */ 
 } MINMsgType;
 
 typedef struct _MsgBuffer MsgBuffer;

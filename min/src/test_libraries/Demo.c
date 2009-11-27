@@ -35,7 +35,8 @@
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL GLOBAL VARIABLES */
-/* None */
+char *module_date = __DATE__;
+char *module_time = __TIME__;
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
@@ -43,7 +44,8 @@
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-/* None */
+TTestModuleType module_type     = ESUnit;
+unsigned int    module_version  = 200950;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -130,7 +132,23 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
 
         return retval;
 }
-
+/* ------------------------------------------------------------------------- */
+/** return  test module type */
+unsigned int get_module_type()
+{ return module_type; }
+/* ------------------------------------------------------------------------- */
+/** return test module template version */
+unsigned int get_module_version()
+{ return module_version; }
+/* ------------------------------------------------------------------------- */
+/** return build date */
+char* get_module_date()
+{ return module_date; }
+/* ------------------------------------------------------------------------- */
+/** return build time */
+char* get_module_time()
+{ return module_time; }
+/* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

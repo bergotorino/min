@@ -69,7 +69,7 @@ void            ip_send_ko (const TMCIPCInterface * tmcipi, int errnum,
                             const char *desc);
 /* ------------------------------------------------------------------------- */
 void            ip_send_tcd (const TMCIPCInterface * tmcipi, const char *file,
-                             DLListIterator it);
+                             DLListIterator it, int module_version);
 /* ------------------------------------------------------------------------- */
 void            ip_send_ret (const TMCIPCInterface * tmcipi, int result,
                              const char *desc);
