@@ -713,10 +713,43 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
         ccd->moduleid_ = moduleid;
         ccd->caseid_  = caseid;
         ccd->casetitle_ = tx_create(casetitle);
+	ccd->casedesc_ = INITPTR;
         dl_list_add (case_list_,(void*)ccd);
 
         /* update the screen */
         cui_refresh_view();
+}
+/* ------------------------------------------------------------------------- */
+/** Engine calls this when description for test case is available
+ *  @param moduleid id of the module this test case belongs to
+ *  @param caseid id of the test case
+ *  @param description test case description
+ */ 
+LOCAL void pl_case_desc (unsigned moduleid, unsigned caseid, char *description)
+{
+        CUICaseData *ccd = INITPTR;        
+	DLListIterator it, begin;
+
+	
+	begin = dl_list_head (case_list_);
+        do {
+                it = dl_list_find (begin,
+				   dl_list_tail (case_list_),
+				   _find_case_by_id,
+				   (void *)&caseid);
+                if (it==DLListNULLIterator) break;
+                ccd = (CUICaseData*)dl_list_data(it);
+                if (ccd == INITPTR) break;
+                if (ccd->moduleid_!=moduleid) begin = dl_list_next(it);
+                else break;
+        } while (it != DLListNULLIterator);
+
+        if (it == DLListNULLIterator) {
+		return;
+        }
+
+        ccd->casedesc_ = tx_create(description);
+
 }
 /* ------------------------------------------------------------------------- */
 /** Engine calls this when it when test case/module sends error message
@@ -787,6 +820,7 @@ LOCAL void free_case (void *p)
 
 	tc = (CUICaseData *)p;
 	tx_destroy (&tc->casetitle_);
+	tx_destroy (&tc->casedesc_);
 	DELETE (tc);
 }
 /* ------------------------------------------------------------------------- */
@@ -809,6 +843,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         (*out_callback)->no_module              = pl_no_module;
         (*out_callback)->module_ready           = pl_module_ready;
         (*out_callback)->new_case               = pl_new_case;
+        (*out_callback)->case_desc              = pl_case_desc;
         (*out_callback)->error_report           = pl_error_report;
 
         return;

@@ -865,9 +865,11 @@ LOCAL int get_tcs_for_start_new_case ()
                         }
                         /* fill callback structure with data */
                         set_cbs (&cb_start_new_case_menu[i],
-                                tx_share_buf (tc->casetitle_),
-                                NULL,case_menu, case_menu, start_one_tc,
-                                dl_item_tc, 0);
+				 tx_share_buf (tc->casetitle_),
+				 tc->casedesc_ != INITPTR ?
+				 tx_share_buf (tc->casedesc_) : NULL,
+				 case_menu, case_menu, start_one_tc,
+				 dl_item_tc, 0);
                         i++;
                         dl_item_tc = dl_list_next(dl_item_tc);
                 }

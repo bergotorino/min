@@ -169,13 +169,13 @@ void ip_send_tcd (const TMCIPCInterface * tmcipi, const char *file,
 
         out.receiver_ = tmcipi->receiver_;
         out.sender_ = tmcipi->sender_;
-        out.type_ = MSG_TCD;
 
         while (it != DLListNULLIterator) {
 
                 tci = (TestCaseInfo *) dl_list_data (it);
                 if (tci != INITPTR) {
                         out.param_ = tci->id_;
+			out.type_ = MSG_TCD;
                         STRCPY (out.desc_, file, MaxFileName);
                         STRCPY (out.message_, tci->name_, MaxTestCaseName);
                         mq_send_message (tmcipi->mqid_, &out);

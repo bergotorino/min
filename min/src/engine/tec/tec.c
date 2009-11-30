@@ -1417,6 +1417,7 @@ LOCAL int       ec_msg_tcdesc_handler (MsgBuffer * message)
 						       tc->tc_ext_id_,
 						       message->message_));
 			
+			break;
 		}
 	}
 	return 0;

@@ -167,7 +167,7 @@ int             event_set (char *eventname, int is_state);
 /* ------------------------------------------------------------------------- */
 int             event_unset (char *eventname);
 /* ------------------------------------------------------------------------- */
-char           *validate_test_case (MinSectionParser * testcase);
+char           *validate_test_case (MinSectionParser * testcase, char **desc);
 /* ------------------------------------------------------------------------- */
 TSBool          validate_define (MinSectionParser * define);
 /* ------------------------------------------------------------------------- */

@@ -441,6 +441,7 @@ void mli_create (MinSectionParser * msp)
 
                 switch (keyword) {
                 case EKeywordTitle:
+                case EKeywordDescription:
                 case EKeywordSkipIt:
                         tmp =
                             (LegoBasicType *) mli_create_passive (keyword,

@@ -237,8 +237,7 @@ LOCAL void pl_module_ready (unsigned moduleid)
 	DLListIterator it;
 	CLICaseData *c;
 	CLIModuleData *m;
-        ready_module_count_ ++;
-	
+
 	if (cliopts.display_info_) {
 		it = dl_list_find (dl_list_head (available_modules),
 				   dl_list_tail (available_modules),
@@ -260,7 +259,7 @@ LOCAL void pl_module_ready (unsigned moduleid)
 				printf ("%s\n", 
 					tx_share_buf (c->casetitle_));
 				if (c->casedesc_ != INITPTR)
-					printf ("-- %s\n", 
+					printf ("--%s\n", 
 						tx_share_buf(c->casedesc_));
 			} else if (cliopts.debug_ &&
 				 min_clbk_.debug_case) {
@@ -273,8 +272,10 @@ LOCAL void pl_module_ready (unsigned moduleid)
 					 c->caseid_,
 					 1);
 		}
-	}
-		
+	}	
+
+        ready_module_count_ ++;
+	
 }
 /* ------------------------------------------------------------------------- */
 /** Engine calls this for each new test case
@@ -286,7 +287,6 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 {
         CLICaseData *ccd = INITPTR;        
 	DLListIterator it;
-
 
         /* add new case to some list */
         if (case_list_==INITPTR) case_list_ = dl_list_create();
@@ -338,8 +338,9 @@ LOCAL void pl_case_desc (unsigned moduleid, unsigned caseid, char *description)
         } while (it != DLListNULLIterator);
 
         if (it == DLListNULLIterator) {
-		fprintf (stderr, "pl_case_desc(): error no case found with id %d:%d",
-			 moduleid,caseid);
+		fprintf (stderr, "pl_case_desc(): error no case "
+			 "found with id %d:%d",
+			 moduleid, caseid);
 		return;
         }
 

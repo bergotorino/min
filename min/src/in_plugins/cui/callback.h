@@ -88,6 +88,7 @@ typedef struct {
         unsigned moduleid_;
         unsigned caseid_;
         Text *casetitle_;
+	Text *casedesc_;
 } CUICaseData;
 
 typedef struct {

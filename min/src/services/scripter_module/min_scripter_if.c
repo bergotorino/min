@@ -58,6 +58,7 @@ DLList         *allowederrors = INITPTR;  /**< Allowed error codes. */
 DLList         *defines = INITPTR;  /**< Contains defintions            */
 DLList         *variables = INITPTR;/**< Contains scripter variables */
 DLList         *interference_handles = INITPTR;/**<test interference "instances"*/
+
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -2265,7 +2266,7 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
         char           *cfg_file_backup = INITPTR;
         char           *c = INITPTR;
         unsigned int    section_number = 1;
-        char           *test_case_name = INITPTR, *tmp;
+        char           *test_case_name = INITPTR, *tmp, *test_case_desc = INITPTR;
         Text *homemindir = INITPTR;
         char *dir = INITPTR;
         char *file = INITPTR;
@@ -2376,17 +2377,26 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
         while (msp != INITPTR) {
 
                 /* validate syntax. In return we get TC name or INITPTR */
-                test_case_name = validate_test_case (msp);
+                test_case_name = validate_test_case (msp, &test_case_desc);
                 if (test_case_name == NULL)
                         test_case_name = INITPTR;
 
                 /* add TC to list */
                 if (test_case_name != INITPTR) {
-                        ENTRY2 (*cases  /* List of cases */
-                                , test_case_name        /* TC name       */
-                                , section_number);      /* TC id         */
-                        DELETE (test_case_name);
-                } else {
+			if (test_case_desc == INITPTR) {
+				ENTRY2 (*cases            /* List of cases */
+					, test_case_name  /* TC name       */
+					, section_number);/* TC id         */
+			} else {
+				ENTRY2D (*cases            /* List of cases */
+					 , test_case_name  /* TC name       */
+					 , section_number  /* TC id         */
+					 , test_case_desc);/* TC descr      */
+				DELETE (test_case_desc);
+				
+			}
+			DELETE (test_case_name);
+		} else {
                         MIN_WARN ("Test case is not valid! [%d]",
                                    section_number);
 

@@ -140,6 +140,31 @@
         dl_list_add( _l_, (void*)tc );                                  \
         } while(0);
 /* ------------------------------------------------------------------------- */
+/** Macro that makes adding a new test case easier
+ *  @param _l_ pointer to list on which new test case will be stored
+ *  @param _n_ test case name
+ *  @param _id_ test case id.
+ *  @param _d_ short description for the test case
+ *  NOTE: The test case id must be > 0 and unique in the scope of config file.
+ */
+#define ENTRY2D( _l_, _n_, _id_, _d_)					\
+        do {                                                            \
+        TestCaseInfo* tc = NEW(TestCaseInfo);                           \
+        if( tc == NULL ) break;                                         \
+	memset (tc, 0x0, sizeof (TestCaseInfo));                        \
+	if (strlen (_n_) > MaxTestCaseName - 1)                         \
+		strcpy (tc->name_, "<too long test case name>");        \
+	else								\
+		strcpy (tc->name_, _n_);				\
+	if (strlen (_d_) > MaxUsrMessage - 1)                           \
+		strcpy (tc->desc_, "<too long test case desc>");        \
+	else								\
+		strcpy (tc->desc_, _d_);				\
+        tc->test_ = (ptr2test)INITPTR;                                  \
+        tc->id_   = _id_;                                               \
+        dl_list_add( _l_, (void*)tc );                                  \
+        } while(0);
+/* ------------------------------------------------------------------------- */
 /** Macro that makes reporting the test case result eastier
  *  @param _tcr_ is the pointer to the TestCaseResult structure
  *  @param _r_ is the test result

@@ -47,7 +47,10 @@ extern void set_caller_name (const char *caller); /* test_module_api.c */
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-/* None */
+char *module_date = __DATE__;
+char *module_time = __TIME__;
+TTestModuleType module_type     = ENormal;
+unsigned int    module_version  = 200950;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -1260,10 +1263,11 @@ TSBool validate_define (MinSectionParser * define)
 /* ------------------------------------------------------------------------- */
 /** Load test libraries used by script and checks if used symbols are available
  *  from those libraries
- *  @param symlist [in] list of ScripterDataItems
- *  @return 0 if all symbols are available, -1 otherwise.
+ *  @param tescase [in] scripted test case data
+ *  @param description [out] test case description
+ *  @return tc_title if the case validates NULL otherwise
  */
-char           *validate_test_case (MinSectionParser * testcase)
+char      *validate_test_case (MinSectionParser * testcase, char **description)
 {
         MinItemParser *line = INITPTR;
         char           *token = INITPTR;
@@ -1317,6 +1321,7 @@ char           *validate_test_case (MinSectionParser * testcase)
         char            nesting [255];
         TSBool          in_loop;
 	int             errors = 0;
+	Text           *tx_desc = tx_create("");
 
         /* allocate place for allocated slaves. */
         slaves = dl_list_create ();
@@ -1355,6 +1360,15 @@ char           *validate_test_case (MinSectionParser * testcase)
                         line = mmp_get_next_item_line (testcase);
                         continue;
                         break;
+                case EKeywordDescription:
+                        len = strlen (line->item_skip_and_mark_pos_);
+			tx_c_append (tx_desc, " ");
+			tx_c_append (tx_desc, line->item_skip_and_mark_pos_);
+			mip_destroy (&line);
+                        line = mmp_get_next_item_line (testcase);
+                        continue;
+                        break;
+
                 case EKeywordCreate:
                         /*class and dll names are writen to assoc_ lists */
                         if (mip_get_next_string (line, &libname) != 0) {
@@ -2132,6 +2146,9 @@ char           *validate_test_case (MinSectionParser * testcase)
 		tc_title = NULL;
 	}
 
+	*description = tx_get_buf (tx_desc);
+	tx_destroy (&tx_desc);
+
         return tc_title;
 }
 /* ------------------------------------------------------------------------- */
@@ -2299,7 +2316,22 @@ int scripter_init (minScripterIf * scripter_if)
         current = INITPTR;
         return 0;
 }
-
+/* ------------------------------------------------------------------------- */
+/** return  test module type */
+unsigned int get_module_type()
+{ return module_type; }
+/* ------------------------------------------------------------------------- */
+/** return test module template version */
+unsigned int get_module_version()
+{ return module_version; }
+/* ------------------------------------------------------------------------- */
+/** return build date */
+char* get_module_date()
+{ return module_date; }
+/* ------------------------------------------------------------------------- */
+/** return build time */
+char* get_module_time()
+{ return module_time; }
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
