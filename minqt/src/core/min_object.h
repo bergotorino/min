@@ -8,8 +8,8 @@
  * Do not edit! All changes made to it will be lost.
  */
 
-#ifndef MIN_OBJECT_H_1254481267
-#define MIN_OBJECT_H_1254481267
+#ifndef MIN_OBJECT_H_1259586462
+#define MIN_OBJECT_H_1259586462
 
 #include <QtCore/QObject>
 #include <QtCore/QByteArray>
@@ -36,7 +36,7 @@ public:
     ~MinObject();
 
 public Q_SLOTS: // METHODS
-    inline QDBusReply<void> min_abort_case(int testrunid)
+    inline QDBusReply<void> min_abort_case(qulonglong testrunid)
     {
         QList<QVariant> argumentList;
         argumentList << qVariantFromValue(testrunid);
@@ -76,7 +76,7 @@ public Q_SLOTS: // METHODS
         return callWithArgumentList(QDBus::Block, QLatin1String("min_open"), argumentList);
     }
 
-    inline QDBusReply<void> min_pause_case(int testrunid)
+    inline QDBusReply<void> min_pause_case(qulonglong testrunid)
     {
         QList<QVariant> argumentList;
         argumentList << qVariantFromValue(testrunid);
@@ -102,7 +102,7 @@ public Q_SLOTS: // METHODS
         return callWithArgumentList(QDBus::Block, QLatin1String("min_register_slave"), argumentList);
     }
 
-    inline QDBusReply<void> min_resume_case(int testrunid)
+    inline QDBusReply<void> min_resume_case(qulonglong testrunid)
     {
         QList<QVariant> argumentList;
         argumentList << qVariantFromValue(testrunid);
@@ -117,6 +117,7 @@ public Q_SLOTS: // METHODS
     }
 
 Q_SIGNALS: // SIGNALS
+    void min_case_desc(uint moduleid, uint caseid, const QString &casedesc);
     void min_case_msg(int testrunid, const QString &message);
     void min_case_paused(int testrunid);
     void min_case_result(int testrunid, int result, const QString &desc, int starttime, int endttime);

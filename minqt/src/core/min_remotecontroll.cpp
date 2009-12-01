@@ -90,7 +90,7 @@ void Min::RemoteControll::handleSockConnected()
 		 this,SLOT(minCasePaused(int)));
 	
 	connect (eapiClient_,SIGNAL(min_case_result(int, int, const QString &,
-					     int, int)),
+						    int, int)),
 		 this,SLOT(minCaseResult(int, int, const QString &,
 					 int, int)));
 	connect (eapiClient_,SIGNAL(min_case_resumed(int)),
@@ -119,6 +119,10 @@ void Min::RemoteControll::handleSockConnected()
 
 	connect (eapiClient_,SIGNAL(min_error_report(const QString &)),
 		 this,SLOT(minErrorReport(const QString &)));
+
+	connect (eapiClient_,SIGNAL(min_case_desc(uint, uint, const QString &)),
+		 this,SLOT(minCaseDesc(uint, uint, const QString &)));
+
 
 	connect (sock_, SIGNAL(readyRead()), eapiClient_,
 		 SLOT(readFromSock()));
@@ -172,7 +176,7 @@ void Min::RemoteControll::open(const QString &address)
 		   this,SLOT(minCasePaused(int)));
 	  
 	  connect (obj_,SIGNAL(min_case_result(int, int, const QString &,
-                                            int, int)),
+					       int, int)),
 		   this,SLOT(minCaseResult(int, int, const QString &,
 					   int, int)));
 	  
@@ -203,6 +207,8 @@ void Min::RemoteControll::open(const QString &address)
 	  connect (obj_,SIGNAL(min_error_report(const QString &)),
 		   this,SLOT(minErrorReport(const QString &)));
 
+	  connect (obj_,SIGNAL(min_case_desc(uint, uint, const QString &)),
+		   this,SLOT(minCaseDesc(uint, uint, const QString &)));
 
 	  // 3.3 Open MinDBusPlugin
 	  obj_->min_open();
@@ -390,6 +396,19 @@ void Min::RemoteControll::minNewTestCase(uint moduleid, uint caseid,
 	// Display stuff on status bar
 	Min::StatusBar::update("New test case: "+casetitle,3000);
 	db.insertLogMessage ("info","New test case: "+casetitle);
+}
+// -----------------------------------------------------------------------------
+void Min::RemoteControll::minCaseDesc(uint moduleid, uint caseid,
+				      const QString &casedesc)
+{
+	qDebug("Min::RemoteControll::minCaseDesc %d %d %s\n",
+	       moduleid,caseid,casedesc.toStdString().c_str());
+
+	Min::Database &db = Min::Database::getInstance();
+	db.updateCaseDesc(db.getModuleDbId(1,moduleid),caseid,casedesc);
+	
+	// Display stuff on status bar
+	Min::StatusBar::update("Case Desc: "+casedesc,3000);
 }
 // -----------------------------------------------------------------------------
 void Min::RemoteControll::minNoModule(const QString &modulename)

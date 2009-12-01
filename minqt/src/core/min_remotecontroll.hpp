@@ -215,6 +215,14 @@ namespace Min
         void minNewTestCase(uint moduleid, uint caseid,
                             const QString &casetitle);
 
+        /** Adds case description for a test case
+         *  @param moduleid indicates the id of module to whch test case belongs to
+         *  @param caseid indicates the test case id within the module
+         *  @param casedesc test case description
+         */
+        void minCaseDesc(uint moduleid, uint caseid,
+			 const QString &casedesc);
+
         /** Indicates that specified module has not been added
          *  @param modulename is the name of the module
          */

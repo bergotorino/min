@@ -94,6 +94,9 @@ namespace Min
 		void min_test_files(const QString &files);
 		void min_test_modules(const QString &modules);
 		void min_error_report(const QString &error);
+		void min_case_desc(uint moduleid, 
+				   uint caseid, 
+				   const QString &casedec);
 
 	public slots:
 			

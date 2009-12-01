@@ -96,7 +96,7 @@ void Min::EapiClient::readFromSock()
 	switch (msg_type) {
 		uint module_id, case_id, tid, len;
 		int run_id, result, starttime, endtime;
-		char *module_name, *case_title, *desc, *printout;
+		char *module_name, *case_title, *desc, *printout, *case_desc;
 	case MIN_NEW_MOD_IND:
 		qDebug ("EAPI: New Module indication");
 		module_id = read32 (&msg);
@@ -201,6 +201,17 @@ void Min::EapiClient::readFromSock()
 		printout = msg.data();
 		emit (min_error_report (printout));
 		break;
+
+	case MIN_CASE_DESC_IND:
+		qDebug ("EAPI: Case Description indication");
+		module_id = read32 (&msg);
+		msg.remove(0, 4);
+		case_id = read32 (&msg);
+		msg.remove(0, 4);
+		case_desc = msg.data();
+		emit (min_case_desc(module_id, case_id, case_desc));
+		break;
+
 	default:
 		qDebug ("Unknow EAPI message type %02x", msg_type);
 		break;

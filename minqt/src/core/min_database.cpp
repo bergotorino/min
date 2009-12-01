@@ -241,8 +241,6 @@ unsigned int Min::Database::insertLogMessage(const QString &logtype,
     }
     else return 0;
 };
-
-
 // ----------------------------------------------------------------------------
 bool Min::Database::updateTestRun(unsigned int dbid,
 				  int status,
@@ -289,6 +287,38 @@ bool Min::Database::updateTestRun(unsigned int dbid,
     // Return status of update
     return retval;
 };
+// ----------------------------------------------------------------------------
+unsigned int Min::Database::updateCaseDesc (unsigned int module_dbid,
+					    unsigned int test_case_id,
+					    const QString &test_case_description)
+{
+    // Update existing test run
+    QSqlQuery query;
+    QString raw_query("");
+    QString desc (test_case_description);
+
+    if (desc.contains ('\"'))
+	    desc.remove ('\"');
+    raw_query.append("UPDATE test_case SET test_case_description=\"");
+    
+    raw_query.append(desc);
+    raw_query.append("\"");
+
+    raw_query.append(" WHERE id=");
+    raw_query.append(QString::number(getTestCaseDbId(module_dbid, 
+						     test_case_id)));
+    raw_query.append(" ;");
+    unsigned int retval = query.exec(raw_query);
+    if (!retval)
+      qDebug ("query failed! %s", query.lastQuery().toStdString().c_str());
+    // Notify
+    if (retval) emit updated();
+    query.finish();
+    // Return status of update
+    return retval;
+
+}
+
 
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getDeviceDbId(unsigned int device_id)

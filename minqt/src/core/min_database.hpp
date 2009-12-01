@@ -75,13 +75,13 @@ namespace Min
          * @param module_dbid - module ID in database
          * @param test_case_id - test case ID in MIN
          * @param test_case_title - test case title in MIN
-         * @parame test_case_description - description of test case
+         * @param test_case_description - description of test case
          * @ret test case ID in database
          */
         unsigned int insertTestCase(unsigned int module_dbid,
                                     unsigned int test_case_id,
                                     const QString &test_case_title,
-				                    const QString &test_case_description);
+				    const QString &test_case_description);
         /**
          * test case filename to database
          * @param case_file_name - case file name
@@ -144,6 +144,17 @@ namespace Min
                            unsigned long end_time=0,
                            int result=0,
                            const QString &result_description="");
+
+        /**
+         * Update test case description
+         * @param module_dbid - module ID in database
+         * @param test_case_id - test case ID in MIN
+         * @param test_case_description - description of test case
+         * @ret test case ID in database
+         */
+        unsigned int updateCaseDesc (unsigned int module_dbid,
+                                    unsigned int test_case_id,
+				    const QString &test_case_description);
 
         /**
          * gets device ID from database
