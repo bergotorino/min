@@ -129,8 +129,8 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 {
         int             retval = 0;
 
-        ENTRY (*cases, "Test Case 1", test_1);
-        ENTRY (*cases, "Test Case 2", test_2);
+        ENTRY  (*cases, "Test Case 1", test_1);
+        ENTRYD (*cases, "Test Case 2", test_2, "<description>");
 
         return retval;
 }

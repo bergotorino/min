@@ -49,7 +49,7 @@ const char *module_time = __TIME__;
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 TTestModuleType module_type     = ESUnit;
-unsigned int    module_version  = 200924;
+unsigned int    module_version  = 200950;
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */

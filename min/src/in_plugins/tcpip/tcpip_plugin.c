@@ -148,6 +148,8 @@ LOCAL void pl_test_modules (char *modulelist);
 /* ------------------------------------------------------------------------- */
 LOCAL void pl_test_files (char *modulelist);
 /* ------------------------------------------------------------------------- */
+LOCAL void pl_case_desc (unsigned moduleid, unsigned caseid, char *casedesc);
+/* ------------------------------------------------------------------------- */
 
 /* MODULE DATA STRUCTURES */
 typedef struct {
@@ -755,6 +757,30 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 			       buff);
 }
 /* ------------------------------------------------------------------------- */
+/** Engine calls this for each test case description
+ *  @param moduleid id of the module this test case belongs to
+ *  @param caseid id of the test case
+ *  @param casedesc test case description
+ */ 
+LOCAL void pl_case_desc (unsigned moduleid, unsigned caseid, char *casedesc)
+{
+	
+	unsigned short msg_len;
+	char *p, *buff;
+	msg_len = 4 + 4 + strlen (casedesc);
+	buff = NEW2 (char, MIN_HDR_LEN + msg_len);
+	
+	p = &buff [MIN_HDR_LEN];
+	write32 (p, moduleid);
+	p += 4;
+	write32 (p, caseid);
+	p += 4;
+	memcpy (p, casedesc, strlen (casedesc));
+	eapi_message_send_ind (MIN_CASE_DESC_IND, 
+			       msg_len,
+			       buff);
+}
+/* ------------------------------------------------------------------------- */
 /** Engine calls this when test case has been started
  *  @param moduleid id of the module this test case belongs to
  *  @param caseid id of the test case
@@ -1000,7 +1026,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         (*out_callback)->module_ready           = pl_module_ready;
         (*out_callback)->new_case               = pl_new_case;
         (*out_callback)->error_report           = pl_error_report;
-
+        (*out_callback)->case_desc              = pl_case_desc;
 	(*out_callback)->test_modules           = pl_test_modules; 
 	(*out_callback)->test_files             = pl_test_files; 
 

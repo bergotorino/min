@@ -216,6 +216,24 @@
  */
 #define MIN_RCP_IND           0x0d /** RCP Protocol Message Indication */
 #define MIN_RESP              0x0e /** Response for any request*/
+/** Case Description Indication 
+ *  +----------------+
+ *  |      Test      | 3
+ *  |     Module     | 4
+ *  |       Id       | 5
+ *  |                | 6
+ *  +----------------+
+ *  |      Test      | 7
+ *  |      Case      | 8
+ *  |       Id       | 9
+ *  |                | 10
+ *  +----------------+ 
+ *  |      Test      | 11
+ *  |      Case      | ..
+ *  |   Description  | Length
+ *  +----------------+
+ */
+#define MIN_CASE_DESC_IND      0x0f 
 /* client -> Engine */
 /** Add Module Request
  *  +----------------+
