@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$1" = "remove" ]; then
-    rm -rf /etc/min.d/min-ci-test.min.conf
+    rm -rf /etc/min.d/min-ci-tests.min.conf
 fi
 
 
