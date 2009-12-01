@@ -103,6 +103,7 @@ typedef enum {
         E_SIGNAL_TEST_MODULES,
         E_SIGNAL_TEST_FILES,
 	E_SIGNAL_ERROR_REPORT,
+	E_SIGNAL_CASE_DESC,
         E_SIGNAL_COUNT        
 } MinSignalId;
 
@@ -185,6 +186,8 @@ static void pl_new_module (char *modulename, unsigned moduleid);
 static void pl_no_module (char *modulename);
 /* ------------------------------------------------------------------------- */
 static void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle);
+/* ------------------------------------------------------------------------- */
+static void pl_case_desc (unsigned moduleid, unsigned caseid, char *casedesc);
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
@@ -297,6 +300,15 @@ static void min_object_class_init (MinObjectClass *klass)
 					   0,NULL,NULL,
 					   g_cclosure_marshal_VOID__STRING,
 					   G_TYPE_NONE,1,G_TYPE_STRING);
+        /* new_case */
+        klass->signals[12] = g_signal_new (SIGNAL_CASE_DESC,
+					   G_OBJECT_CLASS_TYPE(klass),
+					   G_SIGNAL_RUN_LAST,
+					   0,NULL,NULL,
+					   g_cclosure_marshal_VOID__STRING,
+					   G_TYPE_NONE,3,
+					   G_TYPE_UINT,G_TYPE_UINT,
+					   G_TYPE_STRING);
 
         dbus_g_object_type_install_info (MIN_TYPE_OBJECT,
                                         &dbus_glib_min_object_object_info);
@@ -438,6 +450,19 @@ static void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
                         moduleid,caseid,casetitle);
 }
 /* -------------------------------------------------------------------------- */
+/** MIN Engine calls this for each test case description
+ */
+static void pl_case_desc (unsigned moduleid, unsigned caseid, char *casedesc)
+{
+        /* emit signal */
+        if (!global_obj) return;
+        MinObjectClass *klass = MIN_OBJECT_GET_CLASS(global_obj);
+        g_signal_emit (global_obj,
+		       klass->signals[E_SIGNAL_CASE_DESC],
+		       0,
+		       moduleid,caseid,casedesc);
+}
+/* -------------------------------------------------------------------------- */
 /** MIN Engine calls this when all test cases belonging to test module
  *  have been reported by pl_new_case
  */
@@ -497,6 +522,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
         (*out_callback)->no_module              = pl_no_module;
         (*out_callback)->module_ready           = pl_module_ready;
         (*out_callback)->new_case               = pl_new_case;
+        (*out_callback)->case_desc              = pl_case_desc;
         (*out_callback)->test_modules           = pl_test_modules;
         (*out_callback)->test_files             = pl_test_files;
 }

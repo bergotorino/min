@@ -124,5 +124,13 @@
                         <arg type="s" name="message"/>
                 </signal>
 
+                <!-- case_desc -->
+                <signal name="min_case_desc">
+                        <arg type="u" name="moduleid"/>
+                        <arg type="u" name="caseid"/>
+                        <arg type="s" name="casedesc"/>
+                </signal>
+
+
         </interface>
 </node>
