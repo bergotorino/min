@@ -5,6 +5,7 @@ import sut_ext
 def case_min():
         """Print to CUI"""
         min_ext.Print_to_cui("PYTHON")
+	return 0;
 
 def case_sut():
         """Create file"""

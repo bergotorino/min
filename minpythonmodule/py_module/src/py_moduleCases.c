@@ -249,18 +249,20 @@ int tm_get_test_cases( const char * cfg_file, DLList ** cases )
         dictionary = PyModule_GetDict(p_module);
         while (PyDict_Next(dictionary,&pos,&p_key,&p_value) != 0){
                 if ((strcmp((char*)p_value->ob_type->tp_name,"function") == 0)
-                     && PyCallable_Check(p_value)
-                     && strcasestr(PyString_AS_STRING(p_key),"case_") != NULL)  {
-
+		    && PyCallable_Check(p_value)
+		    && strcasestr(PyString_AS_STRING(p_key),"case_") != NULL) {
+			
                         attrib_name = PyString_FromString("__doc__");
                         python_string2 = PyObject_GetAttr(p_value,attrib_name);
-
+			
                         if (strlen(PyString_AS_STRING(python_string2)) > 0){
                                 /*make title from docstring*/
-                                workstring = fetch_title(PyString_AsString(python_string2));
+                                workstring = fetch_title
+					(PyString_AsString(python_string2));
                                 MIN_DEBUG("Adding: %s",
                                            PyString_AsString(p_key));
-                                ENTRY2(*cases,workstring,dl_list_size(*cases)+1);
+                                ENTRY2(*cases,workstring,
+				       dl_list_size(*cases)+1);
                                 DELETE(workstring);
                                 Py_XDECREF(attrib_name);
                                 Py_XDECREF(python_string2);
@@ -268,13 +270,14 @@ int tm_get_test_cases( const char * cfg_file, DLList ** cases )
                         else {
                                 /*make title from function name*/
 
-                                ENTRY2(*cases,PyString_AsString(p_key),dl_list_size(*cases)+1);
+                                ENTRY2(*cases,PyString_AsString(p_key),
+				       dl_list_size(*cases)+1);
                                 MIN_DEBUG("Adding: %s",
-                                           PyString_AsString(p_key));
+					  PyString_AsString(p_key));
                         }
                 }
         }
-
+	
         if(dl_list_size(*cases) == 0){
                 MIN_WARN ("No valid MIN python cases found in file %s",
                            cfg_file);
