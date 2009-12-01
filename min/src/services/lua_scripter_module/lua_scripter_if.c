@@ -41,7 +41,11 @@ extern void set_caller_name(const char *caller); /* test_module_api.c */
 
 /* -------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-/* None */
+/* GLOBAL VARIABLES */
+char *module_date = __DATE__;
+char *module_time = __TIME__;
+TTestModuleType module_type     = ENormal;
+unsigned int    module_version  = 200950;
 
 /* -------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -305,10 +309,10 @@ LOCAL int ls_register_testcase (lua_State *l)
                 return 0;
         }
         tcinfo  = NEW(TCInfo);
-        memset(tcinfo->name_,'\0',MaxTestCaseName);
-        STRCPY(tcinfo->name_
-              ,(tctitle==INITPTR)?funname:tctitle
-              ,(tctitle==INITPTR)?strlen(funname) + 1:strlen(tctitle) + 1);
+        memset(tcinfo,0x0,sizeof (TCInfo));
+        STRCPY(tcinfo->name_, funname, strlen(funname) + 1);
+	if (tctitle != INITPTR)
+		STRCPY(tcinfo->desc_, tctitle, strlen(tctitle) + 1);
         tcinfo->test_ = INITPTR;
         tcinfo->id_   = dl_list_size(ls_tc_list)+1;
         dl_list_add(ls_tc_list,(void*)tcinfo);
@@ -1336,6 +1340,22 @@ EXIT:
         *cases = ls_tc_list;
         return ENOERR;
 }
+/* ------------------------------------------------------------------------- */
+/** return  test module type */
+unsigned int get_module_type()
+{ return module_type; }
+/* ------------------------------------------------------------------------- */
+/** return test module template version */
+unsigned int get_module_version()
+{ return module_version; }
+/* ------------------------------------------------------------------------- */
+/** return build date */
+char* get_module_date()
+{ return module_date; }
+/* ------------------------------------------------------------------------- */
+/** return build time */
+char* get_module_time()
+{ return module_time; }
 /* -------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS =============================== */
 /* None */

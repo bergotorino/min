@@ -70,6 +70,7 @@ typedef struct
         char            name_[256];     /**< Test function name */
         ptr2luatc       test_;          /**< Pointer to test function */
         unsigned int    id_;            /**< Id of the test function */
+        char            desc_[512];     /**< Test function description */
 } TCInfo;
 /* -------------------------------------------------------------------------- */
 /** Describes slave */
