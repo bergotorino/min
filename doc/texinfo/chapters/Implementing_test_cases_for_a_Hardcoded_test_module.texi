@@ -8,5 +8,9 @@ Add your new function also into int tm_get_test_cases( const char * cfg_file, DL
 @example
 ENTRY(*cases,"My new test case", test_X);
 @end example
+Or with a test case description.
+@example
+ENTRYD(*cases,"My new test case", test_X,"Description for My new test case");
+@end example
 
 See also examples from @code{min/src/test_libraries/}. For example @code{testlibrary2.c} shows an example of a test module that has all the test cases implemented inside a test module.
