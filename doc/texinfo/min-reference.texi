@@ -504,17 +504,22 @@ Project home page: http://garage.maemo.org/projects/min/
 @include chapters/General_keywords.texi
 @menu
 * title keyword: title keyword.
+* description keyword: description keyword.
 * timeout keyword: timeout keyword.
 * blocktimeout keyword: blocktimeout keyword.
 * print keyword: print keyword.
 * var keyword: var keyword.
 @end menu
 
-@node title keyword, timeout keyword, General keywords, General keywords
+@node title keyword, description keyword, General keywords, General keywords
 @subsection title keyword
 @include chapters/title_keyword.texi
 
-@node timeout keyword, blocktimeout keyword, title keyword, General keywords
+@node description keyword, timeout keyword, title keyword, General keywords
+@subsection description keyword
+@include chapters/description_keyword.texi
+
+@node timeout keyword, blocktimeout keyword, description keyword, General keywords
 @subsection timeout keyword
 @include chapters/timeout_keyword.texi
 

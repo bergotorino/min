@@ -2,7 +2,7 @@ Generally, just the Python script might be not enough to conduct testing. The si
 
 Apart from the simplest functionality - to load and execute a test case, MIN provides some additional features in the "test module API". Equivalent of this "API" for Python test cases is "MIN Python extension library". When this library is imported to a Python script, it gives you access to MIN functionalities such as printing to the MIN console UI, executing test cases from other modules and synchronizing test execution by events. Detailed reference of those functions will be provided later.
 
-As was mentioned before, "Python scripter" module will read the specified Python script ("*.py"), and consider each function with name starting with "case_". If function has "docstring", contents of the docstring will be used as a title of test case by MIN, otherwise the function name will be used. If test case function returns "0", test case will be considered as passed by MIN any other value will be considered "failure" (if function returns "NULL", it is considered "crashed"). If you do not define return value for a test case function, the result will be undefined (most likely - failed).
+As was mentioned before, "Python scripter" module will read the specified Python script ("*.py"), and consider each function with name starting with "case_". If function has "docstring", contents of the docstring will be used as a description of test case by MIN. The function name will be used as the test case title. If test case function returns "0", test case will be considered as passed by MIN any other value will be considered "failure" (if function returns "NULL", it is considered "crashed"). If you do not define return value for a test case function, the result will be undefined (most likely - failed).
 
 Example below shows sample python scripter test case definition:
 @example
@@ -10,7 +10,7 @@ import min_ext
 import sut_module1
 
 def case_ms1():
-        """ping"""
+        """Allocate slave, request and wait remote event ping"""
         min_ext.Allocate_slave("phone_b")
         min_ext.Request_remote_event("phone_b","ping",)
         min_ext.Run_remote_case("phone_b","scripter","slave.scr",1)

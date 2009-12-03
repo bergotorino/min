@@ -1,6 +1,6 @@
 The @code{print} functionality can be used to print messages on the Console UI.
 @example
-function case_function() -- print test
+function case_print() -- print test
 	min.print("Hello World");
 	return TP_PASSED;
 end
@@ -8,7 +8,7 @@ end
 
 It is also possible to use message formatting, to achieve this one must use built-in Lua string functionality called format
 @example
-function case_function() -- print test with formatting
+function case_print2() -- print test with formatting
 	min.print(string.format("Message: %s, id %d",Hello,112));
 	return TP_PASSED;
 end

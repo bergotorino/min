@@ -1,21 +1,21 @@
 The @code{wait} functionality is used for waiting for requested event. Event might be requested before wait is used, but this is not a must. If event has not been requested it will be requested and released in wait function. As a parameters wait takes event name and optional event type which can be StateEvent or IndicationEvent. By default it is IndicationEvent.
 Example:
 @example
-function case_function() -- wait example state event
+function case_wait() -- wait example state event
 	min.wait("Event1");
 end
 
-function case_function() -- wait example 2 state event
+function case_wait2() -- wait example 2 state event
 	min.request("Event1");
 	min.wait("Event1");
 	min.release("Event1");
 end
 
-function case_function() -- wait example state event
+function case_waitind() -- wait example state event
 	min.wait("Event1",IndicationEvent);
 end
 
-function case_function() -- wait example 2 state event
+function case_waitind2() -- wait example 2 state event
 	min.request("Event1",IndicationEvent);
 	min.wait("Event1",IndicationEvent);
 	min.release("Event1",IndicationEvent);

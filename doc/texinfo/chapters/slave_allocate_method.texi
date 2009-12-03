@@ -4,7 +4,7 @@ Available slave types are: SlaveTypePhone and SlaveTypeTablet
 
 Example:
 @example
-function case_function() - slave_allocate example
+function case_alloc() - slave_allocate example
 	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
 end
 @end example

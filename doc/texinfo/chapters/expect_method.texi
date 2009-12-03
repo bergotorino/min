@@ -1,6 +1,6 @@
 Method @code{expect} is used to wait for variable that will be passed from slave. As a parameter it takes name of the variable under which it has been send.
 @example
-function case_function() - remote expect example
+function case_expect() - remote expect example
 	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
 	a = slavehnd:expect("foo");
 	min.slave_free(slavehnd);

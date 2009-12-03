@@ -3,7 +3,8 @@ The Test Scripter test case file defines the commands to be executed in a test c
 
 @example
 [Test]
-title Create, print, run example and delete
+title execute example method
+description Create, print, run example and delete
 createx TestScriptClass testobj
 print Call Example method
 testobj Example pa ra me ters

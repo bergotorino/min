@@ -2,11 +2,11 @@ Test cases defined in Lua scripting language return their results by value (as t
 
 Example:
 @example
-function case_function() -- This is a title
+function case_function() -- Test case description
 	Return TP_PASSED;
 end
 
-function case_function() -- This is a title
+function case_function() -- Test case description
 	Return TP_FAILED;
 end
 @end example

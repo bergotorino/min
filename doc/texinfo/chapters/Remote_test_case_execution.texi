@@ -11,13 +11,13 @@ It is possible to execute functionalities on the slave device with following met
 In order to do this one must use slave handler:
 
 @example
-function case_function() -- remote example
+function case_remote() -- remote example
 	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
 	slavehnd:request("Event1");
 	min.slave_free(slavehnd);
 end
 
-function case_function() -- remote example 2
+function case_remote2() -- remote example 2
 	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
 	slavehnd.request(slavehnd,"Event1");
 	min.slave_free(slavehnd);

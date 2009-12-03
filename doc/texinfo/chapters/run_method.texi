@@ -6,25 +6,25 @@ It is not necessary to provide configuration file if not needed (as it is in MIN
 
 Examples:
 @example
-function case_function() -- run example
+function case_run() -- run example
 	ret = min.run("TestModule",1);
 end
 @end example
 Example above shows running test case of id 1 from given Test Module
 @example
-function case_function() -- run example 2
+function case_run2() -- run example 2
 	ret = min.run("TestModule","config.cfg",1);
 end
 @end example
 Example above shows running test case of id 1 from given Test Module, with specified configuration file
 @example
-function case_function() -- run example 3
+function case_run3() -- run example 3
 	ret = min.run("TestModule","config.cfg","Example case");
 end
 @end example
 Example above shows running test case of given title, from given Test Module, with specified configuration file
 @example
-function case_function() -- run example 4
+function case_run4() -- run example 4
 	ret = min.run("TestModule","Example case");
 end
 @end example
@@ -34,7 +34,7 @@ Example above shows running test case of given title, from given Test Module
 
 Method @code{run} may be used to run a test case on a slave device. Syntax is the same.
 @example
-function case_function() - remote run example
+function case_runremote() - remote run example
 	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
 	slavehnd:run("TestModule",1);
 	min.slave_free(slavehnd);

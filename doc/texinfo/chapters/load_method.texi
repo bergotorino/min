@@ -2,7 +2,7 @@ The @code{load} functionality is used to load Lua Test Class provided by the end
 
 If loading fails then returned value is @code{nil}
 @example
-function case_function() -- load test
+function case_load() -- load test
 	foo = min.load("Bar");
 	if foo == nil then
 		return TP_FAILED;

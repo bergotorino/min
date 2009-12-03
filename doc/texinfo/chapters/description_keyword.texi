@@ -1,0 +1,5 @@
+The optional @code{description} keyword can be used to give more elaborate description for test case. The description is placed after the keyword. The @code{description} keyword can appear multiple times and anywhere in the test case. The descriptions are combined as the test case is parsed. For example:
+@example
+description Create, print, 
+description run example and delete
+@end example

@@ -7,7 +7,7 @@ Interaction with MIN is achieved by using MIN2Lua API which is covered in this c
 An example of a test case file is described below:
 
 @example
-function case_foo() -- Test case title
+function case_foo() -- Test case description
 	min.print("Hello World");
 	return TP_PASSED;
 end
@@ -19,7 +19,7 @@ Test case file may contain definitions. The definitions are global variables and
 MODULE = TestCaseModuleThatCanBeUsedWithLua
 -- End of define section
 
-function case_foo() -- Test case title
+function case_foo() -- Test case description
 	min.print(string.format("Using: %s test module",MODULE));
 end
 @end example

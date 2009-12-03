@@ -1,7 +1,7 @@
 The @code{sleep} functionality is used to pause test case execution for a specified amount of time. As a parameter it takes the time in milliseconds.
 Example shows 1 second sleep:
 @example
-function case_function() -- sleep example
+function case_sleep() -- sleep 1000 msecs
 	min.sleep(1000);
 end
 @end example

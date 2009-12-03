@@ -2,15 +2,15 @@ The @code{set} functionality is used to set an event. As a parameter it takes th
 
 Examples:
 @example
-function case_function() -- set example indication event
+function case_set() -- set example indication event
 	min.set("Event1");
 end
 
-function case_function() -- set example state event 2
+function case_set2() -- set example state event 2
 	min.set("Event1",StateEvent);
 end
 
-function case_function() -- set example indication event
+function case_setind() -- set example indication event
 	min.set("Event1",IndicationEvent);
 end
 @end example

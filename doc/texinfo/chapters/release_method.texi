@@ -1,6 +1,6 @@
 The @code{release} functionality is used to release requested event. As a parameter it takes the name of the already requested event.
 @example
-function case_function() -- release example
+function case_reqrel() -- request and release Event1
 	min.request("Event1");
 	min.release("Event1");
 end
@@ -8,7 +8,7 @@ end
 
 Method @code{release} may be also used to release an event using slave handler. 
 @example
-function case_function() -- remote example
+function case_remrel() -- allocate slave and release remote event
 	slavehnd = min.slave_allocate(SlaveTypePhone,"Slave1");
 	slavehnd:release( "Event1");
 	min.slave_free(slavehnd);
