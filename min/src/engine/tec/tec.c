@@ -2483,11 +2483,11 @@ void ec_reinit()
                 /*we suppose that sending this message to TMC will ensure
                    that it shuts down properly */
                 work_module_item2 = dl_list_next (work_module_item);
-                tm_remove (work_module_item);
+		tm_remove (work_module_item);
                 work_module_item = work_module_item2;
         }
 
-        work_module_item = dl_list_head (instantiated_modules);
+        work_module_item = dl_list_head (available_modules);
         while (work_module_item != DLListNULLIterator) {
                 work_module_item2 = dl_list_next (work_module_item);
                 work_list = tm_get_tclist (work_module_item);
@@ -2662,7 +2662,7 @@ int ec_add_module (TSChar * mod_name, DLList * testcase_files,
 			MINAPI_PLUGIN_CALL(new_module,
 					   new_module (mod_name, 
 						       work_module->module_id_)
-				);
+					   );
 
 		}
         } else {

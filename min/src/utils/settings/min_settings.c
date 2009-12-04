@@ -628,12 +628,13 @@ int  settings_read (SettingsSection *ss,
 
 	do {
 		msp = mp_section (mp,
-				  tx_share_buf(ss->tag_), 
+ 				  tx_share_buf(ss->tag_), 
 				  tx_share_buf(ss->end_tag_), 
 				  section_number);
 		if (msp != INITPTR)
 			ss->parse_func (ss->data_, msp);
 		section_number ++;
+		mmp_destroy (&msp);
 	} while (msp != INITPTR);
 	
 	return 0;
@@ -701,7 +702,6 @@ void settings_destroy (void)
 			s->clean_func (s->data_);
 		else
 			DELETE (s->data_);
-		dl_list_remove_it (it);
 	}
 	dl_list_free (&settings_list);
 

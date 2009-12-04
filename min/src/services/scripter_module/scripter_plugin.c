@@ -110,6 +110,14 @@ LOCAL int       look4slave (const void *a, const void *b);
 LOCAL void      interpreter_handle_keyword (TScripterKeyword keyword,
                                             MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
+LOCAL int       check_create_line (MinItemParser * line, int line_number, 
+				   char * tc_title, DLList *assoc_lnames,
+				   DLList *assoc_cnames, DLList *symblist);
+/* ------------------------------------------------------------------------- */
+LOCAL int       check_delete_line (MinItemParser * line, int line_number, 
+				   char * tc_title, DLList *assoc_lnames,
+				   DLList *assoc_cnames);
+/* ------------------------------------------------------------------------- */
 LOCAL int       check_run_line (MinItemParser * line, int line_number, 
 				char * tc_title);
 /* ------------------------------------------------------------------------- */
@@ -118,6 +126,20 @@ LOCAL int       check_pause_line (MinItemParser * line, int line_number,
 /* ------------------------------------------------------------------------- */
 LOCAL int       check_loop_line (MinItemParser * line, int line_number,
 				 char * tc_title);
+/* ------------------------------------------------------------------------- */
+LOCAL int       check_request_line (MinItemParser * line, int line_number, 
+				    char * tc_title, DLList *requested_events);
+/* ------------------------------------------------------------------------- */
+LOCAL int       check_release_line (MinItemParser *line, int line_number, 
+				    char *tc_title);
+/* ------------------------------------------------------------------------- */
+LOCAL int       check_wait_line (MinItemParser *line, int line_number, 
+				 char *tc_title, DLList *requested_events);
+/* ------------------------------------------------------------------------- */
+LOCAL int       check_methodcall_line (MinItemParser * line, int line_number, 
+				       char * tc_title, char *cname,
+				       DLList *assoc_lnames,
+				       DLList *assoc_cnames, DLList *symblist);
 /* ------------------------------------------------------------------------- */
 LOCAL int       check_allocate_line (MinItemParser * line, int line_number,
 				     DLList * slaves, char * tc_title);
@@ -139,8 +161,14 @@ LOCAL int       check_complete_line (MinItemParser * line, int line_number,
 LOCAL int       check_timeout_line (MinItemParser * line, int line_number,
 				    char * tc_title);
 /* ------------------------------------------------------------------------- */
-LOCAL int       check_sleep_line (MinItemParser * line, int line_number,
-				  char * tc_title);
+LOCAL int       check_sleep_line (MinItemParser *line, int line_number,
+				  char *tc_title);
+/* ------------------------------------------------------------------------- */
+LOCAL int       check_var_line (MinItemParser *line, int line_number, 
+				char *tc_title, DLList *var_list);
+/* ------------------------------------------------------------------------- */
+LOCAL int       check_sendreceive_line (MinItemParser *line, int line_number, 
+					char *tc_title);
 /* ------------------------------------------------------------------------- */
 LOCAL int       check_blockingtimeout_line (MinItemParser * line, 
 					    int line_number,
@@ -156,18 +184,306 @@ LOCAL int       check_expect_line (MinItemParser * line, DLList * varnames,
 /* ------------------------------------------------------------------------- */
 LOCAL int       check_if_line (MinItemParser * line, int line_number, 
 			       char * tc_title);
-
+/* ------------------------------------------------------------------------- */
+LOCAL int       validate_symbols (DLList *symblist, DLList *testclasses, 
+				  DLList *class_methods, 
+				  int line_number, char *tc_title);
+/* ------------------------------------------------------------------------- */
+LOCAL int       check_interference_objects (DLList *interf_objs, 
+					    int line_number,
+					    char *tc_title);
+/* ------------------------------------------------------------------------- */
+LOCAL int       check_classes_for_deletion (DLList *assoc_names, 
+					    int line_number, char *tc_title);
+/* ------------------------------------------------------------------------- */
+LOCAL void      do_cleanup (DLList *slaves,  DLList *testclasses, 
+			    DLList *classmethods, DLList *assoc_cnames,
+			    DLList *assoc_lnames, DLList *requested_events,
+			    DLList *symblist, DLList *var_list, 
+			    DLList *interf_objs);
+/* ------------------------------------------------------------------------- */
+LOCAL int validate_line (char *keyword,  MinItemParser * line, int line_number,
+			 char **p_tc_title, Text *tx_desc, DLList *assoc_lnames,
+			 DLList *assoc_cnames, DLList *symblist,
+			 DLList *var_list, DLList *requested_events,
+			 DLList *slaves, DLList *interf_objs, char *nesting,
+			 int    *nest_level);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+/** Validates one line in test script.
+ *  @param keyword keyword to be handled 
+ *  @param line item parser which contains the rest of the line 
+ *  @param line_number  line number for debug messages
+ *  @param p_tc_title pointer to test case title string
+ *  @param tx_desc test case description container
+
+ *  @return number of errors
+ */
+LOCAL int validate_line (char *keyword, 
+			 MinItemParser * line, 
+			 int line_number,
+			 char **p_tc_title,
+			 Text *tx_desc,
+			 DLList *assoc_lnames,
+			 DLList *assoc_cnames,
+			 DLList *symblist,
+			 DLList *var_list,
+			 DLList *requested_events,
+			 DLList *slaves,
+			 DLList *interf_objs,
+			 char   *nesting,
+			 int    *nest_level) 
+{
+	int errors = 0, i = 0, check_result = 0;
+	char *tc_title = *p_tc_title;
+        TSBool in_loop;
+        unsigned int    len = 0;
+        enum nesting_type {
+                IF = 1,
+                LOOP
+        };
+
+	switch (get_keyword (keyword)) {
+	case EKeywordTitle:
+		len = strlen (line->item_skip_and_mark_pos_);
+		if (len == 0) {
+			SCRIPTER_SYNTAX_ERROR ("title",
+					       "Test case "
+					       "title is not defined");
+			errors ++;
+                        }
+		tc_title = NEW2 (char, len + 1);
+		STRCPY (tc_title, line->item_skip_and_mark_pos_,
+			len + 1);
+		*p_tc_title = tc_title;
+		break;
+	case EKeywordSet:
+	case EKeywordUnset:
+	case EKeywordSkipIt:
+		break;
+	case EKeywordDescription:
+		len = strlen (line->item_skip_and_mark_pos_);
+		tx_c_append (tx_desc, " ");
+		tx_c_append (tx_desc, line->item_skip_and_mark_pos_);
+		break;
+		
+	case EKeywordCreate:
+		/*class and dll names are writen to assoc_ lists */
+		errors += check_create_line (line, 
+					     line_number,
+					     tc_title, 
+					     assoc_lnames,
+					     assoc_cnames,
+					     symblist);
+		
+		break;
+
+	case EKeywordDelete:
+		errors += check_delete_line (line,
+					     line_number,
+					     tc_title,
+					     assoc_lnames,
+					     assoc_cnames);
+		break;
+		
+	case EKeywordPause:
+		errors = check_pause_line (line, line_number,
+					   tc_title);
+		break;
+		
+	case EKeywordLoop:
+		check_result = check_loop_line (line, line_number,
+							tc_title);
+		if (check_result == 0) {
+			*nest_level = *(nest_level) + 1;
+			nesting [*nest_level] = LOOP;
+		} else {
+			errors ++;
+		}
+		break;
+		
+	case EKeywordEndloop:
+		if (*nest_level <= 0 || nesting [*nest_level] != LOOP) {
+			SCRIPTER_SYNTAX_ERROR ("endloop","unexpected");
+			errors ++;
+		} else
+			*nest_level = *(nest_level) - 1;
+		break;
+			
+	case EKeywordBreakloop:
+		i = *nest_level;
+		in_loop = ESFalse;
+		while (i > 0) {
+			if (nesting [i] == LOOP) {
+				in_loop = ESTrue;
+				break;
+			}
+			i --;
+                        }
+		if (in_loop == ESFalse) {
+			SCRIPTER_SYNTAX_ERROR ("breakloop",
+					       "no loop to break");
+			errors ++;
+		}
+		break;
+		
+	case EKeywordRequest:
+		errors += check_request_line (line, line_number, 
+					      tc_title,
+					      requested_events);
+		break;
+		
+	case EKeywordRelease:
+		errors += check_release_line (line, line_number, 
+						      tc_title);
+		break;
+		
+	case EKeywordWait:
+		errors += check_wait_line (line, line_number, 
+					   tc_title,
+					   requested_events);
+		
+		break;
+			
+	case EKeywordClassName:
+		errors += check_methodcall_line (line, 
+						 line_number, 
+						 tc_title,
+						 keyword,
+						 assoc_lnames,
+						 assoc_cnames,
+						 symblist);
+		break;
+	case EKeywordRun:
+		errors += check_run_line (line, line_number, 
+					  tc_title);
+		break;
+		
+	case EKeywordPrint:
+	case EKeywordResume:
+	case EKeywordCancel:
+	case EKeywordCancelIfError:
+		/*we don't care about it at this point */
+		break;
+	case EKeywordAllocate:
+		errors += check_allocate_line (line, line_number, 
+					       slaves,
+					       tc_title);
+		break;
+
+	case EKeywordFree:
+		errors += check_free_line (line, line_number, 
+					   slaves, tc_title);
+                        break;
+			
+	case EKeywordRemote:
+		errors += check_remote_line (line, var_list, 
+					     line_number, slaves, 
+					     tc_title);
+		break;
+		
+	case EKeywordAllowNextResult:
+		errors += check_allownextresult_line (line, line_number,
+						      tc_title);
+		break;
+		
+	case EKeywordComplete:
+		errors += check_complete_line (line, line_number, 
+						       tc_title);
+		break;
+		
+
+	case EKeywordTimeout:
+		errors += check_timeout_line (line, line_number,
+					      tc_title);
+		break;
+		
+	case EKeywordSleep:
+		errors += check_sleep_line (line, line_number,
+					    tc_title);
+		break;
+		
+	case EKeywordVar:
+		errors += check_var_line (line, line_number,
+					  tc_title, var_list);
+		break;
+		
+	case EKeywordSendreceive:
+		errors += check_sendreceive_line (line, line_number,
+						  tc_title);
+		break;
+	case EKeywordExpect:
+		
+		errors += check_expect_line (line, var_list, 
+					     line_number,
+						     tc_title);
+		break;
+		
+	case EKeywordInterference:
+		check_result =
+			check_interference_line (line, line_number,
+						 interf_objs,
+						 tc_title);
+		if (check_result != ENOERR) {
+			MIN_ERROR ("Test Interference Fault");
+			errors ++;
+		}
+		break;
+		
+	case EKeywordIf:
+		errors += check_if_line (line, line_number,
+					 tc_title);
+
+		*nest_level = *(nest_level) + 1;
+		nesting [*nest_level] = IF;
+		break;
+		
+	case EKeywordElse:
+		if (nesting [*nest_level] != IF) {
+			SCRIPTER_SYNTAX_ERROR ("else",
+					       "unexpected else");
+			errors ++;
+		}
+		break;
+		
+	case EKeywordEndif:
+		if (*nest_level <= 0 || nesting [*nest_level] != IF) {
+			SCRIPTER_SYNTAX_ERROR ("endif",
+						       "unexpected");
+			errors ++;
+		} else
+			*nest_level = *(nest_level) -1;
+		break;
+		
+	case EKeywordBlocktimeout:
+		errors += check_blockingtimeout_line (line, 
+						      line_number,
+						      tc_title);
+		break;
+		
+	case EKeywordUnknown:
+		SCRIPTER_SYNTAX_ERROR_ARG ("<unknown>",
+					   "[%s]", keyword);
+		errors ++;
+		break;
+	default:
+		SCRIPTER_SYNTAX_ERROR_ARG ("<unknown>",
+					   "[%s]", keyword);
+		errors ++;
+		break;
+	}
+	return errors;
+}
 /** Checks validity of line with "expect" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
+ *  @return ENOERR if line is valid, 1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
@@ -191,7 +507,7 @@ LOCAL int check_expect_line (MinItemParser * line, DLList * varnames,
         if (it == DLListNULLIterator) {
                 SCRIPTER_SYNTAX_ERROR ("expect", 
 				       "Expecting undeclared variable");
-                retval = -1;
+                retval = 1;
         }
 
 	DELETE (varname);
@@ -444,6 +760,140 @@ LOCAL void interpreter_handle_keyword (TScripterKeyword keyword,
         return;
 }
 /* ------------------------------------------------------------------------- */
+/** Checks validity of line with "createx" keyword
+ * @param line  min item parser containing line. Assume that 
+ * mip_get_line was executed once to extract first keyword
+ * @param line_number  line number for debug messages
+ * @param tc_title  title of validated test case
+ * @param assoc_lname  library names list
+ * @param assoc_cnames class names list
+ * @param symblist list of symbols 
+ * @return 0 if line is valid
+ */
+LOCAL int check_create_line (MinItemParser * line, int line_number, 
+			     char * tc_title, DLList *assoc_lnames,
+			     DLList *assoc_cnames, DLList *symblist)
+{
+        char  *ass_lname = NULL;
+	char  *ass_cname = NULL;
+        char  *libname = NULL;
+	char  *classname = NULL;
+        int   lib_already_found = 0;
+        ScripterDataItem *library;
+	DLListIterator it;
+	
+	/*
+	** 1. do we have a class library
+	*/
+	if (mip_get_next_string (line, &libname) != 0) {
+		SCRIPTER_SYNTAX_ERROR ("createx",
+				       "library name "
+				       "is not defined");
+		return 1;
+	}
+
+	/*
+	** 2. do we name for the created class object
+	*/
+	ass_lname = NEW2 (char, strlen (libname) + 1);
+	sprintf (ass_lname, "%s", libname);
+	DELETE (libname);
+	dl_list_add (assoc_lnames, (void *)ass_lname);
+	if (mip_get_next_string (line, &classname) != 0) {
+		SCRIPTER_SYNTAX_ERROR ("createx",
+				       "class name is"
+				       " not defined");
+		return 1;
+	}
+
+	/*
+	** 3. add the class to symbol list if not already present
+	*/
+	ass_cname = NEW2 (char, strlen (classname) + 1);
+	sprintf (ass_cname, "%s", classname);
+	dl_list_add (assoc_cnames, (void *)ass_cname);
+	DELETE (classname);
+	it = dl_list_head (symblist);
+	while (it != DLListNULLIterator) {
+		library = (ScripterDataItem *)
+			dl_list_data (it);
+		if (strcmp (library->DLL_name_, ass_lname) ==
+		    0) {
+			lib_already_found = 1;
+			break;
+		}
+		it = dl_list_next (it);
+	}
+	if (lib_already_found == 0) {
+		library =
+			scripter_dsa_create (ass_lname, ass_cname,
+					     EDLLTypeClass);
+		scripter_dsa_add (symblist, library);
+	}
+	
+	return 0;
+}
+/* ------------------------------------------------------------------------- */
+/** Checks validity of line with "delete" keyword
+ * @param line  min item parser containing line. Assume that 
+ * mip_get_line was executed once to extract first keyword
+ * @param line_number  line number for debug messages
+ * @param tc_title  title of validated test case
+ * @param assoc_lname  library names list
+ * @param assoc_cnames class names list
+ * @return 0 if line is valid
+ */
+LOCAL int check_delete_line (MinItemParser * line, int line_number, 
+			     char * tc_title, DLList *assoc_lnames,
+			     DLList *assoc_cnames)
+{
+	int check_result, i;
+	char *classname = NULL;
+	char *ass_cname = NULL, *ass_lname = NULL;
+
+	if ( mip_get_next_string(line,&classname) != 0 ){
+		SCRIPTER_SYNTAX_ERROR ("delete", "no classname"
+				       "to delete specified");
+		return 1;
+	}
+	check_result = -1;      /*indicate if class was 
+				  created before */
+	for (i = 0;
+	     i < dl_list_size (assoc_cnames);
+	     i++) {
+		ass_cname = (char *)dl_list_data (dl_list_at
+						  (assoc_cnames,
+						   i));
+		if (strcmp (ass_cname, classname) == 0) {
+			check_result = 0;
+			break;
+		}
+	}
+	if (check_result !=0 ){
+		SCRIPTER_SYNTAX_ERROR ("delete", 
+				       "classname not created");
+		DELETE (classname);
+		return 1;
+	}
+	/* ok, test class was created previously, remove 
+	   information from assoc. lists */
+	DELETE (ass_cname);
+	DELETE (classname);
+	dl_list_remove_it (dl_list_at
+			   (assoc_cnames, i));
+	ass_lname =
+		(char *)
+		dl_list_data ((dl_list_at
+                                           (assoc_lnames, i)));
+	DELETE (ass_lname);
+	dl_list_remove_it (dl_list_at
+			   (assoc_lnames, i));
+	/* this way, by the end of validation, assoc_cnames & 
+	   assoc_lnames lists should be empty. 
+	   If they are not, validation fails */
+	return 0;
+}
+/* ------------------------------------------------------------------------- */
 /** Checks validity of line with "run" keyword
  * @param line - min item parser containing line. Assume that 
  * mip_get_line was executed once to extract first keyword
@@ -495,7 +945,7 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
 
         dll_handle = tl_open_tc (f_path);
         if (dll_handle == INITPTR) {
-                opresult = -1;
+                opresult = 1;
                 SCRIPTER_SYNTAX_ERROR_ARG ("run",
 					   "library not opened", lib_name);
                 goto EXIT;
@@ -505,7 +955,7 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
         if (run_case == NULL) {
                 SCRIPTER_SYNTAX_ERROR_ARG ("run",
 					   "run_case() unresolved", dlerror());
-                opresult = -1;
+                opresult = 1;
                 goto EXIT;
         }
 
@@ -530,7 +980,7 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
                 } else {
                         SCRIPTER_SYNTAX_ERROR ("run", 
 					       "Test case id out of range.");
-                        opresult = -1;
+                        opresult = 1;
                 }
                 goto EXIT;
         }
@@ -547,7 +997,7 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
                 if (work_case_item == DLListNULLIterator) {
                         /* whole list has been searched, case with matching
                            title was not found */
-                        opresult = -1;
+                        opresult = 1;
                         SCRIPTER_SYNTAX_ERROR ("run",
 					       "case with matching title not"
 					       " found.");
@@ -592,7 +1042,7 @@ LOCAL int check_pause_line (MinItemParser * line, int line_number,
         if (result != 0) {
                 SCRIPTER_SYNTAX_ERROR ("pause",
 				       "test id is not defined");
-                return -1;
+                return 1;
         }
         DELETE (string);
         return 0;
@@ -618,7 +1068,7 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number,
                 SCRIPTER_SYNTAX_ERROR ("loop",
 				       "number of iterations/time is "
 				       "not defined");
-                return (-1);
+                return 1;
         }
         /* check if the "msec" is stated */
         result = mip_get_next_string (line, &opt_msec);
@@ -629,7 +1079,7 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number,
                         SCRIPTER_SYNTAX_ERROR ("loop",
 					       "wrong keyword in loop "
 					       "statement");
-                        result = -1;
+                        result = 1;
                 }
         }
 
@@ -638,12 +1088,183 @@ LOCAL int check_loop_line (MinItemParser * line, int line_number,
         return 0;
 }
 /*------------------------------------------------------------------------- */
+/** Checks validity of line with "request" keyword
+ * @param line - min item parser containing line. Assume that 
+ * mip_get_line was executed once to extract first keyword
+ * @param line_number - line number for debug messages
+ * @param tc_title - title of validated test case
+ * @param requested_events list of already requested events
+ * @return 0 if line is valid
+ */
+LOCAL int check_request_line (MinItemParser *line, int line_number, 
+			      char *tc_title, DLList *requested_events)
+{
+	char *eventname = NULL, *ass_evname;
+
+	if (mip_get_next_string (line, &eventname) != 0) {
+		SCRIPTER_SYNTAX_ERROR ("request",
+				       "event name is not "
+				       "defined");
+		return 1;
+	}
+	
+	ass_evname = NEW2 (char, strlen (eventname) + 1);
+	sprintf (ass_evname, "%s", eventname);
+	DELETE (eventname);
+	dl_list_add (requested_events, (void *)ass_evname);
+
+	return 0;
+}
+/*------------------------------------------------------------------------- */
+/** Checks validity of line with "release" keyword
+ * @param line - min item parser containing line. Assume that 
+ * mip_get_line was executed once to extract first keyword
+ * @param line_number - line number for debug messages
+ * @param tc_title - title of validated test case
+ * @return 0 if line is valid
+ */
+LOCAL int check_release_line (MinItemParser *line, int line_number, 
+			      char *tc_title) 
+{
+	char *eventname = NULL;
+
+	if (mip_get_next_string (line, &eventname) != 0) {
+		SCRIPTER_SYNTAX_ERROR ("release",
+				       "event name is not "
+				       "defined");
+		DELETE (eventname);
+		return 1;
+	}
+	DELETE (eventname);
+	
+	return 0;
+}
+
+/*------------------------------------------------------------------------- */
+/** Checks validity of line with "wait" keyword
+ * @param line - min item parser containing line. Assume that 
+ * mip_get_line was executed once to extract first keyword
+ * @param line_number - line number for debug messages
+ * @param tc_title - title of validated test case
+ * @param requested_events list of requested events
+ * @return 0 if line is valid
+ */
+LOCAL int check_wait_line (MinItemParser *line, int line_number, 
+			   char *tc_title, DLList *requested_events)
+{
+	char *eventname = NULL, *ass_evname;
+	DLListIterator it;
+
+	
+	if (mip_get_next_string (line, &eventname) != 0) {
+		SCRIPTER_SYNTAX_ERROR ("wait",
+				       "event name is not defined");
+		return 1;
+	}
+	
+	it = dl_list_head (requested_events);
+	if (it == DLListNULLIterator) {
+		SCRIPTER_SYNTAX_ERROR ("wait",
+				       "wait for not requested event");
+		return 1;
+	}
+	while (it != DLListNULLIterator) {
+		ass_evname = (char *)dl_list_data (it);
+		if (strcmp (ass_evname, eventname) == 0) {
+			break;
+		}
+		it = dl_list_next (it);
+		if (it == DLListNULLIterator) {
+			DELETE (eventname);
+			SCRIPTER_SYNTAX_ERROR ("wait",
+					       "wait for not "
+					       "requested event");
+			return 1;
+		}
+		
+	}
+	DELETE (eventname);
+	return 0;
+}
+/* ------------------------------------------------------------------------- */
+/** Checks validity of line with test method call
+ * @param line  min item parser containing line. Assume that 
+ * mip_get_line was executed once to extract first keyword
+ * @param line_number  line number for debug messages
+ * @param tc_title  title of validated test case
+ * @param cname object name 
+ * @param assoc_lname  library names list
+ * @param assoc_cnames class names list
+ * @param symblist list of symbols 
+ * @return 0 if line is valid
+ */
+LOCAL int check_methodcall_line (MinItemParser * line, int line_number, 
+				 char * tc_title, char *cname,
+				 DLList *assoc_lnames,
+				 DLList *assoc_cnames, DLList *symblist)
+{
+	char *ass_lname = NULL, *callname = NULL, *symb_callname = NULL;
+	char *ass_cname = NULL;
+	DLListIterator it;
+	int i, lib_found = 0;
+        ScripterDataItem *library;
+
+	for (i = 0; i < dl_list_size (assoc_cnames); i++) {
+		ass_cname = (char *)dl_list_data (dl_list_at (assoc_cnames, i));
+		if (strcmp (ass_cname, cname) == 0) {
+			ass_lname = (char *)dl_list_data 
+				(dl_list_at (assoc_lnames, i));
+			break;
+		}
+	}
+	
+	if (ass_lname == NULL) {
+		SCRIPTER_SYNTAX_ERROR ("<method call>",
+				       "call for method of "
+				       "non existing class");
+		return 1;
+	}
+	
+	mip_get_next_string (line, &callname);
+	if (callname == NULL) {
+		SCRIPTER_SYNTAX_ERROR ("<method call>",
+				       "method name is not"
+				       " defined");
+		return 1;
+	}
+	symb_callname = NEW2 (char, strlen (callname) + 1);
+	STRCPY (symb_callname, callname,
+                                strlen (callname) + 1);
+	DELETE (callname);
+	it = dl_list_head (symblist);
+	
+	lib_found = 0;
+	while (it != DLListNULLIterator) {
+		library = (ScripterDataItem *)dl_list_data (it);
+		if (strcmp (ass_lname, library->DLL_name_) == 0) {
+			lib_found = 1;
+			scripter_dsa_add_symbol (it,
+						 symb_callname);
+			break;
+		}
+		it = dl_list_next (it);
+	}
+	if (lib_found == 0) {
+		SCRIPTER_SYNTAX_ERROR ("<method call>",
+				       "Selected library "
+				       "was not found");
+		return 1;
+	}
+
+	return 0;
+}
+/*------------------------------------------------------------------------- */
 /** Checks validity of line with "allocate" keyword
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @param slaves [in] list of slaves
  *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
+ *  @return ENOERR if line is valid, 1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
@@ -660,7 +1281,7 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number,
         if (result != ENOERR) {
                 SCRIPTER_SYNTAX_ERROR ("allocate",
 				       "slave type is not defined");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
         DELETE (token);
@@ -668,7 +1289,7 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number,
         if (result != ENOERR) {
 		SCRIPTER_SYNTAX_ERROR ("allocate",
 				       "slave name is not defined");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
 
@@ -680,7 +1301,7 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number,
                 SCRIPTER_SYNTAX_ERROR ("allocate",
 				       "slave with selected name "
 				       "already exists");
-                retval = -1;
+                retval = 1;
                 DELETE (token);
                 goto EXIT;
         }
@@ -696,7 +1317,7 @@ LOCAL int check_allocate_line (MinItemParser * line, int line_number,
  *  @param line_number - line number for debug messages
  *  @param slaves [in] list of slaves
  *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
+ *  @return ENOERR if line is valid, 1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
@@ -711,7 +1332,7 @@ LOCAL int check_free_line (MinItemParser * line, int line_number,
         /* Check syntax. */
         result = mip_get_next_string (line, &token);
         if (result != ENOERR) {
-                retval = -1;
+                retval = 1;
                 DELETE (token);
                 SCRIPTER_SYNTAX_ERROR ("free",
 				       "slave name is not defined");
@@ -723,7 +1344,7 @@ LOCAL int check_free_line (MinItemParser * line, int line_number,
                            , dl_list_tail (slaves)
                            , look4slave, (const void *)token);
         if (it == DLListNULLIterator) {
-                retval = -1;
+                retval = 1;
                 DELETE (token);
                 SCRIPTER_SYNTAX_ERROR ("free",
 				       "slave not allocated");
@@ -745,7 +1366,7 @@ LOCAL int check_free_line (MinItemParser * line, int line_number,
  *  @param line_number - line number for debug messages
  *  @param slaves [in] list of slaves
  *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
+ *  @return ENOERR if line is valid, 1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
@@ -762,7 +1383,7 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
         /* check syntax: remote <slave name> <command> */
         result = mip_get_next_string (line, &token);
         if (result != ENOERR) {
-                retval = -1;
+                retval = 1;
                 DELETE (token);
                 SCRIPTER_SYNTAX_ERROR ("remote",
 				       "slave name is not defined");
@@ -773,7 +1394,7 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
                            , dl_list_tail (slaves)
                            , look4slave, (const void *)token);
         if (it == DLListNULLIterator) {
-                retval = -1;
+                retval = 1;
                 DELETE (token);
                 SCRIPTER_SYNTAX_ERROR ("remote",
 				       "slave not allocated");
@@ -784,7 +1405,7 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
         /* Go back to syntax checking */
         result = mip_get_next_string (line, &token);
         if (result != ENOERR) {
-                retval = -1;
+                retval = 1;
                 DELETE (token);
                 SCRIPTER_SYNTAX_ERROR ("remote",
 				       "remote command is not defined");
@@ -799,7 +1420,7 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
                         SCRIPTER_SYNTAX_ERROR("remote",
 					      "wrong argument for remote "
 					      "sendreceive (no \"=\")");
-                        retval = -1;
+                        retval = 1;
                 } else
                         retval = 0;
                 DELETE (arg);
@@ -813,7 +1434,7 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
                 if (it == DLListNULLIterator) {
                         SCRIPTER_SYNTAX_ERROR ("remote",
 					       "remote expect for unknown var");
-                        retval = -1;
+                        retval = 1;
                 } else
                         retval = 0;
                 DELETE (arg);
@@ -830,7 +1451,7 @@ LOCAL int check_remote_line (MinItemParser * line, DLList * variables,
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
+ *  @return ENOERR if line is valid, 1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
@@ -841,7 +1462,7 @@ LOCAL int check_allownextresult_line (MinItemParser * line, int line_number,
         int             tmp = 0;
 
         if (line == INITPTR) {
-                retval = -1;
+                retval = 1;
                 errno = EINVAL;
                 goto EXIT;
         }
@@ -851,7 +1472,7 @@ LOCAL int check_allownextresult_line (MinItemParser * line, int line_number,
         if (retval != ENOERR) {
                 SCRIPTER_SYNTAX_ERROR ("allownextresult",
 				       "result code is not defined");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
       EXIT:
@@ -862,7 +1483,7 @@ LOCAL int check_allownextresult_line (MinItemParser * line, int line_number,
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
+ *  @return ENOERR if line is valid, 1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
@@ -873,7 +1494,7 @@ LOCAL int check_complete_line (MinItemParser * line, int line_number,
         char           *token = INITPTR;
 
         if (line == INITPTR) {
-                retval = -1;
+                retval = 1;
                 errno = EINVAL;
                 goto EXIT;
         }
@@ -884,7 +1505,7 @@ LOCAL int check_complete_line (MinItemParser * line, int line_number,
         if (retval != ENOERR) {
                 SCRIPTER_SYNTAX_ERROR ("complete",
 				       "testid is not defined");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
 
@@ -897,7 +1518,7 @@ LOCAL int check_complete_line (MinItemParser * line, int line_number,
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
  *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
+ *  @return ENOERR if line is valid, 1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
@@ -908,7 +1529,7 @@ LOCAL int check_timeout_line (MinItemParser * line, int line_number,
         int             tmp = 0;
 
         if (line == INITPTR) {
-                retval = -1;
+                retval = 1;
                 errno = EINVAL;
                 goto EXIT;
         }
@@ -919,13 +1540,13 @@ LOCAL int check_timeout_line (MinItemParser * line, int line_number,
         if (retval != ENOERR) {
                 SCRIPTER_SYNTAX_ERROR ("timeout",
 				       "timeout interval is not defined");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
         if (tmp < 1) {
                 SCRIPTER_SYNTAX_ERROR ("timeout",
 				       "invalid interval value");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
 
@@ -938,7 +1559,7 @@ LOCAL int check_timeout_line (MinItemParser * line, int line_number,
  *  @param line_number - line number for debug messages
  *  @param interf_objs list of interference objects
  *  @param tc_title - title of validated test case
- *  @return ENOERR if line is valid, -1 otherwise. 
+ *  @return ENOERR if line is valid, 1 otherwise. 
  *
  *  NOTE: mip_get_line was executed once to extract first keyword. 
  */
@@ -956,7 +1577,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
         DLListIterator  work_inter = DLListNULLIterator;
 
         if (line == INITPTR) {
-                retval = -1;
+                retval = 1;
                 errno = EINVAL;
                 goto EXIT;
         }
@@ -968,7 +1589,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
             (access ("/usr/bin/ioload", X_OK))) {
                 SCRIPTER_SYNTAX_ERROR ("testinterference", "check if sp-stress"
 				       " is installed properly");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
         retval = mip_get_next_string (line, &name);
@@ -976,7 +1597,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
         /* check syntax */
         if (retval != ENOERR) {
                 SCRIPTER_SYNTAX_ERROR ("testinterference","name missing");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
 
@@ -985,7 +1606,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
         if (retval != ENOERR) {
                 SCRIPTER_SYNTAX_ERROR ("testinterference",
 				       "command not specified");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
         if (strcasecmp (command, "start") == 0) {
@@ -994,7 +1615,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                 if (retval != ENOERR) {
 			SCRIPTER_SYNTAX_ERROR ("testinterference",
 					       "type not specified");
-                        retval = -1;
+                        retval = 1;
                         goto EXIT;
                 }
                 if ((strcmp (type, "cpuload") != 0) &&
@@ -1002,7 +1623,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                     (strcmp (type, "ioload") != 0)) {
                         SCRIPTER_SYNTAX_ERROR ("testinterference",
 					       "type not specified correctly");
-                        retval = -1;
+                        retval = 1;
                         goto EXIT;
                 }
                 retval = mip_get_next_int (line, &value);
@@ -1010,7 +1631,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                 if (retval != ENOERR) {
                         SCRIPTER_SYNTAX_ERROR ("testinterference",
 					       "value not specified");
-                        retval = -1;
+                        retval = 1;
                         goto EXIT;
                 }
                 retval = mip_get_next_int (line, &idle_time);
@@ -1018,7 +1639,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                 if (retval != ENOERR) {
                         SCRIPTER_SYNTAX_ERROR ("testinterference",
 					       "idle time not specified");
-                        retval = -1;
+                        retval = 1;
                         goto EXIT;
                 }
                 retval = mip_get_next_int (line, &busy_time);
@@ -1026,7 +1647,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                 if (retval != ENOERR) {
 			SCRIPTER_SYNTAX_ERROR ("testinterference",
 					       "busy time not specified");
-                        retval = -1;
+                        retval = 1;
                         goto EXIT;
                 }
                 retval = ENOERR;
@@ -1035,10 +1656,10 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                 sprintf (tmp, "%s", name);
                 dl_list_add (interf_objs, (void *)tmp);
         } else if (strcasecmp (command, "stop") == 0) {
-                if (interf_objs == INITPTR) {
-                        retval = -1;
+                if (dl_list_size (interf_objs) == 0) {
+                        retval = 1;
                         SCRIPTER_SYNTAX_ERROR ("testinterference",
-					       "mo interferences started at "
+					       "no interferences started at "
 					       "this point");
                         goto EXIT;
                 }
@@ -1051,7 +1672,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                         work_inter = dl_list_next (work_inter);
                 }
                 if (work_inter == DLListNULLIterator) {
-                        retval = -1;
+                        retval = 1;
                         SCRIPTER_SYNTAX_ERROR ("testinterference",
 					       "no such interference started "
 					       "at this point");
@@ -1065,7 +1686,7 @@ LOCAL int check_interference_line (MinItemParser * line, int line_number,
                 retval = ENOERR;
                 goto EXIT;
         } else {
-                retval = -1;
+                retval = 1;
                 SCRIPTER_SYNTAX_ERROR ("testinterference",
 				       "wrong command name");
                 goto EXIT;
@@ -1097,7 +1718,7 @@ LOCAL int check_sleep_line (MinItemParser * line, int line_number,
         int             tmp = 0;
 
         if (line == INITPTR) {
-                retval = -1;
+                retval = 1;
                 errno = EINVAL;
                 goto EXIT;
         }
@@ -1108,17 +1729,73 @@ LOCAL int check_sleep_line (MinItemParser * line, int line_number,
         if (retval != ENOERR) {
                 SCRIPTER_SYNTAX_ERROR ("sleep",
 				       "sleep interval is not defined");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
         if (tmp < 1) {
                 SCRIPTER_SYNTAX_ERROR ("sleep",
 				       "invalid interval value");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
       EXIT:
         return retval;
+}
+/* ------------------------------------------------------------------------- */
+/** Checks validity of line with "var" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number line number for debug messages
+ *  @param tc_title title of validated test case
+ *  @param var_list list of variables
+ *  @return ENOERR if line is valid, 1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
+LOCAL int check_var_line (MinItemParser *line, int line_number, 
+			  char *tc_title, DLList *var_list)
+{
+	char *varname = NULL;
+        char *ass_varname = NULL;
+
+	mip_get_next_string (line, &varname);
+	if ((varname != NULL) || (varname != INITPTR)) {
+		ass_varname =
+			NEW2 (char, strlen (varname) + 1);
+		sprintf (ass_varname, "%s", varname);
+		dl_list_add (var_list, (void *)ass_varname);
+		DELETE (varname);
+	} else {
+		SCRIPTER_SYNTAX_ERROR ("var",
+				       "variable name not "
+				       "specified");
+		return 1;
+	}
+	return 0;
+}
+/* ------------------------------------------------------------------------- */
+/** Checks validity of line with "sendreceive" keyword 
+ *  @param line [in] MinItemParser containing line.
+ *  @param line_number line number for debug messages
+ *  @param tc_title title of validated test case
+ *  @return ENOERR if line is valid, 1 otherwise. 
+ *
+ *  NOTE: mip_get_line was executed once to extract first keyword. 
+ */
+LOCAL int check_sendreceive_line (MinItemParser *line, int line_number, 
+				  char *tc_title)
+{
+	char *varname = NULL;
+	mip_get_next_string (line, &varname);
+	if ((varname != NULL) && (varname != INITPTR)) {
+		if (strchr (varname, '=') == NULL) {
+			SCRIPTER_SYNTAX_ERROR ("sendrecive",
+					       "Argument has faulty syntax "
+					       "(no '=' character)");
+			return 1;
+		}
+	}
+
+	return 0;
 }
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "blockingtimeout" keyword 
@@ -1136,7 +1813,7 @@ LOCAL int check_blockingtimeout_line (MinItemParser * line, int line_number,
         int             tmp = 0;
 
         if (line == INITPTR) {
-                retval = -1;
+                retval = 1;
                 errno = EINVAL;
                 goto EXIT;
         }
@@ -1147,13 +1824,13 @@ LOCAL int check_blockingtimeout_line (MinItemParser * line, int line_number,
         if (retval != ENOERR) {
                 SCRIPTER_SYNTAX_ERROR ("blockingtimeout",
 				       "timeout is not definced");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
         if (tmp < 0) {
                 SCRIPTER_SYNTAX_ERROR ("blockingtimeout",
 				       "invalid timeout value");
-                retval = -1;
+                retval = 1;
                 goto EXIT;
         }
       EXIT:
@@ -1172,7 +1849,7 @@ LOCAL int check_if_line (MinItemParser * line, int line_number, char * tc_title)
         char *token = INITPTR;
 
         if (line == INITPTR) {
-                retval = -1;
+                retval = 1;
                 errno = EINVAL;
                 goto EXIT;
         }
@@ -1187,7 +1864,250 @@ LOCAL int check_if_line (MinItemParser * line, int line_number, char * tc_title)
 EXIT:
         return retval;
 }
+/* ------------------------------------------------------------------------- */
+/** Validate symbols found from script test case.
+ *  @param symblist list of symbols
+ *  @param testclasses list of test class names
+ *  @param class_methods list of method names
+ *  @param line_number - line number for debug messages
+ *  @param tc_title - title of validated test case
+ *  @return ENOERR if symbols validate, 1 otherwise. 
+ */
+LOCAL int validate_symbols (DLList *symblist, DLList *testclasses, 
+			    DLList *class_methods, 
+			    int line_number, char *tc_title) {
 
+	DLListIterator it, call_item, tc_item;
+	ScripterDataItem *library;
+        TestClassDetails *test_class = INITPTR;
+	TestCaseInfo *tc;
+	char *libpath = NULL;
+        void *dll_handle = NULL;
+        char *callname = NULL;
+
+        it = dl_list_head (symblist);
+	
+        while (it != DLListNULLIterator) {
+                library = (ScripterDataItem *) dl_list_data (it);
+		
+                switch (library->DLL_type_) {
+			
+                case EDLLTypeClass:
+                        if (strstr (library->DLL_name_, ".so") == NULL) {
+				if (libpath) free (libpath);
+                                libpath =
+					NEW2 (char,
+					      strlen (library->DLL_name_) + 4);
+                                sprintf (libpath, "%s.so",
+                                         library->DLL_name_);
+                        } else {
+				if (libpath) free (libpath);
+                                libpath =
+					NEW2 (char,
+					      strlen (library->DLL_name_) + 1);
+                                sprintf (libpath, "%s", library->DLL_name_);
+                        }
+                        dll_handle = tl_open_tc (libpath);
+                        if (dll_handle == INITPTR) {
+                                SCRIPTER_ERROR ("Unable to load "
+						"test library",
+						libpath);
+				DELETE (libpath);
+				return 1;
+                        }
+                        test_class = NEW (TestClassDetails);
+                        test_class->dllhandle_ = dll_handle;
+                        test_class->classname_ =
+				NEW2 (char, strlen (library->Class_name_) + 1);
+                        STRCPY (test_class->classname_,
+                                library->Class_name_,
+                                strlen (library->Class_name_) + 1);
+                        test_class->casetc_ =
+				(ptr2casetc) dlsym (dll_handle,
+						    "ts_get_test_cases");
+                        if (test_class->casetc_ == NULL) {
+                                SCRIPTER_ERROR ("tm_get_cases() unresolved "
+						"in Test Library",
+						dlerror ());
+				DELETE (test_class->classname_);
+				DELETE (test_class);
+				DELETE (libpath);
+				return 1;
+                        }
+                        test_class->runtc_ =
+				(ptr2runtc) dlsym (dll_handle, "ts_run_method");
+                        if (test_class->runtc_ == NULL) {
+                                SCRIPTER_ERROR ("tm_run_case() unresolved "
+						"in Test Library",
+						dlerror ());
+				DELETE (test_class->classname_);
+				DELETE (test_class);
+				DELETE (libpath);
+                                return 1;
+                        }
+                        dl_list_add (testclasses, (void *)test_class);
+                        /*get test case names */
+                        test_class->casetc_ (&class_methods);
+                        if ((class_methods == INITPTR)
+                            || (dl_list_size (class_methods) == 0)) {
+                                MIN_WARN ("Could not get list of "
+					  "functions from %s",
+					  test_class->classname_);
+				DELETE (libpath);
+				return 1;
+                        }
+                        call_item = dl_list_head (library->symbol_list_);
+                        while (call_item != DLListNULLIterator) {
+                                callname = (char *)dl_list_data (call_item);
+                                tc_item = dl_list_head (class_methods);
+                                while (tc_item != DLListNULLIterator) {
+                                        tc = (TestCaseInfo *)
+						dl_list_data (tc_item);
+                                        if (strcmp (callname, tc->name_) == 0)
+                                                break;
+                                        tc_item = dl_list_next (tc_item);
+                                        if (tc_item == DLListNULLIterator) {
+                                                SCRIPTER_ERROR
+							("Symbol not found "
+							 "in class",
+							 callname);
+                                                dlclose (dll_handle);
+						DELETE (libpath);
+						return 1;
+                                        }
+					
+                                }
+                                call_item = dl_list_next (call_item);
+                        }
+			
+                case EDLLTypeNormal:
+                        {
+                                break;
+                        }
+			
+                }
+                it = dl_list_next (it);
+        }
+	DELETE (libpath);
+				
+	return ENOERR;
+}
+/* ------------------------------------------------------------------------- */
+/** Check that all interference objects are stopped within the test case
+ *  @param interf_objs list of interference objects
+ *  @param line_number line number for debug messages
+ *  @param tc_title title of validated test case
+ *  @return number of errors
+ */
+LOCAL int check_interference_objects (DLList *interf_objs, int line_number,
+				      char *tc_title)
+{
+	int errors = 0;
+	char *p;
+	DLListIterator it;
+
+        if ((interf_objs != INITPTR)&&(dl_list_size (interf_objs) != 0)) {
+                SCRIPTER_SYNTAX_ERROR ("interference",
+				       "Not all test interference "
+				       "instances stopped!");
+                it = dl_list_head (interf_objs);
+                while (it != DLListNULLIterator) {
+                        p = (char *)dl_list_data (it);
+                        DELETE (p);
+                        dl_list_remove_it (it);
+                        it = dl_list_head (interf_objs);
+                }
+		errors ++;
+        }
+	return errors;
+}
+/* ------------------------------------------------------------------------- */
+/** Check that classes are deleted before the end.
+ *  @param assoc_names name list which should be empty 
+ *  @param line_number line number for debug messages
+ *  @param tc_title title of validated test case
+ *  @return number of errors
+ */
+LOCAL int check_classes_for_deletion (DLList *assoc_names, 
+				      int line_number, char *tc_title) 
+{
+	int errors = 0;
+	DLListIterator call_item;
+	char *callname;
+
+        call_item = dl_list_head (assoc_names);
+        while (call_item != DLListNULLIterator) {
+                callname = (char *)dl_list_data (call_item);
+		SCRIPTER_ERROR ("Validation error: testclass not "
+				"deleted:",
+				callname);
+                call_item = dl_list_next (call_item);
+		errors ++;
+        }
+
+	return errors;
+}
+/* ------------------------------------------------------------------------- */
+/** Clean-up function for validate_test_case().
+ *  @param slaves list of slaves
+ *  @param testclasses list of test classes
+ *  @param classmethods list of methods
+ *  @param assoc_cnames list of test class names
+ *  @param assoc_lnames list of test method names
+ *  @param requested_events list of requested events
+ *  @param symblist list of symbols
+ *  @param var_list list of variable names
+ *  @param interf_objs list of interference objects
+ */
+LOCAL void do_cleanup (DLList *slaves, 
+		       DLList *testclasses, 
+		       DLList *classmethods,
+		       DLList *assoc_cnames,
+		       DLList *assoc_lnames,
+		       DLList *requested_events,
+		       DLList *symblist,
+		       DLList *var_list,
+		       DLList *interf_objs)
+{
+	DLListIterator it;
+        TestClassDetails *test_class;
+
+	dl_list_free_data (&slaves);
+	dl_list_free (&slaves);
+
+        for (it = dl_list_head (testclasses); it != INITPTR; 
+	     it = dl_list_next (it)) {
+                test_class = dl_list_data (it);
+                DELETE (test_class->classname_);
+                DELETE (test_class);
+        }
+        dl_list_free (&testclasses);
+
+	dl_list_free_data (&classmethods);
+	dl_list_free (&classmethods);
+
+	dl_list_free_data (&assoc_cnames);
+	dl_list_free (&assoc_cnames);
+
+	dl_list_free_data (&assoc_lnames);
+	dl_list_free (&assoc_lnames);
+
+	dl_list_free_data (&requested_events);
+	dl_list_free (&requested_events);
+
+        it = dl_list_head (symblist);
+        while (it != DLListNULLIterator) {
+                scripter_dsa_remove (it);
+                it = dl_list_head (symblist);
+        }
+        dl_list_free (&symblist);
+
+	dl_list_free_data (&var_list);
+	dl_list_free (&var_list);
+	
+	dl_list_free (&interf_objs);
+
+}
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
 /* ------------------------------------------------------------------------- */
@@ -1273,56 +2193,29 @@ char      *validate_test_case (MinSectionParser * testcase, char **description)
         char           *token = INITPTR;
         int             line_number = -1;       // Line number in test case
 
-        TestClassDetails *test_class = INITPTR;
-        /*association lists, assoc_cnames holds class names defined
-          in script, assoc_lnames holds library namse in corresponding
-          positions */
+        /* association lists, assoc_cnames holds class names defined
+	   in script, assoc_lnames holds library names in corresponding
+	   positions */
         DLList         *assoc_cnames = dl_list_create ();
         DLList         *assoc_lnames = dl_list_create ();
-        int             loopcounter = 0;
-        int             check_result = -1;
-        int             lib_already_found;
-        char           *ass_lname = NULL;
-        char           *ass_evname = NULL;
-        char           *ass_cname = NULL;
-        char           *libname = NULL;
-        char           *classname = NULL;
-        char           *callname = NULL;
-        char           *symb_callname = NULL;
-        char           *libpath = NULL;
-        char           *varname = NULL;
-        char           *ass_varname = NULL;
-        ScripterDataItem *library;
-        DLListIterator  library_item = DLListNULLIterator;
-        DLListIterator  var_item = DLListNULLIterator;
         DLList         *symblist = dl_list_create ();
-        DLList         *var_list = dl_list_create ();   /*holds "variable"
-                                                          names, for validating
-                                                          var and expect 
-                                                          keywords */
-        DLList         *class_methods = INITPTR;
-        DLListIterator  call_item = INITPTR;
-        DLListIterator  tc_item = INITPTR;
+	/*holds "variable" names, for validating var and expect keywords */
+        DLList         *var_list = dl_list_create ();   
+        /* holds names of requested events,  to validate "wait" statements */
+        DLList         *requested_events = dl_list_create ();
+        /* holds list of slaves for "allocate"/"free" validation */
 	DLList         *slaves;
-	DLList         *interf_objs = INITPTR;
-        TestCaseInfo   *tc;
+
+        int             check_result = -1;
+        DLList         *class_methods = dl_list_create();
+	DLList         *interf_objs = dl_list_create();
         char           *tc_title = NULL;
         DLList         *testclasses = dl_list_create ();
-        void           *dll_handle = NULL;
-        unsigned int    len = 0;
-        /* this will hold names of requested events, 
-         * to validate "wait" statements */
-        DLList         *requested_events = dl_list_create ();
-        enum            nesting_type {
-                IF = 1,
-                LOOP
-        };
         int             nest_level = 0;
         char            nesting [255];
-        TSBool          in_loop;
 	int             errors = 0;
-	Text           *tx_desc = tx_create("");
-
+	Text           *tx_desc = tx_create ("");
+	
         /* allocate place for allocated slaves. */
         slaves = dl_list_create ();
         line = mmp_get_item_line (testcase, "", ESNoTag);
@@ -1334,813 +2227,50 @@ char      *validate_test_case (MinSectionParser * testcase, char **description)
                 if (token != INITPTR)
                         DELETE (token);
                 mip_get_string (line, "", &token);
-                switch (get_keyword (token)) {
-                case EKeywordSet:
-                case EKeywordUnset:
-                case EKeywordSkipIt:
-                        /* currently this handles set and unset lines
-                           since we are not really able to validate them */
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordTitle:
-                        len = strlen (line->item_skip_and_mark_pos_);
-                        if (len == 0) {
-                                SCRIPTER_SYNTAX_ERROR ("title",
-						       "Test case "
-						       "title is not defined");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        tc_title = NEW2 (char, len + 1);
-                        STRCPY (tc_title, line->item_skip_and_mark_pos_,
-                                len + 1);
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordDescription:
-                        len = strlen (line->item_skip_and_mark_pos_);
-			tx_c_append (tx_desc, " ");
-			tx_c_append (tx_desc, line->item_skip_and_mark_pos_);
-			mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
+		
+		errors += validate_line (token, line, line_number, 
+					 &tc_title, tx_desc,
+					 assoc_lnames, assoc_cnames,
+					 symblist, var_list,requested_events,
+					 slaves, interf_objs, nesting,
+					 &nest_level);
+		mip_destroy (&line);
+		if (errors)
+			goto EXIT_VALIDATE;
+		line = mmp_get_next_item_line (testcase);
 
-                case EKeywordCreate:
-                        /*class and dll names are writen to assoc_ lists */
-                        if (mip_get_next_string (line, &libname) != 0) {
-                                SCRIPTER_SYNTAX_ERROR ("createx",
-						       "library name "
-						       "is not defined");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        ass_lname = NEW2 (char, strlen (libname) + 1);
-                        sprintf (ass_lname, "%s", libname);
-                        DELETE (libname);
-                        dl_list_add (assoc_lnames, (void *)ass_lname);
-                        if (mip_get_next_string (line, &classname) != 0) {
-                                SCRIPTER_SYNTAX_ERROR ("createx",
-						       "class name is"
-						       " not defined");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        ass_cname = NEW2 (char, strlen (classname) + 1);
-                        sprintf (ass_cname, "%s", classname);
-                        dl_list_add (assoc_cnames, (void *)ass_cname);
-                        DELETE (classname);
-                        lib_already_found = 0;
-                        library_item = dl_list_head (symblist);
-                        while (library_item != DLListNULLIterator) {
-                                library = (ScripterDataItem *)
-                                    dl_list_data (library_item);
-                                if (strcmp (library->DLL_name_, ass_lname) ==
-                                    0) {
-                                        lib_already_found = 1;
-                                        break;
-                                }
-                                library_item = dl_list_next (library_item);
-                        }
-                        if (lib_already_found == 0) {
-                                library =
-                                    scripter_dsa_create (ass_lname, ass_cname,
-                                                         EDLLTypeClass);
-                                scripter_dsa_add (symblist, library);
-                        }
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordDelete:
-                        if ( mip_get_next_string(line,&classname) != 0 ){
-                                SCRIPTER_SYNTAX_ERROR ("delete", "no classname"
-						       "to delete specified");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        check_result = -1;      /*indicate if class was 
-                                                  created before */
-                        for (loopcounter = 0;
-                             loopcounter < dl_list_size (assoc_cnames);
-                             loopcounter++) {
-                                ass_cname =
-                                    (char *)
-                                    dl_list_data (dl_list_at
-                                                  (assoc_cnames,
-                                                   loopcounter));
-                                if (strcmp (ass_cname, classname) == 0) {
-                                        check_result = 0;
-                                        break;
-                                }
-                        }
-                        if (check_result !=0 ){
-                                SCRIPTER_SYNTAX_ERROR ("delete", 
-						       "classname not created");
-				errors ++;
-                                DELETE (classname);
-                                goto EXIT_VALIDATE;
-                        }
-                        /*ok, test class was created previously, remove 
-                           information from assoc. lists */
-                        DELETE (ass_cname);
-                        DELETE (classname);
-                        dl_list_remove_it (dl_list_at
-                                           (assoc_cnames, loopcounter));
-                        ass_lname =
-                            (char *)
-                            dl_list_data ((dl_list_at
-                                           (assoc_lnames, loopcounter)));
-                        DELETE (ass_lname);
-                        dl_list_remove_it (dl_list_at
-                                           (assoc_lnames, loopcounter));
-                        /*this way, by the end of validation, assoc_cnames & 
-                          assoc_lnames lists should be empty. 
-                          If they are not, validation fails */
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordPause:
-                        check_result = check_pause_line (line, line_number,
-							 tc_title);
-                        if (check_result != 0) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordLoop:
-                        check_result = check_loop_line (line, line_number,
-							tc_title);
-                        if (check_result == 0) {
-                                nest_level++;
-                                nesting [nest_level] = LOOP;
-                        } else {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordEndloop:
-                        if (nest_level <= 0 || nesting [nest_level] != LOOP) {
-                                SCRIPTER_SYNTAX_ERROR ("endloop","unexpected");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        nest_level--;
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordBreakloop:
-                        loopcounter = nest_level;
-                        in_loop = ESFalse;
-                        while (loopcounter > 0) {
-                                if (nesting [loopcounter] == LOOP) {
-                                        in_loop = ESTrue;
-                                        break;
-                                }
-                                loopcounter --;
-                        }
-                        if (in_loop == ESFalse) {
-                                SCRIPTER_SYNTAX_ERROR ("breakloop",
-						       "no loop to break");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordRequest:
-                        check_result = mip_get_next_string (line, &callname);
-                        if (check_result != 0) {
-                                SCRIPTER_SYNTAX_ERROR ("request",
-						       "event name is not "
-						       "defined");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        ass_evname = NEW2 (char, strlen (callname) + 1);
-                        sprintf (ass_evname, "%s", callname);
-                        dl_list_add (requested_events, (void *)ass_evname);
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordRelease:
-                        check_result = mip_get_next_string (line, &callname);
-                        if (check_result != 0) {
-                                SCRIPTER_SYNTAX_ERROR ("release",
-						       "event name is not "
-						       "defined");
-				errors++;
-                                DELETE (callname);
-                                goto EXIT_VALIDATE;
-                        }
-                        DELETE (callname);
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordWait:
-                        check_result = mip_get_next_string (line, &callname);
-                        if (check_result != 0) {
-                                SCRIPTER_SYNTAX_ERROR ("wait",
-						       "event name is "
-						       "not defined");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        call_item = dl_list_head (requested_events);
-                        if (call_item == DLListNULLIterator) {
-                                SCRIPTER_SYNTAX_ERROR ("wait",
-						       "eait for not "
-						       "requested event");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        while (call_item != DLListNULLIterator) {
-                                ass_evname = (char *)dl_list_data (call_item);
-                                if (strcmp (ass_evname, callname) == 0) {
-                                        break;
-                                }
-                                call_item = dl_list_next (call_item);
-                                if (call_item == DLListNULLIterator) {
-                                        SCRIPTER_SYNTAX_ERROR ("wait",
-							       "wait for not "
-							       "requested event"
-							       );
-					errors ++;
-                                        goto EXIT_VALIDATE;
-
-                                }
-
-                        }
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordClassName:
-                        ass_lname = NULL;
-                        for (loopcounter = 0;
-                             loopcounter < dl_list_size (assoc_cnames);
-                             loopcounter++) {
-                                ass_cname = (char *)
-                                    dl_list_data (dl_list_at
-                                                  (assoc_cnames,
-                                                   loopcounter));
-                                if (strcmp (ass_cname, token) == 0) {
-                                        ass_lname = (char *)
-                                            dl_list_data (dl_list_at
-                                                          (assoc_lnames,
-                                                           loopcounter));
-                                        break;
-                                }
-                        }
-
-                        if (ass_lname == NULL) {
-                                SCRIPTER_SYNTAX_ERROR ("<method call>",
-						       "call for method of "
-						       "non existing class");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        };
-
-                        mip_get_next_string (line, &callname);
-                        if (callname == NULL) {
-                                SCRIPTER_SYNTAX_ERROR ("<method call>",
-						       "method name is not"
-						       " defined");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        symb_callname = NEW2 (char, strlen (callname) + 1);
-                        STRCPY (symb_callname, callname,
-                                strlen (callname) + 1);
-                        DELETE (callname);
-                        library_item = dl_list_head (symblist);
-
-                        lib_already_found = 0;
-                        while (library_item != DLListNULLIterator) {
-                                library = (ScripterDataItem *)
-                                    dl_list_data (library_item);
-                                if (strcmp (ass_lname, library->DLL_name_) ==
-                                    0) {
-                                        lib_already_found = 1;
-                                        scripter_dsa_add_symbol (library_item,
-                                                                 symb_callname);
-                                        break;
-                                }
-                                library_item = dl_list_next (library_item);
-                        }
-                        if (lib_already_found == 0) {
-                                SCRIPTER_SYNTAX_ERROR ("<method call>",
-						       "Selected library "
-						       "was not found");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        break;
-                case EKeywordRun:
-                        check_result = check_run_line (line, line_number, 
-						       tc_title);
-                        mip_destroy (&line);
-
-                        if (check_result != 0) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordPrint:
-                        /*we don't care about it at this point */
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordResume:
-                        /*we don't care about it at this point */
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordCancel:
-                        /*we don't care about it at this point */
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordAllocate:
-                        check_result =
-				check_allocate_line (line, line_number, slaves,
-						     tc_title);
-                        mip_destroy (&line);
-
-                        if (check_result != ENOERR) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordFree:
-                        check_result = check_free_line (line, line_number, 
-							slaves, tc_title);
-                        mip_destroy (&line);
-
-                        if (check_result != ENOERR) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordRemote:
-
-                        check_result =
-				check_remote_line (line, var_list, line_number,
-						   slaves, tc_title);
-                        mip_destroy (&line);
-
-                        if (check_result != ENOERR) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordAllowNextResult:
-                        check_result =
-				check_allownextresult_line (line, line_number,
-							    tc_title);
-                        mip_destroy (&line);
-                        if (check_result != ENOERR) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordComplete:
-                        check_result =
-				check_complete_line (line, line_number, 
-						     tc_title);
-                        mip_destroy (&line);
-
-                        if (check_result != ENOERR) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordCancelIfError:
-                        mip_destroy (&line);
-
-                        /* No need to check because canceliferror keyword
-                         * does not have any parameters. */
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordTimeout:
-                        check_result = check_timeout_line (line, line_number,
-							   tc_title);
-                        mip_destroy (&line);
-
-                        if (check_result != ENOERR) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordSleep:
-                        check_result = check_sleep_line (line, line_number,
-							 tc_title);
-                        mip_destroy (&line);
-
-                        if (check_result != ENOERR) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordVar:
-
-                        mip_get_next_string (line, &varname);
-                        if ((varname != NULL) || (varname != INITPTR)) {
-                                ass_varname =
-                                    NEW2 (char, strlen (varname) + 1);
-                                sprintf (ass_varname, "%s", varname);
-                                dl_list_add (var_list, (void *)ass_varname);
-                                mip_destroy (&line);
-                                DELETE (varname);
-                        } else {
-                                SCRIPTER_SYNTAX_ERROR ("var",
-						       "variable name not "
-						       "specified");
-                                mip_destroy (&line);
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                        
-                case EKeywordSendreceive:
-                        mip_get_next_string (line, &varname);
-                        if ((varname != NULL) && (varname != INITPTR)) {
-                                if (strchr (varname, '=') == NULL) {
-                                        SCRIPTER_SYNTAX_ERROR ("sendrecive",
-							       "Argument has "
-							       "faulty syntax "
-							       "(no '=' "
-							       "character)");
-                                        mip_destroy (&line);
-					errors ++;
-                                        goto EXIT_VALIDATE;
-                                }
-                        }
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordExpect:
-
-                        check_result =
-				check_expect_line (line, var_list, line_number,
-						   tc_title);
-                        mip_destroy (&line);
-
-                        if (check_result != ENOERR) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordInterference:
-			if (interf_objs == INITPTR) {
-				interf_objs = dl_list_create ();
-			}
-                        check_result =
-				check_interference_line (line, line_number,
-							 interf_objs,
-							 tc_title);
-                        if (check_result != ENOERR) {
-                                MIN_ERROR ("Test Interference Fault");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordIf:
-                        check_result = check_if_line (line, line_number,
-						      tc_title);
-                        if (check_result != ENOERR) {
-				MIN_ERROR ("Syntax error in line %d. "
-                                           "Invalid if statement", 
-                                           line_number);
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        nest_level++;
-                        nesting [nest_level] = IF;
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordElse:
-                        if (nesting [nest_level] != IF) {
-                                SCRIPTER_SYNTAX_ERROR ("else",
-						       "unexpected else");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordEndif:
-                        if (nest_level <= 0 || nesting [nest_level] != IF) {
-                                SCRIPTER_SYNTAX_ERROR ("endif",
-						       "unexpected");
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        nest_level--;
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordBlocktimeout:
-                        check_result = check_blockingtimeout_line (line, 
-								   line_number,
-								   tc_title);
-                        mip_destroy (&line);
-
-                        if (check_result != ENOERR) {
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                case EKeywordUnknown:
-                        SCRIPTER_SYNTAX_ERROR_ARG ("<unknown>",
-						   "[%s]", token);
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        break;
-                default:
-                        SCRIPTER_SYNTAX_ERROR_ARG ("<unknown>",
-						   "[%s]", token);
-                        mip_destroy (&line);
-                        line = mmp_get_next_item_line (testcase);
-                        continue;
-                        break;
-                }
         }
 
         /* check if script's loop counter is 0, otherwise fail syntax check */
         if (nest_level != 0) {
 		errors ++;
-                SCRIPTER_SYNTAX_ERROR (nesting [nest_level] == IF ? "endif"
+                SCRIPTER_SYNTAX_ERROR (nesting [nest_level] == 1 ? "endif"
 				       : "endloop", "missing");
                 goto EXIT_VALIDATE;
         }
 
+        /*ok, finished fetching symbols from script, now let's validate them */
+	errors += validate_symbols (symblist, testclasses, class_methods, 
+				    line_number, tc_title);
         /*now check if all interference objects have been stopped (this is
            very important!) */
-        if ((interf_objs != INITPTR)&&(dl_list_size (interf_objs) != 0)) {
-                MIN_WARN ("Not all test interference instances stopped!");
-                var_item = dl_list_head (interf_objs);
-                while (var_item != DLListNULLIterator) {
-                        varname = (char *)dl_list_data (var_item);
-                        DELETE (varname);
-                        dl_list_remove_it (var_item);
-                        var_item = dl_list_head (interf_objs);
-                }
-		errors ++;
-                goto EXIT_VALIDATE;
-        }
-        /*ok, finished fetching symbols from script, now let's validate them */
-        library_item = dl_list_head (symblist);
+	errors += check_interference_objects (interf_objs, line_number,
+					      tc_title);
+	errors += check_classes_for_deletion (assoc_cnames, line_number,
+					      tc_title);
+	errors += check_classes_for_deletion (assoc_lnames, line_number,
+					      tc_title);
 
-        while (library_item != DLListNULLIterator) {
-                library = (ScripterDataItem *) dl_list_data (library_item);
-
-                switch (library->DLL_type_) {
-
-                case EDLLTypeClass:
-                        if (strstr (library->DLL_name_, ".so") == NULL) {
-				if (libpath) free (libpath);
-                                libpath =
-                                    NEW2 (char,
-                                          strlen (library->DLL_name_) + 4);
-                                sprintf (libpath, "%s.so",
-                                         library->DLL_name_);
-                        } else {
-				if (libpath) free (libpath);
-                                libpath =
-                                    NEW2 (char,
-                                          strlen (library->DLL_name_) + 1);
-                                sprintf (libpath, "%s", library->DLL_name_);
-                        }
-                        dll_handle = tl_open_tc (libpath);
-                        if (dll_handle == INITPTR) {
-                                SCRIPTER_ERROR ("Unable to load "
-						"test library",
-						libpath);
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        test_class = NEW (TestClassDetails);
-                        test_class->dllhandle_ = dll_handle;
-                        test_class->classname_ =
-                            NEW2 (char, strlen (library->Class_name_) + 1);
-                        STRCPY (test_class->classname_,
-                                library->Class_name_,
-                                strlen (library->Class_name_) + 1);
-                        test_class->casetc_ =
-                            (ptr2casetc) dlsym (dll_handle,
-                                                "ts_get_test_cases");
-                        if (test_class->casetc_ == NULL) {
-                                SCRIPTER_ERROR ("tm_get_cases() unresolved "
-						"in Test Library",
-						dlerror ());
-				errors ++;
-				DELETE (test_class->classname_);
-				DELETE (test_class);
-                                goto EXIT_VALIDATE;
-                        }
-                        test_class->runtc_ =
-                            (ptr2runtc) dlsym (dll_handle, "ts_run_method");
-                        if (test_class->runtc_ == NULL) {
-                                SCRIPTER_ERROR ("tm_run_case() unresolved "
-						"in Test Library",
-						dlerror ());
-				errors ++;
-				DELETE (test_class->classname_);
-				DELETE (test_class);
-                                goto EXIT_VALIDATE;
-                        }
-                        dl_list_add (testclasses, (void *)test_class);
-                        class_methods = dl_list_create ();
-                        /*get test case names */
-                        test_class->casetc_ (&class_methods);
-                        if ((class_methods == INITPTR)
-                            || (dl_list_size (class_methods) == 0)) {
-                                MIN_WARN ("Could not get list of "
-                                           "functions from %s",
-                                           test_class->classname_);
-				errors ++;
-                                goto EXIT_VALIDATE;
-                        }
-                        call_item = dl_list_head (library->symbol_list_);
-                        while (call_item != DLListNULLIterator) {
-                                callname = (char *)dl_list_data (call_item);
-                                tc_item = dl_list_head (class_methods);
-                                while (tc_item != DLListNULLIterator) {
-                                        tc = (TestCaseInfo *)
-                                            dl_list_data (tc_item);
-                                        if (strcmp (callname, tc->name_) == 0)
-                                                break;
-                                        tc_item = dl_list_next (tc_item);
-                                        if (tc_item == DLListNULLIterator) {
-                                                SCRIPTER_ERROR
-                                                    ("Symbol not found "
-                                                     "in class",
-                                                     callname);
-                                                dlclose (dll_handle);
-						errors ++;
-                                                goto EXIT_VALIDATE;
-                                        }
-
-                                }
-                                call_item = dl_list_next (call_item);
-                        }
-
-                case EDLLTypeNormal:
-                        {
-                                break;
-                        }
-
-                }
-                library_item = dl_list_next (library_item);
-        }
-        /*free all allocated memory */
       EXIT_VALIDATE:
+        /* free all allocated memory */
         if (token != INITPTR)
                 DELETE (token);
 
-        call_item = dl_list_head (slaves);
-        while (call_item != DLListNULLIterator) {
-                callname = (char *)dl_list_data (call_item);
-                DELETE (callname);
-                dl_list_remove_it (call_item);
-                call_item = dl_list_head (slaves);
-        }
-
-        call_item = dl_list_head (testclasses);
-        while (call_item != DLListNULLIterator) {
-                test_class = dl_list_data (call_item);
-                DELETE (test_class->classname_);
-                DELETE (test_class);
-                call_item = dl_list_next (call_item);
-        }
-        dl_list_free (&testclasses);
-
-        call_item = dl_list_head (class_methods);
-        while (call_item != DLListNULLIterator) {
-                tc = (TestCaseInfo *) dl_list_data (call_item);
-                DELETE (tc);
-                call_item = dl_list_next (call_item);
-        }
-        dl_list_free (&class_methods);
+	do_cleanup (slaves, testclasses, class_methods, assoc_cnames,
+		    assoc_lnames, requested_events, symblist,
+		    var_list, interf_objs);
 
 
-        dl_list_free (&slaves);
-        free (libpath);
-        call_item = dl_list_head (assoc_cnames);
-        while (call_item != DLListNULLIterator) {
-                callname = (char *)dl_list_data (call_item);
-		SCRIPTER_ERROR ("Validation error: testclass not "
-				"deleted:",
-				callname);
-                free (callname);
-                dl_list_remove_it (call_item);
-                call_item = dl_list_head (assoc_cnames);
-        }
-        dl_list_free (&assoc_cnames);
-        if (dl_list_size (assoc_lnames) != 0) {
-                /*list not empty, so not all classes
-                   were "deleted" */
-                if (tc_title != INITPTR) {
-			errors ++;
-                }
-        }
-
-        call_item = dl_list_head (requested_events);
-        while (call_item != DLListNULLIterator) {
-                ass_evname = (char *)dl_list_data (call_item);
-                free (ass_evname);
-                dl_list_remove_it (call_item);
-                call_item = dl_list_head (requested_events);
-        }
-        dl_list_free (&requested_events);
-
-        call_item = dl_list_head (assoc_lnames);
-        while (call_item != DLListNULLIterator) {
-                callname = (char *)dl_list_data (call_item);
-                free (callname);
-                dl_list_remove_it (call_item);
-                call_item = dl_list_head (assoc_lnames);
-        }
-        dl_list_free (&assoc_lnames);
-
-        library_item = dl_list_head (symblist);
-        while (library_item != DLListNULLIterator) {
-                scripter_dsa_remove (library_item);
-                library_item = dl_list_head (symblist);
-        }
-        dl_list_free (&symblist);
-
-        var_item = dl_list_head (var_list);
-        while (var_item != DLListNULLIterator) {
-                varname = (char *)dl_list_data (var_item);
-                DELETE (varname);
-                dl_list_remove_it (var_item);
-                var_item = dl_list_head (var_list);
-        }
-        dl_list_free (&var_list);
-	
 	if (errors) {
 		DELETE (tc_title);
 		tc_title = NULL;
@@ -2151,6 +2281,8 @@ char      *validate_test_case (MinSectionParser * testcase, char **description)
 
         return tc_title;
 }
+
+
 /* ------------------------------------------------------------------------- */
 /** Handle current script command and move to next.
  *  @return ENOERR in case of success, -1 otherwise.

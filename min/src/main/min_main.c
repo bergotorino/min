@@ -507,6 +507,7 @@ int main (int argc, char *argv[], char *envp[])
 	plugin_cont[0].plugin_thread_ = 
 		load_plugin(c2, plugin_opts,
 			    &plugin_cont[0].plugin_handle_);
+	DELETE (c2);
 	num_of_plugins++;
 	/* Multiple plugins not supported yet by engine.
 	 * FIXME: remove in future following lines. */

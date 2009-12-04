@@ -398,7 +398,7 @@ LOCAL void pl_case_started (unsigned moduleid,
         tmp->case_ = dl_list_data(it);
 
         /* add to list */
-        dl_list_add (executed_case_list_,(void*)tmp);
+        dl_list_add (executed_case_list_, (void*)tmp);
 }
 /* ------------------------------------------------------------------------- */
 /** Engine calls this when it when test case has finished
@@ -605,6 +605,11 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
  */
 void pl_open_plugin (void *opts)
 {
+	DLListIterator it;
+        CLIModuleData *cld;
+	CLICaseData *ccd;
+	struct ExecutedTestCase *etc;
+
 	memcpy (&cliopts, (cli_opts*)opts, sizeof (cli_opts));
         if (min_clbk_.min_open) min_clbk_.min_open ();
 	while (!all_done()) {
@@ -612,7 +617,36 @@ void pl_open_plugin (void *opts)
 	}
         if (min_clbk_.min_close) min_clbk_.min_close ();
 	
+	for (it = dl_list_head (available_modules);
+	     it != DLListNULLIterator;
+	     it = dl_list_next (it)) {
+		cld = (CLIModuleData *)dl_list_data (it);
+		tx_destroy (&cld->modulename_);
+		DELETE (cld);
+	}
+	dl_list_free (&available_modules);
+
+	for (it = dl_list_head (case_list_);
+	     it != DLListNULLIterator;
+	     it = dl_list_next (it)) {
+		ccd = (CLICaseData *)dl_list_data (it);
+		tx_destroy (&ccd->casetitle_);
+		tx_destroy (&ccd->casedesc_);
+		DELETE (ccd);
+	}
+	dl_list_free (&case_list_);
 	
+	for (it = dl_list_head (executed_case_list_);
+	     it != DLListNULLIterator;
+	     it = dl_list_next (it)) {
+		etc = (struct ExecutedTestCase *)dl_list_data (it);
+		tx_destroy (&etc->resultdesc_);
+		DELETE (etc);
+	}
+	dl_list_free (&executed_case_list_);
+	
+
+
         return;
 }
 /* ------------------------------------------------------------------------- */

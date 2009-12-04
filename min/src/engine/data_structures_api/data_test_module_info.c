@@ -523,6 +523,8 @@ void tm_set_tclist (DLListIterator item_tm_data, DLList * tcs_list)
         pthread_mutex_lock (&TM_MUTEX);
 
         test_module_info_s *tm_data = dl_list_data (item_tm_data);
+	if (tm_data->test_case_list_ != INITPTR)
+		dl_list_free (&tm_data->test_case_list_);
         tm_data->test_case_list_ = tcs_list;
 
         pthread_mutex_unlock (&TM_MUTEX);
