@@ -232,7 +232,6 @@ LOCAL int parse_engine_defaults (void *data, MinSectionParser *msp)
         if (bin_path != INITPTR) {
                 DELETE (bin_path);
         }
-        mmp_destroy (&msp);
 	
 	return 0;
 

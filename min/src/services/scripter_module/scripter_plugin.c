@@ -202,18 +202,18 @@ LOCAL void      do_cleanup (DLList *slaves,  DLList *testclasses,
 			    DLList *symblist, DLList *var_list, 
 			    DLList *interf_objs);
 /* ------------------------------------------------------------------------- */
-LOCAL int validate_line (char *keyword,  MinItemParser * line, int line_number,
-			 char **p_tc_title, Text *tx_desc, DLList *assoc_lnames,
-			 DLList *assoc_cnames, DLList *symblist,
-			 DLList *var_list, DLList *requested_events,
-			 DLList *slaves, DLList *interf_objs, char *nesting,
-			 int    *nest_level);
+LOCAL int       validate_line (char *keyword,  MinItemParser * line, 
+			       int line_number, char **p_tc_title, 
+			       Text *tx_desc, DLList *assoc_lnames,
+			       DLList *assoc_cnames, DLList *symblist,
+			       DLList *var_list, DLList *requested_events,
+			       DLList *slaves, DLList *interf_objs, 
+			       char *nesting, int *nest_level);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
-/* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /** Validates one line in test script.
  *  @param keyword keyword to be handled 
@@ -221,7 +221,15 @@ LOCAL int validate_line (char *keyword,  MinItemParser * line, int line_number,
  *  @param line_number  line number for debug messages
  *  @param p_tc_title pointer to test case title string
  *  @param tx_desc test case description container
-
+ *  @param assoc_lnames list of test method names
+ *  @param assoc_cnames list of test class names
+ *  @param symblist list of symbols 
+ *  @param var_list list of variables
+ *  @param requested_events list of already requested events
+ *  @param slaves  list of slaves
+ *  @param interf_objs list of interference objects
+ *  @param nesting buffer to keep track of nesting types (if/loop)
+ *  @param nest_level current level of nesting
  *  @return number of errors
  */
 LOCAL int validate_line (char *keyword, 
@@ -479,6 +487,7 @@ LOCAL int validate_line (char *keyword,
 	}
 	return errors;
 }
+/* ------------------------------------------------------------------------- */
 /** Checks validity of line with "expect" keyword 
  *  @param line [in] MinItemParser containing line.
  *  @param line_number - line number for debug messages
@@ -2204,7 +2213,7 @@ char      *validate_test_case (MinSectionParser * testcase, char **description)
         /* holds names of requested events,  to validate "wait" statements */
         DLList         *requested_events = dl_list_create ();
         /* holds list of slaves for "allocate"/"free" validation */
-	DLList         *slaves;
+	DLList         *slaves = dl_list_create ();
 
         int             check_result = -1;
         DLList         *class_methods = dl_list_create();
@@ -2215,24 +2224,29 @@ char      *validate_test_case (MinSectionParser * testcase, char **description)
         char            nesting [255];
 	int             errors = 0;
 	Text           *tx_desc = tx_create ("");
-	
-        /* allocate place for allocated slaves. */
-        slaves = dl_list_create ();
+
         line = mmp_get_item_line (testcase, "", ESNoTag);
-        //mmp_get_line(testcase,"",&line,ESNoTag);
         while (line != INITPTR) {
-                line_number++;  // increment line number
+                line_number++;  
                 line->parsing_type_ = EQuoteStyleParsing;
 
                 if (token != INITPTR)
                         DELETE (token);
                 mip_get_string (line, "", &token);
 		
-		errors += validate_line (token, line, line_number, 
-					 &tc_title, tx_desc,
-					 assoc_lnames, assoc_cnames,
-					 symblist, var_list,requested_events,
-					 slaves, interf_objs, nesting,
+		errors += validate_line (token, 
+					 line, 
+					 line_number, 
+					 &tc_title, 
+					 tx_desc,
+					 assoc_lnames, 
+					 assoc_cnames,
+					 symblist, 
+					 var_list,
+					 requested_events,
+					 slaves, 
+					 interf_objs, 
+					 nesting,
 					 &nest_level);
 		mip_destroy (&line);
 		if (errors)
