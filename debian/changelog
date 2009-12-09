@@ -1,3 +1,12 @@
+min-all (2009w51) unstable; urgency=low
+  * Nineteenth MIN Release
+  * Fixed: refactored validate_test_case() for smaller code complexity.
+  * Fixed: refactored rcp-message handling so that it uses MIN Engine api
+  * Added: test case description feature
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Wed,   9 Dec 2009 11:46:00 +0100 
+
+
 min-all (2009w46) unstable; urgency=low
   * Eighteenth MIN Release
   * Fixed: Test case pausing fails in scratchbox ARM emulation.
