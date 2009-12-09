@@ -39,7 +39,7 @@ minTestEventParam_t ind_param, sta_param;
   sta_param.event.event_type_ = EState;} while(0)
 
 
-void setup (void)
+LOCAL void setup (void)
 {
 	FILL_IND();
         FILL_STA();
@@ -47,7 +47,7 @@ void setup (void)
 
 }
 
-void teardown (void)
+LOCAL void teardown (void)
 {
 	event_system_cleanup();
 }

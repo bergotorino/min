@@ -53,7 +53,9 @@
 extern DLList *ms_assoc;
 extern int slave_exit;
 extern eapiIn_t *in;
+#ifndef MIN_UNIT_TEST
 extern eapiOut_t *out; /* min_main.c */
+#endif
 extern void pl_attach_plugin(eapiIn_t **, eapiOut_t *); /* mintfwif.c */
 extern tfwif_callbacks_s tfwif_callbacks;
 
@@ -741,12 +743,13 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
 int tcp_remote_run (char *module, char *casefile, int caseid, 
 		    char *casetitle)
 {
-	int res = 0, tmp;
+	int res = 0, tmp = 0;
 	struct remote_run_params *params;
 
 	MIN_DEBUG ("module %s caseid %d", module, caseid);
-
+#ifndef MIN_UNIT_TEST
 	pl_attach_plugin (&in, out);
+#endif
 	in->send_rcp = socket_send_rcp;
 	tfwif_callbacks.complete_callback_ = tcp_master_report;
 	tfwif_callbacks.send_extif_msg_ = NULL;
@@ -789,7 +792,6 @@ tcp_master_report (int run_id, int execution_result, int test_result,
 		   char *desc)
 {
         char           *extifmessage;
-	int tmp;
 	DLListIterator it;
 	struct remote_run_params *p;
 	

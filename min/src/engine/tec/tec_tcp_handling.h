@@ -68,5 +68,7 @@ int tcp_msg_handle_response (MinItemParser *mip);
 void tcp_master_report (int run_id, int execution_result, 
 			int test_result, char *desc);
 /* ------------------------------------------------------------------------- */
+int tcp_remote_run (char *module, char *casefile, int caseid, 
+		    char *casetitle);
 #endif /* TEC_TCP_HANDLING_H */
 /* End of file */

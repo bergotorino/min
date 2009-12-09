@@ -31,7 +31,9 @@ libmintectest_a_SOURCES = tec.c \
 			  tec.test \
 			  tec_events.tests \
 			  min_engine_api.c \
+			  ../../mintfwif/mintfwif.c \
 			  ../../services/scripter_module/scripter_keyword.c
+
 libmintectest_a_CFLAGS = $(libmintec_a_CFLAGS) -DMIN_UNIT_TEST 
 libmintectest_a_LIBADD = $(libmintec_a_LIBADD)
 

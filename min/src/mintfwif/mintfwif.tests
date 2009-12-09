@@ -71,12 +71,12 @@ LOCAL void emptycallback3(char* text,int len)
         return;
 }
 
-void setup (void)
+LOCAL void setup (void)
 {
 	min_if_open (emptycallback1,emptycallback2,emptycallback3,NULL,envp_);
 }
 
-void teardown (void)
+LOCAL void teardown (void)
 {
 	min_if_close();
 

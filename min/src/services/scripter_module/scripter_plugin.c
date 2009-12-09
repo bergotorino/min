@@ -2215,7 +2215,6 @@ char      *validate_test_case (MinSectionParser * testcase, char **description)
         /* holds list of slaves for "allocate"/"free" validation */
 	DLList         *slaves = dl_list_create ();
 
-        int             check_result = -1;
         DLList         *class_methods = dl_list_create();
 	DLList         *interf_objs = dl_list_create();
         char           *tc_title = NULL;
