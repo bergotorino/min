@@ -5,7 +5,7 @@ INCLUDES = 	-I. -I../.. -I../../utils/dllist  \
 		-I../data_structures_api \
 		-I../../services/event_system \
 		-I../../services/scripter_module -I../../utils/text \
-		-I../../mintfwif
+		-I../../mintfwif -I../../tmc
 METASOURCES = AUTO
 noinst_LIBRARIES = libmintec.a
 noinst_LTLIBRARIES = libmintecext.la 
