@@ -130,7 +130,6 @@ test_case_s    *tc_create (DLListIterator tm_data_item,
                 tc_data->status_ = TEST_CASE_IDLE;
                 tc_data->priority_ = 0;
                 tc_data->test_result_list_ = dl_list_create ();
-		tc_data->ip_slave_case_ = 0;
 		tc_data->debug_case_ = 0;
                 /* Test Case given data */
                 tc_data->tm_data_item_ = tm_data_item;

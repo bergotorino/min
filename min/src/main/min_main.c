@@ -428,7 +428,7 @@ int main (int argc, char *argv[], char *envp[])
 		case 'm':
 			slave_mode = 1;
 			cli_flag = 1;
-			oper_mode = 0;
+			oper_mode = 1;
 			master_socket = atoi (optarg);
 			break;
 		case 'f':

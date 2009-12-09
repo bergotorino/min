@@ -55,6 +55,10 @@ extern pthread_mutex_t tec_mutex_;
 /* ------------------------------------------------------------------------- */
 extern char    *strcasestr (__const char *__haystack, __const char *__needle);
 
+#ifdef MIN_EXTIF
+extern int min_if_remote_run (char *module, char *casefile, int caseid, 
+			      char *casetitle);
+#endif
 /* GLOBAL VARIABLES */
 /** List containing association data for master - slave system
 (slave_info structures)*/
@@ -197,8 +201,9 @@ LOCAL int get_id_from_slavename (char *slavename)
 {
         DLListIterator  work_slave_item = DLListNULLIterator;
         slave_info     *work_slave_entry;
-        work_slave_item = dl_list_head (ms_assoc);
         int             retval = -1;
+        work_slave_item = dl_list_head (ms_assoc);
+
         if (strcmp (slavename, "master") == 0)
                 retval = 0xdead;
         else {
@@ -439,47 +444,25 @@ LOCAL int handle_remote_sendreceive (MinItemParser * extif_message, int dev_id)
  * was extracted - so next get_string will give first parameter to run keyword.
  * @return result of operation - 0 if ok.
 */
-LOCAL int handle_remote_run (MinItemParser * extif_message)
+LOCAL int handle_remote_run (MinItemParser *extif_message)
 {
-        char           *module = NULL;
-        filename_t      module_filename;
-        char           *casefile = NULL;
-        filename_t      casefile_con;    /*test case's config */
-        char           *temp_string = NULL;
-        int             caseid = 0;
-        int             result = 0;
-        int             cont_flag = 0;
-        int             check_result = 0;
-        int             i = 0;  /*general purpose loop iterator */
-        int             mod_found = 0, conf_found = 0;
-        DLListIterator  work_module_item = DLListNULLIterator, it;
-        DLListIterator  work_case_item = DLListNULLIterator;
-        char           *message;
-        int             error_code = 0;
-        DLList         *conf_list = dl_list_create ();  /* helper list for 
-                                                         * adding module */
-        title_string_t  tc_title;
-        TParsingType    parsing = ENormalParsing;
-        char           *casetitle = NULL;
-        filename_t      name;
-#ifndef MIN_EXTIF
-	test_case_s    *work_case;
-#endif
-        result = mip_get_string (extif_message, "module=", &module);
-        if (result != 0) {
+	char        *module = NULL, *casefile = NULL, *casetitle = NULL;
+	char         message [30];
+	int          caseid, error_code = 0, res, num_selected;
+        TParsingType parsing = ENormalParsing;
+
+        if (mip_get_string (extif_message, "module=", &module)) {
                 MIN_WARN ("remote module not specified");
                 goto FAULT;
         }
 
-        result = mip_get_string (extif_message, "testcasefile=", &casefile);
-        if (result != 0) {
+        if (mip_get_string (extif_message, "testcasefile=", &casefile)) {
                 MIN_WARN ("test case file not specified");
                 error_code = -1;
                 casefile = NULL;
 		goto FAULT;
         }
-        result = mip_get_int (extif_message, "testcasenum=", &caseid);
-        if (result != 0) {
+        if (mip_get_int (extif_message, "testcasenum=", &caseid)) {
                 MIN_WARN ("Faulty command: %s", 
                              extif_message->item_line_section_);
                 MIN_WARN ("test case id not specified");
@@ -487,190 +470,39 @@ LOCAL int handle_remote_run (MinItemParser * extif_message)
                 goto FAULT;
         }
 
-        /*
-        ** Check if we have the module already instantiated
-        */
-        if (!strcmp (casefile, "dummy.cfg"))
-                conf_found = 1;
-        for (work_module_item = dl_list_head (instantiated_modules);
-             work_module_item != DLListNULLIterator;
-             work_module_item = dl_list_next (work_module_item))
-        {
-                tm_get_module_filename (work_module_item, name);
-                if (strcmp (module, name) == 0) {
-                        mod_found = 1;
-                        /*
-                        ** The module is already instantiated.
-                        ** Next check the configuration file.
-                        */
-                        for (it = dl_list_head (tm_get_cfg_filenames 
-                                                (work_module_item));
-                             it != DLListNULLIterator;
-                             it = dl_list_next (it)) {
-                                if (strcmp (dl_list_data (it),
-                                            casefile)  == 0) {
-                                        conf_found = 1;
-                                }
-                        }
-                        if (conf_found && mod_found)
-                                goto MODULE_PRESENT;
-                }
-                
-                
-        }
-
-        /*adding module specified in run command here */
-        temp_string = NEW2 (char, strlen (casefile) + 1);
-        sprintf (temp_string, "%s", casefile);
-        /*add specified testcase file only if it is 
-        specified as absolute path or exists in lib directories*/
-        if (((*temp_string)=='/')||
-
-             (ec_search_lib(temp_string)) != -1){
-                dl_list_add (conf_list, (void *)temp_string);
-        } else {
-                MIN_WARN ("test case file %s not found", temp_string);
-		DELETE (temp_string);
-		temp_string = NULL;
-        }
-#ifdef MIN_EXTIF
-	min_if_module_add (module, !strcmp (casefile, "dummy.cfg") ?
-			   "" : temp_string);
-#else
-        ec_add_module (module, conf_list, 0, 0);
-	conf_list = INITPTR;
-	temp_string = NULL;
-#endif
-	DELETE (temp_string);
-        /*wait for module to return testcases */
-MODULE_PRESENT:
-        while (cont_flag == 0) {
-                usleep (500000);
-                i++;
-                work_module_item = dl_list_head (instantiated_modules);
-                cont_flag = 1;
-                while (work_module_item != DLListNULLIterator) {
-                        check_result = tm_get_status (work_module_item);
-                        if (check_result == TEST_MODULE_READY)
-                                cont_flag = cont_flag | 1;
-                        else
-                                cont_flag = 0;
-                        work_module_item = dl_list_next (work_module_item);
-                }
-                if (i > 20) {
-                        MIN_WARN ("timeout on module instantiation");
-                        goto FAULT;
-                }
-        }
-        /*Now fetch correct testcase */
-        work_module_item = dl_list_head (instantiated_modules);
-        while (work_module_item != DLListNULLIterator) {
-                tm_get_module_filename (work_module_item, module_filename);
-                if (strcmp (module_filename, module) == 0)
-                        break;
-                work_module_item = dl_list_next (work_module_item);
-        }
-
-        if (work_module_item == DLListNULLIterator) {
-                MIN_WARN ("Specified module not configured");
-                error_code = -2;
-                goto FAULT;
-        }
-
-	/* test case title may contain whitespaces, that's why parsing type
-	 * is changed to QuoteStyle. if passing this optional value, it
-	 * must be quoted */
-	parsing=mip_get_parsing_type(extif_message);
+	parsing = mip_get_parsing_type(extif_message);
 	mip_set_parsing_type (extif_message, EQuoteStyleParsing);
-	result = mip_get_string (extif_message, "testcasetitle=", &casetitle);
+	res = mip_get_string (extif_message, "testcasetitle=", &casetitle);
 	mip_set_parsing_type (extif_message, parsing);
-        if (result == 0) {
-            MIN_INFO ("test case title specified, omitting id");
-            
-	    work_case_item = dl_list_head (tm_get_tclist (work_module_item));
-            while (work_case_item != DLListNULLIterator) {
-		    tc_get_title (work_case_item, tc_title);
-                    if (strcmp(tc_title, casetitle) == 0) {
-                            if (dl_list_size
-                                (tm_get_cfg_filenames (work_module_item)) < 2)
-                                    break;
-                            /*if module has 0 or 1 config file, 
-                             * we have already found case */
-                            else {
-                                    tc_get_cfg_filename (work_case_item,
-                                                         casefile_con);
-                                    check_result =
-                                        strcmp (casefile_con, casefile);
-                                    if (check_result == 0)
-                                            break;
-                                    /*id and testcase file match */
-                        	}
-                    }
-                    work_case_item = dl_list_next (work_case_item);
-            }
-
-        } else {
-	    MIN_INFO ("test case title not specified, using id");
-	    work_case_item = dl_list_head (tm_get_tclist (work_module_item));
-            while (work_case_item != DLListNULLIterator) {
-                    if (tc_get_id (work_case_item) == caseid) {
-                            if (dl_list_size
-                                (tm_get_cfg_filenames (work_module_item)) < 2)
-                                    break;
-                        /*if module has 0 or 1 config file, 
-                         * we have already found case */
-                            else {
-                                    tc_get_cfg_filename (work_case_item,
-                                                         casefile_con);
-                                    check_result =
-                                        strcmp (casefile_con, casefile);
-                                    if (check_result == 0)
-                                            break;
-                                    /*id and testcase file match */
-                        	}
-                    }
-                    work_case_item = dl_list_next (work_case_item);
-            }
+        if (res == 0) {
+		MIN_INFO ("test case title specified, omitting id");
 	}
-
-	if (work_case_item == DLListNULLIterator) {
-                MIN_WARN ("Wrong case id");
-                error_code = -2;
-                goto FAULT;
-        }
-
-        result = ec_exec_test_case (work_case_item);
-        caseid = dl_list_size (selected_cases);
-#ifndef MIN_EXTIF
-	work_case_item = dl_list_tail (selected_cases);
-	work_case = dl_list_data (work_case_item);
-	work_case->ip_slave_case_ = 1;
+	num_selected = dl_list_size (selected_cases);
+#ifdef MIN_EXTIF
+	res = min_if_remote_run (module, casefile, caseid, casetitle);
+#else
+	res = tcp_remote_run (module, casefile, caseid, casetitle);
 #endif
-
-        if (result != 0) {
-                error_code = -2;
-                MIN_WARN ("Error in test case execution");
-                goto FAULT;
-        }
-        ok_to_break = ESFalse;
-        send_to_master (caseid, "remote run started");
-        DELETE (module);
-        DELETE (casefile);
-	DELETE (casetitle);
-	dl_list_free (&conf_list);
-
-        return 0;
-
-      FAULT:
-        /*test case could not be started for some reason */
-        message = NEW2 (char, 30);
+	if (res > 1) {
+		ok_to_break = ESFalse;
+		while (dl_list_size(selected_cases) < num_selected + 1)
+			usleep (50000);
+		caseid = dl_list_size (selected_cases);
+		send_to_master (caseid, "remote run started");
+		DELETE (module);
+		DELETE (casefile);
+		DELETE (casetitle);
+		return 0;
+	}
+ FAULT:
+        /* test case could not be started for some reason */
         sprintf (message, "remote run error result=%d", error_code);
         send_to_master (0, message);
         DELETE (module);
-        DELETE (message);
         DELETE (casefile);
 	DELETE (casetitle);
         return 0;
+	
 }
 /* ------------------------------------------------------------------------- */
 /** Handling of "remote pause" command.
@@ -1466,24 +1298,6 @@ int tec_del_ip_slave_from_pool (struct addrinfo *ai, char *slavetype)
        DELETE (slave);
 
        return 0;
-}
-/* ------------------------------------------------------------------------- */
-/** Used in tcp/ip operation to report case result to master
- * @param run_id runtime id of test case (position in "selected cases" list)
- * @param execution_result indicates if starting of test case was successful
- * @param test_result result of test
- * @param desc description (taken from ipc message);
- */
-void
-tcp_master_report (int run_id, int execution_result, int test_result, 
-		   char *desc)
-{
-        char           *extifmessage;
-
-        extifmessage = NEW2 (char, 30);
-        sprintf (extifmessage, "remote run ready result=%d", test_result);
-        send_to_master (run_id + 1, extifmessage);
-        DELETE (extifmessage);
 }
 
 /* ================= TESTS FOR LOCAL FUNCTIONS ============================= */

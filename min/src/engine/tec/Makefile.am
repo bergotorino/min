@@ -14,7 +14,8 @@ libmintec_a_SOURCES = tec.c \
 		      tec_events.c \
 		      tec_rcp_handling.c \
 		      ../../services/scripter_module/scripter_keyword.c \
-		      min_engine_api.c tec_tcp_handling.c
+		      min_engine_api.c tec_tcp_handling.c \
+		      ../../mintfwif/mintfwif.c
 libmintec_a_CFLAGS =  -DMIN_BIN_DIR='"$(bindir)"' \
 		       -DMIN_CONF_DIR='"$(sysconfdir)"'
 noinst_HEADERS =  tec_events.h 

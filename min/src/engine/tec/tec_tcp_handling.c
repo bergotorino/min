@@ -41,6 +41,8 @@
 #include <min_common.h>
 #include <dllist.h>
 #include <tec_rcp_handling.h>
+#include <tec_tcp_handling.h>
+#include <mintfwif.h>
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */
@@ -50,14 +52,24 @@
 /* EXTERNAL GLOBAL VARIABLES */
 extern DLList *ms_assoc;
 extern int slave_exit;
+extern eapiIn_t *in;
+extern eapiOut_t *out; /* min_main.c */
+extern void pl_attach_plugin(eapiIn_t **, eapiOut_t *); /* mintfwif.c */
+extern tfwif_callbacks_s tfwif_callbacks;
+
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
-
+extern int min_if_remote_run (char *module, char *casefile, int caseid, 
+			      char *casetitle);
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
 int rcp_listen_socket = -1;
 pthread_mutex_t socket_write_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 int current_slave_fd;
+pthread_t slave_thread;
+int thread_running = 0;
+pthread_mutex_t run_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
+DLList *run_queue = INITPTR;
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
 /* None */
@@ -71,10 +83,18 @@ int current_slave_fd;
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
-/* None */
+struct remote_run_params {
+	int run_id_;
+	char module_[MaxFileName];
+	char casefile_[MaxFileName];
+	int caseid_; 
+	char casetitle_[MaxTestCaseName];	
+};
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
+/* ------------------------------------------------------------------------- */
+LOCAL int _find_params_by_id (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
 LOCAL int set_active_rcp_sockets (fd_set *rd, fd_set *wr, int nfds);
 /* ------------------------------------------------------------------------- */
@@ -97,6 +117,20 @@ LOCAL int splithex (char *hex, int *dev_id, int *case_id);
 /* None */
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+/** Find params entry test run identifier. Used with dl_list_find().
+ *  @param a void pointer to struct remote_run_params.
+ *  @param b search string.
+ *  @return 0 when found, -1 when not.
+ */
+LOCAL int _find_params_by_id (const void *a, const void *b)
+{
+        struct remote_run_params *p1 = (struct remote_run_params*)a;
+        int *tmp2 = (int*)b;
+
+        if (p1->run_id_ ==(*tmp2)) return 0;
+        else return -1;
+}
 /* ------------------------------------------------------------------------- */
 /** Goes through the list of slaves and sets sockets that are available
  *  for reading or writing to the fd sets
@@ -131,7 +165,7 @@ LOCAL void rw_rcp_sockets (fd_set *rd, fd_set *wr)
 {
 	DLListIterator it;
 	slave_info *slave;
-	
+
 	for (it = dl_list_head (ms_assoc); it != INITPTR;
 	     it = dl_list_next (it)) {
 		slave = dl_list_data (it);
@@ -154,15 +188,18 @@ LOCAL void free_tcp_slave (slave_info *slave)
 {
 	slave_info *master;
 	DLListIterator it;
+
 	if (!strcmp (tx_share_buf(slave->slave_type_), "master")) {
 		master = find_slave_by_fd (slave->fd_, &it);
 		close (master->fd_);
+		slave_exit = 1;
+#if 0
 		tx_destroy (&master->slave_type_);
 		tx_destroy (&master->slave_name_);
 		dl_list_free (&master->write_queue_);
 		dl_list_remove_it (it);
 		DELETE (master);
-		slave_exit = 1;
+#endif
 		return;
 	} 
 
@@ -171,6 +208,7 @@ LOCAL void free_tcp_slave (slave_info *slave)
 	slave->status_ = SLAVE_STAT_FREE;
 	slave->slave_id_ = 0;
 	tx_destroy (&slave->slave_name_);
+
 	return;
 }
 /* ------------------------------------------------------------------------- */
@@ -230,11 +268,9 @@ LOCAL void socket_write_rcp (slave_info *slave)
                 return;
 	}
 
-	pthread_mutex_lock (&socket_write_mutex_);
 
         it = dl_list_head (slave->write_queue_);
         if (it == DLListNULLIterator) {
-		pthread_mutex_unlock (&socket_write_mutex_);
 
                 return;
         }
@@ -251,7 +287,6 @@ LOCAL void socket_write_rcp (slave_info *slave)
 
         dl_list_remove_it (it);
         tx_destroy (&tx);
-	pthread_mutex_unlock (&socket_write_mutex_);
 
         return;
 	
@@ -326,6 +361,52 @@ LOCAL int splithex (char *hex, int *dev_id, int *case_id)
         return 0;
 }
 /* ------------------------------------------------------------------------- */
+/** Slave test case thread. Call min_if_remote_run and wait until told to exit.
+ *  @param arg pointer to strucute containing parameters for 
+ *             min_if_remote_run()
+ *  @return NULL always
+ */
+LOCAL void     *remote_run_slave (void *arg)
+{
+	DLListIterator it;
+	struct remote_run_params *params;
+
+	thread_running = 1;
+	while (1) {
+		pthread_mutex_lock (&run_queue_mutex);
+		if (dl_list_size (run_queue) == 0) {
+			pthread_mutex_unlock (&run_queue_mutex);
+			thread_running = 0;
+			MIN_DEBUG ("thread exit");
+			return NULL;
+		}
+
+		for (it = dl_list_head (run_queue); it != INITPTR;
+		     it = dl_list_next (it)) {
+			params = dl_list_data (it);
+			if (!params->run_id_) { 
+				pthread_mutex_unlock (&run_queue_mutex);
+				params->run_id_ = 
+					min_if_remote_run(params->module_, 
+							  params->casefile_, 
+							  params->caseid_, 
+							  params->casetitle_);
+				pthread_mutex_lock (&run_queue_mutex);
+			}
+		}
+		pthread_mutex_unlock (&run_queue_mutex);
+		usleep (500000);
+	}
+}
+/* ------------------------------------------------------------------------- */
+/** Print test case messages (used from tfwif callback).
+ *  @param testrunid test runtime identifier
+ *  @param message test case message
+ */
+LOCAL void tcp_print (int testrunid, char *message)
+{
+	printf ("case %d: %s", testrunid, message);
+}
 
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
@@ -346,19 +427,21 @@ void *ec_poll_sockets (void *arg)
 		FD_ZERO (&rd);
 		FD_ZERO (&wr);
 		FD_ZERO (&er);
+		pthread_mutex_lock (&socket_write_mutex_);
 		nfds = set_active_rcp_sockets (&rd, &wr, nfds);
+		pthread_mutex_unlock (&socket_write_mutex_);
 		
 		tv.tv_sec = 0;
 		tv.tv_usec = 100000;
 		ret = select (nfds + 1, &rd, &wr, &er, &tv);
-		
+		pthread_mutex_lock (&socket_write_mutex_);
 		rw_rcp_sockets (&rd, &wr);
+		pthread_mutex_unlock (&socket_write_mutex_);
 		usleep (100000);
 	}
 
 	return NULL;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Build rcp message and adds it to the write queue of slave
  *  @param cmd command e.g. "reserve"
@@ -392,16 +475,10 @@ void socket_send_rcp (char *cmd, char *sender, char *rcvr, char* msg, int fd)
 	if (entry == INITPTR) {
 		MIN_WARN ("No entry found for socket %d", fd);
 		tx_destroy (&tx);
-		return;
 	}
-	pthread_mutex_lock (&socket_write_mutex_);
 
 	dl_list_add (entry->write_queue_, tx);
-
-	pthread_mutex_unlock (&socket_write_mutex_);
-
 }
-
 /* ------------------------------------------------------------------------- */
 /** Tries to allocate slave entry for IP communication
  *  @param he host address information
@@ -467,7 +544,6 @@ int allocate_ip_slave (char *slavetype, char *slavename, pid_t pid)
 
        return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Creates a new master entry.
  *  @param socket the socket of the master
@@ -487,7 +563,6 @@ void new_tcp_master (int socket)
 
 	return;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Function to close slave connection to slave.
  * @param slave the slave_info struck
@@ -498,7 +573,6 @@ void tcp_slave_close (slave_info *slave) {
 	slave->status_ = SLAVE_STAT_FREE ;
 	tx_destroy (&slave->slave_name_);
 }
-
 /* ------------------------------------------------------------------------- */
 /**Function handles "response" message coming from external controller over tcp
  * @param extif_message pointer to item parser. It is assumed that 
@@ -655,6 +729,87 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
         DELETE (destid);
 
         return retval;
+}
+/* ------------------------------------------------------------------------- */
+/** Set proper callbacks and start thread for slave side test execution
+ *  @param module module name
+ *  @param casefile test case file name
+ *  @param caseid test case id
+ *  @param casetitle test case title (optional)
+ *  @return 0 if the thread creation is succefull
+ */
+int tcp_remote_run (char *module, char *casefile, int caseid, 
+		    char *casetitle)
+{
+	int res = 0, tmp;
+	struct remote_run_params *params;
+
+	MIN_DEBUG ("module %s caseid %d", module, caseid);
+
+	pl_attach_plugin (&in, out);
+	in->send_rcp = socket_send_rcp;
+	tfwif_callbacks.complete_callback_ = tcp_master_report;
+	tfwif_callbacks.send_extif_msg_ = NULL;
+	tfwif_callbacks.print_callback_ = tcp_print;
+
+	params = NEW (struct remote_run_params);
+	STRCPY (params->module_, module, MaxFileName - 1);
+	STRCPY (params->casefile_, casefile, MaxFileName - 1);
+	params->caseid_ = caseid;
+	if (casetitle)
+		STRCPY (params->casetitle_, casetitle, MaxTestCaseName - 1);
+	else 
+		params->casetitle_[0] = '\0';
+	params->run_id_ = 0;
+	pthread_mutex_lock (&run_queue_mutex);
+	if (run_queue == INITPTR)
+		run_queue = dl_list_create();
+	dl_list_add (run_queue, params);
+	pthread_mutex_unlock (&run_queue_mutex);
+	if (!thread_running) {
+		MIN_DEBUG ("starting thread");
+		res = pthread_create (&slave_thread, NULL, remote_run_slave,
+				      (void *)tmp);
+	}
+	if (res) {
+		MIN_WARN ("thread creation failed: %s", strerror (errno));
+        }
+	return 3;
+}
+
+/* ------------------------------------------------------------------------- */
+/** Used in tcp/ip operation to report case result to master
+ * @param run_id runtime id of test case (position in "selected cases" list)
+ * @param execution_result indicates if starting of test case was successful
+ * @param test_result result of test
+ * @param desc description (taken from ipc message);
+ */
+void
+tcp_master_report (int run_id, int execution_result, int test_result, 
+		   char *desc)
+{
+        char           *extifmessage;
+	int tmp;
+	DLListIterator it;
+	struct remote_run_params *p;
+	
+	MIN_DEBUG ("result for %d", run_id);
+
+        extifmessage = NEW2 (char, 30);
+        sprintf (extifmessage, "remote run ready result=%d", test_result);
+        send_to_master (run_id + 1, extifmessage);
+	pthread_mutex_lock (&run_queue_mutex);
+	it = dl_list_find (dl_list_head (run_queue), dl_list_tail (run_queue),
+			   _find_params_by_id, (const void *)&run_id);
+	if (it == INITPTR)
+		MIN_WARN ("INTERNAL ERROR");
+	p = dl_list_data (it);
+	dl_list_remove_it (it);
+	DELETE (p);
+	pthread_mutex_unlock (&run_queue_mutex);
+	
+	
+        DELETE (extifmessage);
 }
 
 /* ------------------------------------------------------------------------- */

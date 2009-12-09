@@ -551,9 +551,7 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         int             it = 1; /*general purpose loop iterator */
 
         int             cont_flag = 1;
-#ifndef MIN_EXTIF
-	test_case_s    *work_case;
-#endif
+
         work_module_item = dl_list_head (instantiated_modules);
         tm_get_module_filename (temp_module_item, name);
 
@@ -690,15 +688,6 @@ LOCAL int ec_handle_temp_results (DLListIterator temp_module_item,
         work_module_item =
 		tm_get_ptr_by_pid (instantiated_modules, message->sender_);
         tc_set_status (work_case_item, TEST_CASE_TERMINATED);
-#ifndef MIN_EXTIF
-	work_case = (test_case_s *)dl_list_data (work_case_item);
-	if (work_case->ip_slave_case_) {
-		MIN_DEBUG ("ip slave case");
-		tcp_master_report (work_case->tc_run_id_, 1, message->param_,
-				   message->desc_);
-
-	} 
-#endif
 
         pthread_mutex_lock (&tec_mutex_);
         pthread_mutex_unlock (&tec_mutex_);
@@ -839,9 +828,6 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
         DLListIterator  work_case_item = INITPTR;
         DLListIterator  dest_case_item = INITPTR;
         DLListIterator  work_module_item = INITPTR;
-#ifndef MIN_EXTIF
-        test_case_s    *work_case = INITPTR;
-#endif
         DLList         *work_result_list = INITPTR;
         DLListIterator  work_result_item = INITPTR;
         int             group_id;
@@ -974,17 +960,6 @@ LOCAL int ec_msg_ret_handler (MsgBuffer * message)
 					 tr_get_end_time
 					 (work_result_item)));
 	
-#ifndef MIN_EXTIF
-	MIN_DEBUG ("is it ip slave case ?");
-	work_case = (test_case_s *)dl_list_data (work_case_item);
-	if (work_case->ip_slave_case_) {
-		MIN_DEBUG ("ip slave case");
-
-		tcp_master_report (work_case->tc_run_id_, 1, message->param_,
-				   message->desc_);
-
-	} 
-#endif
         /* Now let's link created result item to original test case. 
 	 * We will use module link, test case id and test case filename 
 	 */

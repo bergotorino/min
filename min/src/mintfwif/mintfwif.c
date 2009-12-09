@@ -151,7 +151,7 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 	
 	internal_test_run_info *tri = INITPTR;
 	DLListIterator	test_run_item = DLListNULLIterator;
-
+	MIN_DEBUG ("result for %ld", testrunid);
 	pthread_mutex_lock (&tfwif_mutex_);
 	test_run_item = dl_list_find (dl_list_head (tfwif_test_runs_),
 			              dl_list_tail (tfwif_test_runs_),
@@ -182,6 +182,8 @@ LOCAL void pl_case_started (unsigned moduleid,
 			    long testrunid)
 {
 	internal_test_run_info *tri;
+
+	MIN_DEBUG ("case started %d:%d %ld", moduleid, caseid, testrunid);
 
 	if(tfwif_test_runs_==INITPTR){
 		tfwif_test_runs_=dl_list_create();
@@ -270,6 +272,7 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 {
 	internal_module_info *mi;
 	
+	MIN_DEBUG ("%s %d", modulename, moduleid);
 	mi = NEW (internal_module_info);
 	STRCPY(mi->module_name_, modulename, 128);
         mi->test_case_list_ = dl_list_create();
@@ -277,12 +280,11 @@ LOCAL void pl_new_module (char *modulename, unsigned moduleid)
 	mi->module_ready_ = 0;
 
 	pthread_mutex_lock (&tfwif_mutex_);
+	if (tfwif_modules_ == INITPTR)
+		tfwif_modules_ = dl_list_create();
 	MIN_DEBUG ("adding module to %x", tfwif_modules_);
 	dl_list_add (tfwif_modules_, mi);
 	pthread_mutex_unlock (&tfwif_mutex_);
-
-
-
 	return;
 };
 /* ------------------------------------------------------------------------- */
@@ -330,6 +332,7 @@ LOCAL void pl_new_case (unsigned moduleid, unsigned caseid, char *casetitle)
 	min_case *mc;
 	DLListIterator it;
 
+	MIN_DEBUG ("case %s %d:%d ", casetitle, moduleid, caseid);
 	pthread_mutex_lock (&tfwif_mutex_);
 
 	it = dl_list_find (dl_list_head (tfwif_modules_),
@@ -504,7 +507,6 @@ int min_if_open (min_case_complete_func complete_cb,
 
 	return 0;
 }
-
 /* ------------------------------------------------------------------------- */
 /** Close MIN test framework
  * @return result of operation : 0 if success, -1 in case of error
@@ -552,7 +554,7 @@ int min_if_message_received (char *message, int length)
 /** Execute selected test case
  *  @param module - name of module
  *  @param id identifier of test case
- *  @return runtime identifier of the test case, -1 in case of error
+ *  @return runtime identifier of the test case, 1 in case of error
  */
 int min_if_exec_case (char *module, unsigned int id)
 {
@@ -561,6 +563,7 @@ int min_if_exec_case (char *module, unsigned int id)
 
 	DLListIterator it;
 	int cont = 1;
+	MIN_DEBUG ("start case %d from module %s", id, module);
 	pthread_mutex_lock (&tfwif_mutex_);
 	it = dl_list_find (dl_list_head (tfwif_modules_),
 			   dl_list_tail (tfwif_modules_),
@@ -596,7 +599,7 @@ int min_if_exec_case (char *module, unsigned int id)
 
 		}
 	} else
-		return -1;
+		return 1;
 
 	MIN_DEBUG("test started with runid=%d", tri->test_run_id_);
 	return tri->test_run_id_;
@@ -786,11 +789,83 @@ int min_if_module_add (char *module_name, char *conf_name)
 		dl_list_remove_it (it);
 		_del_internal_mod_info (mi);
 		pthread_mutex_unlock (&tfwif_mutex_);
-		
+
 	}
 
 	return 0;
 }
+/* ------------------------------------------------------------------------- */
+/** Initiates remote execution on slave side.
+ *  @param module module name
+ *  @param casefile test case file name
+ *  @param caseid test case id
+ *  @param casetitle test case title (optional)
+ *  @return test_run_id if test case execution starts succesfully, -1 on error
+ */
+int min_if_remote_run (char *module, char *casefile, int caseid, 
+		       char *casetitle)
+{
+
+	DLListIterator it;
+	internal_module_info *mi;
+	min_case *mc = INITPTR;
+	int ret = -1;
+	MIN_DEBUG ("module %s caseid %d", module, caseid);
+
+	it = dl_list_find (dl_list_head (tfwif_modules_),
+			   dl_list_tail (tfwif_modules_),
+			   _find_mod_by_name,
+			   (const void *)module);
+	
+	if (it == INITPTR && min_if_module_add (module, 
+						strcmp (casefile, 
+							"dummy.cfg") ? 
+						casefile : ""))
+		{
+			MIN_WARN ("Module adding failed");
+			return ret;
+		}
+	it = dl_list_find (dl_list_head (tfwif_modules_),
+			   dl_list_tail (tfwif_modules_),
+			   _find_mod_by_name,
+			   (const void *)module);
+	if (it == INITPTR) {
+		MIN_WARN  ("internal error");
+		return -1;
+	}
+	mi = dl_list_data (it);
+	if (casetitle && strlen(casetitle)) {
+		for (it = dl_list_head (mi->test_case_list_);
+		     it != INITPTR;
+		     it = dl_list_next (it)) {
+			mc = dl_list_data (it);
+			if (!strcmp (mc->case_name_, casetitle))
+				break;
+			mc = INITPTR;
+		}
+	} else {
+		if (dl_list_size (mi->test_case_list_) < caseid) {
+			MIN_WARN ("matching caseid %d not found (%d)",
+				  caseid, dl_list_size (mi->test_case_list_));
+			return -1;
+		}
+		mc = dl_list_data (dl_list_at (mi->test_case_list_,caseid-1));
+	}
+	
+	if (mc == INITPTR) {
+		MIN_WARN ("case not found - return 1");
+		return -1;
+	}
+	ret = min_if_exec_case (module, mc->case_id_);
+	if (ret == 1) {
+		MIN_WARN ("case execution failed - return 1");
+		
+		return -1;
+	}
+	MIN_DEBUG ("return %d", ret);
+	return ret;
+}
+/* ------------------------------------------------------------------------- */
 /** Attach mintfwif plugin to MIN engine.
  *  @param out_callback callbacks to Engine out direction
  *  @param in_callback callbackts towards the Engine.
@@ -811,6 +886,7 @@ void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback)
        (*out_callback)->new_case               = pl_new_case;
        (*out_callback)->error_report           = pl_error_report;
        (*out_callback)->send_rcp               = pl_send_rcp;
+       min_clbk_ = *in_callback;
        
        return;
 }
