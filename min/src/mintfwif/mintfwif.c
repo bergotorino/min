@@ -150,7 +150,11 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 
 	
 	internal_test_run_info *tri = INITPTR;
+	internal_module_info *mi = INITPTR;
+
 	DLListIterator	test_run_item = DLListNULLIterator;
+	DLListIterator	test_mod_item = DLListNULLIterator;
+
 	MIN_DEBUG ("result for %ld", testrunid);
 	pthread_mutex_lock (&tfwif_mutex_);
 	test_run_item = dl_list_find (dl_list_head (tfwif_test_runs_),
@@ -167,6 +171,24 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 	tri = dl_list_data (test_run_item);
 	tri->status_ = TP_ENDED;
 	tfwif_callbacks.complete_callback_ (tri->test_run_id_, 1, result, desc);
+	/* We have a result - module and test run can be removed */
+	test_mod_item = dl_list_find (dl_list_head (tfwif_modules_),
+				      dl_list_tail (tfwif_modules_),
+				      _find_mod_by_id,
+				      (const void *)&tri->module_id_);
+	if (test_mod_item == INITPTR) {
+		MIN_WARN ("internal error");
+		pthread_mutex_unlock (&tfwif_mutex_);
+		return;
+	}
+		
+	mi = (internal_module_info *)dl_list_data (test_mod_item);
+	_del_internal_mod_info((void *)mi);
+	dl_list_remove_it (test_mod_item);
+	DELETE (tri);
+	dl_list_remove_it (test_run_item);
+
+	pthread_mutex_unlock (&tfwif_mutex_);
 
 
 	return;
@@ -812,15 +834,10 @@ int min_if_remote_run (char *module, char *casefile, int caseid,
 	int ret = -1;
 	MIN_DEBUG ("module %s caseid %d", module, caseid);
 
-	it = dl_list_find (dl_list_head (tfwif_modules_),
-			   dl_list_tail (tfwif_modules_),
-			   _find_mod_by_name,
-			   (const void *)module);
-	
-	if (it == INITPTR && min_if_module_add (module, 
-						strcmp (casefile, 
-							"dummy.cfg") ? 
-						casefile : ""))
+	if (min_if_module_add (module, 
+			       strcmp (casefile, 
+				       "dummy.cfg") ? 
+			       casefile : ""))
 		{
 			MIN_WARN ("Module adding failed");
 			return ret;

@@ -394,7 +394,8 @@ LOCAL void     *remote_run_slave (void *arg)
 							  params->caseid_, 
 							  params->casetitle_);
 				pthread_mutex_lock (&run_queue_mutex);
-			}
+			} else
+				break;
 		}
 		pthread_mutex_unlock (&run_queue_mutex);
 		usleep (500000);
