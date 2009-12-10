@@ -134,6 +134,7 @@ LOCAL char* fetch_title(char* input)
         int length;
         char* retval;
         char* pos = strchr(input,'\n');
+	MIN_DEBUG ("PYTHON input: %s", input);
         if (pos != NULL) length = pos - input;
         else length = strlen(input);
         retval = NEW2(char,length+2);
@@ -206,7 +207,7 @@ int tm_get_test_cases( const char * cfg_file, DLList ** cases )
         PyObject* p_value;
         PyObject* attrib_name;
 
-        PyObject* python_string2;
+        PyObject *python_string2, *python_string3;
         PyObject *pErrType;
         PyObject *pErrValue; 
         PyObject *pErrTraceback;
@@ -261,11 +262,12 @@ int tm_get_test_cases( const char * cfg_file, DLList ** cases )
 					(PyString_AsString(python_string2));
                                 MIN_DEBUG("Adding: %s",
                                            PyString_AsString(p_key));
-                                ENTRY2(*cases,workstring,
-				       dl_list_size(*cases)+1);
+                                ENTRY2D(*cases,PyString_AsString(p_key),
+					dl_list_size(*cases)+1,workstring);
                                 DELETE(workstring);
                                 Py_XDECREF(attrib_name);
                                 Py_XDECREF(python_string2);
+
                         }
                         else {
                                 /*make title from function name*/

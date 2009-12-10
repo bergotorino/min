@@ -42,7 +42,6 @@
 
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL FUNCTION PROTOTYPES */
-/* None */
 extern char* cut_file_from_path(char* path);
 extern char* cutname(const char* file);
 extern char* strcasestr (const char *haystack, const char *needle);
@@ -50,7 +49,10 @@ extern void  set_caller_name(const char *caller); /* test_module_api.c */
 
 /* ------------------------------------------------------------------------- */
 /* GLOBAL VARIABLES */
-/* None */
+char *module_date = __DATE__;
+char *module_time = __TIME__;
+TTestModuleType module_type     = ENormal;
+unsigned int    module_version  = 200950;
 
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
@@ -271,6 +273,23 @@ int tm_run_test_case( unsigned int      id
         Py_XDECREF(p_module);
 	return 0;
 }
+/* ------------------------------------------------------------------------- */
+/** return  test module type */
+unsigned int get_module_type()
+{ return module_type; }
+/* ------------------------------------------------------------------------- */
+/** return test module template version */
+unsigned int get_module_version()
+{ return module_version; }
+/* ------------------------------------------------------------------------- */
+/** return build date */
+char* get_module_date()
+{ return module_date; }
+/* ------------------------------------------------------------------------- */
+/** return build time */
+char* get_module_time()
+{ return module_time; }
+
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */
