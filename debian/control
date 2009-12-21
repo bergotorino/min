@@ -10,7 +10,7 @@ Section: devel
 Suggests: min-doc
 Priority: extra
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libncurses, ncurses-base (>= 5)
+Depends: ${shlibs:Depends}, ${misc:Depends}, libncurses5, ncurses-base (>= 5)
 Description: A test framework for C
  The MIN test framework provides a toolset for creating and executing test cases. Test cases are compiled into module(s).
  MIN engine starts a Test Module Controller (TMC) for each test module. TMC in turn forks a process for each test case when the test is executed. 
