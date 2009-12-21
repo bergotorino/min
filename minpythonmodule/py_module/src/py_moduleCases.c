@@ -207,7 +207,7 @@ int tm_get_test_cases( const char * cfg_file, DLList ** cases )
         PyObject* p_value;
         PyObject* attrib_name;
 
-        PyObject *python_string2, *python_string3;
+        PyObject *python_string2;
         PyObject *pErrType;
         PyObject *pErrValue; 
         PyObject *pErrTraceback;
