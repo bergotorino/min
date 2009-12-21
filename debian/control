@@ -7,7 +7,7 @@ Standards-Version: 3.8.0
 
 Package: min
 Section: devel
-Suggests: min-doc, min-dev
+Suggests: min-doc
 Priority: extra
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libncurses, ncurses-base (>= 5)
