@@ -6,7 +6,7 @@
     <description>"Test MIN utilites with min"</description>
     <!-- At least one set per suite, name and description mandatory -->
     <set name="utils-tests"  feature="min-feature">   
-      <case name="dllist" type="Robustness" timeout="600" subfeature="" >
+      <case name="tests for MIN utils" type="Robustness" timeout="600" subfeature="" >
         <step expected_result="8">min -cx /usr/lib/min/dllist_tests.so -cx /usr/lib/min/logger_tests.so -cx /usr/lib/min/min_unit_selftest.so -cx /usr/lib/min/item_parser_tests.so -cx /usr/lib/min/settings_tests.so</step>
       </case>
  
