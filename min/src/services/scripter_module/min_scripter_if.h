@@ -144,6 +144,8 @@ struct _TestClassDetails {
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
+int             init_scripter_if();
+/* ------------------------------------------------------------------------- */
 int             substract_timeval (struct timeval *result, struct timeval *x,
                                    struct timeval *y);
 /* ------------------------------------------------------------------------- */
@@ -215,7 +217,14 @@ TSBool          eval_if (char *condition);
 /* ------------------------------------------------------------------------- */
 int             set_block_timeout (unsigned long timeout);
 /* ------------------------------------------------------------------------- */
-
+void       scripter_final_verdict (TestCaseResult * tcr);
+/* ------------------------------------------------------------------------- */
+#ifdef SCRIPTER_CLI
+/** Message handling for scipter CLI
+ */
+int             scripter_if_handle_ipc();
+#endif                          /* SCRIPTER_CLI */
+/* ------------------------------------------------------------------------- */
 #endif                          /* MIN_SCRIPTER_IF_H */
 
 /* End of file */

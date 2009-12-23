@@ -1,4 +1,31 @@
+/*
+ * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
+ * and/or its subsidiary(-ies).
+ * Contact: Sampo Saaristo
+ * Contact e-mail: DG.MIN-Support@nokia.com
+ * 
+ * This program is free software: you can redistribute it and/or modify it 
+ * under the terms of the GNU General Public License as published by the Free 
+ * Software Foundation, version 2 of the License. 
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of  MERCHANTABILITY or 
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General  Public License for
+ * more details. You should have received a copy of the GNU General Public 
+ * License along with this program. If not,  see 
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ *  @file       scripter_cli.c
+ *  @version    0.1
+ *  @brief      This file contains implementation of MIN Scripter CLI
+ */
+
+/* ------------------------------------------------------------------------- */
+/* INCLUDE FILES */
 #include <stdio.h>
+#include <pthread.h>
 
 #include <min_common.h>
 #include <dllist.h>
@@ -8,10 +35,63 @@
 #include <min_scripter_if.h>
 #include <min_lego_interface.h>
 #include <min_item_parser.h>
-#include <scripter_plugin.h>
 
+#include <scripter_plugin.h>
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL GLOBAL VARIABLES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* EXTERNAL FUNCTION PROTOTYPES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* GLOBAL VARIABLES */
 DLList *defines;
 
+/* ------------------------------------------------------------------------- */
+/* CONSTANTS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL GLOBAL VARIABLES */
+LOCAL int exit_;
+LOCAL int new_command_;
+LOCAL char buff [4096];
+LOCAL pthread_mutex_t mutex_ = PTHREAD_MUTEX_INITIALIZER;
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL CONSTANTS AND MACROS */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* MODULE DATA STRUCTURES */
+/* None */
+
+/* ------------------------------------------------------------------------- */
+/* LOCAL FUNCTION PROTOTYPES */
+/* ------------------------------------------------------------------------- */
+LOCAL void display_available_commands();
+/* ------------------------------------------------------------------------- */
+LOCAL void list_execute_cmds (DLList *cmds);
+/* ------------------------------------------------------------------------- */
+LOCAL int  run_cli();
+/* ------------------------------------------------------------------------- */
+/* FORWARD DECLARATIONS */
+/* None */
+/* ------------------------------------------------------------------------- */
+/* ==================== LOCAL FUNCTIONS ==================================== */
+/* ------------------------------------------------------------------------- */
+/** Displays the commands available for scripter cli
+ */
 LOCAL void display_available_commands()
 {
 	printf ("\t ?    - list the available commands\n");
@@ -19,7 +99,10 @@ LOCAL void display_available_commands()
 	printf ("\t list - show succefully executed commands\n"); 
 
 }
-
+/* ------------------------------------------------------------------------- */
+/** Displays the sucessfully executed commands in the current session
+ *  @param cmds commands saved in list
+ */
 LOCAL void list_execute_cmds (DLList *cmds)
 {
 	DLListIterator it;
@@ -32,9 +115,27 @@ LOCAL void list_execute_cmds (DLList *cmds)
 	printf ("\t[Endtest]\n");
 }
 
+LOCAL void  serve_cli (void *notused)
+{
+	printf ("Wellcome to MIN scripter command line interface\n");
+	printf ("give ? for available commands\n");
+	while (!exit_) {
+		printf ("scripter-cli> ");
+		pthread_mutex_lock (&mutex_);
+		if (!fgets (buff, 4096, stdin))
+			printf ("no input?\n");
+		else
+			new_command_ = 1;
+		pthread_mutex_unlock (&mutex_);
+		usleep (100000);
+	}
+}
+
+/* ------------------------------------------------------------------------- */
+/** Scripter CLI main loop
+ */
 LOCAL int run_cli()
 {
-	char buff [4096];
 	MinItemParser *line;
 	char *keyword = INITPTR;
 	char *tc_title = "scripter cli";
@@ -50,24 +151,41 @@ LOCAL int run_cli()
 	DLList *interf_objs = dl_list_create();
         DLList *testclasses = dl_list_create ();
 	DLList *script_cmds = dl_list_create();
-
+	long tmp;
         int     nest_level = 0, ret, lineno = 1;
         char    nesting [255];
-	printf ("Wellcome to MIN scripter command line interface\n");
-	printf ("give ? for available commands\n");
-	while (1) {
-		printf ("scrpiter-cli>");
-		fgets (buff, 4096, stdin);
-		if (strncmp (buff, "quit", 4) == 0)
-			break;
+	pthread_t  serve_cli_thread;
+	TScripterKeyword kw;
+	exit_ = 0, new_command_ = 0;
+	if (init_scripter_if() != ENOERR) {
+		printf ("Failed to initialize scirpter interface\n");
+		return 1;
+	}
+        pthread_create (&serve_cli_thread, NULL, (void *)&serve_cli,
+                        (void *)&tmp);
 
+	while (1) {
+		usleep (100000);
+		while (scripter_if_handle_ipc())
+			;
+		if (!new_command_)
+			continue;
+		pthread_mutex_lock (&mutex_);
+		new_command_ = 0;
+		if (strncmp (buff, "quit", 4) == 0) {
+			exit_ = 1;
+			pthread_mutex_unlock (&mutex_);
+			break;
+		}
 		if (strncmp (buff, "list", 4) == 0) {
 			list_execute_cmds (script_cmds);
+			pthread_mutex_unlock (&mutex_);
 			continue;
 		}
 
 		if (strncmp (buff, "?", 1) == 0) {
 			display_available_commands();
+			pthread_mutex_unlock (&mutex_);
 			continue;
 		}
 
@@ -75,8 +193,10 @@ LOCAL int run_cli()
 		if (keyword != INITPTR)
 			DELETE (keyword);
                 mip_get_string (line, "", &keyword);
-		if (keyword == INITPTR)
+		if (keyword == INITPTR) {
+			pthread_mutex_unlock (&mutex_);
 			continue;
+		}
 		ret = validate_line (keyword, 
 				     line, 
 				     lineno, 
@@ -98,26 +218,60 @@ LOCAL int run_cli()
 			lineno++;
 			tx = tx_create (buff);
 			dl_list_add (script_cmds, tx);
+			line = mip_create(buff, 0, strlen (buff));
+			mip_get_string (line, "", &keyword);
+			kw = get_keyword (keyword);
+			switch (kw) {
+			case EKeywordLoop:
+			case EKeywordIf:
+				printf ("Nested constructs not supported "
+					"in cli mode, sorry.\n");
+			case EKeywordEndloop:
+			case EKeywordElse:
+			case EKeywordEndif:
+			case EKeywordBreakloop:
+				break;
+
+			default:
+				interpreter_handle_keyword (kw,
+							    line);
+				break;
+			}
 		}
+		pthread_mutex_unlock (&mutex_);
 		/*
 		 * FIXME do cleanup
 		 */
 	}
+	pthread_join (serve_cli_thread, &tmp);
 	return 0;
 }
-
+/* ------------------------------------------------------------------------- */
+/* ======================== FUNCTIONS ====================================== */
+/* ------------------------------------------------------------------------- */
 int tm_run_test_case (unsigned int id, const char *cfg_file,
                       TestCaseResult * result)
 {
 	int ret = run_cli();
-	RESULT (result, ret, "Scripter CLI Finnished");
+	if (ret) {
+		ret = TP_CRASHED;
+		RESULT (result, ret, "Scripter CLI Internal Errot");
+	}
+	else {
+		scripter_final_verdict (result);
+		ret = result->result_;
+	}
+		
 	return ret;
 }
-
+/* ------------------------------------------------------------------------- */
 int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 {
 	ENTRYD (*cases, "Scripter CLI", NULL, "Scripter CLI feature");
 
 }
+/* ------------------------------------------------------------------------- */
+/* ================= OTHER EXPORTED FUNCTIONS ============================== */
+/* None */
 
 

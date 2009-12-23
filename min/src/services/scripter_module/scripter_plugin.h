@@ -60,7 +60,19 @@
 /* ------------------------------------------------------------------------- */
 /* FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-char           *validate_test_case (MinSectionParser * testcase, char **description);
+char           *validate_test_case (MinSectionParser * testcase, 
+				    char **description);
+/* ------------------------------------------------------------------------- */
+int             validate_line (char *keyword,  MinItemParser * line, 
+			       int line_number, char **p_tc_title, 
+			       Text *tx_desc, DLList *assoc_lnames,
+			       DLList *assoc_cnames, DLList *symblist,
+			       DLList *var_list, DLList *requested_events,
+			       DLList *slaves, DLList *interf_objs, 
+			       char *nesting, int *nest_level);
+/* ------------------------------------------------------------------------- */
+void            interpreter_handle_keyword (TScripterKeyword keyword,
+					    MinItemParser * mip);
 /* ------------------------------------------------------------------------- */
 int             interpreter_next ();
 /* ------------------------------------------------------------------------- */

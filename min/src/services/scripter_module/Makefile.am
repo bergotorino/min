@@ -26,7 +26,8 @@ INCLUDES = -I. -I.. -I../.. -I$(top_srcdir)/. \
 	-I$(top_srcdir)/src/utils/text \
 	-I$(top_srcdir)/tests 
 
-pkglib_LTLIBRARIES = scripter.la
+
+pkglib_LTLIBRARIES = scripter.la scripter_cli.la
 check_LIBRARIES = libminlegointerface_tests.a
 noinst_HEADERS = scripter_dsa.h \
 	         min_scripter_if.h \
@@ -47,6 +48,12 @@ scripter_la_SOURCES = min_scripter_if.c \
 scripter_la_LDFLAGS = -module
 scripter_la_CFLAGS = $(AM_CFLAGS)
 
+scripter_cli_la_SOURCES = scripter_cli.c \
+			  $(scripter_la_SOURCES)
+
+scripter_cli_la_LDFLAGS = -module
+scripter_cli_la_CFLAGS = $(AM_CFLAGS) -DSCRIPTER_CLI
+scripter_cli_la_LIBADD = -lpthread
 
 scripter_la_LIBADD = $(top_builddir)/src/tmc/test_module_api/libmintmapi.la \
 	$(top_builddir)/src/tmc/libtmc_utils.la                            \

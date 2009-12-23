@@ -212,9 +212,6 @@ LOCAL void       send_variables ();
 /* ------------------------------------------------------------------------- */
 LOCAL void       receive_variables ();
 /* ------------------------------------------------------------------------- */
-LOCAL void       scripter_final_verdict (DLList * tp_details,
-					 TestCaseResult * tcr);
-/* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
 
@@ -1332,116 +1329,6 @@ exit:
 
         return;
 }
-/* ------------------------------------------------------------------------- */
-/** Inspects all the results of the method, combiner calls made from the script
- *  and decides if the scripted test case is PASSED or FAILED
- *  @param tp_details [in] list of method / combiner calls
- *  @param tcr [in/out] the final result
- */
-LOCAL void scripter_final_verdict (DLList * tp_details, TestCaseResult * tcr)
-{
-        ScriptedTestProcessDetails *stpd;
-        DLListIterator  tpit, reit;
-        TestCaseResult *res;
-        int             num_fail, num_ok, cancelled;
-        num_fail = num_ok = cancelled = 0;
-        char *result_str [] = {"CRASHED",
-                               "TIMEOUTED",
-                               "TP_PASSED",
-                               "FAILED",
-                               "NOT COMPLETE",
-                               "LEFT"};
-        
-        for (tpit = dl_list_head (tp_details);
-             tpit != DLListNULLIterator; tpit = dl_list_next (tpit)) {
-                stpd = dl_list_data (tpit);
-                switch (stpd->status_) {
-                case TP_ENDED:
-                case TP_ABORTED:
-                        break;
-                case TP_CANCELED:
-                        snprintf (tcr->desc_, 
-                                  MaxTestResultDescription - 1, 
-                                  "Run %s(%d) cancelled  ",
-                                  stpd->dllname_,
-                                  stpd->tc_id_
-                                );
-                        cancelled = 1;
-                        continue;
-                default:
-                        MIN_WARN ("Unexpected status of scripter "
-                                  "test case %d", stpd->status_);
-                        snprintf (tcr->desc_, 
-                                  MaxTestResultDescription - 1,
-                                  "Unexpected status (%d) of scripter"
-                                  "test case", stpd->status_);
-                                  
-                        num_fail++;
-                        continue;
-                        
-                }
-                for (reit = dl_list_head (stpd->tcr_list_);
-                     reit != DLListNULLIterator; reit = dl_list_next (reit)) {
-                        res = dl_list_data (reit);
-                        switch (res->result_) {
-                        case TP_CRASHED:
-                        case TP_FAILED:
-                        case TP_TIMEOUTED:
-                        case TP_LEAVE:
-                                num_fail++;
-				if (strlen (tcr->desc_) > 0) 
-                                        break;
-                                if (stpd->mod_type_ == EDLLTypeClass) {
-					snprintf (tcr->desc_, 
-						  MaxTestResultDescription - 1,
-                                                  "Test Method call %s.%s"
-                                                  "  %s",
-                                                  stpd->testclass_, 
-                                                  &res->desc_[1],
-                                                  result_str 
-                                                  [res->result_ + 2]);
-                                } else {
-                                        snprintf (tcr->desc_,
-                                                  MaxTestResultDescription - 1, 
-                                                  "Run %s(%d) %s: %s ",
-                                                  stpd->dllname_,
-                                                  stpd->tc_id_,
-                                                  result_str 
-                                                  [res->result_ + 2],
-                                                  res->desc_
-                                                );
-                                }
-                                break;
-                        case TP_PASSED:
-                                num_ok++;
-                                break;
-                        case TP_NC:
-                                MIN_DEBUG ("TP_NC .. unxepected result code");
-                                num_fail++;
-                                break;
-                        default:
-                                MIN_DEBUG ("unknown result code %d",
-                                             tcr->result_);
-                                break;
-                        }
-                }
-        }
-
-        if (cancelled) {
-                tcr->result_ = TP_NC;
-        } else if (num_fail > 0) {
-                if (num_fail > 1)
-                        sprintf (tcr->desc_, "%s (%d other errors/failures)",
-                                 tcr->desc_, num_fail - 1);
-                tcr->result_ = TP_FAILED;
-        } else {
-                tcr->result_ = TP_PASSED;
-                sprintf (tcr->desc_, "Scripted test case passed");
-        }
-        MIN_DEBUG ("returning from scripter with desc %s",
-                   tcr->desc_);
-        
-}
 
 
 /* ------------------------------------------------------------------------- */
@@ -2043,6 +1930,7 @@ int script_finish (void)
 }
 
 /* ------------------------------------------------------------------------- */
+#ifndef SCRIPTER_CLI
 int tm_run_test_case (unsigned int id, const char *cfg_file,
                       TestCaseResult * result)
 {
@@ -2123,40 +2011,10 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         mli_create (msp);
 
         /* 3) Initialize scripter and events stuff and shm */
-        scripter_mod.tp_details = dl_list_create ();
-        if (scripter_mod.tp_details == INITPTR) {
-                retval = -1;
-                SCRIPTER_RTERR("list creation failed");
-                goto EXIT;
-        }
+	retval = init_scripter_if();
+	if (retval != ENOERR)
+		goto EXIT;
 
-        scripter_mod.req_events = dl_list_create ();
-        scripter_mod.mqid = mq_open_queue ('a');
-	if (scripter_mod.mqid < 0) {
-                retval = -1;
-                SCRIPTER_RTERR("mq_open_queue() failed");
-                goto EXIT;
-	}
-		
-        scripter_mod.script_finished = 0;
-        scripter_mod.tclass_exec = 0;
-        scripter_mod.extif_pending = ESFalse;
-        scripter_mod.extif_remote = 0;
-        scripter_mod.testcomplete = INITPTR;
-        scripter_mod.canceliferror = ESFalse;
-	scripter_mod.error_occured = ESFalse;
-        scripter_mod.sleep = 0;
-        scripter_mod.expected_var = INITPTR;
-	scripter_mod.blocking_timeout = DEFAULT_BLOCKING_TIMEOUT;
-        scripter_mod.shm_id = shmget (getpid(), 4096, 
-                                      IPC_CREAT | 0660);
-
-        if (scripter_mod.shm_id < 0) {
-                MIN_ERROR ("Failed to create shared mem segment: %s",
-                          strerror (errno));
-                goto EXIT;
-        }
-        MIN_DEBUG ("shmid = %d", scripter_mod.shm_id); 
         /* 4) Initialize scripter (the callbacks) */
         scripter_init (&scripter_mod.min_scripter_if);
 
@@ -2195,8 +2053,7 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
 
         /* 8) Set test case result */
 	if (!scripter_mod.error_occured)
-		scripter_final_verdict (scripter_mod.tp_details,
-					&scripter_mod.script_tcr);
+		scripter_final_verdict (&scripter_mod.script_tcr);
       EXIT:
         /* set test case result, default is passed. */
         *result = scripter_mod.script_tcr;
@@ -2416,6 +2273,7 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 
         return retval;
 }
+#endif /* SCRIPTER_CLI */
 /* ------------------------------------------------------------------------- */
 /** Prints text from a testclass.
  *  @param mip [in] pointer to the min item parser.
@@ -2434,7 +2292,8 @@ int testclass_print (MinItemParser * mip)
                 tx_c_append (txt, var_value (token));
                 tx_c_append (txt, " ");
         }
-        DELETE (token);
+	if (token != INITPTR)
+		DELETE (token);
         tx_c_prepend (txt, "script: ");
         tm_printf (5, "script", tx_share_buf (txt));
 
@@ -3152,6 +3011,193 @@ TSBool eval_if (char *condition) {
 
         return ESTrue;
 }
+/* ------------------------------------------------------------------------- */
+/** Intializations to for the scipter interface
+ * @return ENOERR if all is well
+ */
+int init_scripter_if()
+{
+	int retval = ENOERR;
+
+	tp_handlers = dl_list_create ();
+
+	variables = dl_list_create ();
+	declare_internal_var ("FAIL_COUNT");
+	declare_internal_var ("CRASH_COUNT");
+	declare_internal_var ("TOUT_COUNT");
+	declare_internal_var ("ABORT_COUNT");
+	declare_internal_var ("ERROR_COUNT");
+	declare_internal_var ("TOTAL_COUNT");
+
+        scripter_mod.tp_details = dl_list_create ();
+        if (scripter_mod.tp_details == INITPTR) {
+                retval = -1;
+                SCRIPTER_RTERR("list creation failed");
+                goto EXIT;
+        }
+
+        scripter_mod.req_events = dl_list_create ();
+        scripter_mod.mqid = mq_open_queue ('a');
+	if (scripter_mod.mqid < 0) {
+                retval = -1;
+                SCRIPTER_RTERR("mq_open_queue() failed");
+                goto EXIT;
+	}
+		
+        scripter_mod.script_finished = 0;
+        scripter_mod.tclass_exec = 0;
+        scripter_mod.extif_pending = ESFalse;
+        scripter_mod.extif_remote = 0;
+        scripter_mod.testcomplete = INITPTR;
+        scripter_mod.canceliferror = ESFalse;
+	scripter_mod.error_occured = ESFalse;
+        scripter_mod.sleep = 0;
+        scripter_mod.expected_var = INITPTR;
+	scripter_mod.blocking_timeout = DEFAULT_BLOCKING_TIMEOUT;
+        scripter_mod.shm_id = shmget (getpid(), 4096, 
+                                      IPC_CREAT | 0660);
+
+        if (scripter_mod.shm_id < 0) {
+                MIN_ERROR ("Failed to create shared mem segment: %s",
+                          strerror (errno));
+                goto EXIT;
+        }
+        MIN_DEBUG ("shmid = %d", scripter_mod.shm_id); 
+ EXIT:
+	return retval;
+
+}
+/* ------------------------------------------------------------------------- */
+/** Inspects all the results of the method, combiner calls made from the script
+ *  and decides if the scripted test case is PASSED or FAILED
+ *  @param tcr [in/out] the final result
+ */
+void scripter_final_verdict (TestCaseResult * tcr)
+{
+        ScriptedTestProcessDetails *stpd;
+        DLListIterator  tpit, reit;
+        TestCaseResult *res;
+        int             num_fail, num_ok, cancelled;
+        num_fail = num_ok = cancelled = 0;
+        char *result_str [] = {"CRASHED",
+                               "TIMEOUTED",
+                               "TP_PASSED",
+                               "FAILED",
+                               "NOT COMPLETE",
+                               "LEFT"};
+        
+        for (tpit = dl_list_head (scripter_mod.tp_details);
+             tpit != DLListNULLIterator; tpit = dl_list_next (tpit)) {
+                stpd = dl_list_data (tpit);
+                switch (stpd->status_) {
+                case TP_ENDED:
+                case TP_ABORTED:
+                        break;
+                case TP_CANCELED:
+                        snprintf (tcr->desc_, 
+                                  MaxTestResultDescription - 1, 
+                                  "Run %s(%d) cancelled  ",
+                                  stpd->dllname_,
+                                  stpd->tc_id_
+                                );
+                        cancelled = 1;
+                        continue;
+                default:
+                        MIN_WARN ("Unexpected status of scripter "
+                                  "test case %d", stpd->status_);
+                        snprintf (tcr->desc_, 
+                                  MaxTestResultDescription - 1,
+                                  "Unexpected status (%d) of scripter"
+                                  "test case", stpd->status_);
+                                  
+                        num_fail++;
+                        continue;
+                        
+                }
+                for (reit = dl_list_head (stpd->tcr_list_);
+                     reit != DLListNULLIterator; reit = dl_list_next (reit)) {
+                        res = dl_list_data (reit);
+                        switch (res->result_) {
+                        case TP_CRASHED:
+                        case TP_FAILED:
+                        case TP_TIMEOUTED:
+                        case TP_LEAVE:
+                                num_fail++;
+				if (strlen (tcr->desc_) > 0) 
+                                        break;
+                                if (stpd->mod_type_ == EDLLTypeClass) {
+					snprintf (tcr->desc_, 
+						  MaxTestResultDescription - 1,
+                                                  "Test Method call %s.%s"
+                                                  "  %s",
+                                                  stpd->testclass_, 
+                                                  &res->desc_[1],
+                                                  result_str 
+                                                  [res->result_ + 2]);
+                                } else {
+                                        snprintf (tcr->desc_,
+                                                  MaxTestResultDescription - 1, 
+                                                  "Run %s(%d) %s: %s ",
+                                                  stpd->dllname_,
+                                                  stpd->tc_id_,
+                                                  result_str 
+                                                  [res->result_ + 2],
+                                                  res->desc_
+                                                );
+                                }
+                                break;
+                        case TP_PASSED:
+                                num_ok++;
+                                break;
+                        case TP_NC:
+                                MIN_DEBUG ("TP_NC .. unxepected result code");
+                                num_fail++;
+                                break;
+                        default:
+                                MIN_DEBUG ("unknown result code %d",
+                                             tcr->result_);
+                                break;
+                        }
+                }
+        }
+
+        if (cancelled) {
+                tcr->result_ = TP_NC;
+        } else if (num_fail > 0) {
+                if (num_fail > 1)
+                        sprintf (tcr->desc_, "%s (%d other errors/failures)",
+                                 tcr->desc_, num_fail - 1);
+                tcr->result_ = TP_FAILED;
+        } else {
+                tcr->result_ = TP_PASSED;
+                sprintf (tcr->desc_, "Scripted test case passed");
+        }
+        MIN_DEBUG ("returning from scripter with desc %s",
+                   tcr->desc_);
+        
+}
+#ifdef SCRIPTER_CLI
+/* ------------------------------------------------------------------------- */
+/** Message handling for scipter CLI
+ *  @return 1 if there was message to handle
+ */
+int  scripter_if_handle_ipc()
+{
+	int             msg_pending;
+	long            pid = getpid();
+        MsgBuffer       input_buffer;
+
+	msg_pending = mq_peek_message (scripter_mod.mqid, pid);
+	
+	if (!msg_pending)
+		return 0;
+	uengine_read_message (scripter_mod.mqid,
+			      &input_buffer);
+	uengine_handle_message (scripter_mod.mqid,
+				&input_buffer);
+	return 1;
+}
+#endif
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
 /* None */

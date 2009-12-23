@@ -107,9 +107,6 @@ static LegoBasicType *current = INITPTR;
 /* ------------------------------------------------------------------------- */
 LOCAL int       look4slave (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
-LOCAL void      interpreter_handle_keyword (TScripterKeyword keyword,
-                                            MinItemParser * mip);
-/* ------------------------------------------------------------------------- */
 LOCAL int       check_create_line (MinItemParser * line, int line_number, 
 				   char * tc_title, DLList *assoc_lnames,
 				   DLList *assoc_cnames, DLList *symblist);
@@ -202,291 +199,10 @@ LOCAL void      do_cleanup (DLList *slaves,  DLList *testclasses,
 			    DLList *symblist, DLList *var_list, 
 			    DLList *interf_objs);
 /* ------------------------------------------------------------------------- */
-LOCAL int       validate_line (char *keyword,  MinItemParser * line, 
-			       int line_number, char **p_tc_title, 
-			       Text *tx_desc, DLList *assoc_lnames,
-			       DLList *assoc_cnames, DLList *symblist,
-			       DLList *var_list, DLList *requested_events,
-			       DLList *slaves, DLList *interf_objs, 
-			       char *nesting, int *nest_level);
-/* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
 /* ------------------------------------------------------------------------- */
 /* ==================== LOCAL FUNCTIONS ==================================== */
-/* ------------------------------------------------------------------------- */
-/** Validates one line in test script.
- *  @param keyword keyword to be handled 
- *  @param line item parser which contains the rest of the line 
- *  @param line_number  line number for debug messages
- *  @param p_tc_title pointer to test case title string
- *  @param tx_desc test case description container
- *  @param assoc_lnames list of test method names
- *  @param assoc_cnames list of test class names
- *  @param symblist list of symbols 
- *  @param var_list list of variables
- *  @param requested_events list of already requested events
- *  @param slaves  list of slaves
- *  @param interf_objs list of interference objects
- *  @param nesting buffer to keep track of nesting types (if/loop)
- *  @param nest_level current level of nesting
- *  @return number of errors
- */
-LOCAL int validate_line (char *keyword, 
-			 MinItemParser * line, 
-			 int line_number,
-			 char **p_tc_title,
-			 Text *tx_desc,
-			 DLList *assoc_lnames,
-			 DLList *assoc_cnames,
-			 DLList *symblist,
-			 DLList *var_list,
-			 DLList *requested_events,
-			 DLList *slaves,
-			 DLList *interf_objs,
-			 char   *nesting,
-			 int    *nest_level) 
-{
-	int errors = 0, i = 0, check_result = 0;
-	char *tc_title = *p_tc_title;
-        TSBool in_loop;
-        unsigned int    len = 0;
-        enum nesting_type {
-                IF = 1,
-                LOOP
-        };
-
-	switch (get_keyword (keyword)) {
-	case EKeywordTitle:
-		len = strlen (line->item_skip_and_mark_pos_);
-		if (len == 0) {
-			SCRIPTER_SYNTAX_ERROR ("title",
-					       "Test case "
-					       "title is not defined");
-			errors ++;
-                        }
-		tc_title = NEW2 (char, len + 1);
-		STRCPY (tc_title, line->item_skip_and_mark_pos_,
-			len + 1);
-		*p_tc_title = tc_title;
-		break;
-	case EKeywordSet:
-	case EKeywordUnset:
-	case EKeywordSkipIt:
-		break;
-	case EKeywordDescription:
-		len = strlen (line->item_skip_and_mark_pos_);
-		tx_c_append (tx_desc, " ");
-		tx_c_append (tx_desc, line->item_skip_and_mark_pos_);
-		break;
-		
-	case EKeywordCreate:
-		/*class and dll names are writen to assoc_ lists */
-		errors += check_create_line (line, 
-					     line_number,
-					     tc_title, 
-					     assoc_lnames,
-					     assoc_cnames,
-					     symblist);
-		
-		break;
-
-	case EKeywordDelete:
-		errors += check_delete_line (line,
-					     line_number,
-					     tc_title,
-					     assoc_lnames,
-					     assoc_cnames);
-		break;
-		
-	case EKeywordPause:
-		errors = check_pause_line (line, line_number,
-					   tc_title);
-		break;
-		
-	case EKeywordLoop:
-		check_result = check_loop_line (line, line_number,
-							tc_title);
-		if (check_result == 0) {
-			*nest_level = *(nest_level) + 1;
-			nesting [*nest_level] = LOOP;
-		} else {
-			errors ++;
-		}
-		break;
-		
-	case EKeywordEndloop:
-		if (*nest_level <= 0 || nesting [*nest_level] != LOOP) {
-			SCRIPTER_SYNTAX_ERROR ("endloop","unexpected");
-			errors ++;
-		} else
-			*nest_level = *(nest_level) - 1;
-		break;
-			
-	case EKeywordBreakloop:
-		i = *nest_level;
-		in_loop = ESFalse;
-		while (i > 0) {
-			if (nesting [i] == LOOP) {
-				in_loop = ESTrue;
-				break;
-			}
-			i --;
-                        }
-		if (in_loop == ESFalse) {
-			SCRIPTER_SYNTAX_ERROR ("breakloop",
-					       "no loop to break");
-			errors ++;
-		}
-		break;
-		
-	case EKeywordRequest:
-		errors += check_request_line (line, line_number, 
-					      tc_title,
-					      requested_events);
-		break;
-		
-	case EKeywordRelease:
-		errors += check_release_line (line, line_number, 
-						      tc_title);
-		break;
-		
-	case EKeywordWait:
-		errors += check_wait_line (line, line_number, 
-					   tc_title,
-					   requested_events);
-		
-		break;
-			
-	case EKeywordClassName:
-		errors += check_methodcall_line (line, 
-						 line_number, 
-						 tc_title,
-						 keyword,
-						 assoc_lnames,
-						 assoc_cnames,
-						 symblist);
-		break;
-	case EKeywordRun:
-		errors += check_run_line (line, line_number, 
-					  tc_title);
-		break;
-		
-	case EKeywordPrint:
-	case EKeywordResume:
-	case EKeywordCancel:
-	case EKeywordCancelIfError:
-		/*we don't care about it at this point */
-		break;
-	case EKeywordAllocate:
-		errors += check_allocate_line (line, line_number, 
-					       slaves,
-					       tc_title);
-		break;
-
-	case EKeywordFree:
-		errors += check_free_line (line, line_number, 
-					   slaves, tc_title);
-                        break;
-			
-	case EKeywordRemote:
-		errors += check_remote_line (line, var_list, 
-					     line_number, slaves, 
-					     tc_title);
-		break;
-		
-	case EKeywordAllowNextResult:
-		errors += check_allownextresult_line (line, line_number,
-						      tc_title);
-		break;
-		
-	case EKeywordComplete:
-		errors += check_complete_line (line, line_number, 
-						       tc_title);
-		break;
-		
-
-	case EKeywordTimeout:
-		errors += check_timeout_line (line, line_number,
-					      tc_title);
-		break;
-		
-	case EKeywordSleep:
-		errors += check_sleep_line (line, line_number,
-					    tc_title);
-		break;
-		
-	case EKeywordVar:
-		errors += check_var_line (line, line_number,
-					  tc_title, var_list);
-		break;
-		
-	case EKeywordSendreceive:
-		errors += check_sendreceive_line (line, line_number,
-						  tc_title);
-		break;
-	case EKeywordExpect:
-		
-		errors += check_expect_line (line, var_list, 
-					     line_number,
-						     tc_title);
-		break;
-		
-	case EKeywordInterference:
-		check_result =
-			check_interference_line (line, line_number,
-						 interf_objs,
-						 tc_title);
-		if (check_result != ENOERR) {
-			MIN_ERROR ("Test Interference Fault");
-			errors ++;
-		}
-		break;
-		
-	case EKeywordIf:
-		errors += check_if_line (line, line_number,
-					 tc_title);
-
-		*nest_level = *(nest_level) + 1;
-		nesting [*nest_level] = IF;
-		break;
-		
-	case EKeywordElse:
-		if (nesting [*nest_level] != IF) {
-			SCRIPTER_SYNTAX_ERROR ("else",
-					       "unexpected else");
-			errors ++;
-		}
-		break;
-		
-	case EKeywordEndif:
-		if (*nest_level <= 0 || nesting [*nest_level] != IF) {
-			SCRIPTER_SYNTAX_ERROR ("endif",
-						       "unexpected");
-			errors ++;
-		} else
-			*nest_level = *(nest_level) -1;
-		break;
-		
-	case EKeywordBlocktimeout:
-		errors += check_blockingtimeout_line (line, 
-						      line_number,
-						      tc_title);
-		break;
-		
-	case EKeywordUnknown:
-		SCRIPTER_SYNTAX_ERROR_ARG ("<unknown>",
-					   "[%s]", keyword);
-		errors ++;
-		break;
-	default:
-		SCRIPTER_SYNTAX_ERROR_ARG ("<unknown>",
-					   "[%s]", keyword);
-		errors ++;
-		break;
-	}
-	return errors;
-}
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "expect" keyword 
  *  @param line [in] MinItemParser containing line.
@@ -529,244 +245,6 @@ LOCAL int check_expect_line (MinItemParser * line, DLList * varnames,
 LOCAL int look4slave (const void *a, const void *b)
 {
         return strcmp ((char *)a, (char *)b);
-}
-/* ------------------------------------------------------------------------- */
-/** Handles keyword 
- *  @param keyword [in] keyword to be handled 
- *  @param mip [in] item parser which contains the rest of the line 
- *
- *  NOTE: Item parser should be rewinded after usage in order to be able
- *        to correctly handle loops.
- */
-LOCAL void interpreter_handle_keyword (TScripterKeyword keyword,
-                                       MinItemParser * mip)
-{
-        char           *parser_pos = mip->item_skip_and_mark_pos_;
-        char           *token = INITPTR;
-        char           *token2 = INITPTR;
-        char           *p;
-        int             ival = -1;
-
-        if (mip == INITPTR) {
-                errno = EINVAL;
-                goto EXIT;
-        }
-
-        /* Handle keyword */
-        switch (keyword) {
-        case EKeywordTitle:
-                MIN_DEBUG ("EKeywordTitle");
-                /* "title <testcasename>" */
-		set_caller_name(mip->item_skip_and_mark_pos_);
-                mip_get_next_string (mip, &token);
-                break;
-        case EKeywordSkipIt:
-                MIN_DEBUG ("EKeywordSkipIt");
-                /* "waittestclass <testcasename>" */
-                mip_get_next_string (mip, &token);
-                break;
-        case EKeywordCreate:
-                MIN_DEBUG ("EKeywordCreate");
-                /* "create <dllname> <classname>" */
-                mip_get_next_string (mip, &token);
-                mip_get_next_string (mip, &token2);
-                testclass_create (token, token2);
-                break;
-        case EKeywordClassName:
-                MIN_DEBUG ("EKeywordClassName");
-                /* "<classname> <functionname> [parameters]" */
-                /* We need to goto beginning of the line to get the
-                 * classname. */
-                mip->item_skip_and_mark_pos_ = &mip->item_line_section_[0];
-                mip_get_next_string (mip, &token);
-                testclass_call_function (token, mip);
-                break;
-        case EKeywordDelete:
-                MIN_DEBUG ("EKeywordDelete");
-                /* "delete <classname>" */
-                mip_get_next_string (mip, &token);
-                testclass_destroy (token);
-                break;
-        case EKeywordPause:
-                MIN_DEBUG ("EKeywordPause");
-                mip_get_next_string (mip, &token);
-                test_pause (token, mip);
-                break;
-        case EKeywordPrint:
-                MIN_DEBUG ("EKeywordPrint");
-                /* "print <text>" */
-                testclass_print (mip);
-                break;
-        case EKeywordResume:
-                MIN_DEBUG ("EKeywordResume");
-                /* "resume <testid>" */
-                mip_get_next_string (mip, &token);
-                test_resume (token);
-                break;
-        case EKeywordCancel:
-                MIN_DEBUG ("EKeywordCancel");
-                /* "cancel <testid>" */
-                mip_get_next_string (mip, &token);
-                test_cancel (token);
-                break;
-        case EKeywordRelease:
-                MIN_DEBUG ("EKeywordRelease");
-                /* "release <eventname>" */
-                mip_get_next_string (mip, &token);
-                event_release (token);
-                break;
-        case EKeywordRequest:
-                MIN_DEBUG ("EKeywordRequest");
-                /* "request <eventname> [state]" */
-                mip_get_next_string (mip, &token);
-                mip_get_next_string (mip, &token2);
-                if (token2 != INITPTR && !strcmp (token2, "state"))
-                        event_request (token, 1);
-                else
-                        event_request (token, 0);
-
-                break;
-        case EKeywordRun:
-                MIN_DEBUG ("EKeywordRun");
-                /* "run <modulename> <config> <id> " */
-                mip_get_next_string (mip, &token);
-                mip_get_next_string (mip, &token2);
-                mip_get_next_int (mip, &ival);
-                test_run (token, token2, ival, mip);
-                break;
-        case EKeywordSet:
-                MIN_DEBUG ("EKeywordSet");
-                /* "set <eventname> [state]" */
-                mip_get_next_string (mip, &token);
-                mip_get_next_string (mip, &token2);
-                if (token2 != INITPTR && !strcmp (token2, "state"))
-                        event_set (token, 1);
-                else
-                        event_set (token, 0);
-                break;
-        case EKeywordUnset:
-                MIN_DEBUG ("EKeywordUnset");
-                /* "unset <eventname>" */
-                mip_get_next_string (mip, &token);
-                event_unset (token);
-                break;
-        case EKeywordWait:
-                MIN_DEBUG ("EKeywordWait");
-                /* "wait <eventname>" */
-                mip_get_next_string (mip, &token);
-                event_wait (token);
-                break;
-        case EKeywordAllocate:
-                MIN_DEBUG ("EKeywordAllocate");
-                /* "allocate phone <slave_name> */
-                mip_get_next_string (mip, &token);
-                mip_get_next_string (mip, &token2);
-                test_allocate_slave (token, token2);
-                break;
-        case EKeywordFree:
-                MIN_DEBUG ("EKeywordFree");
-                /* free <slave_name> */
-                mip_get_next_string (mip, &token);
-                test_free_slave (token);
-                break;
-        case EKeywordRemote:
-                MIN_DEBUG ("EKeywordRemote");
-                /* remote <slave_name> <command> */
-                mip_get_next_string (mip, &token);
-                test_remote_exe (token, mip);
-                break;
-        case EKeywordAllowNextResult:
-                MIN_DEBUG ("EKeywordAllowNextResult");
-                /* allownextresult <result> [result2] ... [resultN] */
-                mip_get_next_int (mip, &ival);
-                testclass_allownextresult (ival, mip);
-                break;
-        case EKeywordComplete:
-                MIN_DEBUG ("EKeywordComplete");
-                /* complete <testid> */
-                mip_get_next_string (mip, &token);
-                test_complete (token);
-                break;
-        case EKeywordCancelIfError:
-                MIN_DEBUG ("EKeywordCancelIfError");
-                /* canceliferror */
-                test_canceliferror ();
-                break;
-        case EKeywordTimeout:
-                MIN_DEBUG ("EKeywordTimeout");
-                /* timeout <interval in ms> */
-                mip_get_next_int (mip, &ival);
-                testclass_test_timeout ((unsigned long)ival);
-                break;
-        case EKeywordSleep:
-                MIN_DEBUG ("EKeywordSleep");
-                /* sleep <interval in ms> */
-                mip_get_next_int (mip, &ival);
-                testclass_test_sleep ((unsigned long)ival);
-                break;
-        case EKeywordVar:
-                MIN_DEBUG ("EKeywordVar");
-                /* var <name> [value] */
-                mip_get_next_string (mip, &token);
-                mip_get_next_string (mip, &token2);
-                if (token2 != INITPTR) {
-                        declare_var (token, ESTrue, token2);
-                } else {
-                        declare_var (token, ESFalse, NULL);
-                }
-                token = token2 = INITPTR;
-                break;
-        case EKeywordSendreceive:
-                MIN_DEBUG ("EKeywordSendrecieve");
-                /* sendreceive <variable>=<value> */
-                mip_get_next_string (mip, &token);
-                p = strchr (token, '=');
-		if (p != NULL) {
-			*p = '\0';
-			p++;
-			sendreceive_slave_send (token, p);
-		} else {
-			MIN_WARN ("Sendreceive error");
-		}
-                break;
-        case EKeywordExpect:
-                MIN_DEBUG ("EKeywordExpect");
-                /* expect <variable> */
-                mip_get_next_string (mip, &token);
-                sendreceive_slave_expect (token);
-                token = INITPTR;
-                break;
-        case EKeywordInterference:
-                MIN_DEBUG ("EKeywordInterference");
-                test_interference (mip);
-                break;
-	case EKeywordBlocktimeout:
-		MIN_DEBUG ("EKeywordBlocktimeout");
-                mip_get_next_int (mip, &ival);
-                set_block_timeout ((unsigned long)ival);
-		break;
-
-        case EKeywordUnknown:
-                MIN_WARN ("Unknown keyword [INITPTR]");
-                break;
-        default:
-                mip_get_next_string (mip, &token);
-                MIN_WARN ("Unknown keyword [%s]", token);
-                break;
-        }
-      EXIT:
-        /* Clean-up */
-        if (token != INITPTR) {
-                DELETE (token);
-                token = INITPTR;
-        }
-        if (token2 != INITPTR) {
-                DELETE (token2);
-                token2 = INITPTR;
-        }
-        /* Rewind item parser */
-        mip->item_skip_and_mark_pos_ = parser_pos;
-        return;
 }
 /* ------------------------------------------------------------------------- */
 /** Checks validity of line with "createx" keyword
@@ -2460,6 +1938,517 @@ int scripter_init (minScripterIf * scripter_if)
 {
         current = INITPTR;
         return 0;
+}
+/* ------------------------------------------------------------------------- */
+/** Validates one line in test script.
+ *  @param keyword keyword to be handled 
+ *  @param line item parser which contains the rest of the line 
+ *  @param line_number  line number for debug messages
+ *  @param p_tc_title pointer to test case title string
+ *  @param tx_desc test case description container
+ *  @param assoc_lnames list of test method names
+ *  @param assoc_cnames list of test class names
+ *  @param symblist list of symbols 
+ *  @param var_list list of variables
+ *  @param requested_events list of already requested events
+ *  @param slaves  list of slaves
+ *  @param interf_objs list of interference objects
+ *  @param nesting buffer to keep track of nesting types (if/loop)
+ *  @param nest_level current level of nesting
+ *  @return number of errors
+ */
+int validate_line (char *keyword, 
+		   MinItemParser * line, 
+		   int line_number,
+		   char **p_tc_title,
+		   Text *tx_desc,
+		   DLList *assoc_lnames,
+		   DLList *assoc_cnames,
+		   DLList *symblist,
+		   DLList *var_list,
+		   DLList *requested_events,
+		   DLList *slaves,
+		   DLList *interf_objs,
+		   char   *nesting,
+		   int    *nest_level) 
+{
+	int errors = 0, i = 0, check_result = 0;
+	char *tc_title = *p_tc_title;
+        TSBool in_loop;
+        unsigned int    len = 0;
+        enum nesting_type {
+                IF = 1,
+                LOOP
+        };
+
+	switch (get_keyword (keyword)) {
+	case EKeywordTitle:
+		len = strlen (line->item_skip_and_mark_pos_);
+		if (len == 0) {
+			SCRIPTER_SYNTAX_ERROR ("title",
+					       "Test case "
+					       "title is not defined");
+			errors ++;
+                        }
+		tc_title = NEW2 (char, len + 1);
+		STRCPY (tc_title, line->item_skip_and_mark_pos_,
+			len + 1);
+		*p_tc_title = tc_title;
+		break;
+	case EKeywordSet:
+	case EKeywordUnset:
+	case EKeywordSkipIt:
+		break;
+	case EKeywordDescription:
+		len = strlen (line->item_skip_and_mark_pos_);
+		tx_c_append (tx_desc, " ");
+		tx_c_append (tx_desc, line->item_skip_and_mark_pos_);
+		break;
+		
+	case EKeywordCreate:
+		/*class and dll names are writen to assoc_ lists */
+		errors += check_create_line (line, 
+					     line_number,
+					     tc_title, 
+					     assoc_lnames,
+					     assoc_cnames,
+					     symblist);
+		
+		break;
+
+	case EKeywordDelete:
+		errors += check_delete_line (line,
+					     line_number,
+					     tc_title,
+					     assoc_lnames,
+					     assoc_cnames);
+		break;
+		
+	case EKeywordPause:
+		errors = check_pause_line (line, line_number,
+					   tc_title);
+		break;
+		
+	case EKeywordLoop:
+		check_result = check_loop_line (line, line_number,
+							tc_title);
+		if (check_result == 0) {
+			*nest_level = *(nest_level) + 1;
+			nesting [*nest_level] = LOOP;
+		} else {
+			errors ++;
+		}
+		break;
+		
+	case EKeywordEndloop:
+		if (*nest_level <= 0 || nesting [*nest_level] != LOOP) {
+			SCRIPTER_SYNTAX_ERROR ("endloop","unexpected");
+			errors ++;
+		} else
+			*nest_level = *(nest_level) - 1;
+		break;
+			
+	case EKeywordBreakloop:
+		i = *nest_level;
+		in_loop = ESFalse;
+		while (i > 0) {
+			if (nesting [i] == LOOP) {
+				in_loop = ESTrue;
+				break;
+			}
+			i --;
+                        }
+		if (in_loop == ESFalse) {
+			SCRIPTER_SYNTAX_ERROR ("breakloop",
+					       "no loop to break");
+			errors ++;
+		}
+		break;
+		
+	case EKeywordRequest:
+		errors += check_request_line (line, line_number, 
+					      tc_title,
+					      requested_events);
+		break;
+		
+	case EKeywordRelease:
+		errors += check_release_line (line, line_number, 
+						      tc_title);
+		break;
+		
+	case EKeywordWait:
+		errors += check_wait_line (line, line_number, 
+					   tc_title,
+					   requested_events);
+		
+		break;
+			
+	case EKeywordClassName:
+		errors += check_methodcall_line (line, 
+						 line_number, 
+						 tc_title,
+						 keyword,
+						 assoc_lnames,
+						 assoc_cnames,
+						 symblist);
+		break;
+	case EKeywordRun:
+		errors += check_run_line (line, line_number, 
+					  tc_title);
+		break;
+		
+	case EKeywordPrint:
+	case EKeywordResume:
+	case EKeywordCancel:
+	case EKeywordCancelIfError:
+		/*we don't care about it at this point */
+		break;
+	case EKeywordAllocate:
+		errors += check_allocate_line (line, line_number, 
+					       slaves,
+					       tc_title);
+		break;
+
+	case EKeywordFree:
+		errors += check_free_line (line, line_number, 
+					   slaves, tc_title);
+                        break;
+			
+	case EKeywordRemote:
+		errors += check_remote_line (line, var_list, 
+					     line_number, slaves, 
+					     tc_title);
+		break;
+		
+	case EKeywordAllowNextResult:
+		errors += check_allownextresult_line (line, line_number,
+						      tc_title);
+		break;
+		
+	case EKeywordComplete:
+		errors += check_complete_line (line, line_number, 
+						       tc_title);
+		break;
+		
+
+	case EKeywordTimeout:
+		errors += check_timeout_line (line, line_number,
+					      tc_title);
+		break;
+		
+	case EKeywordSleep:
+		errors += check_sleep_line (line, line_number,
+					    tc_title);
+		break;
+		
+	case EKeywordVar:
+		errors += check_var_line (line, line_number,
+					  tc_title, var_list);
+		break;
+		
+	case EKeywordSendreceive:
+		errors += check_sendreceive_line (line, line_number,
+						  tc_title);
+		break;
+	case EKeywordExpect:
+		
+		errors += check_expect_line (line, var_list, 
+					     line_number,
+						     tc_title);
+		break;
+		
+	case EKeywordInterference:
+		check_result =
+			check_interference_line (line, line_number,
+						 interf_objs,
+						 tc_title);
+		if (check_result != ENOERR) {
+			MIN_ERROR ("Test Interference Fault");
+			errors ++;
+		}
+		break;
+		
+	case EKeywordIf:
+		errors += check_if_line (line, line_number,
+					 tc_title);
+
+		*nest_level = *(nest_level) + 1;
+		nesting [*nest_level] = IF;
+		break;
+		
+	case EKeywordElse:
+		if (nesting [*nest_level] != IF) {
+			SCRIPTER_SYNTAX_ERROR ("else",
+					       "unexpected else");
+			errors ++;
+		}
+		break;
+		
+	case EKeywordEndif:
+		if (*nest_level <= 0 || nesting [*nest_level] != IF) {
+			SCRIPTER_SYNTAX_ERROR ("endif",
+						       "unexpected");
+			errors ++;
+		} else
+			*nest_level = *(nest_level) -1;
+		break;
+		
+	case EKeywordBlocktimeout:
+		errors += check_blockingtimeout_line (line, 
+						      line_number,
+						      tc_title);
+		break;
+		
+	case EKeywordUnknown:
+		SCRIPTER_SYNTAX_ERROR_ARG ("<unknown>",
+					   "[%s]", keyword);
+		errors ++;
+		break;
+	default:
+		SCRIPTER_SYNTAX_ERROR_ARG ("<unknown>",
+					   "[%s]", keyword);
+		errors ++;
+		break;
+	}
+	return errors;
+}
+/* ------------------------------------------------------------------------- */
+/** Handles keyword 
+ *  @param keyword [in] keyword to be handled 
+ *  @param mip [in] item parser which contains the rest of the line 
+ *
+ *  NOTE: Item parser should be rewinded after usage in order to be able
+ *        to correctly handle loops.
+ */
+void interpreter_handle_keyword (TScripterKeyword keyword,
+                                 MinItemParser * mip)
+{
+        char           *parser_pos = mip->item_skip_and_mark_pos_;
+        char           *token = INITPTR;
+        char           *token2 = INITPTR;
+        char           *p;
+        int             ival = -1;
+
+        if (mip == INITPTR) {
+                errno = EINVAL;
+                goto EXIT;
+        }
+
+        /* Handle keyword */
+        switch (keyword) {
+        case EKeywordTitle:
+                MIN_DEBUG ("EKeywordTitle");
+                /* "title <testcasename>" */
+		set_caller_name(mip->item_skip_and_mark_pos_);
+                mip_get_next_string (mip, &token);
+                break;
+        case EKeywordSkipIt:
+                MIN_DEBUG ("EKeywordSkipIt");
+                /* "waittestclass <testcasename>" */
+                mip_get_next_string (mip, &token);
+                break;
+        case EKeywordCreate:
+                MIN_DEBUG ("EKeywordCreate");
+                /* "create <dllname> <classname>" */
+                mip_get_next_string (mip, &token);
+                mip_get_next_string (mip, &token2);
+                testclass_create (token, token2);
+                break;
+        case EKeywordClassName:
+                MIN_DEBUG ("EKeywordClassName");
+                /* "<classname> <functionname> [parameters]" */
+                /* We need to goto beginning of the line to get the
+                 * classname. */
+                mip->item_skip_and_mark_pos_ = &mip->item_line_section_[0];
+                mip_get_next_string (mip, &token);
+                testclass_call_function (token, mip);
+                break;
+        case EKeywordDelete:
+                MIN_DEBUG ("EKeywordDelete");
+                /* "delete <classname>" */
+                mip_get_next_string (mip, &token);
+                testclass_destroy (token);
+                break;
+        case EKeywordPause:
+                MIN_DEBUG ("EKeywordPause");
+                mip_get_next_string (mip, &token);
+                test_pause (token, mip);
+                break;
+        case EKeywordPrint:
+                MIN_DEBUG ("EKeywordPrint");
+                /* "print <text>" */
+                testclass_print (mip);
+                break;
+        case EKeywordResume:
+                MIN_DEBUG ("EKeywordResume");
+                /* "resume <testid>" */
+                mip_get_next_string (mip, &token);
+                test_resume (token);
+                break;
+        case EKeywordCancel:
+                MIN_DEBUG ("EKeywordCancel");
+                /* "cancel <testid>" */
+                mip_get_next_string (mip, &token);
+                test_cancel (token);
+                break;
+        case EKeywordRelease:
+                MIN_DEBUG ("EKeywordRelease");
+                /* "release <eventname>" */
+                mip_get_next_string (mip, &token);
+                event_release (token);
+                break;
+        case EKeywordRequest:
+                MIN_DEBUG ("EKeywordRequest");
+                /* "request <eventname> [state]" */
+                mip_get_next_string (mip, &token);
+                mip_get_next_string (mip, &token2);
+                if (token2 != INITPTR && !strcmp (token2, "state"))
+                        event_request (token, 1);
+                else
+                        event_request (token, 0);
+
+                break;
+        case EKeywordRun:
+                MIN_DEBUG ("EKeywordRun");
+                /* "run <modulename> <config> <id> " */
+                mip_get_next_string (mip, &token);
+                mip_get_next_string (mip, &token2);
+                mip_get_next_int (mip, &ival);
+                test_run (token, token2, ival, mip);
+                break;
+        case EKeywordSet:
+                MIN_DEBUG ("EKeywordSet");
+                /* "set <eventname> [state]" */
+                mip_get_next_string (mip, &token);
+                mip_get_next_string (mip, &token2);
+                if (token2 != INITPTR && !strcmp (token2, "state"))
+                        event_set (token, 1);
+                else
+                        event_set (token, 0);
+                break;
+        case EKeywordUnset:
+                MIN_DEBUG ("EKeywordUnset");
+                /* "unset <eventname>" */
+                mip_get_next_string (mip, &token);
+                event_unset (token);
+                break;
+        case EKeywordWait:
+                MIN_DEBUG ("EKeywordWait");
+                /* "wait <eventname>" */
+                mip_get_next_string (mip, &token);
+                event_wait (token);
+                break;
+        case EKeywordAllocate:
+                MIN_DEBUG ("EKeywordAllocate");
+                /* "allocate phone <slave_name> */
+                mip_get_next_string (mip, &token);
+                mip_get_next_string (mip, &token2);
+                test_allocate_slave (token, token2);
+                break;
+        case EKeywordFree:
+                MIN_DEBUG ("EKeywordFree");
+                /* free <slave_name> */
+                mip_get_next_string (mip, &token);
+                test_free_slave (token);
+                break;
+        case EKeywordRemote:
+                MIN_DEBUG ("EKeywordRemote");
+                /* remote <slave_name> <command> */
+                mip_get_next_string (mip, &token);
+                test_remote_exe (token, mip);
+                break;
+        case EKeywordAllowNextResult:
+                MIN_DEBUG ("EKeywordAllowNextResult");
+                /* allownextresult <result> [result2] ... [resultN] */
+                mip_get_next_int (mip, &ival);
+                testclass_allownextresult (ival, mip);
+                break;
+        case EKeywordComplete:
+                MIN_DEBUG ("EKeywordComplete");
+                /* complete <testid> */
+                mip_get_next_string (mip, &token);
+                test_complete (token);
+                break;
+        case EKeywordCancelIfError:
+                MIN_DEBUG ("EKeywordCancelIfError");
+                /* canceliferror */
+                test_canceliferror ();
+                break;
+        case EKeywordTimeout:
+                MIN_DEBUG ("EKeywordTimeout");
+                /* timeout <interval in ms> */
+                mip_get_next_int (mip, &ival);
+                testclass_test_timeout ((unsigned long)ival);
+                break;
+        case EKeywordSleep:
+                MIN_DEBUG ("EKeywordSleep");
+                /* sleep <interval in ms> */
+                mip_get_next_int (mip, &ival);
+                testclass_test_sleep ((unsigned long)ival);
+                break;
+        case EKeywordVar:
+                MIN_DEBUG ("EKeywordVar");
+                /* var <name> [value] */
+                mip_get_next_string (mip, &token);
+                mip_get_next_string (mip, &token2);
+                if (token2 != INITPTR) {
+                        declare_var (token, ESTrue, token2);
+                } else {
+                        declare_var (token, ESFalse, NULL);
+                }
+                token = token2 = INITPTR;
+                break;
+        case EKeywordSendreceive:
+                MIN_DEBUG ("EKeywordSendrecieve");
+                /* sendreceive <variable>=<value> */
+                mip_get_next_string (mip, &token);
+                p = strchr (token, '=');
+		if (p != NULL) {
+			*p = '\0';
+			p++;
+			sendreceive_slave_send (token, p);
+		} else {
+			MIN_WARN ("Sendreceive error");
+		}
+                break;
+        case EKeywordExpect:
+                MIN_DEBUG ("EKeywordExpect");
+                /* expect <variable> */
+                mip_get_next_string (mip, &token);
+                sendreceive_slave_expect (token);
+                token = INITPTR;
+                break;
+        case EKeywordInterference:
+                MIN_DEBUG ("EKeywordInterference");
+                test_interference (mip);
+                break;
+	case EKeywordBlocktimeout:
+		MIN_DEBUG ("EKeywordBlocktimeout");
+                mip_get_next_int (mip, &ival);
+                set_block_timeout ((unsigned long)ival);
+		break;
+
+        case EKeywordUnknown:
+                MIN_WARN ("Unknown keyword [INITPTR]");
+                break;
+        default:
+                mip_get_next_string (mip, &token);
+                MIN_WARN ("Unknown keyword [%s]", token);
+                break;
+        }
+      EXIT:
+        /* Clean-up */
+        if (token != INITPTR) {
+                DELETE (token);
+                token = INITPTR;
+        }
+        if (token2 != INITPTR) {
+                DELETE (token2);
+                token2 = INITPTR;
+        }
+        /* Rewind item parser */
+        mip->item_skip_and_mark_pos_ = parser_pos;
+        return;
 }
 /* ------------------------------------------------------------------------- */
 /** return  test module type */
