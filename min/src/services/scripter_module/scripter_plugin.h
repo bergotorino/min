@@ -78,5 +78,16 @@ int             interpreter_next ();
 /* ------------------------------------------------------------------------- */
 int             scripter_init (minScripterIf * scripter_if);
 /* ------------------------------------------------------------------------- */
+void            do_cleanup (DLList *slaves, 
+			    DLList *testclasses, 
+			    DLList *classmethods,
+			    DLList *assoc_cnames,
+			    DLList *assoc_lnames,
+			    DLList *requested_events,
+			    DLList *symblist,
+			    DLList *var_list,
+			    DLList *interf_objs);
+/* ------------------------------------------------------------------------- */
+ 
 #endif                          /* SCRIPTER_PLUGIN_H */
 /* End of file */

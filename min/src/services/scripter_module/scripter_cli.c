@@ -83,6 +83,8 @@ LOCAL void display_available_commands();
 /* ------------------------------------------------------------------------- */
 LOCAL void list_execute_cmds (DLList *cmds);
 /* ------------------------------------------------------------------------- */
+LOCAL void serve_cli (void *notused);
+/* ------------------------------------------------------------------------- */
 LOCAL int  run_cli();
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
@@ -95,8 +97,8 @@ LOCAL int  run_cli();
 LOCAL void display_available_commands()
 {
 	printf ("\t ?    - list the available commands\n");
-	printf ("\t quit - exit scripter CLI and return to MIN\n"); 
-	printf ("\t list - show succefully executed commands\n"); 
+	printf ("\t quit - exit scripter CLI\n"); 
+	printf ("\t list - show succesfully executed commands\n"); 
 
 }
 /* ------------------------------------------------------------------------- */
@@ -114,10 +116,12 @@ LOCAL void list_execute_cmds (DLList *cmds)
 	}
 	printf ("\t[Endtest]\n");
 }
-
-LOCAL void  serve_cli (void *notused)
+/* ------------------------------------------------------------------------- */
+/** Thread serving the user io
+ */
+LOCAL void serve_cli (void *notused)
 {
-	printf ("Wellcome to MIN scripter command line interface\n");
+	printf ("Welcome to MIN scripter command line interface\n");
 	printf ("give ? for available commands\n");
 	while (!exit_) {
 		printf ("scripter-cli> ");
@@ -130,7 +134,6 @@ LOCAL void  serve_cli (void *notused)
 		usleep (100000);
 	}
 }
-
 /* ------------------------------------------------------------------------- */
 /** Scripter CLI main loop
  */
@@ -151,11 +154,13 @@ LOCAL int run_cli()
 	DLList *interf_objs = dl_list_create();
         DLList *testclasses = dl_list_create ();
 	DLList *script_cmds = dl_list_create();
+	DLListIterator it;
 	long tmp;
         int     nest_level = 0, ret, lineno = 1;
         char    nesting [255];
 	pthread_t  serve_cli_thread;
 	TScripterKeyword kw;
+
 	exit_ = 0, new_command_ = 0;
 	if (init_scripter_if() != ENOERR) {
 		printf ("Failed to initialize scirpter interface\n");
@@ -163,7 +168,6 @@ LOCAL int run_cli()
 	}
         pthread_create (&serve_cli_thread, NULL, (void *)&serve_cli,
                         (void *)&tmp);
-
 	while (1) {
 		usleep (100000);
 		while (scripter_if_handle_ipc())
@@ -190,8 +194,9 @@ LOCAL int run_cli()
 		}
 
 		line = mip_create(buff, 0 ,strlen (buff));
-		if (keyword != INITPTR)
+		if (keyword != INITPTR) {
 			DELETE (keyword);
+		}
                 mip_get_string (line, "", &keyword);
 		if (keyword == INITPTR) {
 			pthread_mutex_unlock (&mutex_);
@@ -218,7 +223,9 @@ LOCAL int run_cli()
 			lineno++;
 			tx = tx_create (buff);
 			dl_list_add (script_cmds, tx);
+			mip_destroy (&line);
 			line = mip_create(buff, 0, strlen (buff));
+			DELETE (keyword);
 			mip_get_string (line, "", &keyword);
 			kw = get_keyword (keyword);
 			switch (kw) {
@@ -237,13 +244,25 @@ LOCAL int run_cli()
 							    line);
 				break;
 			}
+			mip_destroy (&line);
 		}
 		pthread_mutex_unlock (&mutex_);
-		/*
-		 * FIXME do cleanup
-		 */
+		
 	}
 	pthread_join (serve_cli_thread, &tmp);
+	DELETE (keyword);
+	for (it = dl_list_head (script_cmds); it != INITPTR; 
+	     it = dl_list_next (it)){
+		tx = dl_list_data (it);
+		tx_destroy (&tx);
+	}
+	dl_list_free (&script_cmds);
+	tx_destroy (&tx_desc);
+	do_cleanup (slaves, testclasses, class_methods, assoc_cnames,
+		    assoc_lnames, requested_events, symblist,
+		    var_list, interf_objs);
+
+	
 	return 0;
 }
 /* ------------------------------------------------------------------------- */
@@ -267,7 +286,7 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
 /* ------------------------------------------------------------------------- */
 int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 {
-	ENTRYD (*cases, "Scripter CLI", NULL, "Scripter CLI feature");
+	ENTRYD (*cases, "__scripter_cli__", NULL, "Scripter CLI feature");
 
 }
 /* ------------------------------------------------------------------------- */

@@ -193,12 +193,6 @@ LOCAL int       check_interference_objects (DLList *interf_objs,
 LOCAL int       check_classes_for_deletion (DLList *assoc_names, 
 					    int line_number, char *tc_title);
 /* ------------------------------------------------------------------------- */
-LOCAL void      do_cleanup (DLList *slaves,  DLList *testclasses, 
-			    DLList *classmethods, DLList *assoc_cnames,
-			    DLList *assoc_lnames, DLList *requested_events,
-			    DLList *symblist, DLList *var_list, 
-			    DLList *interf_objs);
-/* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
 /* ------------------------------------------------------------------------- */
@@ -1546,15 +1540,15 @@ LOCAL int check_classes_for_deletion (DLList *assoc_names,
  *  @param var_list list of variable names
  *  @param interf_objs list of interference objects
  */
-LOCAL void do_cleanup (DLList *slaves, 
-		       DLList *testclasses, 
-		       DLList *classmethods,
-		       DLList *assoc_cnames,
-		       DLList *assoc_lnames,
-		       DLList *requested_events,
-		       DLList *symblist,
-		       DLList *var_list,
-		       DLList *interf_objs)
+void do_cleanup (DLList *slaves, 
+		 DLList *testclasses, 
+		 DLList *classmethods,
+		 DLList *assoc_cnames,
+		 DLList *assoc_lnames,
+		 DLList *requested_events,
+		 DLList *symblist,
+		 DLList *var_list,
+		 DLList *interf_objs)
 {
 	DLListIterator it;
         TestClassDetails *test_class;
