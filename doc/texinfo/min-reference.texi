@@ -442,6 +442,7 @@ Project home page: http://garage.maemo.org/projects/min/
 * Creating a test class: Creating a test class.
 * Accessing script variables from test class: Accessing script variables from test class.
 * Scripter internal variables: Scripter internal variables.
+* Scripter command line interface: Scripter command line interface.
 * General keywords: General keywords.
 * title keyword: title keyword.
 * timeout keyword: timeout keyword.
@@ -495,11 +496,16 @@ Project home page: http://garage.maemo.org/projects/min/
 @section Accessing script variables from test class
 @include chapters/Accessing_script_variables_from_test_class.texi
 
-@node Scripter internal variables, General keywords, Accessing script variables from test class, Using Test Scripter for creating scripted test cases
+@node Scripter internal variables, Scripter command line interface, Accessing script variables from test class, Using Test Scripter for creating scripted test cases
 @section Scripter internal variables
 @include chapters/Scripter_internal_variables.texi
 
-@node General keywords, title keyword, Scripter internal variables, Using Test Scripter for creating scripted test cases
+@node Scripter command line interface, General keywords, Scripter internal variables, Using Test Scripter for creating scripted test cases
+@section Scripter command line interface
+@include chapters/Scripter_cli.texi
+
+
+@node General keywords, title keyword, Scripter command line interface, Using Test Scripter for creating scripted test cases
 @section General keywords
 @include chapters/General_keywords.texi
 @menu
