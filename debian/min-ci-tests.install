@@ -6,4 +6,4 @@ usr/lib/min/logger_tests*
 usr/lib/min/settings_tests*
 usr/share/min-ci-tests/tests.xml
 usr/share/min-ci-tests/test.cfg
-
+usr/bin/min_scripter_cli_test.sh
