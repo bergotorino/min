@@ -156,7 +156,7 @@ LOCAL callback_s cb_case_menu[] = {
          NULL, NULL},
         {"Start case in debugger", NULL, debug_case_menu, main_menu, 
 	 NULL, NULL},
-        {"Ongoing cases", NULL, ongoing_cases_menu, main_menu, NULL, NULL},
+	{"Ongoing cases", NULL, ongoing_cases_menu, main_menu, NULL, NULL},
         {"Executed cases", NULL, executed_cases_menu, main_menu, NULL, NULL},
         {"Passed cases", NULL, passed_cases_menu, main_menu, NULL, NULL},
         {"Failed cases", NULL, failed_cases_menu, main_menu, NULL, NULL},
@@ -863,7 +863,6 @@ LOCAL int get_tcs_for_start_new_case ()
                         if (tc == INITPTR || tc->casetitle_ == INITPTR) {
                                 continue;
                         }
-                        /* fill callback structure with data */
                         set_cbs (&cb_start_new_case_menu[i],
 				 tx_share_buf (tc->casetitle_),
 				 tc->casedesc_ != INITPTR ?
@@ -1825,9 +1824,25 @@ LOCAL void start_one_tc (void *p)
 {
         DLListIterator it = (DLListIterator)p;
         CUICaseData *c = (CUICaseData*)dl_list_data(it);
-        if (min_clbk_.start_case) min_clbk_.start_case(c->moduleid_,
-						       c->caseid_,
-						       0);
+	/*
+	** We need to leave ncurses for scripter cli
+	*/
+	if (strcmp (tx_share_buf (c->casetitle_), "Scripter CLI") == 0) {
+		echo();
+		endwin(); /* End curses mode temporarily	  */
+		not_in_curses = 1;
+
+		if (min_clbk_.start_case) min_clbk_.start_case(c->moduleid_,
+							       c->caseid_,
+							       0);
+		while (not_in_curses)
+			usleep (10000);
+		
+
+	} else
+		if (min_clbk_.start_case) min_clbk_.start_case(c->moduleid_,
+							       c->caseid_,
+							       0);
 }
 /* ------------------------------------------------------------------------- */
 /** Starts test case in debugger

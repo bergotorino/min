@@ -629,8 +629,8 @@ LOCAL void pl_msg_print (long testrunid, char *message)
 	if (etc != INITPTR) {
 		dl_list_add (etc->printlist_, tx_create (message));
 	}
-
-	cui_refresh_view();
+	if (!not_in_curses)
+		cui_refresh_view();
 }
 /* ------------------------------------------------------------------------- */
 /** Engine calls this for each module it is configured with

@@ -250,7 +250,8 @@ LOCAL int run_cli()
 		
 	}
 	pthread_join (serve_cli_thread, &tmp);
-	DELETE (keyword);
+	if (keyword != INITPTR)
+		DELETE (keyword);
 	for (it = dl_list_head (script_cmds); it != INITPTR; 
 	     it = dl_list_next (it)){
 		tx = dl_list_data (it);
@@ -286,7 +287,7 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
 /* ------------------------------------------------------------------------- */
 int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 {
-	ENTRYD (*cases, "__scripter_cli__", NULL, "Scripter CLI feature");
+	ENTRYD (*cases, "Scripter CLI", NULL, "Scripter CLI feature");
 
 }
 /* ------------------------------------------------------------------------- */

@@ -942,8 +942,6 @@ LOCAL void uengine_handle_extif_remote_response (int testresult, int caseid)
         strcpy (tcr->desc_, "");
         dl_list_add (stpd->tcr_list_, tcr);
 
-
-
       EXIT:
         return;
 }
@@ -3107,7 +3105,7 @@ void scripter_final_verdict (TestCaseResult * tcr)
                                   "test case %d", stpd->status_);
                         snprintf (tcr->desc_, 
                                   MaxTestResultDescription - 1,
-                                  "Unexpected status (%d) of scripter"
+                                  "Unexpected status (%d) of scripter "
                                   "test case", stpd->status_);
                                   
                         num_fail++;
