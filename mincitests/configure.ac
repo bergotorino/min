@@ -7,3 +7,4 @@ AC_PROG_LIBTOOL
 
 AC_OUTPUT(Makefile)
 AC_OUTPUT(data/Makefile)
+AC_OUTPUT(bin/Makefile)
