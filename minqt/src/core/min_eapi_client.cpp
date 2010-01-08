@@ -73,7 +73,8 @@ static void eapi_build_header (char *buff, char msg_type,
 // -----------------------------------------------------------------------------
 void Min::EapiClient::readFromSock()
 {
-	qDebug ("Bytes Available = %u", (unsigned)sock->bytesAvailable());
+ again:
+        qDebug ("Bytes Available = %u", (unsigned)sock->bytesAvailable());
 	if (sock->bytesAvailable() <= 0)
 		return;
 	/* Read message type */
@@ -217,8 +218,8 @@ void Min::EapiClient::readFromSock()
 		break;
 		
 	}
-
-
+	if (sock->bytesAvailable())
+	        goto again;
   
 }
 // -----------------------------------------------------------------------------
@@ -357,6 +358,7 @@ void Min::EapiClient::min_pause_case(int testrunid)
 	unsigned msg_len = 4 + 4;
 	char *p;
 
+	qDebug ("Eapi: pause case %d", testrunid);
 	msg->resize (MIN_HDR_LEN + msg_len);
 	p = msg->data();
 	eapi_build_header (p, MIN_PAUSE_CASE_REQ, msg_len);

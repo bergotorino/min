@@ -290,6 +290,9 @@ namespace Min
 
         /** Handler to the database backend */
         QSqlDatabase db;
+        /** instance number to handle cleaning/displaying data from previous 
+	    runs */
+        unsigned instNum;
     };
     // -------------------------------------------------------------------------
 };

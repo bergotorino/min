@@ -36,7 +36,7 @@ public:
     ~MinObject();
 
 public Q_SLOTS: // METHODS
-    inline QDBusReply<void> min_abort_case(qulonglong testrunid)
+    inline QDBusReply<void> min_abort_case(int testrunid)
     {
         QList<QVariant> argumentList;
         argumentList << qVariantFromValue(testrunid);
@@ -76,7 +76,7 @@ public Q_SLOTS: // METHODS
         return callWithArgumentList(QDBus::Block, QLatin1String("min_open"), argumentList);
     }
 
-    inline QDBusReply<void> min_pause_case(qulonglong testrunid)
+    inline QDBusReply<void> min_pause_case(int testrunid)
     {
         QList<QVariant> argumentList;
         argumentList << qVariantFromValue(testrunid);
@@ -102,7 +102,7 @@ public Q_SLOTS: // METHODS
         return callWithArgumentList(QDBus::Block, QLatin1String("min_register_slave"), argumentList);
     }
 
-    inline QDBusReply<void> min_resume_case(qulonglong testrunid)
+    inline QDBusReply<void> min_resume_case(int testrunid)
     {
         QList<QVariant> argumentList;
         argumentList << qVariantFromValue(testrunid);
