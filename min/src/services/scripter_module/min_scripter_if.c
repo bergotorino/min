@@ -186,9 +186,11 @@ LOCAL void      uengine_handle_extif_remote_response (int testresult,
 /* ------------------------------------------------------------------------- */
 LOCAL void      scripter_sigalrm_handler (int sig);
 /* ------------------------------------------------------------------------- */
+#ifndef SCRIPTER_CLI
 LOCAL TSBool    _execute_script (void);
 /* ------------------------------------------------------------------------- */
 LOCAL TSBool    _pending_tests (void);
+#endif
 /* ------------------------------------------------------------------------- */
 LOCAL int       _look4event (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
@@ -269,6 +271,7 @@ LOCAL int _findallowedresult (const void *a, const void *b)
 /* ------------------------------------------------------------------------- */
 /** Checks if there are test cases running 
  */
+#ifndef SCRIPTER_CLI
 LOCAL TSBool _pending_tests ()
 {
         DLListIterator  it = DLListNULLIterator;
@@ -297,9 +300,12 @@ LOCAL TSBool _pending_tests ()
 
         return ESFalse;
 }
+#endif /* not def SCRIPTER_CLI */
+
 /* ------------------------------------------------------------------------- */
 /** Checks a few global flags to see if next line in script should be executed
  */
+#ifndef SCRIPTER_CLI
 LOCAL TSBool _execute_script ()
 {
         struct timeval  res;
@@ -366,6 +372,7 @@ LOCAL TSBool _execute_script ()
 
         return ESTrue;
 }
+#endif /* not def SCRIPTER_CLI */
 /* ------------------------------------------------------------------------- */
 /** Fetches pointer to run_method from library and stores it in safe place.
  *  @param dllname [in] name of the library from which pointer is fetched.
@@ -2106,9 +2113,10 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         }
         DELETE (path);
 
-        if (scripter_mod.shm_id > 0)
-            sm_destroy (scripter_mod.shm_id);
-
+        if (scripter_mod.shm_id > 0) {
+	  shmctl (scripter_mod.shm_id, IPC_RMID, 0);
+	  scripter_mod.shm_id = 0;
+	}
         return retval;
 }
 

@@ -2007,7 +2007,6 @@ int validate_line (char *keyword,
 					     assoc_lnames,
 					     assoc_cnames,
 					     symblist);
-		
 		break;
 
 	case EKeywordDelete:
@@ -2181,7 +2180,7 @@ int validate_line (char *keyword,
 	case EKeywordEndif:
 		if (*nest_level <= 0 || nesting [*nest_level] != IF) {
 			SCRIPTER_SYNTAX_ERROR ("endif",
-						       "unexpected");
+					       "unexpected");
 			errors ++;
 		} else
 			*nest_level = *(nest_level) -1;

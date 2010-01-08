@@ -155,7 +155,7 @@ LOCAL int run_cli()
         DLList *testclasses = dl_list_create ();
 	DLList *script_cmds = dl_list_create();
 	DLListIterator it;
-	long tmp;
+	void *tmp;
         int     nest_level = 0, ret, lineno = 1;
         char    nesting [255];
 	pthread_t  serve_cli_thread;
@@ -167,7 +167,7 @@ LOCAL int run_cli()
 		return 1;
 	}
         pthread_create (&serve_cli_thread, NULL, (void *)&serve_cli,
-                        (void *)&tmp);
+                        &tmp);
 	while (1) {
 		usleep (100000);
 		while (scripter_if_handle_ipc())
@@ -289,6 +289,7 @@ int tm_get_test_cases (const char *cfg_file, DLList ** cases)
 {
 	ENTRYD (*cases, "Scripter CLI", NULL, "Scripter CLI feature");
 
+	return 0;
 }
 /* ------------------------------------------------------------------------- */
 /* ================= OTHER EXPORTED FUNCTIONS ============================== */
