@@ -318,6 +318,7 @@ LOCAL void create_main_window (int ysize, int xsize)
 
         /* print a border around the main window and print a title */
         box (main_window, 0, 0);
+
         cui_print_title (main_window, "MIN TEST FRAMEWORK");
 
         /* make cursor invisible */
@@ -345,8 +346,7 @@ LOCAL void create_log_window ()
         keypad (log_window, FALSE);
 
         /* print a border around the log window */
-        box (log_window, 0, 0);
-
+	box (log_window, 0, 0); 
         /* update screen contents */
 	if (!not_in_curses) {
 		touchwin (log_window);
@@ -407,6 +407,19 @@ LOCAL void create_menu (callback_s * cb, const char *string)
         /* place string at y,x */
         cui_clear_from_pos (main_window, 1, 1);
         mvwaddstr (main_window, 1, 1, string);
+
+	if (n_choices > menu_win_height)
+	  wborder(main_window, 
+		  0,  /* ls */
+		  0,  /* rs */
+		  0,  /* ts */
+		  0,  /* bs */
+		  ACS_UARROW,/* tl */
+		  ACS_UARROW,/* tr */
+		  ACS_DARROW,/* bl */ 
+		  ACS_DARROW); /* br */
+	else
+	  box (main_window, 0, 0);
 
         /* display the menu */
         post_menu (my_menu);
@@ -1114,6 +1127,7 @@ void cui_refresh_log_view ()
 		cui_clear_win (log_window);
 
 		box (log_window, 0, 0);
+		
 		for (it = dl_list_tail (error_list_); it != INITPTR;
 		     it = dl_list_prev (it)) {
 			i++;
