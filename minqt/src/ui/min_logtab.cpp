@@ -39,7 +39,7 @@ Min::LogTab::LogTab(QWidget *parent)
 {
     // Proxies for model
     errorProxy_->setSourceModel(logMsgModel_);
-    errorProxy_->setFilterKeyColumn(1);
+    errorProxy_->setFilterKeyColumn(2);
     errorProxy_->setFilterWildcard("error");
 
     // Prints
