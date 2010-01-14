@@ -12,6 +12,9 @@
       <case name="test scripter cli" type="Robustness" timeout="600" subfeature="" >
         <step expected_result="0">min_scripter_cli_test.sh | min -cx /usr/lib/min/scripter_cli.so</step>
       </case>
+      <case name="test min qt db" type="Robustness" timeout="600" subfeature="" >
+        <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min//minqtdbtests.cfg</step>
+      </case>
  
       <!-- Environments optional - tells where the tests are run -->
       <environments>
