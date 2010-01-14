@@ -15,7 +15,7 @@ DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 confflags += --build=$(DEB_BUILD_GNU_TYPE) --host=$(DEB_HOST_GNU_TYPE)
 
 SUBDIRS="min minpythonmodule mintests mincitests mindbusplugin"
-ALLDIRS="min minpythonmodule mintests mincitests mindbusplugin minqt"
+ALLDIRS="min minpythonmodule mintests mincitests mindbusplugin minqt mincitests/qsrc"
 INSTALL_ROOT = $(CURDIR)/debian/tmp
 build: build-stamp
 build-stamp:
@@ -30,6 +30,7 @@ build-stamp:
 		cd ..;\
 	done
 	cd minqt && qmake && $(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" && cd ..
+	cd mincitests/qsrc && qmake && $(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" && cd ../..
 	touch NEWS 
 	touch ChangeLog
 	touch build-stamp
@@ -55,6 +56,8 @@ install: build
 	done
 	cd minqt && $(MAKE) install "INSTALL_ROOT = $(CURDIR)/debian/tmp"
 	cd ..
+	cd mincitests/qsrc && $(MAKE) install "INSTALL_ROOT = $(CURDIR)/debian/tmp"
+	cd ../..
 
 binary-indep: install
 

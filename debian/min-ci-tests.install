@@ -4,6 +4,9 @@ usr/lib/min/min_unit_selftest*
 usr/lib/min/item_parser_tests*
 usr/lib/min/logger_tests*
 usr/lib/min/settings_tests*
+usr/lib/min/settings_tests*
+usr/lib/min/libminqtdbtests*
+usr/lib/min/minqtdbtests.cfg
 usr/share/min-ci-tests/tests.xml
 usr/share/min-ci-tests/test.cfg
 usr/bin/min_scripter_cli_test.sh
