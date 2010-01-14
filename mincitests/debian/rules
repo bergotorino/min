@@ -12,6 +12,7 @@ build-stamp:
 	./autogen.sh --prefix=/usr --sysconfdir=/etc/min.d/
 	./configure --prefix=/usr --sysconfdir=/etc/min.d/
 	$(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)"
+	cd qsrc && qmake && $(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" && cd ..
 	touch build-stamp
 
 clean:
@@ -19,14 +20,14 @@ clean:
 	dh_clean 
 	rm -f build-stamp
 	[ ! -f Makefile ] || $(MAKE) distclean
+	cd qsrc && [ ! -f Makefile ] || $(MAKE) distclean && cd ..
 
 install:
 	dh_testdir
 	dh_clean -k 
 	dh_installdirs -s
-
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
-
+	cd qsrc && $(MAKE) install "INSTALL_ROOT = $(CURDIR)/debian/tmp" && cd ..
 	dh_install --sourcedir=debian/tmp
 
 
