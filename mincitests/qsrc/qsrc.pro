@@ -9,7 +9,7 @@ CONFIG += link_pkgconfig
 CONFIG += build_all
 CONFIG += lib_bundle
 
-INCLUDEPATH +=  ../../minqt/src/core
+INCLUDEPATH +=  ../../minqt/src/core ../../min/src/tmc
 
 SOURCES += ../../minqt/src/core/min_database.cpp ../../minqt/src/core/min_singleton.cpp minqtdbtestsCases.cpp minqtdbtests.cpp	
 
