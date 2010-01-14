@@ -139,14 +139,14 @@ unsigned int Min::Database::insertTestCaseFile(const QString &case_file_name)
     return retval;
 };
 // ----------------------------------------------------------------------------
-unsigned int Min::Database::insertTestModuleFile(const QString &case_file_name)
+unsigned int Min::Database::insertTestModuleFile(const QString &module_file_name)
 {
     QSqlQuery query;
 
     // Insert test case file
-    query.prepare("INSERT INTO test_case_file(test_case_file_name) "
-		  "VALUES (:casefile);");
-    query.bindValue(QString(":casefile"), QVariant(case_file_name));
+    query.prepare("INSERT INTO test_module_file(test_module_file_name) "
+		  "VALUES (:modfile);");
+    query.bindValue(QString(":modfile"), QVariant(module_file_name));
     unsigned int retval = 0;
     if (query.exec()) retval = query.lastInsertId().toUInt();
 
@@ -168,8 +168,6 @@ unsigned int Min::Database::insertTestCase(unsigned int module_dbid,
     if (tctitle.contains ('\"'))
 	    tctitle.remove ('\"');
     
-
-
     query.prepare("SELECT id FROM test_case "
 		  "WHERE module_id=:modid AND module_name=:title "
 		  "AND test_case_id=:caseid AND test_case_description=:descr "
@@ -368,8 +366,6 @@ unsigned int Min::Database::updateCaseDesc (unsigned int module_dbid,
     return retval;
 
 }
-
-
 // ----------------------------------------------------------------------------
 unsigned int Min::Database::getDeviceDbId(unsigned int device_id)
 {
@@ -623,7 +619,8 @@ QStringList Min::Database::getTestCases(unsigned int module_dbid)
 {
     QSqlQuery query;
     QStringList retval;
-    query.prepare("SELECT test_case_name FROM module WHERE module_id=:modid;");
+    query.prepare("SELECT test_case_title FROM test_case "
+		  "WHERE module_id=:modid;");
     query.bindValue(QString(":modid"), QVariant(module_dbid) );
     if(query.exec()){
         while(query.next()) {
@@ -878,6 +875,16 @@ QString Min::Database::getCaseTitleFromTestrunDbId(unsigned int testrunDbId)
     return id.toString();
 }
 // ----------------------------------------------------------------------------
+void Min::Database::clearDevice()
+{
+	QSqlQuery query;
+        query.exec("DELETE FROM test_case;");
+        query.exec("DELETE FROM module;");
+	query.exec("DELETE FROM printout;");
+	query.exec("DELETE FROM device;");
+}
+
+// ----------------------------------------------------------------------------
 bool Min::Database::initDatabase()
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
@@ -893,9 +900,9 @@ bool Min::Database::initDatabase()
         return false;
     }else{
         QSqlQuery query;
-	query.exec("DELETE * FROM log");
-	query.exec("DELETE * FROM test_case_file");
-	query.exec("DELETE * FROM test_module_file");
+	query.exec("DELETE FROM log;");
+	query.exec("DELETE FROM test_case_file;");
+	query.exec("DELETE FROM test_module_file;");
 
 	/* clean-up some old-data */
 	if (instNum > 2) {
@@ -932,8 +939,8 @@ bool Min::Database::initDatabase()
         query.exec("CREATE TABLE test_case "
 		   "(id INTEGER PRIMARY KEY, "
 		   "test_case_id int, "
-		   "module_id int,"
-		   " test_case_title varchar, "
+		   "module_id int, "
+		   "test_case_title varchar, "
 		   "test_case_description varchar, "
 		   "instance_id int);");
         query.exec("CREATE TABLE test_run "

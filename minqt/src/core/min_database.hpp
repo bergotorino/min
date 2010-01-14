@@ -58,6 +58,10 @@ namespace Min
          * @ret device ID in database
          */
         unsigned int insertDevice(unsigned int device_id);
+        /**
+         * Clear all data related to device from database
+         */
+        void clearDevice();
 
         /**
          * module insertion do database
