@@ -10,13 +10,16 @@ CONFIG += build_all
 CONFIG += lib_bundle
 
 INCLUDEPATH +=  ../../minqt/src/core                    \
-                ../../min/src/tmc                       \
                 ../../min/src                           \
+                ../../min/src/tmc                       \
+                ../../min/src/tmc/test_module_api       \
                 ../../min/src/utils/dllist              \
                 ../../min/src/utils/logger              \
                 ../../min/src/utils/text                \
-                ../../min/src/utils/ipc                 
-
+                ../../min/src/utils/ipc                 \
+                ../../min/src/utils/parser              \
+                ../../min/src/utils/lib_loader          \
+                ../../min/src/services/event_system 
 
 SOURCES += ../../minqt/src/core/min_database.cpp ../../minqt/src/core/min_singleton.cpp minqtdbtestsCases.cpp minqtdbtests.cpp	
 
@@ -25,7 +28,6 @@ HEADERS += \
         ../../minqt/src/core/min_database.hpp \
         ../../minqt/src/core/min_singleton.hpp 
 	
-LIBS += -lminutils -lmintmapi -lminevent
 
 MIN_SCRIPTS.files = data/*.cfg
 MIN_SCRIPTS.path = /usr/lib/min
