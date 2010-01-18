@@ -1,7 +1,9 @@
 min-all (2010w03) unstable; urgency=low
   * Twentieth MIN Release
   * Added: indication to consoleUI when the menu contains more than visible items.
-
+  * Added: scripter command line interface for prototyping test scripts.
+  * Added: Qt GUI displays previous test runs.
+	
  -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Fri,   15 Jan 2010  15:21:47 +0100 
 
 min-all (2009w51) unstable; urgency=low
