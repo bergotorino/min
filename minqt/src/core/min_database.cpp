@@ -25,12 +25,14 @@
 
 #include <QDate>
 #include <QFile>
+#include <QDir>
 
 // ----------------------------------------------------------------------------
 Min::Database::Database()
     : db()
 {
-    QFile file("/home/sampo/.min/.qtinstance");
+  
+    QFile file(QDir::homePath()+"/.min/.qtinstance");
     if (!file.open(QIODevice::ReadWrite | QIODevice::Text)) {
       qDebug ("Failed to open qtinstance file");
       return;
