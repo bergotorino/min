@@ -32,6 +32,13 @@ Min::Database::Database()
     : db()
 {
   
+    QDir minhome = QDir (QDir::homePath()+"/.min/");
+    if (!minhome.exists()) {
+      if (!minhome.mkdir(QDir::homePath()+"/.min/")) {
+	  qDebug ("Failed to create ~/.min/");
+	  return;
+	}
+    }
     QFile file(QDir::homePath()+"/.min/.qtinstance");
     if (!file.open(QIODevice::ReadWrite | QIODevice::Text)) {
       qDebug ("Failed to open qtinstance file");
