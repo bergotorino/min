@@ -31,9 +31,11 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <syslog.h>
+#include <limits.h>
 
 #include <min_common.h>
 #include <min_logger.h>
+#include <min_logger_common.h>
 #include <min_system_logger.h>
 
 /* ------------------------------------------------------------------------- */
@@ -74,11 +76,24 @@ Text *__component_name__ = INITPTR;
 LOCAL int       min_log (int priority, const char *format, va_list ap);
 
 /* ------------------------------------------------------------------------- */
+LOCAL void      min_overwrite_settings (struct logger_settings_t *ls,
+                                        TSChar * path, TSChar * file,
+                                        TSLoggerType * loggertype,
+                                        unsigned int *output,
+                                        TSBool * overwrite,
+                                        TSBool * withtimestamp,
+                                        TSBool * withlinebreak,
+                                        TSBool * witheventranking,
+                                        TSBool * pididtologfile,
+                                        TSBool * createlogdir,
+                                        TSBool * unicode,
+                                        TLogLevel * loglevel);
+
+/* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
-/* None */
 
 LOCAL int min_log (int priority, const char *format, va_list ap)
 {
@@ -89,6 +104,120 @@ LOCAL int min_log (int priority, const char *format, va_list ap)
         vsyslog (priority, format, ap);
 
         return 0;
+}
+
+/* ------------------------------------------------------------------------- */
+/** Overwrites previous MIN Logger settings with new values
+ *  @param ls [out] settings struture to be overwritten
+ *  @param path [in] output directory.
+ *  @param file [in] output file.
+ *  @param loggertype [in] type of the logger that is in use.
+ *  @param output [in] output plugin.
+ *  @param overwrite [in] overwrite file if exists flag.
+ *  @param withtimestamp [in] add timestamp flag.
+ *  @param withlinebreak [in] add linebreak flag.
+ *  @param witheventranking [in] do event ranking flag.
+ *  @param pididtologfile [in] process id to logfile flag.
+ *  @param createlogdir [in] create output directory if not exists flag.
+ *  @param unicode [in] unicode flag.
+ *  @param loglevel [in] log level for current logger. 
+ */
+LOCAL void min_overwrite_settings (struct logger_settings_t *ls,
+                                   TSChar * path, 
+				   TSChar * file,
+                                   TSLoggerType * loggertype,
+                                   unsigned int *output, 
+				   TSBool * overwrite,
+                                   TSBool * withtimestamp,
+                                   TSBool * withlinebreak,
+                                   TSBool * witheventranking,
+                                   TSBool * pididtologfile,
+                                   TSBool * createlogdir, 
+				   TSBool * unicode,
+                                   TSStyle * loglevel )
+{
+        if (ls == INITPTR) {
+                goto EXIT;
+        }
+        if (path == INITPTR) {
+                goto EXIT;
+        }
+        if (file == INITPTR) {
+                goto EXIT;
+        }
+        if (loggertype == INITPTR) {
+                goto EXIT;
+        }
+        if (output == INITPTR) {
+                goto EXIT;
+        }
+        if (overwrite == INITPTR) {
+                goto EXIT;
+        }
+        if (withtimestamp == INITPTR) {
+                goto EXIT;
+        }
+        if (withlinebreak == INITPTR) {
+                goto EXIT;
+        }
+        if (witheventranking == INITPTR) {
+                goto EXIT;
+        }
+        if (pididtologfile == INITPTR) {
+                goto EXIT;
+        }
+        if (createlogdir == INITPTR) {
+                goto EXIT;
+        }
+        if (unicode == INITPTR) {
+                goto EXIT;
+        }
+        if (loglevel == INITPTR) {
+                goto EXIT;
+        }
+
+        if (ls->is_defined_.path_ == ESTrue) {
+                STRCPY (path, ls->emulator_path_,
+                        strlen (ls->emulator_path_) + 1);
+        }
+        if (ls->is_defined_.format_ == ESTrue) {
+                *loggertype = ls->emulator_format_;
+        }
+	if (ls->is_defined_.output_ == ESTrue) {
+		*output = ls->emulator_output_;
+        }
+
+        /* Rest of the overwrited values */
+        if (ls->is_defined_.overwrite_ == ESTrue) {
+                *overwrite = ls->overwrite_;
+        }
+        if (ls->is_defined_.time_stamp_ == ESTrue) {
+                *withtimestamp = ls->time_stamp_;
+        }
+        if (ls->is_defined_.line_break_ == ESTrue) {
+                *withlinebreak = ls->line_break_;
+        }
+        if (ls->is_defined_.event_ranking_ == ESTrue) {
+                *witheventranking = ls->event_ranking_;
+        }
+        if (ls->is_defined_.pidid_ == ESTrue) {
+                *pididtologfile = ls->pidid_;
+        }
+        if (ls->is_defined_.pidid_ == ESTrue) {
+                *pididtologfile = ls->pidid_;
+        }
+        if (ls->is_defined_.create_log_dir_ == ESTrue) {
+                *createlogdir = ls->create_log_dir_;
+        }
+        if (ls->is_defined_.unicode_ == ESTrue) {
+                *unicode = ls->unicode_;
+        }
+        if (ls->is_defined_.loglevel_ == ESTrue) {
+                *loglevel = ls->loglevel_;
+        }
+
+      EXIT:
+        return;
 }
 
 
@@ -103,7 +232,29 @@ LOCAL int min_log (int priority, const char *format, va_list ap)
  */
 int min_log_open (const char *identifier, unsigned int debug_level)
 {
-	if (__component_name__==INITPTR) {
+        int             shmid = 0;
+        void           *shmaddr = INITPTR;
+        int             ret = ~ENOERR;
+        struct logger_settings_t settings;
+        TSChar          npath[PATH_MAX];
+        TSChar          nfile[NAME_MAX];
+        /* Initialize with logger default values */
+        unsigned int    loggertype = ESTxt;
+        unsigned int    output = ESFile;
+        TSBool          overwrite = ESTrue;
+        TSBool          withtimestamp = ESTrue;
+        TSBool          withlinebreak = ESTrue;
+        TSBool          witheventranking = ESFalse;
+        TSBool          pididtologfile = ESTrue;
+        TSBool          createlogdir = ESFalse;
+        unsigned int    staticbuffersize = 0; 
+        TSBool          unicode = ESFalse;
+        TLogLevel       loglevel = ESInfo;
+
+        STRCPY (npath, "/tmp", PATH_MAX);
+        STRCPY (nfile, "minlog.txt", NAME_MAX);
+
+ 	if (__component_name__==INITPTR) {
 		__component_name__=tx_create(identifier);
 	} else {
 		tx_c_copy(__component_name__,identifier);
@@ -111,8 +262,37 @@ int min_log_open (const char *identifier, unsigned int debug_level)
 
         if (__logger__!=INITPTR) { mnl_destroy(&__logger__); }
 
-        __logger__ = mnl_create("/tmp","minlog.txt",
-			 	MinLoggerDefaultValues);
+        /* Contact the settings system and get settings
+         * for logger. */
+ 
+        shmid = sm_create ((int)'a', sizeof (struct logger_settings_t));
+        if (shmid != -1) {
+                shmaddr = sm_attach (shmid);
+                if (shmaddr != INITPTR) {
+                        ret = sm_read (shmaddr, &settings,
+                                       sizeof (struct logger_settings_t));
+                        sm_detach (shmaddr);
+                }
+        }
+
+        if (ret == ENOERR) {
+                min_overwrite_settings (&settings, npath, nfile, &loggertype,
+                                        &output, &overwrite, &withtimestamp,
+                                        &withlinebreak, &witheventranking,
+                                        &pididtologfile, &createlogdir,
+                                        &unicode,&loglevel);
+                __logger__ = mnl_create(MinCreateLoggerParams);
+
+                /* loglevel must be set here because mnl_create 
+                 * doesn't take it as an argument */
+                if (__logger__ != INITPTR && 
+                    settings.is_defined_.loglevel_ == ESTrue) {
+                        __logger__->loglevel_ = settings.loglevel_;
+                }
+        } else {
+                __logger__ = mnl_create(MinCreateLoggerParams);
+        }
+
         return 0;
 }
 

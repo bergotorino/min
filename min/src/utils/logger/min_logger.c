@@ -56,19 +56,6 @@ extern Text *__component_name__;
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-LOCAL void      mnl_overwrite_settings (struct logger_settings_t *ls,
-                                        TSChar * path, TSChar * file,
-                                        TSLoggerType * loggertype,
-                                        unsigned int *output,
-                                        TSBool * overwrite,
-                                        TSBool * withtimestamp,
-                                        TSBool * withlinebreak,
-                                        TSBool * witheventranking,
-                                        TSBool * pididtologfile,
-                                        TSBool * createlogdir,
-                                        TSBool * unicode,
-                                        TLogLevel * loglevel);
-/* ------------------------------------------------------------------------- */
 LOCAL MinTxtLogger *stl_create (const TSChar * path, const TSChar * file,
 				TSLoggerType loggertype, unsigned int output,
 				TSBool overwrite, TSBool withtimestamp,
@@ -128,120 +115,6 @@ LOCAL int       mdl_send (struct logger_typeinfo_t *lt, int style,
 /* None */
 
 /* ==================== LOCAL FUNCTIONS ==================================== */
-/* ------------------------------------------------------------------------- */
-/** Overwrites previous MIN Logger settings with new values
- *  @param ls [out] settings struture to be overwritten
- *  @param path [in] output directory.
- *  @param file [in] output file.
- *  @param loggertype [in] type of the logger that is in use.
- *  @param output [in] output plugin.
- *  @param overwrite [in] overwrite file if exists flag.
- *  @param withtimestamp [in] add timestamp flag.
- *  @param withlinebreak [in] add linebreak flag.
- *  @param witheventranking [in] do event ranking flag.
- *  @param pididtologfile [in] process id to logfile flag.
- *  @param createlogdir [in] create output directory if not exists flag.
- *  @param unicode [in] unicode flag.
- *  @param loglevel [in] log level for current logger. 
- */
-LOCAL void mnl_overwrite_settings (struct logger_settings_t *ls,
-                                   TSChar * path, 
-				   TSChar * file,
-                                   TSLoggerType * loggertype,
-                                   unsigned int *output, 
-				   TSBool * overwrite,
-                                   TSBool * withtimestamp,
-                                   TSBool * withlinebreak,
-                                   TSBool * witheventranking,
-                                   TSBool * pididtologfile,
-                                   TSBool * createlogdir, 
-				   TSBool * unicode,
-                                   TSStyle * loglevel )
-{
-        if (ls == INITPTR) {
-                goto EXIT;
-        }
-        if (path == INITPTR) {
-                goto EXIT;
-        }
-        if (file == INITPTR) {
-                goto EXIT;
-        }
-        if (loggertype == INITPTR) {
-                goto EXIT;
-        }
-        if (output == INITPTR) {
-                goto EXIT;
-        }
-        if (overwrite == INITPTR) {
-                goto EXIT;
-        }
-        if (withtimestamp == INITPTR) {
-                goto EXIT;
-        }
-        if (withlinebreak == INITPTR) {
-                goto EXIT;
-        }
-        if (witheventranking == INITPTR) {
-                goto EXIT;
-        }
-        if (pididtologfile == INITPTR) {
-                goto EXIT;
-        }
-        if (createlogdir == INITPTR) {
-                goto EXIT;
-        }
-        if (unicode == INITPTR) {
-                goto EXIT;
-        }
-        if (loglevel == INITPTR) {
-                goto EXIT;
-        }
-
-        if (ls->is_defined_.path_ == ESTrue) {
-                STRCPY (path, ls->emulator_path_,
-                        strlen (ls->emulator_path_) + 1);
-        }
-        if (ls->is_defined_.format_ == ESTrue) {
-                *loggertype = ls->emulator_format_;
-        }
-	if (ls->is_defined_.output_ == ESTrue) {
-		*output = ls->emulator_output_;
-        }
-
-        /* Rest of the overwrited values */
-        if (ls->is_defined_.overwrite_ == ESTrue) {
-                *overwrite = ls->overwrite_;
-        }
-        if (ls->is_defined_.time_stamp_ == ESTrue) {
-                *withtimestamp = ls->time_stamp_;
-        }
-        if (ls->is_defined_.line_break_ == ESTrue) {
-                *withlinebreak = ls->line_break_;
-        }
-        if (ls->is_defined_.event_ranking_ == ESTrue) {
-                *witheventranking = ls->event_ranking_;
-        }
-        if (ls->is_defined_.pidid_ == ESTrue) {
-                *pididtologfile = ls->pidid_;
-        }
-        if (ls->is_defined_.pidid_ == ESTrue) {
-                *pididtologfile = ls->pidid_;
-        }
-        if (ls->is_defined_.create_log_dir_ == ESTrue) {
-                *createlogdir = ls->create_log_dir_;
-        }
-        if (ls->is_defined_.unicode_ == ESTrue) {
-                *unicode = ls->unicode_;
-        }
-        if (ls->is_defined_.loglevel_ == ESTrue) {
-                *loglevel = ls->loglevel_;
-        }
-
-      EXIT:
-        return;
-}
-
 /* ------------------------------------------------------------------------- */
 /** Creates a new MIN text logger instance.
  *  @param path [in] output directory.
@@ -885,11 +758,7 @@ MinLogger     *mnl_create (const TSChar * path,
 {
         MinLogger     *retval = INITPTR;
         struct logger_typeinfo_t *endpoint = INITPTR;
-        int             shmid = 0;
-        void           *shmaddr = INITPTR;
-        int             ret = ENOERR;
         unsigned int    logtypebackup = 0;
-        struct logger_settings_t settings;
         TSChar         *c = INITPTR;
         TSChar          npath[PATH_MAX];
         TSChar          nfile[NAME_MAX];
@@ -911,33 +780,6 @@ MinLogger     *mnl_create (const TSChar * path,
         /* NOTE unicode now not supported */
         unicode = ESFalse;
 
-        /* 1. Here we should contact the settings system and get settings
-         *    for logger. */
-        shmid = sm_create ((int)'a', sizeof (struct logger_settings_t));
-        if (shmid == -1) {
-                MIN_WARN ("SHM segment not created");
-                return retval;
-        } else {
-                shmaddr = sm_attach (shmid);
-                if (shmaddr == INITPTR) {
-                        MIN_WARN ("Could not attach to shared memory segment");
-                }
-                ret =
-                    sm_read (shmaddr, &settings,
-                             sizeof (struct logger_settings_t));
-        }
-        sm_detach (shmaddr);
-
-        if (ret == ENOERR) {
-                mnl_overwrite_settings (&settings, npath, nfile, &loggertype,
-                                        &output, &overwrite, &withtimestamp,
-                                        &withlinebreak, &witheventranking,
-                                        &pididtologfile, &createlogdir,
-                                        &unicode,&loglevel);
-        } else {
-                MIN_WARN ("Could not read from shared memory segment");
-        }
-
         /* Because we are using multiple logging facilities we are skipping the
          * extension. That will cause logging facility to add its own extension
          */
@@ -945,12 +787,12 @@ MinLogger     *mnl_create (const TSChar * path,
         if (c != NULL)
                 *c = '\0';
 
-        /* 2. Create logger according to the settings. */
+        /* 1. Create logger according to the settings. */
         retval = NEW (MinLogger);
         retval->endpoint_ = dl_list_create ();
         retval->loglevel_ = loglevel;
 
-        /* 3. Create endpoints */
+        /* 2. Create endpoints */
         if (loggertype & ESTxt) {
                 /* Create TXT endpoint */
                 logtypebackup = loggertype;
