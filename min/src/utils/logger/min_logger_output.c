@@ -1009,7 +1009,7 @@ MinLoggerSyslogOutput *so_create (const TSChar * path,
         retval->unicode_ = unicode;
 
         /** Perform the init phase */
-        openlog (SYSLOG_IDENT, LOG_PID | LOG_CONS, LOG_LOCAL0);
+        openlog (SYSLOG_IDENT, LOG_PID, LOG_LOCAL0);
       EXIT:
         return retval;
 }
