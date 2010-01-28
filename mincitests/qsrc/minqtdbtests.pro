@@ -28,6 +28,7 @@ HEADERS += \
         ../../minqt/src/core/min_database.hpp \
         ../../minqt/src/core/min_singleton.hpp 
 	
+TARGET = minqtdbtests
 
 MIN_SCRIPTS.files = data/*.cfg
 MIN_SCRIPTS.path = /usr/lib/min
