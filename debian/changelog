@@ -1,3 +1,11 @@
+min-all (2010w04) unstable; urgency=low
+  * Twentyfirst MIN release
+  * Fixed: MIN consoleUI does not work over serial line (minicom).
+  * Fixed: logger settings overwriting only for min debug log.
+  * Fixed: build rules for min-ci-tests:minqtdbtests
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Wed, 27 Jan 2010 11:45:09 +0200
+
 min-all (2010w03) unstable; urgency=low
   * Twentieth MIN Release
   * Added: indication to consoleUI when the menu contains more than visible items.

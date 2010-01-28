@@ -56,7 +56,7 @@ install: build
 	done
 	cd minqt && $(MAKE) install "INSTALL_ROOT = $(CURDIR)/debian/tmp"
 	cd ..
-	cd mincitests/qsrc && $(MAKE) install "INSTALL_ROOT = $(CURDIR)/debian/tmp"
+	cd mincitests/qsrc && $(MAKE) install "INSTALL_ROOT = $(CURDIR)/debian/tmp" && cp -d *.so* $(CURDIR)/debian/tmp/usr/lib/min
 	cd ../..
 
 binary-indep: install
