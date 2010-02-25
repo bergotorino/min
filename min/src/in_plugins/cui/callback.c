@@ -861,7 +861,8 @@ LOCAL int get_tcs_for_start_new_case ()
                         /* get tc title and so on */
                         tc = (CUICaseData*)dl_list_data (dl_item_tc);
                         if (tc == INITPTR || tc->casetitle_ == INITPTR) {
-                                continue;
+			        dl_item_tc = dl_list_next(dl_item_tc);
+				continue;
                         }
                         set_cbs (&cb_start_new_case_menu[i],
 				 tx_share_buf (tc->casetitle_),
@@ -875,15 +876,17 @@ LOCAL int get_tcs_for_start_new_case ()
         } else {
                 /* allocate memory for empty menu */
                 cb_start_new_case_menu = NEW2 (callback_s, 2);
-                if (cb_start_new_case_menu == NULL) return -1;
-                i = 0;
+		if (cb_start_new_case_menu == NULL) return -1;
+		memset (cb_start_new_case_menu, 0x0, 
+			(2)*sizeof (callback_s));
+		i = 0;
                 set_cbs (&cb_start_new_case_menu[i],
                          "", NULL, NULL, case_menu, NULL, NULL, 0);
                 i++;
         }
 
         /* last menu item should be NULL one */
-        null_cbs (&cb_start_new_case_menu[i]);
+	null_cbs (&cb_start_new_case_menu[i]);
 
         return 0;
 }
