@@ -948,7 +948,11 @@ void cui_exec ()
 
                 switch (key) {
                         /* down arrow key pressed */
-                case KEY_DOWN:
+		case ERR:
+			/* No input - sleep to avoid busy-loop */
+			usleep (10000);
+			break;
+		case KEY_DOWN:
                         /* move the current selection to an item down */
                         menu_driver (my_menu, REQ_DOWN_ITEM);
                         break;
