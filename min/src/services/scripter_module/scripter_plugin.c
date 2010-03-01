@@ -1560,7 +1560,7 @@ void do_cleanup (DLList *slaves,
 	     it = dl_list_next (it)) {
                 test_class = dl_list_data (it);
 		if (test_class->dllhandle_ &&
-		    test_class->dllhandle != INITPTR) 
+		    test_class->dllhandle_ != INITPTR) 
 			dlclose (test_class->dllhandle_);
                 DELETE (test_class->classname_);
                 DELETE (test_class);
