@@ -30,7 +30,7 @@
 #include <min_parser.h>
 #include <min_test_event_if.h>
 #include "py_module.h"
-#include <python2.5/Python.h>
+#include <Python.h>
 #include <sched.h>
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */

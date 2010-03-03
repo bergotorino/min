@@ -6,6 +6,7 @@ AM_PROG_CC_C_O
 AC_LANG_C
 
 AM_PROG_LIBTOOL
+AM_PATH_PYTHON
 
 mintestmoddir=${libdir}/min
 AC_SUBST(mintestmoddir)
