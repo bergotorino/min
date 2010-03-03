@@ -7,6 +7,7 @@ usr/lib/min/settings_tests*
 usr/lib/min/settings_tests*
 usr/lib/min/libminqtdbtests*
 usr/lib/min/minqtdbtests.cfg
+usr/lib/min/python_tests.py
 usr/share/min-ci-tests/tests.xml
 usr/share/min-ci-tests/test.cfg
 usr/bin/min_scripter_cli_test.sh
