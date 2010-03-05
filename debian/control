@@ -2,7 +2,7 @@ Source: min-all
 Section: devel
 Priority: optional
 Maintainer: Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>
-Build-Depends: debhelper (>= 4.0.0), chrpath, libncurses5-dev, python2.5-dev | python2.6-dev, python2.5 | python2.6, libdbus-1-dev, libdbus-glib-1-dev, libqt4-dev
+Build-Depends: debhelper (>= 4.0.0), chrpath, libncurses5-dev, python2.5-dev | python2.6-dev, python-minimal, libdbus-1-dev, libdbus-glib-1-dev, libqt4-dev
 Standards-Version: 3.8.0
 
 Package: min
