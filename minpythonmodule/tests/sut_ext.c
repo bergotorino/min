@@ -28,7 +28,7 @@
 /* INCLUDE FILES */
 /*path to Python.h file may differ, depending on Python 
 instlallation*/
-#include <python2.5/Python.h>
+#include <python2.6/Python.h>
 #include <test_module_api.h>
 /* ------------------------------------------------------------------------- */
 /* EXTERNAL DATA STRUCTURES */

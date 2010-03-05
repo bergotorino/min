@@ -12,7 +12,7 @@ INCLUDES = -I. \
 	   -I../../min/src/utils/lib_loader \
 	   -I../../min/src/utils/ipc \
 	   -I../../min/src/utils/text \
-	   -I/usr/include/python$(PYTHON_VERSION)
+	   -I/usr/include/$(pythoncheckhack)
 
 pkglib_LTLIBRARIES 	= pythonscripter.la
 

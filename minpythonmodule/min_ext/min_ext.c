@@ -27,9 +27,7 @@
 
 /* ------------------------------------------------------------------------- */
 /* INCLUDE FILES */
-/*path to Python.h file may differ, depending on Python 
-instlallation*/
-#include <python2.5/Python.h>
+#include <Python.h>
 #include <test_module_api.h>
 #include <min_test_event_if.h>
 #include <min_ipc_mechanism.h>

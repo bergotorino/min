@@ -10,6 +10,8 @@ AM_PATH_PYTHON
 
 mintestmoddir=${libdir}/min
 AC_SUBST(mintestmoddir)
+pythoncheckhack=$(/usr/share/python/pyversions.py -d)
+AC_SUBST(pythoncheckhack)
 
 
 LT_CURRENT=0
