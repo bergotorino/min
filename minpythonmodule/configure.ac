@@ -7,10 +7,13 @@ AC_LANG_C
 
 AM_PROG_LIBTOOL
 AM_PATH_PYTHON
-
 mintestmoddir=${libdir}/min
 AC_SUBST(mintestmoddir)
-pythoncheckhack=$(/usr/share/python/pyversions.py -d)
+if  test -f /usr/include/python2.6/Python.h; then 
+pythoncheckhack="python2.6"
+else
+pythoncheckhack="python2.5"
+fi
 AC_SUBST(pythoncheckhack)
 
 
