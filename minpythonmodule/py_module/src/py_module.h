@@ -30,7 +30,7 @@
 /* INCLUDES */
 #include <test_module_api.h>
 #include <min_logger.h>
-#include <python2.6/Python.h>
+#include <Python.h>
 #include <min_text.h>
 /* ------------------------------------------------------------------------- */
 /* CONSTANTS */
