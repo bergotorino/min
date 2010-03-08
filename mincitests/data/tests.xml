@@ -18,7 +18,9 @@
         <scratchbox>true</scratchbox>
         <hardware>true</hardware>    
       </environments>
-
+      <get>
+        <file>/var/log/syslog</file>
+      </get>
     </set>
   </suite>
 </testdefinition>
