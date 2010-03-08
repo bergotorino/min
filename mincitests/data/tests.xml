@@ -5,19 +5,10 @@
   <suite name="min-tests" domain="example-domain"> 
     <description>"Test MIN utilites with min"</description>
     <!-- At least one set per suite, name and description mandatory -->
-    <set name="utils-tests"  feature="min-feature">   
-      <case name="tests for MIN utils" type="Robustness" timeout="600" subfeature="" >
+    <set name="utils-tests"  description="execute min tests with a single command">   
+      <case name="tests for MIN utils" description="execute min tests" type="Robustness" timeout="600">
         <step expected_result="9">min -cx /usr/lib/min/dllist_tests.so -cx /usr/lib/min/logger_tests.so -cx /usr/lib/min/min_unit_selftest.so -cx /usr/lib/min/item_parser_tests.so -cx /usr/lib/min/settings_tests.so -cx /usr/lib/min/scripter.so:/usr/lib/min/minqtdbtests.cfg -cx /usr/lib/min/pythonscripter.so:/usr/lib/min/python_tests.py</step>
       </case>
-      <!--case name="test scripter cli" type="Robustness" timeout="600" subfeature="" -->
-        <!--step expected_result="0">min_scripter_cli_test.sh | min -cx /usr/lib/min/scripter_cli.so</step-->
-      <!--/case-->
- 
-      <!-- Environments optional - tells where the tests are run -->
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>    
-      </environments>
       <get>
         <file>/var/log/syslog</file>
       </get>
