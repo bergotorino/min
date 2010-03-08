@@ -2243,6 +2243,10 @@ void interpreter_handle_keyword (TScripterKeyword keyword,
                 /* "waittestclass <testcasename>" */
                 mip_get_next_string (mip, &token);
                 break;
+        case EKeywordDescription:
+                MIN_DEBUG ("EKeywordDescription");
+                mip_get_next_string (mip, &token);
+                break;
         case EKeywordCreate:
                 MIN_DEBUG ("EKeywordCreate");
                 /* "create <dllname> <classname>" */
@@ -2453,7 +2457,7 @@ unsigned int get_module_type()
 /* ------------------------------------------------------------------------- */
 /** return test module template version */
 unsigned int get_module_version()
-{ return module_version; }
+{ return module_version; } 
 /* ------------------------------------------------------------------------- */
 /** return build date */
 char* get_module_date()

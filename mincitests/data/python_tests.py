@@ -32,3 +32,16 @@ def case_logs():
         min_ext.Destroy_logger(log);
         min_ext.Print_to_cui("logger destroyed")
         return 0;
+
+def case_event_unset():
+        """Unset state event (testevent)"""
+        min_ext.Unset_event("testevent")
+        min_ext.Print_to_cui("testevent unset")
+        return 0
+
+def case_set_state_event():
+        """Set state Event (testevent)"""
+        min_ext.Set_state_event("testevent")
+        min_ext.Print_to_cui("testevent set (state)")
+        return 0
+

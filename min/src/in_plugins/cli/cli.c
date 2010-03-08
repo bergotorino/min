@@ -645,8 +645,6 @@ void pl_open_plugin (void *opts)
 	}
 	dl_list_free (&executed_case_list_);
 	
-
-
         return;
 }
 /* ------------------------------------------------------------------------- */
