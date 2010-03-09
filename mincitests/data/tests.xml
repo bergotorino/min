@@ -3,20 +3,48 @@
   
   <!-- Test suite, name mandatory - the same as test package name -->
   <suite name="min-tests" domain="example-domain"> 
-    <description>"Test MIN utilites with min"</description>
+    <description>"Test MIN with MIN"</description>
     <!-- At least one set per suite, name and description mandatory -->
-    <set name="utils-tests"  description="execute min tests with a single command" timeout="600">   
+    <set name="min-tests-set"  description="execute min tests from commandline" timeout="600">   
       <pre_steps>
 	<step>/usr/bin/min-clean.sh -y</step>
 	<step>sleep 1 </step>
       </pre_steps>
 
-      <case name="tests for MIN utils" description="execute min tests" type="Robustness" timeout="600">
-	
-        <step expected_result="8">min -cx /usr/lib/min/dllist_tests.so -cx /usr/lib/min/logger_tests.so -cx /usr/lib/min/min_unit_selftest.so -cx /usr/lib/min/item_parser_tests.so -cx /usr/lib/min/settings_tests.so -cx /usr/lib/min/scripter.so:/usr/lib/min/minqtdbtests.cfg </step>
+      <case name="set min conf for tests" description="set log level and output for tests">
+	<step>mv /etc/min.conf /etc/min.conf.back</step>
+	<step>echo "" > /etc/min.conf </step>
+	<step>echo [Engine_Defaults] >> /etc/min.conf </step>
+	<step>echo ModSearchPath=/usr/lib/min >> /etc/min.conf </step>
+	<step>echo [End_Defaults] >> /etc/min.conf </step>
+	<step>echo [Logger_Defaults] >> /etc/min.conf </step>
+	<step>echo EmulatorBasePath=/tmp >> /etc/min.conf </step>
+	<step>echo EmulatorFormat=TXT >> /etc/min.conf </step>
+	<step>echo EmulatorOutput=FILE >> /etc/min.conf </step>
+	<step>echo LogLevel=TRACE >> /etc/min.conf </step>
+	<step>echo ThreadIdToLogFile=NO >> /etc/min.conf </step>
+	<step>echo [End_Logger_Defaults] >> /etc/min.conf </step>
+      </case>
+      <case name="tests for MIN utils" description="execute tests for dllit logger minunit item-parser and settings" type="Robustness" 
+	    timeout="600">
+        <step expected_result="8">min -cx /usr/lib/min/dllist_tests.so -cx /usr/lib/min/logger_tests.so -cx /usr/lib/min/min_unit_selftest.so -cx /usr/lib/min/item_parser_tests.so -cx /usr/lib/min/settings_tests.so</step>
+      </case>
+
+      <case name="tests for MIN qt db" description="test MIN Qt database" type="Robustness" timeout="600">
+        <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min/minqtdbtests.cfg </step>
+      </case>
+
+      <case name="tests for MIN Python" description="test MIN pythonscripter" type="Robustness" timeout="600">
 	<step expected_result="1">min -cx /usr/lib/min/pythonscripter.so:/usr/lib/min/python_tests.py</step>
       </case>
 
+      <case name="restore min.conf" description="restore original min.conf">
+	<step>mv /etc/min.conf.back /etc/min.conf</step>
+      </case>
+      
+      <get>
+	<file>/tmp/minlog.txt</file>
+      </get>
     </set>
   </suite>
 </testdefinition>
