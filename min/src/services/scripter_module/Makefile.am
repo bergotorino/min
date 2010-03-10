@@ -51,9 +51,6 @@ scripter_la_CFLAGS = $(AM_CFLAGS)
 scripter_cli_la_SOURCES = scripter_cli.c \
 			  $(scripter_la_SOURCES)
 
-scripter_cli_la_LDFLAGS = -module
-scripter_cli_la_CFLAGS = $(AM_CFLAGS) -DSCRIPTER_CLI
-scripter_cli_la_LIBADD = -lpthread
 
 scripter_la_LIBADD = $(top_builddir)/src/tmc/test_module_api/libmintmapi.la \
 	$(top_builddir)/src/tmc/libtmc_utils.la                            \
@@ -61,6 +58,10 @@ scripter_la_LIBADD = $(top_builddir)/src/tmc/test_module_api/libmintmapi.la \
 	-lpthread \
 	$(top_builddir)/src/services/test_interference/libmininterference.la  \
         $(top_builddir)/src/utils/libminutils.la -ldl 
+
+scripter_cli_la_LDFLAGS = -module
+scripter_cli_la_CFLAGS = $(AM_CFLAGS) -DSCRIPTER_CLI
+scripter_cli_la_LIBADD = $(scripter_la_LIBADD)
 
 noinst_LIBRARIES = libscripter_dsa_tests.a 
 

@@ -35,6 +35,7 @@
 #include <min_scripter_if.h>
 #include <min_lego_interface.h>
 #include <min_item_parser.h>
+#include <min_test_event_if.h>
 
 #include <scripter_plugin.h>
 /* ------------------------------------------------------------------------- */
