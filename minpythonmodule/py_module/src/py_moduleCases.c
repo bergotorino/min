@@ -324,7 +324,6 @@ void tm_initialize()
         }
         setenv("PYTHONPATH",tx_share_buf(py_paths),1);
         MIN_DEBUG("PYTHONPATH is %s",getenv("PYTHONPATH"));
-        python_lib_handle = dlopen("libpython2.5.so",RTLD_GLOBAL|RTLD_LAZY);
         Py_Initialize();
 	tx_destroy (&py_paths);
         MIN_DEBUG("python initialized in %d",getpid());
@@ -339,7 +338,6 @@ void tm_finalize()
         Py_Finalize();
         setenv("PYTHONPATH",tx_share_buf(orig_python_path),1);
         tx_destroy(&orig_python_path);
-        dlclose(python_lib_handle);
         MIN_DEBUG("python finalized in %d",getpid());
         sm_id = sm_create('p',sizeof(AsyncOpFlags));
         /*need to unload python dll here*/
