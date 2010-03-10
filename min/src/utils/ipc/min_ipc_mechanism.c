@@ -573,6 +573,8 @@ int mq_peek_message (int msqid, long msg_type)
 			break;
 		default:
 			MIN_FATAL("msgrcv: %s", strerror (errno));
+			usleep (10000);
+			exit(0);
 			return 0;
 			break;
 		}
