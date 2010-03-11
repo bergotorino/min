@@ -1559,9 +1559,6 @@ void do_cleanup (DLList *slaves,
         for (it = dl_list_head (testclasses); it != INITPTR; 
 	     it = dl_list_next (it)) {
                 test_class = dl_list_data (it);
-		if (test_class->dllhandle_ &&
-		    test_class->dllhandle_ != INITPTR) 
-			dlclose (test_class->dllhandle_);
                 DELETE (test_class->classname_);
                 DELETE (test_class);
         }
@@ -1698,7 +1695,9 @@ char      *validate_test_case (MinSectionParser * testcase, char **description)
         char            nesting [255];
 	int             errors = 0;
 	Text           *tx_desc = tx_create ("");
-
+	char           *env;
+	int             skip_symbol_validation = 0;
+	
         line = mmp_get_item_line (testcase, "", ESNoTag);
         while (line != INITPTR) {
                 line_number++;  
@@ -1738,8 +1737,20 @@ char      *validate_test_case (MinSectionParser * testcase, char **description)
         }
 
         /*ok, finished fetching symbols from script, now let's validate them */
-	errors += validate_symbols (symblist, testclasses, class_methods, 
-				    line_number, tc_title);
+	if ((env = getenv ("SCRIPTER_NO_SYMBOL_VALIDATION"))){
+		skip_symbol_validation = atoi (env);
+		
+	}
+	if (skip_symbol_validation) {
+		MIN_DEBUG ("$SCRIPTER_NO_SYMBOL_VALIDATION set");
+	} else {
+		errors += validate_symbols (symblist, 
+					    testclasses, 
+					    class_methods, 
+					    line_number, 
+					    tc_title);
+	}
+	
         /*now check if all interference objects have been stopped (this is
            very important!) */
 	errors += check_interference_objects (interf_objs, line_number,
