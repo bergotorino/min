@@ -1,3 +1,12 @@
+min-all (2010w10) unstable; urgency=low
+
+  * Twentysecond MIN release
+  * Added: Support for python2.6 in MIN python module.
+  * Fixes NB#157310 - testclass symbol validation can be turned off with env var. 
+  * Fixes NB#156981 - MIN cui high cpu usage in hw.
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Fri, 12 Mar 2010 09:26:29 +0200
+
 min-all (2010w04) unstable; urgency=low
   * Twentyfirst MIN release
   * Fixed: MIN consoleUI does not work over serial line (minicom).
