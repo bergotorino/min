@@ -156,6 +156,7 @@ Project home page: http://garage.maemo.org/projects/min/
 * Hardware builds: Hardware builds.
 * Configuring MIN via the MIN Test Framework initialization file: Configuring MIN via the MIN Test Framework initialization file.
 * Configuring MIN Modules through /etc/min.d directory: Configuring MIN Modules through _etc_min_d directory.
+* MIN environment variables: MIN environment variables.
 * Using MIN for test cases execution: Using MIN for test cases execution.
 * Working with MIN Console UI: Working with MIN Console UI.
 * Startup parameters: Startup parameters.
@@ -346,6 +347,7 @@ Project home page: http://garage.maemo.org/projects/min/
 * Hardware builds: Hardware builds.
 * Configuring MIN via the MIN Test Framework initialization file: Configuring MIN via the MIN Test Framework initialization file.
 * Configuring MIN Modules through /etc/min.d directory: Configuring MIN Modules through _etc_min_d directory.
+* MIN environment variables: MIN environment variables.
 @end menu
 
 @node Building MIN, Creating MIN Debian packages, Setting up MIN, Setting up MIN
@@ -367,11 +369,15 @@ Project home page: http://garage.maemo.org/projects/min/
 @section Configuring MIN via the MIN Test Framework initialization file
 @include chapters/Configuring_MIN_via_the_MIN_Test_Framework_initialization_file.texi
 
-@node Configuring MIN Modules through _etc_min_d directory, Using MIN for test cases execution, Configuring MIN via the MIN Test Framework initialization file, Setting up MIN
+@node Configuring MIN Modules through _etc_min_d directory, MIN environment variables, Configuring MIN via the MIN Test Framework initialization file, Setting up MIN
 @section Configuring MIN Modules through /etc/min.d directory
 @include chapters/Configuring_MIN_Modules_through__etc_min.d_directory.texi
 
-@node Using MIN for test cases execution, Working with MIN Console UI, Configuring MIN Modules through _etc_min_d directory, Top
+@node MIN environment variables, Using MIN for test cases execution, Configuring MIN Modules through _etc_min_d directory, Setting up MIN
+@section MIN environment variables
+@include chapters/MIN_environment_variables.texi
+
+@node Using MIN for test cases execution, Working with MIN Console UI, MIN environment variables, Top
 @chapter Using MIN for test cases execution
 @include chapters/Using_MIN_for_test_cases_execution.texi
 @menu

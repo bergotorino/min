@@ -1,5 +1,12 @@
+min-doc (2010w10) unstable; urgency=low
+
+  * Fifth release
+  * Description for environment variable SCRIPTER_NO_SYMBOL_VALIDATION.
+
+ -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Fri, 12 Mar 2010 11:12:56 +0200
+
 min-doc (2009w51) unstable; urgency=low
-  * Third release
+  * Fourth release
   * Test case description feature related changes.
  -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Tue,   9 Dec 2009 12:40:49 +0100
 
