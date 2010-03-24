@@ -259,6 +259,6 @@ or start MIN without cui and execute all test cases from command line
 
 
 
-Report any problems to DG.MIN-Support@nokia.com
+Report any problems to min-support@lists.sourceforge.net.  
 
 

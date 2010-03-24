@@ -56,9 +56,9 @@ Written by Robert Galkowski, Marko Hyyppä, Maciej Jablonski, Juha Perälä, Sam
 Report bugs to DG.MIN\-Support@nokia.com
 
 .SH COPYRIGHT
-MIN Test Framework, © Nokia 2008,
+MIN Test Framework, © Nokia 2008,2009,2010
 licensed under the Gnu General Public License version 2,
-Contact: Pekka Nuotio, DG.MIN-Support@nokia.com
+Contact: min-support@lists.sourceforge.net
 
 .SH "SEE ALSO"
 .BR createtestmodule (1),

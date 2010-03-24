@@ -2,7 +2,7 @@
  * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
  * and/or its subsidiary(-ies).
  * Contact: Juha Perala
- * Contact e-mail: DG.MIN-Support@nokia.com
+ * Contact e-mail: min-support@lists.sourceforge.net
  * 
  * This program is free software: you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License as published by the Free 
@@ -899,13 +899,13 @@ void update_menu (callback_s * cb, char *string, int update,
  */
 void add_copyright_info ()
 {
-	Text *tx = tx_create ("Contact: Pekka Nuotio, "
-			      "DG.MIN-Support@nokia.com");
+	Text *tx = tx_create ("Contact:"
+			      "min-support@lists.sourceforge.net");
 	dl_list_add (error_list_, tx);
 	tx = tx_create ("licensed under the Gnu General "
 			"Public License version 2,");
 	dl_list_add (error_list_, tx);
-	tx = tx_create ("MIN Test Framework, (c) Nokia 2008,"
+	tx = tx_create ("MIN Test Framework, (c) Nokia 2008,2008,2010"
 			" All rights reserved,");
 	dl_list_add (error_list_, tx);
 	cui_refresh_log_view ();

@@ -2,7 +2,7 @@
  * This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
  * and/or its subsidiary(-ies).
  * Contact: Sampo Saaristo
- * Contact e-mail: DG.MIN-Support@nokia.com
+ * Contact e-mail: min-support@lists.sourceforge.net
  * 
  * This program is free software: you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License as published by the Free 
@@ -106,9 +106,9 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf,
  */
 LOCAL void display_license ()
 {
-        printf ("MIN Test Framework, © Nokia 2008, All rights reserved,\n"
+        printf ("MIN Test Framework, © Nokia 2008,2009,2010 All rights reserved,\n"
                 "licensed under the Gnu General Public License version 2,\n"
-                "Contact: Pekka Nuotio, DG.MIN-Support@nokia.com\n\n");
+                "Contact: min-support@lists.sourceforge.net\n\n");
 
 }
 /* ------------------------------------------------------------------------- */
@@ -151,7 +151,7 @@ LOCAL void display_help ()
                 "\tLoad input plugin for MIN,\n\t\t\t\tby default cli or cui "
 		"plugin is loaded\n");
         printf ("\nReport bugs to:\n");
-        printf ("DG.MIN-Support@nokia.com\n");
+        printf ("min-support@lists.sourceforge.net\n");
 }
 /* ------------------------------------------------------------------------- */
 /** Appends the pwd to a relative path 
