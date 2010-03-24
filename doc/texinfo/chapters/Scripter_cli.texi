@@ -1,10 +1,6 @@
 The test scripter can also be used from a special command line interface. The interface is implemented in MIN test module @code{scripter_cli.so}. The module contains one test case @code{Scripter CLI}, that can be executed from command line or consoleUI. When selecting this case the execution moves to the scripter command line, where it is possible to execute scripter keywords by providing them as input. The syntax of the keyword is checked, and if it is valid it is executed immediately. Nested constructs are not supported in this mode. The available commands can be seen with @code{?}. Command @code{list} diplays the syntactically correct keywords that the user has executed. With command @code{quit} the test case is finnished, and the execution returns to MIN.
 @example
 $ min -cx /usr/lib/min/scripter_cli.so
-MIN Test Framework, © Nokia 2008, All rights reserved,
-licensed under the Gnu General Public License version 2,
-Contact: Pekka Nuotio, DG.MIN-Support@@nokia.com
-
 Welcome to MIN scripter command line interface
 give ? for available commands
 scripter-cli> ?

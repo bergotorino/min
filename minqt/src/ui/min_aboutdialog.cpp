@@ -29,9 +29,9 @@
 #include <QSizePolicy>
 
 // Min incudes
-/* MIN Test Framework, (c) Nokia 2008, All rights reserved,
+/* MIN Test Framework, (c) Nokia 2008,2009,2010 All rights reserved,
  * licensed under the Gnu General Public License version 2,
- * Contact: Pekka Nuotio, DG.MIN-Support@nokia.com
+ * Contact: min-support@lists.sourceforge.net
  *
  */
 
@@ -66,9 +66,10 @@ Min::AboutDialog::AboutDialog(QWidget * parent) : QDialog(parent)
 	this->label_2->setWordWrap(true);
 	this->label_2->setAlignment(Qt::AlignTop|Qt::AlignLeft);
 	this->label_2->setText(
-		"MIN Test Framework, (c) Nokia 2008, All rights reserved,\n"
+		"MIN Test Framework, (c) Nokia 2008,2009,2010 "
+		"All rights reserved,\n"
 		"licensed under the Gnu General Public License version 2,\n"
-		"Contact: Pekka Nuotio, DG.MIN-Support@nokia.com\n"
+		"Contact: min-support@lists.sourceforge.net\n"
 		"or visit: http://min.sourceforge.net/");
 
 	QObject::connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
