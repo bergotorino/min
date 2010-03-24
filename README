@@ -88,4 +88,4 @@ or start the min without cui and execute all test cases from command line
 
 $ min --console --execute <test module>[:<configuration filename>]
 
-Report any problems to DG.MIN-Support@nokia.com.
+Report any problems to min-support@lists.sourceforge.net.

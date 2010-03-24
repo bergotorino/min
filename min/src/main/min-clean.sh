@@ -3,7 +3,7 @@
 # This file is part of MIN Test Framework. Copyright © 2008 Nokia Corporation
 # and/or its subsidiary(-ies).
 # Contact: Konrad Marek Zapalowicz
-# Contact e-mail: DG.MIN-Support@nokia.com
+# Contact e-mail: min-support@lists.sourceforge.net
 #  
 # This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License as published by the Free 

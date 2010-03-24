@@ -9,7 +9,7 @@
 # Description:       MIN daemon used in MIN tcp/ip master slave operation
 ### END INIT INFO
 
-# Author: Sampo Saaristo <DG.MIN-Support@nokia.com>
+# Author: Sampo Saaristo <min-support@lists.sourceforge.net>
 #
 
 set -e
