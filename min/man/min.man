@@ -26,6 +26,9 @@ Display version information and exit
 \fB\-c\fR,  \fB\-\-console\fR
 Start MIN without consoleui
 .TP
+\fB\-P\fR,  \fB\-\-parallel\fR
+Start MIN without consoleui - execute cases parallel
+.TP
 \fB\-i\fR,  \fB\-\-info\fR test_module
 Print details about test_module and exit
 .TP

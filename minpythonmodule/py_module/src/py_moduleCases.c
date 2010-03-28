@@ -339,9 +339,7 @@ void tm_finalize()
         setenv("PYTHONPATH",tx_share_buf(orig_python_path),1);
         tx_destroy(&orig_python_path);
         MIN_DEBUG("python finalized in %d",getpid());
-        sm_id = sm_create('p',sizeof(AsyncOpFlags));
-        /*need to unload python dll here*/
-        sm_destroy(sm_id);
+
 }
 
 /* ------------------------------------------------------------------------- */

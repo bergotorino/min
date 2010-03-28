@@ -64,7 +64,6 @@ unsigned int    module_version  = 200950;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
-/* None */
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
@@ -89,7 +88,7 @@ TSBool check_end_conditions()
         int caseid = 0;
         MsgBuffer message;
         int own_addr = getpid();
-        int mq_id = mq_open_queue('a');
+        int mq_id;
         int cond_container_id = 0;
         void* cond_container = NULL;/*pointer to shared memory segment
         holding flags to control completion of asynchroneus operations*/
@@ -97,6 +96,8 @@ TSBool check_end_conditions()
         TSBool retval = ESFalse;
         int *saved_caseid;
         DLListIterator it = DLListNULLIterator;
+
+	mq_id = mq_open_queue('a');
         if (mq_id <= 0) {
                 MIN_WARN ("message queue fault");
                 return ESFalse;
@@ -105,12 +106,16 @@ TSBool check_end_conditions()
         asynchroneous operations.*/
 
         sched_yield();
-        cond_container_id = sm_create('p',sizeof(AsyncOpFlags));
+	cond_container_id = shmget (getpid(), sizeof (AsyncOpFlags), 
+				    0660);
+
 	if (cond_container_id < 0) {
 		MIN_WARN ("sm_create() failed");
-		return retval;
+		return ESTrue;
 	}
         cond_container = sm_attach(cond_container_id);
+	if (cond_container == INITPTR)
+	        return ESTrue;
         sm_read(cond_container,&end_conditions,sizeof(AsyncOpFlags));
         sm_detach(cond_container);
         /*go through conditions and check if it's ok to finish testcase
@@ -145,6 +150,7 @@ TSBool check_end_conditions()
         else {
                 retval = (!(end_conditions.parallel_test_ongoing_)) & ESTrue;
         }
+
         return retval;
 }
 
@@ -215,7 +221,9 @@ int tm_run_test_case( unsigned int      id
                         else{
 				set_caller_name (PyString_AS_STRING(p_key));
                                 /*testcase was found*/
-                                cond_container_id = sm_create('p',sizeof(AsyncOpFlags));
+				cond_container_id = shmget (getpid(), sizeof (AsyncOpFlags), 
+							    IPC_CREAT | 0660);
+
 				if (cond_container_id < 0) {
 					MIN_WARN ("sm_create() failed");
 					return -1;
@@ -271,6 +279,11 @@ int tm_run_test_case( unsigned int      id
                 }
         }
         Py_XDECREF(p_module);
+	cond_container_id = shmget (getpid(), sizeof (AsyncOpFlags), 
+				    0660);
+	if (cond_container_id)
+	        shmctl (cond_container_id, IPC_RMID, 0);
+
 	return 0;
 }
 /* ------------------------------------------------------------------------- */

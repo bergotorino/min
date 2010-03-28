@@ -6,6 +6,8 @@ prints version information.
 prints help screen with usage description.
 @item --console, -c
 starts  MIN without the console UI. All test cases defined in min.conf are executed sequentially (unless specified with -x and/or -t switch)
+@item --parallel, -P
+same as -c, but cases are executed parallel.
 @item --debug, -d
 Attach a debugger to test case(s). Note: Implies @code{-c}.
 @item --info, -i

@@ -270,7 +270,7 @@ LOCAL void pl_module_ready (unsigned moduleid)
 				min_clbk_.start_case 
 					(c->moduleid_,
 					 c->caseid_,
-					 1);
+					 !cliopts.parallel_mode_);
 		}
 	}	
 

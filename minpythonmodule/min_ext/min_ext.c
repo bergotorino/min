@@ -228,7 +228,9 @@ LOCAL void *thread_exec (void *args)
         testcase_file = ((case_args *) args)->file_;
         run_case_func = ((case_args *) args)->exec_;
 
-        end_flags_id = sm_create ('p', sizeof (AsyncOpFlags));
+        end_flags_id = shmget (getpid(), sizeof (AsyncOpFlags), 
+			       IPC_CREAT | 0660);
+
 	if (end_flags_id < 0) {
 		MIN_WARN ("sm_create() failed");
 		dlclose (((case_args *) args)->mod_);
@@ -297,8 +299,9 @@ LOCAL int wait_response (int mq_id, TMSCommand re_type)
                         dl_list_add (remotes_list, caseid);
                         MIN_DEBUG ("adding caseid");
                         
-                        end_flags_id = sm_create ('p', sizeof 
-                                                  (AsyncOpFlags));
+			end_flags_id = shmget (getpid(), sizeof (AsyncOpFlags), 
+					       IPC_CREAT | 0660);
+
 			if (end_flags_id < 0) {
 				MIN_WARN ("sm_create() failed");
 				return 1;

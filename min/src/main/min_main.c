@@ -150,6 +150,7 @@ LOCAL void display_help ()
                 "[:plugin2:... ]\n\t\t\t"
                 "\tLoad input plugin for MIN,\n\t\t\t\tby default cli or cui "
 		"plugin is loaded\n");
+	printf (" -P,  --parallel\t\t\Same as -c but cases are executed parallel\n");
         printf ("\nReport bugs to:\n");
         printf ("min-support@lists.sourceforge.net\n");
 }
@@ -330,7 +331,7 @@ LOCAL pthread_t load_plugin (const char *plugin_name, void *plugin_conf,
 int main (int argc, char *argv[], char *envp[])
 {
         int             cont_flag, opt_char, oper_mode;
-        int             cli_flag, ip_flag, help_flag, version_flag;
+        int             cli_flag, ip_flag, help_flag, version_flag, parallel_flag;
 	int 	        slave_mode = 0, master_socket = -1;
         DLList         *modulelist, *slavelist;
         DLListIterator  work_module_item;
@@ -351,6 +352,7 @@ int main (int argc, char *argv[], char *envp[])
 			{"help", no_argument, &help_flag, 1},
 			{"version", no_argument, &version_flag, 1},
 			{"console", no_argument, &cli_flag, 1},
+			{"parallel", no_argument, &parallel_flag, 1},
 			{"info", required_argument, NULL, 'i'},
                         {"execute", required_argument, NULL, 'x'},
 			{"slave", required_argument, NULL, 's'},
@@ -365,7 +367,7 @@ int main (int argc, char *argv[], char *envp[])
         modulelist = dl_list_create();
 	slavelist = dl_list_create();
 	work_module_item = DLListNULLIterator;
-	oper_mode = cli_flag = help_flag = version_flag = cont_flag = 0;
+	oper_mode = cli_flag = help_flag = version_flag = cont_flag = parallel_flag = 0;
         ip_flag = 0;
         
         /* Detect commandline arguments */
@@ -373,7 +375,7 @@ int main (int argc, char *argv[], char *envp[])
 		/* getopt_long stores the option index here. */
 		int option_index = 0;
      
-		opt_char = getopt_long (argc, argv, "hvcdi:x:s:p:t:r:m:f:",
+		opt_char = getopt_long (argc, argv, "hvcPdi:x:s:p:t:r:m:f:",
 					min_options, &option_index);
      
 		/* Detect the end of the options. */
@@ -389,6 +391,11 @@ int main (int argc, char *argv[], char *envp[])
 			cli_flag = 1;
 			break;
 			
+		case 'P':
+			cli_flag = 1;
+			cli_opts.parallel_mode_ = 1;
+			break;
+
 		case 'v':
 			version_flag = 1;
 			break;
