@@ -1,9 +1,19 @@
+min-all (2010w16) unstable; urgency=low
+
+  * Twentythird MIN release
+  * Added: parallel execution from commandline
+  * Fixed: python parallel execution
+  * Fixed: a TMC process continues running after exiting MIN.
+  * Fixed: support and contact information.
+	
+ -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Wed, 21 Apr 2010 10:39:16 +0300
+
 min-all (2010w10) unstable; urgency=low
 
   * Twentysecond MIN release
   * Added: Support for python2.6 in MIN python module.
-  * Fixes NB#157310 - testclass symbol validation can be turned off with env var. 
-  * Fixes NB#156981 - MIN cui high cpu usage in hw.
+  * Fixes: NB#157310 - testclass symbol validation can be turned off with env var. 
+  * Fixes: NB#156981 - MIN cui high cpu usage in hw.
 
  -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Fri, 12 Mar 2010 09:26:29 +0200
 
