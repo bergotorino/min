@@ -109,7 +109,7 @@ void            dummy_handler (int sig);
 /* ==================== LOCAL FUNCTIONS ==================================== */
 /* ------------------------------------------------------------------------- */
 /** MSG_EXE handler
- *  @param tmc adress of the TMC entity.
+ *  @param tmc address of the TMC entity.
  *  @param id test case id
  *  @param cfg_file name of the configuration file.
  *  @param delay flag stating if we should wait for few secs before starting the
@@ -128,6 +128,10 @@ LOCAL void gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file, int delay)
         if (tmp == 0) {
                 min_log_open ("TestProcess", 3);
                 sl_set_sighandler (SIGCHLD, dummy_handler);
+		if (setpgid(getpid(), getpid())) {
+			MIN_WARN ("FAILED to set process group id %s",
+				  strerror (errno));
+		}
                 usleep (50000);
                 gu_create_tp (tmc, id, cfg_file, delay);
         } else if (tmp > 0) {

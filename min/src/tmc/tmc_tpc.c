@@ -85,7 +85,7 @@ LOCAL void tp_timeout_handler (int signum)
 
                 if (--(ptmc->tpc_.tp_timeout_) == 0) {
                         ptmc->tpc_.tp_status_ = TP_TIMEOUT;
-                        kill (ptmc->tpc_.tp_pid_, SIGKILL);
+                        killpg (ptmc->tpc_.tp_pid_, SIGKILL);
                         return;
                 }
         }
@@ -158,7 +158,7 @@ void tp_abort (TestProcessController * tpc)
         int             retval = 1;
         if (tpc->tp_pid_ != 0) {
                 tpc->tp_status_ = TP_ABORTED;
-                retval = kill (tpc->tp_pid_, SIGKILL);
+                retval = killpg (tpc->tp_pid_, SIGKILL);
                 if (retval == -1)
                         MIN_ERROR ("Aborting Test Proces failed");
                 else {
