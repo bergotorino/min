@@ -4,8 +4,7 @@ min-all (2010w16) unstable; urgency=low
   * Added: parallel execution from commandline
   * Fixed: python parallel execution
   * Fixed: a TMC process continues running after exiting MIN.
-  * Fixed: support and contact information.
-	
+
  -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Wed, 21 Apr 2010 10:39:16 +0300
 
 min-all (2010w10) unstable; urgency=low
