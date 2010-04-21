@@ -333,7 +333,6 @@ void tm_initialize()
  */
 void tm_finalize()
 {
-        int sm_id = 0;
         MIN_DEBUG("finalizing python in %d",getpid());
         Py_Finalize();
         setenv("PYTHONPATH",tx_share_buf(orig_python_path),1);

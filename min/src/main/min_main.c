@@ -150,7 +150,7 @@ LOCAL void display_help ()
                 "[:plugin2:... ]\n\t\t\t"
                 "\tLoad input plugin for MIN,\n\t\t\t\tby default cli or cui "
 		"plugin is loaded\n");
-	printf (" -P,  --parallel\t\t\Same as -c but cases are executed parallel\n");
+	printf (" -P,  --parallel\t\tSame as -c but cases are executed parallel\n");
         printf ("\nReport bugs to:\n");
         printf ("min-support@lists.sourceforge.net\n");
 }
