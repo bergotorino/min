@@ -1,3 +1,10 @@
+min-doc (2010w16) unstable; urgency=low
+ 
+  * Sixth release
+  * New commandline option --parallel explained
+
+ -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Thu, 22 Apr 2010 11:08:31 +0300
+
 min-doc (2010w10) unstable; urgency=low
 
   * Fifth release
