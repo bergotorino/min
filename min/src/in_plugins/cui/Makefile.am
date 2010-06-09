@@ -8,7 +8,10 @@ INCLUDES = -I. -I../ -I../.. -I../../utils/dllist \
 pkglib_LTLIBRARIES = min_cui.la
 noinst_HEADERS = callback.h consoleui.h
 min_cui_la_SOURCES = callback.c consoleui.c
-min_cui_la_LIBADD = $(top_builddir)/src/engine/data_structures_api/libmindsa.la
+min_cui_la_LIBADD = $(top_builddir)/src/engine/data_structures_api/libmindsa.la \
+		    -lncurses \
+		    -lmenu
+
 min_cui_la_LDFLAGS = -module
 min_cui_la_CFLAGS = $(AM_CFLAGS)
 
