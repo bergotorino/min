@@ -17,11 +17,11 @@ The MIN test framework provides a toolset for creating and executing test cases.
  MIN engine starts a Test Module Controller (TMC) for each test module. TMC in turn forks a process for each test case when the test is executed. 
  Tests are run in own process so that e.g. segfaults can be caught and handled. MIN can be operated via console UI (ncurses) or from the commandline.
 
-%package dev
+%package devel
 Summary:        MIN headers and test module template wizard
 Requires:       min
 
-%description dev
+%description devel
 The headers and tools needed to develop MIN test modules.
 
 %package pythonmodule
@@ -133,6 +133,15 @@ cd mincitests/qsrc
 make install INSTALL_ROOT=$RPM_BUILD_ROOT && cp -d *.so* $RPM_BUILD_ROOT%{_libdir}/min
 cd ../..
 
+%post
+ldconfig
+
+%post devel
+ldconfig
+
+%postun
+ldconfig
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -156,16 +165,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/min/min_tcpip*
 %{_libdir}/min/min_cli*
 %{_libdir}/pkgconfig/min.pc
-%{_libdir}/libminutils*
-%{_libdir}/libmintfwif*
-%{_libdir}/libminevent*
-%{_libdir}/libmintmapi*
-%{_libdir}/libmininterference*
+%{_libdir}/libminutils.so.*
+%{_libdir}/libmintfwif.so.*
+%{_libdir}/libminevent.so.*
+%{_libdir}/libmintmapi.so.*
+%{_libdir}/libmininterference.so.*
 %{_sysconfdir}/min.conf
 %{_sysconfdir}/event.d/min
 %{_sysconfdir}/init.d/min
 
-%files dev
+%files devel
 %defattr(-,root,root,-)
 %{_includedir}/min_logger.h
 %{_includedir}/mintfwif.h
@@ -204,6 +213,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/min-dev.pc
 %{_bindir}/createtestmodule
 %{_bindir}/createtestmodule++
+%{_libdir}/min/libminqtdbtests.so
+%{_libdir}/libminutils.so
+%{_libdir}/libmintfwif.so
+%{_libdir}/libminevent.so
+%{_libdir}/libmintmapi.so
+%{_libdir}/libmininterference.so
+%{_libdir}/libmin*.a
+%{_libdir}/libmin*.la
 
 %files pythonmodule
 %defattr(-,root,root,-)
@@ -237,7 +254,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/min/item_parser_tests*
 %{_libdir}/min/logger_tests*
 %{_libdir}/min/settings_tests*
-%{_libdir}/min/libminqtdbtests*
+%{_libdir}/min/libminqtdbtests.so.*
 %{_libdir}/min/minqtdbtests.cfg
 %{_libdir}/min/python_tests.py*
 %{_datadir}/min-ci-tests/tests.xml
