@@ -1,3 +1,12 @@
+min-all (2010w23) unstable; urgency=low
+
+  * Twentyfourth MIN release
+  * Fixed: MIN spec file rpmlint problems
+  * Fixed: linking issues with MIN cui
+  * Fixed: sigsegv/sigabrt signal handlers (enable default action for core dumps)
+
+ -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Thu, 10 Jun 2010 17:00:30 +0300
+
 min-all (2010w16) unstable; urgency=low
 
   * Twentythird MIN release

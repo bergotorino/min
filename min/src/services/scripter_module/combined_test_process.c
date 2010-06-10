@@ -56,6 +56,7 @@ extern TSBool   ctprun;
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
 /* None */
+LOCAL sig_atomic_t fatal_sig_handled = 0;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
@@ -125,8 +126,13 @@ void ctp_handle_sigsegv (int signum)
 
         int             mq = mq_open_queue ('a');
 	MsgBuffer       result;
-
+	signal (SIGSEGV, SIG_DFL);
         ctprun = ESFalse;
+	if (fatal_sig_handled) {
+		raise (SIGSEGV);
+		return;
+	}
+
         if (mq < 0) {
                 MIN_WARN ("mq_open_queue() FAILED");
 		return;
@@ -139,8 +145,8 @@ void ctp_handle_sigsegv (int signum)
 	result.desc_[0] = '\0';
 	strcpy (result.message_, "SIGSEGV caught");
         mq_send_message (mq, &result);
-	sleep (1);
-	exit (0);
+	fatal_sig_handled = 1;
+	raise (SIGSEGV);
 }
 /* ------------------------------------------------------------------------- 
  *  Handler for SIGABORT signal.
@@ -151,8 +157,14 @@ void ctp_handle_sigabort (int signum)
 
         int             mq = mq_open_queue ('a');
 	MsgBuffer       result;
-
+	signal (SIGABRT, SIG_DFL);
         ctprun = ESFalse;
+
+	if (fatal_sig_handled) {
+		raise (SIGABRT);
+		return;
+	}
+	
         if (mq < 0) {
                 MIN_WARN ("mq_open_queue() FAILED");
 		return;
@@ -165,8 +177,8 @@ void ctp_handle_sigabort (int signum)
 	result.desc_[0] = '\0';
 	strcpy (result.message_, "SIGABORT caught");
         mq_send_message (mq, &result);
-	sleep (1);
-	exit (0);
+	fatal_sig_handled = 1;
+	raise (SIGABRT);
 }
 
 /* ------------------------------------------------------------------------- */

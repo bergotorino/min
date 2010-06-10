@@ -55,11 +55,12 @@ extern TSBool   stprun;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
-/* None */
+LOCAL MsgBuffer       result;
+LOCAL sig_atomic_t    fatal_sig_handled = 0;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
-MsgBuffer       result;
+/* None */
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
@@ -176,6 +177,12 @@ void stp_handle_sigsegv (int signum)
 
         int             mq = mq_open_queue ('a');
         stprun = ESFalse;
+	signal (SIGSEGV, SIG_DFL);
+
+	if (fatal_sig_handled) {
+		raise (SIGSEGV);
+		return;
+	}
 
         if (mq < 0) {
                 MIN_WARN ("mq_open_queue() FAILED");
@@ -184,7 +191,9 @@ void stp_handle_sigsegv (int signum)
         result.param_ = TP_CRASHED;
         result.special_ = 0;
         mq_send_message (mq, &result);
-	exit (0);
+	fatal_sig_handled = 1;
+
+	raise (SIGSEGV);
 }
 /* ------------------------------------------------------------------------- */
 /** SIGABORT handler 
@@ -195,6 +204,12 @@ void stp_handle_sigabort (int signum)
 
         int             mq = mq_open_queue ('a');
         stprun = ESFalse;
+	signal (SIGABRT, SIG_DFL);
+
+	if (fatal_sig_handled) {
+		raise (SIGABRT);
+		return;
+	}
 
         if (mq < 0) {
                 MIN_WARN ("mq_open_queue() FAILED");
@@ -203,7 +218,9 @@ void stp_handle_sigabort (int signum)
         result.param_ = TP_CRASHED;
         result.special_ = 0;
         mq_send_message (mq, &result);
-	exit (0);
+	fatal_sig_handled = 1;
+
+	raise (SIGABRT);
 }
 /* ------------------------------------------------------------------------- */
 /** Handles IPC message in the Scripted Test Process way. 

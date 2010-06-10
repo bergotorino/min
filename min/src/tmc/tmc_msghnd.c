@@ -56,7 +56,7 @@ TSBool tp_exit_flag = ESFalse;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
-/* None */
+LOCAL sig_atomic_t fatal_sig_handled = 0;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
@@ -289,10 +289,17 @@ void dummy_handler (int sig)
  */
 void gu_handle_sigsegv (int sig)
 {
+	signal (SIGSEGV, SIG_DFL);
+
+	if (fatal_sig_handled) {
+		raise (SIGSEGV);
+		return;
+	}
+	fatal_sig_handled = 1;
+
         ip_send_ret (&ptmc->tmcipi_, TP_CRASHED, "Crashed - SIGSEGV");
-        sleep (1);
-        exit (TP_EXIT_FAILURE);
-        return;
+	sleep (1);
+	raise (SIGSEGV);
 }
 /* ------------------------------------------------------------------------- */
 /** SIGABRT handler
@@ -302,10 +309,16 @@ void gu_handle_sigsegv (int sig)
  */
 void gu_handle_sigabrt (int sig)
 {
+	if (fatal_sig_handled) {
+		raise (SIGABRT);
+		return;
+	}
+	fatal_sig_handled = 1;
+
         ip_send_ret (&ptmc->tmcipi_, TP_CRASHED, "Crashed - SIGABRT");
-        sleep (1);
-        exit (TP_EXIT_FAILURE);
-        return;
+	signal (SIGABRT, SIG_DFL);
+	sleep (1);
+	raise (SIGABRT);
 }
 /* ------------------------------------------------------------------------- */
 /** SIGUSR2 handler
@@ -565,7 +578,8 @@ void gu_handle_sigchld (int sig)
                 globaltcr.result_ = TP_NC;
                 strcpy (globaltcr.desc_, "Aborted");
         } 
-        ptmc->send_ret_ = ESTrue;
+	ptmc->send_ret_ = ESTrue;
+
 
         return;
 }

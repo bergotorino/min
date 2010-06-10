@@ -1,5 +1,5 @@
 Name:           min
-Version:        2010w16
+Version:        2010w23
 Release:        1%{?dist}
 Summary:        A test framework for C/C++
 
@@ -272,6 +272,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/min-tests/runtests.sh
 
 %changelog
+* Thu Jun 10 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w23
+  - Fixed: MIN spec file rpmlint problems
+  - Fixed: linking issues with MIN cui plugin
+  - Fixed: sigsegv/sigabrt signal handlers (enable default action for core dumps)
 * Wed Apr 21 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w16
   - Added: parallel execution from commandline
   - Fixed: python parallel execution
