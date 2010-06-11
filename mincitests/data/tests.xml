@@ -6,25 +6,7 @@
     <description>"Test MIN with MIN"</description>
     <!-- At least one set per suite, name and description mandatory -->
     <set name="min_tests_set"  description="execute min tests from commandline" timeout="600">   
-      <pre_steps>
-	<step>/usr/bin/min-clean.sh -y</step>
-	<step>sleep 1 </step>
-      </pre_steps>
 
-      <case name="set_min_conf_for_tests" description="set log level and output for tests">
-	<step>mv /etc/min.conf /etc/min.conf.back</step>
-	<step>echo "" > /etc/min.conf </step>
-	<step>echo [Engine_Defaults] >> /etc/min.conf </step>
-	<step>echo ModSearchPath=/usr/lib/min >> /etc/min.conf </step>
-	<step>echo [End_Defaults] >> /etc/min.conf </step>
-	<step>echo [Logger_Defaults] >> /etc/min.conf </step>
-	<step>echo EmulatorBasePath=/tmp >> /etc/min.conf </step>
-	<step>echo EmulatorFormat=TXT >> /etc/min.conf </step>
-	<step>echo EmulatorOutput=FILE >> /etc/min.conf </step>
-	<step>echo LogLevel=TRACE >> /etc/min.conf </step>
-	<step>echo ThreadIdToLogFile=NO >> /etc/min.conf </step>
-	<step>echo [End_Logger_Defaults] >> /etc/min.conf </step>
-      </case>
       <case name="tests_for_MIN_utils" description="execute tests for dllit logger minunit item-parser and settings" type="Robustness" 
 	    timeout="100">
         <step expected_result="8">min -cx /usr/lib/min/dllist_tests.so -cx /usr/lib/min/logger_tests.so -cx /usr/lib/min/min_unit_selftest.so -cx /usr/lib/min/item_parser_tests.so -cx /usr/lib/min/settings_tests.so</step>
@@ -41,15 +23,6 @@
       <case name="parallel_test_for_MIN_Python" description="test MIN pythonscripter parallel execution" type="Robustness" timeout="10">
 	<step expected_result="1">min -Px /usr/lib/min/pythonscripter.so:/usr/lib/min/python_tests.py</step>
       </case>
-
-
-      <case name="restore_minconf" description="restore original min.conf">
-	<step>mv /etc/min.conf.back /etc/min.conf</step>
-      </case>
-      
-      <get>
-	<file>/tmp/minlog.txt</file>
-      </get>
     </set>
   </suite>
 </testdefinition>
