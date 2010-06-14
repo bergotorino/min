@@ -8,7 +8,7 @@ noinst_LTLIBRARIES =  testlib2.la testlib3.la testlib4.la \
 	testlibio.la testlibevents.la minunitdllist.la 
 pkglib_LTLIBRARIES = minDemoModule.la demoClass.la
 
-demoClass_la_LDFLAGS = -shared -module
+demoClass_la_LDFLAGS = -shared -module -avoid-version
 demoClass_la_SOURCES = tc.c tcCases.c
 demoClass_la_LIBADD = $(top_builddir)/src/tmc/test_module_api/libmintmapi.la \
 	              $(top_builddir)/src/utils/libminutils.la \
@@ -46,7 +46,7 @@ testlibevents_la_LIBADD = $(top_builddir)/src/tmc/test_module_api/libmintmapi.la
 		$(top_builddir)/src/services/event_system/libminevent.la         \
 		$(top_builddir)/src/utils/libminutils.la	
 
-minDemoModule_la_LDFLAGS = -module -shared
+minDemoModule_la_LDFLAGS = -shared -module -avoid-version
 minDemoModule_la_SOURCES = Demo.c DemoCases.c Demo.h
 minDemoModule_la_LIBADD = $(top_builddir)/src/tmc/test_module_api/libmintmapi.la \
 		$(top_builddir)/src/utils/libminutils.la \

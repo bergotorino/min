@@ -1,6 +1,3 @@
-TEMPLATE = lib
-VERSION = 0.0.1
-
 QT += sql 
 
 CONFIG = dll
@@ -28,7 +25,7 @@ HEADERS += \
         ../../minqt/src/core/min_database.hpp \
         ../../minqt/src/core/min_singleton.hpp 
 	
-TARGET = minqtdbtests
+TARGET = minqtdbtests.so
 
 MIN_SCRIPTS.files = data/*.cfg
 MIN_SCRIPTS.path = /usr/lib/min
@@ -37,11 +34,4 @@ INSTALLS += MIN_SCRIPTS
 MIN_MODULES.files = *.so*
 MIN_MODULES.path = /usr/lib/min
 INSTALLS += MIN_MODULES
-unix {
-MV_TARGET = cp libminqtdbtests.so.0.0.1 minqtdbtests.so.0.0.1; \
-ln -s minqtdbtests.so.0.0.1 minqtdbtests.so;\
-ln -s minqtdbtests.so.0.0.1 minqtdbtests.so.0;\
-ln -s minqtdbtests.so.0.0.1 minqtdbtests.so.0.0; rm libminqtdbtests*
-
-QMAKE_POST_LINK = $$MV_TARGET
-}
+QMAKE_LFLAGS = -module -avoid-version -shared 
