@@ -5,7 +5,7 @@ usr/lib/min/item_parser_tests*
 usr/lib/min/logger_tests*
 usr/lib/min/settings_tests*
 usr/lib/min/settings_tests*
-usr/lib/min/libminqtdbtests*
+usr/lib/min/minqtdbtests*
 usr/lib/min/minqtdbtests.cfg
 usr/lib/min/python_tests.py
 usr/share/min-ci-tests/tests.xml

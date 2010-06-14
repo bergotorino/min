@@ -37,3 +37,11 @@ INSTALLS += MIN_SCRIPTS
 MIN_MODULES.files = *.so*
 MIN_MODULES.path = /usr/lib/min
 INSTALLS += MIN_MODULES
+unix {
+MV_TARGET = cp libminqtdbtests.so.0.0.1 minqtdbtests.so.0.0.1; \
+ln -s minqtdbtests.so.0.0.1 minqtdbtests.so;\
+ln -s minqtdbtests.so.0.0.1 minqtdbtests.so.0;\
+ln -s minqtdbtests.so.0.0.1 minqtdbtests.so.0.0; rm libminqtdbtests*
+
+QMAKE_POST_LINK = $$MV_TARGET
+}

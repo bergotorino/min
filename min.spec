@@ -213,7 +213,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/min-dev.pc
 %{_bindir}/createtestmodule
 %{_bindir}/createtestmodule++
-%{_libdir}/min/libminqtdbtests.so
 %{_libdir}/libminutils.so
 %{_libdir}/libmintfwif.so
 %{_libdir}/libminevent.so
@@ -254,7 +253,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/min/item_parser_tests*
 %{_libdir}/min/logger_tests*
 %{_libdir}/min/settings_tests*
-%{_libdir}/min/libminqtdbtests.so.*
+%{_libdir}/min/minqtdbtests*
 %{_libdir}/min/minqtdbtests.cfg
 %{_libdir}/min/python_tests.py*
 %{_datadir}/min-ci-tests/tests.xml
