@@ -1,5 +1,5 @@
 Name:           min
-Version:        2010w23
+Version:        2010w24
 Release:        1%{?dist}
 Summary:        A test framework for C/C++
 
@@ -271,6 +271,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/min-tests/runtests.sh
 
 %changelog
+* Mon Jun 14 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w24
+  - Fixed: still some rpmlint problems
 * Thu Jun 10 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w23
   - Fixed: MIN spec file rpmlint problems
   - Fixed: linking issues with MIN cui plugin
