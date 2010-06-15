@@ -34,5 +34,5 @@ INSTALLS += MIN_SCRIPTS
 MIN_MODULES.files = *.so*
 MIN_MODULES.path = /usr/lib/min
 INSTALLS += MIN_MODULES
-QMAKE_LFLAGS = -module -avoid-version -shared 
+QMAKE_LFLAGS = $$QMAKE_LFLAGS_SHLIB -module -avoid-version 
 QMAKE_CXXFLAGS = $$QMAKE_CXXFLAGS_SHLIB
