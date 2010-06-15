@@ -35,3 +35,4 @@ MIN_MODULES.files = *.so*
 MIN_MODULES.path = /usr/lib/min
 INSTALLS += MIN_MODULES
 QMAKE_LFLAGS = -module -avoid-version -shared 
+QMAKE_CXXFLAGS = $$QMAKE_CXXFLAGS_SHLIB
