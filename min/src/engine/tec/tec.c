@@ -711,6 +711,7 @@ LOCAL int ec_msg_ok_handler (MsgBuffer * message)
         long            sender = message->sender_;
         int             work_module_status;
 	int             retry_count;
+	test_module_info_s *module;
         DLListIterator  work_module =
             tm_get_ptr_by_pid (instantiated_modules, sender);
         MsgBuffer       message_gtc;
@@ -735,6 +736,11 @@ LOCAL int ec_msg_ok_handler (MsgBuffer * message)
 
         switch (work_module_status) {
         case TEST_MODULE_INITIALIZED:
+		module = dl_list_data (work_module);
+		MINAPI_PLUGIN_CALL(new_module,
+				   new_module (module->module_filename_, 
+					       module->module_id_));
+
                 tm_set_status (work_module, TEST_MODULE_TC_SENDING);
                 result = 0;
                 message_gtc.type_ = MSG_GTC;
@@ -1726,10 +1732,6 @@ LOCAL int ec_read_module_section (MinParser * inifile)
                 work_list = dl_list_create ();
                 module = tm_create (bin_path, work_list, 0);
                 module_item = tm_add (available_modules, module);
-#ifdef MIN_EXTIF
-		MINAPI_PLUGIN_CALL(new_module,
-				   new_module (bin_path, module->module_id_));
-#endif
                 if (module_item == DLListNULLIterator) {
                         MIN_WARN ("Could not insert %s into list",
                                    bin_path);
@@ -2155,12 +2157,6 @@ int ec_start_modules ()
 			 * fault is needed 
 			 */
 			result++;
-#ifndef MIN_EXTIF
-
-			MINAPI_PLUGIN_CALL(new_module,
-					   new_module (work_module->module_filename_, 
-						       work_module->module_id_));
-#endif
                 }
 
                 work_list_item = dl_list_next (work_list_item);
@@ -2633,13 +2629,6 @@ int ec_add_module (TSChar * mod_name, DLList * testcase_files,
                 tm_add (instantiated_modules, work_module);
                 pthread_mutex_unlock (&tec_mutex_);
                 retval = 0;
-		if (report) {
-			MINAPI_PLUGIN_CALL(new_module,
-					   new_module (mod_name, 
-						       work_module->module_id_)
-					   );
-
-		}
         } else {
                 retval = -1;
         }

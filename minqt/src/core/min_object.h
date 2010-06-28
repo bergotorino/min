@@ -73,7 +73,7 @@ public Q_SLOTS: // METHODS
     inline QDBusReply<void> min_open()
     {
         QList<QVariant> argumentList;
-        return callWithArgumentList(QDBus::Block, QLatin1String("min_open"), argumentList);
+        return callWithArgumentList(QDBus::BlockWithGui, QLatin1String("min_open"), argumentList);
     }
 
     inline QDBusReply<void> min_pause_case(int testrunid)
