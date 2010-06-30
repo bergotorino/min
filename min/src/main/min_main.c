@@ -507,6 +507,11 @@ int main (int argc, char *argv[], char *envp[])
 	/**
 	 *  Load plugin and go
 	 */
+	if (add_command_line_modules (modulelist) ||
+	    add_ip_slaves (slavelist)) {
+		exit (-1);
+        }
+
 	c2 = tx_get_buf(plugin);
 	/* do { */
 	c3 = strchr (c2,':');
@@ -522,10 +527,6 @@ int main (int argc, char *argv[], char *envp[])
 	   c2 = c3+1;*/
 	/* } while (c3!=NULL); */
 	tx_destroy (&plugin);
-	if (add_command_line_modules (modulelist) ||
-	    add_ip_slaves (slavelist)) {
-		exit (-1);
-        }
 	
 	pthread_join (plugin_cont[0].plugin_thread_, &tmp);
 	dlclose (plugin_cont[0].plugin_handle_);
