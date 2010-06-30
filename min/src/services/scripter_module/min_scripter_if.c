@@ -1533,9 +1533,11 @@ int testclass_call_function (char *className, MinItemParser * mip)
                                                     className);
                                 msg.desc_[MaxDescSize-1] = '\0';
                         
-                        } else
-                                sprintf (msg.desc_, "%s %s", msg.desc_,
-                                         var_value (token));
+                        } else {
+				strcat (msg.desc_, " ");
+                                strcat (msg.desc_,
+                                        var_value (token));
+			}
                 }
                 DELETE (token);
                 send_variables ();
@@ -3090,7 +3092,8 @@ void scripter_final_verdict (TestCaseResult * tcr)
                                "TP_PASSED",
                                "FAILED",
                                "NOT COMPLETE",
-                               "LEFT"};
+                               "LEFT"},
+		tmp[50];
         
         for (tpit = dl_list_head (scripter_mod.tp_details);
              tpit != DLListNULLIterator; tpit = dl_list_next (tpit)) {
@@ -3170,9 +3173,11 @@ void scripter_final_verdict (TestCaseResult * tcr)
         if (cancelled) {
                 tcr->result_ = TP_NC;
         } else if (num_fail > 0) {
-                if (num_fail > 1)
-                        sprintf (tcr->desc_, "%s (%d other errors/failures)",
-                                 tcr->desc_, num_fail - 1);
+                if (num_fail > 1) {
+			sprintf (tmp, " (%d other errors/failures)", 
+				 num_fail - 1);
+                        strcat (tcr->desc_, tmp);
+		}
                 tcr->result_ = TP_FAILED;
         } else {
                 tcr->result_ = TP_PASSED;
