@@ -2622,16 +2622,8 @@ int ec_add_module (TSChar * mod_name, DLList * testcase_files,
         if (work_module == INITPTR)
                 goto FAULT;
         work_module_item = tm_add (available_modules, work_module);
-        result = ec_start_tmc (work_module_item);
-        ec_init_module_data (work_module_item);
-        if (result > 0) {
-                pthread_mutex_lock (&tec_mutex_);
-                tm_add (instantiated_modules, work_module);
-                pthread_mutex_unlock (&tec_mutex_);
-                retval = 0;
-        } else {
-                retval = -1;
-        }
+
+	retval = 0;
 
       FAULT:
         return retval;
