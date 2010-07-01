@@ -1,5 +1,5 @@
 Name:           min
-Version:        2010w24
+Version:        2010w26
 Release:        1%{?dist}
 Summary:        A test framework for C/C++
 
@@ -43,7 +43,7 @@ Summary:  MIN tests for CI
 Provides: Meego-CI-Packages(min)
 Provides: Meego-CI-Stage(staging)
 Provides: Meego-CI-Stage(acceptance)
-Requires: min, minpythonmodule, ci-testing
+Requires: min, min-pythonmodule, ci-testing
 
 %description ci-tests
 This package includes MIN test modules that can be used to test MIN itself.
@@ -271,6 +271,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/min-tests/runtests.sh
 
 %changelog
+* Thu Jul 1 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w26
+  - Fixed: new_module signal problems with MIN Qt UI
+  - Fixed: timing issues (patch from M. Hulkkonen)
+  - Fixed: illegal use of sprintf() in scripter module
 * Mon Jun 14 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w24
   - Fixed: still some rpmlint problems
 * Thu Jun 10 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w23
