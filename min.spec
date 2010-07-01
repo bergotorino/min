@@ -275,6 +275,7 @@ rm -rf $RPM_BUILD_ROOT
   - Fixed: new_module signal problems with MIN Qt UI
   - Fixed: timing issues (patch from M. Hulkkonen)
   - Fixed: illegal use of sprintf() in scripter module
+  - Added: error handling for mq_peek_message
 * Mon Jun 14 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w24
   - Fixed: still some rpmlint problems
 * Thu Jun 10 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w23

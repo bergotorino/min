@@ -3,6 +3,7 @@ min-all (2010w26) unstable; urgency=low
   * Fixed: new_module signal problems with MIN Qt UI
   * Fixed: timing issues (patch from M. Hulkkonen)
   * Fixed: illegal use of sprintf() in scripter module
+  * Added: error handling for mq_peek_message
 
  -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Thu, 01 Jul 2010 08:50:36 +0300
 
