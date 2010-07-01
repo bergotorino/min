@@ -1434,12 +1434,16 @@ int testclass_create (filename_t dllName, char *className)
                 fetch_ptr2run (dllpath, className);
 
                 while (stprun) {
-                        if (mq_peek_message (scripter_mod.mqid, getpid())) {
+			retval = mq_peek_message (scripter_mod.mqid, getpid()); 
+                        if (retval > 0) {
                                 retval = mq_read_message (scripter_mod.mqid,
                                                           getpid ()
                                                           , &input_buffer);
                                 stp_handle_message (&input_buffer);
-                        }
+                        } else if (retval < 0) {
+				MIN_WARN ("Message queue destroyed - exiting");
+				exit (1);
+			}
                         usleep (10000);
                 }
                 stp_exit();
@@ -1941,7 +1945,7 @@ int script_finish (void)
 int tm_run_test_case (unsigned int id, const char *cfg_file,
                       TestCaseResult * result)
 {
-        int             retval = ENOERR;
+        int             retval = ENOERR, ret;
         MinParser      *sp = INITPTR;
         DLListIterator  prev_it, it = DLListNULLIterator;
         MinSectionParser *msp = INITPTR;
@@ -2035,8 +2039,12 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         while (!scripter_mod.script_finished || _pending_tests ()) {
 
                 /* Check if any messages to us. */
-                msg_pending = mq_peek_message (scripter_mod.mqid, pid);
-
+                ret = mq_peek_message (scripter_mod.mqid, pid);
+		if (ret < 0) {
+			MIN_WARN ("Message queue destroyed - exiting");
+			exit (1);
+		}
+		msg_pending = (ret > 0);
                 /* If message is waiting then read it and handle. */
                 if (msg_pending || scripter_mod.script_finished) {
 
@@ -3200,6 +3208,11 @@ int  scripter_if_handle_ipc()
 
 	msg_pending = mq_peek_message (scripter_mod.mqid, pid);
 	
+	if (msg_pending < 0) {
+		printf ("Message queue destroyed - exiting");
+		sleep (1);
+		exit (1);
+	}
 	if (!msg_pending)
 		return 0;
 	uengine_read_message (scripter_mod.mqid,

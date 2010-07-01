@@ -554,7 +554,7 @@ int mq_read_message (int msqid, long msg_type, MsgBuffer * buf)
  *  @param msqid message queue identifier
  *  @param msg_type the type of message we are waiting for. If == 0 then
  *         messages of all types will be metched.
- *  @return 1 when message arrives, 0 when there is no message.
+ *  @return 1 when message arrives, 0 when there is no message, -1 on error
  */
 int mq_peek_message (int msqid, long msg_type)
 {
@@ -573,7 +573,7 @@ int mq_peek_message (int msqid, long msg_type)
 			break;
 		default:
 			MIN_INFO("msgrcv: %s", strerror (errno));
-			return 0;
+			return -1;
 			break;
 		}
 	}

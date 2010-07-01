@@ -167,7 +167,7 @@ void gu_init_tmc (TMC_t * tmc, int argc, char *argv[])
 void gu_run_tmc (TMC_t * tmc)
 {
         MsgBuffer       input_buffer;
-        TSBool msg_pending = ESFalse;
+        int msg_pending = ESFalse;
         while (tmc->run_ == 1) {
                 if (tmc->send_ret_ == ESTrue) {
                         ip_send_ret (&tmc->tmcipi_,  
@@ -179,7 +179,10 @@ void gu_run_tmc (TMC_t * tmc)
                 if (msg_pending == ESTrue) {
                         gu_read_message (tmc, &input_buffer);
                         gu_handle_message (tmc, &input_buffer);
-                }
+                } else if (msg_pending < 0) {
+			MIN_WARN ("Message queue destroyed - exiting");
+			exit (1);
+		}
                 usleep (100000);
         }
 }

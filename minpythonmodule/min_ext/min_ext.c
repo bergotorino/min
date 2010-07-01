@@ -281,7 +281,8 @@ LOCAL int wait_response (int mq_id, TMSCommand re_type)
                 if (result_c == 0) {
                         usleep (200000);
                         continue;
-                }
+                } else if (result_c < 0)
+			return 1;
                 mq_read_message (mq_id, ownid, &message);
                 if ((message.type_ == MSG_EXTIF) &&
                     (message.extif_msg_type_ == re_type)) {

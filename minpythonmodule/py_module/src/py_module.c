@@ -123,7 +123,7 @@ TSBool check_end_conditions()
         //retval = !(end_conditions.parallel_test_ongoing_);
        
         if (end_conditions.remote_cases_list_!= INITPTR){
-                 if (mq_peek_message(mq_id,own_addr)!= 0 ){
+                 if (mq_peek_message(mq_id,own_addr) > 0 ){
                         mq_read_message(mq_id,own_addr,
                                         &message);
                         if ((message.type_ == MSG_EXTIF)&&
