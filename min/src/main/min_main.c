@@ -504,14 +504,16 @@ int main (int argc, char *argv[], char *envp[])
 		return 0;
 
 	}
-	/**
-	 *  Load plugin and go
+	/*
+	 *  Add modules and IP slaves specified from commandline
 	 */
 	if (add_command_line_modules (modulelist) ||
 	    add_ip_slaves (slavelist)) {
 		exit (-1);
         }
-
+	/*
+	 *  Load plugin and go ...
+	 */
 	c2 = tx_get_buf(plugin);
 	/* do { */
 	c3 = strchr (c2,':');

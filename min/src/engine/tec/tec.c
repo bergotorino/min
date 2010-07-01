@@ -2615,7 +2615,6 @@ int ec_add_module (TSChar * mod_name, DLList * testcase_files,
 {
         DLListIterator  work_module_item = DLListNULLIterator;
         test_module_info_s *work_module = INITPTR;
-        pid_t           result = 0;
         int             retval = -1;
 
         work_module = tm_create (mod_name, testcase_files, id);
