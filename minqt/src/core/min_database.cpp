@@ -178,7 +178,7 @@ unsigned int Min::Database::insertTestCase(unsigned int module_dbid,
 	    tctitle.remove ('\"');
     
     query.prepare("SELECT id FROM test_case "
-		  "WHERE module_id=:modid AND module_name=:title "
+		  "WHERE module_id=:modid AND test_case_title=:title "
 		  "AND test_case_id=:caseid AND test_case_description=:descr "
 		  "AND instance_id=:iid;");
     query.bindValue(QString(":caseid"), QVariant(test_case_id));
