@@ -505,7 +505,8 @@ int mq_read_message (int msqid, long msg_type, MsgBuffer * buf)
         while (1) {
 
                 /* peek for message in MQ */
-                if (mq_peek_message (msqid, msg_type) == 1) {
+		retval = mq_peek_message (msqid, msg_type);
+		if (retval == 1) {
                         length = sizeof (struct _MIBuff) - sizeof (long);
                         retval = msgrcv (msqid, &ibuf, length, msg_type, 0);
 			if (retval==(ssize_t)-1) {
@@ -516,7 +517,8 @@ int mq_read_message (int msqid, long msg_type, MsgBuffer * buf)
 			}
                         mq_internal_to_msgbuf (buf, &ibuf);
                         msgread = ESTrue;
-                }
+                } else if(retval == -1)
+			return retval;
 
                 /* try to send buffered */
                 result = 0;

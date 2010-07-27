@@ -1488,7 +1488,7 @@ LOCAL void     *ec_message_listener (void *arg)
 #endif                          /*MIN_UNIT_TEST */
         while (1) {
                 handling_result = mq_peek_message (mq_id, own_address);
-                if (handling_result != 0) {
+                if (handling_result > 0) {
                         wait_time = 2;
                         handling_result =
                             mq_read_message (mq_id, own_address,
