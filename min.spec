@@ -9,7 +9,7 @@ URL:            http://min.sourceforge.net
 Source0:         %{name}_%{version}.tar.gz
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}_%{version}-%{release}-XXXXXX)
 
-BuildRequires:  libtool, autoconf, chrpath, ncurses-devel, python-devel, dbus-devel, dbus-glib-devel, doxygen, qt-devel, qt, qt-sqlite
+BuildRequires:  libtool, autoconf, chrpath, ncurses-devel, python-devel, dbus-devel, dbus-glib-devel, doxygen, qt-devel, qt, qt-sqlite, fdupes
 Requires:       ncurses
 
 %description
@@ -132,6 +132,10 @@ cd ..
 cd mincitests/qsrc
 make install INSTALL_ROOT=$RPM_BUILD_ROOT && cp -d *.so* $RPM_BUILD_ROOT%{_libdir}/min
 cd ../..
+rm %{buildroot}%{_libdir}/*.a
+rm %{buildroot}%{_libdir}/*.la
+rm %{buildroot}%{_libdir}/min/*.a
+rm %{buildroot}%{_libdir}/min/*.la
 
 %post
 ldconfig
@@ -218,8 +222,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libminevent.so
 %{_libdir}/libmintmapi.so
 %{_libdir}/libmininterference.so
-%{_libdir}/libmin*.a
-%{_libdir}/libmin*.la
 
 %files pythonmodule
 %defattr(-,root,root,-)
