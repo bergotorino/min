@@ -89,6 +89,17 @@ do_reload() {
 	return 0
 }
 
+#
+# Function that check service status 
+#
+do_status()
+{
+        pidof mind
+	RETVAL="$?"
+	[ "$RETVAL" != 0 ] && return 4
+	return 0
+}
+
 case "$1" in
   start)
 	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
@@ -137,9 +148,13 @@ case "$1" in
 		;;
 	esac
 	;;
+  status)
+	do_status
+	exit $?
+	;;
   *)
 	#echo "Usage: $SCRIPTNAME {start|stop|restart|reload|force-reload}" >&2
-	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload|status}" >&2
 	exit 3
 	;;
 esac

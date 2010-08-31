@@ -11,6 +11,7 @@ build:  build-stamp
 build-stamp:
 	dh_testdir
 	cp ./Makefile.am.dpkg Makefile.am
+	touch README ChangeLog AUTHORS NEWS
 	./autogen.sh --prefix=/usr --sysconfdir=/etc/min.d/
 	./configure --prefix=/usr --sysconfdir=/etc/min.d/
 	$(MAKE) CC="$(CC)" CXXFLAGS="$(CXXFLAGS)"

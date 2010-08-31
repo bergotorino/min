@@ -49,20 +49,20 @@ Requires: min, min-pythonmodule, ci-testing
 This package includes MIN test modules that can be used to test MIN itself.
 
 %package dbusplugin
-Summary: dbus plugin for MIN.
+Summary: Dbus plugin for MIN
 Requires: min
 
 %description dbusplugin
 Allows interaction with MIN through DBus intreface.
 
 %package qt
-Summary:Qt GUI for MIN
+Summary: Qt GUI for MIN
 
 %description qt
 MIN graphical user interface written in Qt.
 
 %package qt-maemo
-Summary:Qt GUI for MIN in maemo environment.
+Summary: Qt GUI for MIN in maemo environment
 
 %description qt-maemo
 MIN graphical user interface written in Qt.
@@ -98,14 +98,14 @@ make %{?_smp_mflags}
 cd ..
 cd minqt
 %ifarch ARCHITECTURE_NAME
-export DEB_HOST_ARCH=i386; qmake-qt4
+export DEB_HOST_ARCH=i386; qmake
 %else
-export DEB_HOST_ARCH=arm; qmake-qt4
+export DEB_HOST_ARCH=arm; qmake
 %endif
 make %{?_smp_mflags}
 cd ..
 cd mincitests/qsrc
-qmake-qt4
+qmake
 make %{?_smp_mflags}
 cd ../..
 
@@ -170,9 +170,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libminevent.so.*
 %{_libdir}/libmintmapi.so.*
 %{_libdir}/libmininterference.so.*
-%{_sysconfdir}/min.conf
-%{_sysconfdir}/event.d/min
-%{_sysconfdir}/init.d/min
+%config %{_sysconfdir}/min.conf
+%config %{_sysconfdir}/event.d/min
+%config %{_sysconfdir}/init.d/min
 
 %files devel
 %defattr(-,root,root,-)
@@ -247,7 +247,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files ci-tests
 %defattr(-,root,root,-)
-%{_sysconfdir}/min.d/min-ci-tests.min.conf
+%config %{_sysconfdir}/min.d/min-ci-tests.min.conf
 %{_libdir}/min/dllist_tests*
 %{_libdir}/min/min_unit_selftest*
 %{_libdir}/min/item_parser_tests*

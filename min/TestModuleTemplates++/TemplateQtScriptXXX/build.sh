@@ -1,4 +1,5 @@
 #!/bin/sh
+touch README NEWS
 qmake && make
 mkdir ~/.min;
 cp libTemplateQtScriptXXX.so ~/.min/libTemplateQtScriptXXX.so;

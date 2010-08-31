@@ -6,6 +6,7 @@
 CFLAGS = -Wall -g
 
 config.status: configure
+	touch README NEWS
 	dh_testdir
 
 configure:
