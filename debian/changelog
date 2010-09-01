@@ -1,3 +1,11 @@
+min-all (2010w35) unstable; urgency=low
+
+  * Fixed: all but one rpmlint warnings
+  * Fixed: minor fix to one sql-query in minqt (by Markku Hulkkonen)
+  * Fixed: mq_peek_message error handling fixes (by Markku Hulkkonen)
+
+ -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Wed, 01 Sep 2010 09:23:40 +0300
+
 min-all (2010w26) unstable; urgency=low
 
   * Fixed: new_module signal problems with MIN Qt UI
