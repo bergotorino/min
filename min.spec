@@ -1,5 +1,5 @@
 Name:           min
-Version:        2010w26
+Version:        2010w35
 Release:        1%{?dist}
 Summary:        A test framework for C/C++
 
@@ -73,27 +73,27 @@ MIN graphical user interface written in Qt.
 %build
 cd min
 autoreconf --install
-./configure  --libdir=%{_libdir} --prefix=/usr --sysconfdir=/etc
+%configure  --libdir=%{_libdir} --prefix=/usr --sysconfdir=/etc
 make %{?_smp_mflags}
 cd ..
 cd minpythonmodule
 autoreconf --install
-./configure --libdir=%{_libdir} --prefix=/usr --sysconfdir=/etc
+%configure --libdir=%{_libdir} --prefix=/usr --sysconfdir=/etc
 make %{?_smp_mflags}
 cd ..
 cd mintests 
 autoreconf --install
-./configure --libdir=%{_libdir} --prefix=/usr --sysconfdir=/etc
+%configure --libdir=%{_libdir} --prefix=/usr --sysconfdir=/etc
 make %{?_smp_mflags}
 cd ..
 cd mincitests 
 autoreconf --install
-./configure --libdir=%{_libdir} --prefix=/usr --sysconfdir=/etc
+%configure --libdir=%{_libdir} --prefix=/usr --sysconfdir=/etc
 make %{?_smp_mflags}
 cd ..
 cd mindbusplugin
 autoreconf --install
-./configure --libdir=%{_libdir} --prefix=/usr --sysconfdir=/etc
+%configure --libdir=%{_libdir} --prefix=/usr --sysconfdir=/etc
 make %{?_smp_mflags}
 cd ..
 cd minqt
@@ -110,7 +110,6 @@ make %{?_smp_mflags}
 cd ../..
 
 %install
-rm -rf $RPM_BUILD_ROOT
 cd min
 make install DESTDIR=$RPM_BUILD_ROOT
 cd ..
@@ -146,9 +145,6 @@ ldconfig
 
 %postun
 ldconfig
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files 
 %defattr(-,root,root,-)
@@ -246,7 +242,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/applications/*
 %{_datadir}/icons/*
 %{_datadir}/pixmap/*
-
 
 %files ci-tests
 %defattr(-,root,root,-)
