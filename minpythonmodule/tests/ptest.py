@@ -74,6 +74,7 @@ def case_srun():
         """Async. exec"""
         min_ext.Start_case("minDemoModule","Demo_2")
         return 0
+
 def case_logs():
         """try logger"""
         log = min_ext.Create_logger("/tmp","pythonlog","txt")

@@ -11,3 +11,4 @@ usr/lib/min/python_tests.py
 usr/share/min-ci-tests/tests.xml
 usr/share/min-ci-tests/test.cfg
 usr/bin/min_scripter_cli_test.sh
+usr/bin/check_cli.sh

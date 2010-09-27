@@ -242,7 +242,8 @@ LOCAL int add_ip_slaves (DLList * slavelist)
  
 	char *command, *p = NULL;
         DLListIterator it;
-
+	struct addrinfo hints, *result;
+	int ret = 0;
 
         for (it = dl_list_head (slavelist); it != DLListNULLIterator;
              it = dl_list_next (it)) {
@@ -250,12 +251,26 @@ LOCAL int add_ip_slaves (DLList * slavelist)
                 if ((p = strrchr (command, ':'))) {
                         *p = '\0';
                         p++;
-               }
-               if (out_str.register_slave (command, p ? p : "phone")) {
-                       fprintf (stderr, "slave \"%s\" registration failed!\n",
-                                command);
-                       return 1;
-               }
+		}
+		memset(&hints, 0, sizeof(struct addrinfo));
+		hints.ai_family = AF_INET;
+		hints.ai_socktype = SOCK_STREAM;
+		hints.ai_flags = 0;
+		hints.ai_protocol = 0;  
+
+		ret = getaddrinfo(command, "51551", &hints, &result);
+		if (ret != 0) {
+			fprintf (stderr, "failed to resolve host %s: %s\n",
+				 command, gai_strerror (ret));
+			return 1;
+		}
+       
+		
+		ret = tec_add_ip_slave_to_pool (&result, 
+						p ? p : "phone");
+		if (ret)
+			return ret;
+		
         }
 
         return 0;

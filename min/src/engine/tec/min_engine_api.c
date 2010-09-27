@@ -556,7 +556,6 @@ LOCAL int eapi_register_slave (char *host, char *slavetype)
 	int ret;
 	struct addrinfo hints, *result;
 	
-	
 
 	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_family = AF_INET;
@@ -567,7 +566,7 @@ LOCAL int eapi_register_slave (char *host, char *slavetype)
 	ret = getaddrinfo(host, "51551", &hints, &result);
 	if (ret != 0) {
 		MIN_WARN ("failed to resolve host %s: %s",
-			  strerror (h_errno));
+			  gai_strerror (ret));
 		return 1;
 	}
        

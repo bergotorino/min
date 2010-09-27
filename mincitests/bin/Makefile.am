@@ -1,1 +1,1 @@
-bin_SCRIPTS=min_scripter_cli_test.sh
+bin_SCRIPTS=min_scripter_cli_test.sh check_cli.sh

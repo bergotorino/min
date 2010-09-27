@@ -257,6 +257,7 @@ ldconfig
 %{_datadir}/min-ci-tests/tests.xml
 %{_datadir}/min-ci-tests/test.cfg
 %{_bindir}/min_scripter_cli_test.sh
+%{_bindir}/check_cli.sh
 
 %files tests
 %defattr(-,root,root,-)
