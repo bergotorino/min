@@ -2033,7 +2033,7 @@ int tm_run_test_case (unsigned int id, const char *cfg_file,
         scripter_mod.script_tcr.result_ = TP_NC;
         memset (scripter_mod.script_tcr.desc_, 0x0, MaxTestResultDescription);
 
-        signal (SIGCHLD, SIG_IGN);
+        signal (SIGCHLD, SIG_DFL);
 
         /* 7) The uEngine main loop */
         while (!scripter_mod.script_finished || _pending_tests ()) {
@@ -2463,7 +2463,7 @@ int test_pause (char *testid, MinItemParser * mip)
         stpd = (ScriptedTestProcessDetails *) dl_list_data (it);
 
         if (stpd->status_ == TP_RUNNING) {
-	        signal (SIGCHLD, SIG_IGN);
+	        signal (SIGCHLD, SIG_DFL);
                 sched_yield ();
                 retval = sigqueue (stpd->pid_, SIGTSTP, val);
                 if (retval == -1) {
