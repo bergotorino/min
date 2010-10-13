@@ -1,3 +1,10 @@
+min-all (2010w41) unstable; urgency=low
+
+  * Fixed: --slave parameter causes MIN to crash (BMC#7213)
+  * Fixed: SIGCHLD handling in scripter (use SIG_DFL) (BMC#6692)
+
+ -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Wed, 13 Oct 2010 09:07:55 +0300
+
 min-all (2010w35) unstable; urgency=low
 
   * Fixed: all but one rpmlint warnings

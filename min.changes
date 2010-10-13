@@ -1,3 +1,6 @@
+* Wed Oct 13 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w41
+  - Fixed: --slave parameter causes MIN to crash (BMC#7213)
+  - Fixed: SIGCHLD handling in scripter (use SIG_DFL) (BMC#6692)
 * Wed Sep 1 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w35
   - Fixed: all but one rpmlint warnings (BMC#5579)
   - Fixed: minor fix to one sql-query in minqt (by Markku Hulkkonen)
