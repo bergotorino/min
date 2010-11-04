@@ -1,3 +1,0 @@
-#!/bin/sh
-set -e
-rm -rf /var/log/min-tests

@@ -1,9 +1,0 @@
-usr/include/*.h
-usr/share/man/man1/createtestmodule.1
-usr/share/man/man3/*
-usr/share/min/TestModuleTemplates
-usr/share/min/minunit.c
-usr/lib/libmintfwif*
-usr/lib/pkgconfig/min-dev.pc
-usr/bin/createtestmodule
-usr/lib/pkgconfig/min-dev.pc
