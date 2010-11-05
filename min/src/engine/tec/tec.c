@@ -2615,14 +2615,28 @@ int ec_add_module (TSChar * mod_name, DLList * testcase_files,
 {
         DLListIterator  work_module_item = DLListNULLIterator;
         test_module_info_s *work_module = INITPTR;
-        int             retval = -1;
+        int             result, retval = -1;
+
+	if (tm_find_by_module_id (available_modules, id) != INITPTR) {
+		MIN_DEBUG ("module %s:%d already available", mod_name,
+			   id);
+		return 0;
+	}
 
         work_module = tm_create (mod_name, testcase_files, id);
         if (work_module == INITPTR)
                 goto FAULT;
         work_module_item = tm_add (available_modules, work_module);
-
-	retval = 0;
+	result = ec_start_tmc (work_module_item);
+	ec_init_module_data (work_module_item);
+        if (result > 0) {
+                pthread_mutex_lock (&tec_mutex_);
+                tm_add (instantiated_modules, work_module);
+                pthread_mutex_unlock (&tec_mutex_);
+                retval = 0;
+        } else {
+                retval = -1;
+        }
 
       FAULT:
         return retval;
