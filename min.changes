@@ -1,3 +1,6 @@
+* Fri Nov 5 2010 Sampo Saaristo <sampo.saaristo@sofica.fi> 2010w44
+  - Fixed: master/slave test hangs after establishing connection (BMC#9694)
+  - Fixed: missing dependency to libtool
 * Wed Oct 13 2010 Sampo Saaristo <ext-sampo.2.saaristo@nokia.com> 2010w41
   - Fixed: --slave parameter causes MIN to crash (BMC#7213)
   - Fixed: SIGCHLD handling in scripter (use SIG_DFL) (BMC#6692)

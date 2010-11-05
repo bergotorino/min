@@ -1,3 +1,11 @@
+min-all (2010w44) unstable; urgency=low
+
+  * Fixed: master/slave test hangs after establishing connection (BMC#9694)
+  * Cleaned outdated debian directories (only use the top-level one)
+  * Fixed: missing dependency to libtool
+
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Fri, 05 Nov 2010 13:02:06 +0200
+
 min-all (2010w41) unstable; urgency=low
 
   * Fixed: --slave parameter causes MIN to crash (BMC#7213)
