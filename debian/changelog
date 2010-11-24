@@ -1,3 +1,9 @@
+min-all (2010w47) unstable; urgency=low
+
+  * Fixed: iterative master/slave testing problems (BMC#9694)
+
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Wed, 24 Nov 2010 11:20:04 +0200
+
 min-all (2010w44) unstable; urgency=low
 
   * Fixed: master/slave test hangs after establishing connection (BMC#9694)
