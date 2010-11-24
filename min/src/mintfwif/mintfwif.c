@@ -133,6 +133,9 @@ LOCAL int _find_mod_by_name (const void *a, const void *b);
 /* ------------------------------------------------------------------------- */
 LOCAL void _del_internal_mod_info (void *data);
 /* ------------------------------------------------------------------------- */
+LOCAL min_case *min_if_case_find (char *module, char *casefile, int caseid, 
+				  char *casetitle);
+/* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 void pl_attach_plugin (eapiIn_t **out_callback, eapiOut_t *in_callback);
 /* ------------------------------------------------------------------------- */
@@ -171,25 +174,6 @@ LOCAL void pl_case_result (long testrunid, int result, char *desc,
 	tri = dl_list_data (test_run_item);
 	tri->status_ = TP_ENDED;
 	tfwif_callbacks.complete_callback_ (tri->test_run_id_, 1, result, desc);
-	/* We have a result - module and test run can be removed */
-	test_mod_item = dl_list_find (dl_list_head (tfwif_modules_),
-				      dl_list_tail (tfwif_modules_),
-				      _find_mod_by_id,
-				      (const void *)&tri->module_id_);
-	if (test_mod_item == INITPTR) {
-		MIN_WARN ("internal error");
-		pthread_mutex_unlock (&tfwif_mutex_);
-		return;
-	}
-		
-	mi = (internal_module_info *)dl_list_data (test_mod_item);
-	_del_internal_mod_info((void *)mi);
-	dl_list_remove_it (test_mod_item);
-	DELETE (tri);
-	dl_list_remove_it (test_run_item);
-
-	pthread_mutex_unlock (&tfwif_mutex_);
-
 
 	return;
 };
@@ -469,6 +453,49 @@ LOCAL void _del_internal_mod_info (void *data)
 			 free);
 	dl_list_free (&mi->test_case_list_);
 	DELETE (mi);
+}
+/* ------------------------------------------------------------------------- */
+/** Find internal instance of case.
+ *  @param module module name
+ *  @param casefile test case file name
+ *  @param caseid test case id
+ *  @param casetitle test case title (optional)
+ *  @return pointer to min_case or INITPTR 
+ */
+LOCAL min_case *min_if_case_find (char *module, char *casefile, int caseid, 
+				  char *casetitle)
+{
+	DLListIterator it;
+	internal_module_info *mi;
+	min_case *mc = INITPTR;
+
+	it = dl_list_find (dl_list_head (tfwif_modules_),
+			   dl_list_tail (tfwif_modules_),
+			   _find_mod_by_name,
+			   (const void *)module);
+	if (it == INITPTR) {
+		return INITPTR;
+	}
+	mi = dl_list_data (it);
+	if (casetitle && strlen(casetitle)) {
+		for (it = dl_list_head (mi->test_case_list_);
+		     it != INITPTR;
+		     it = dl_list_next (it)) {
+			mc = dl_list_data (it);
+			if (!strcmp (mc->case_name_, casetitle))
+				break;
+			mc = INITPTR;
+		}
+	} else {
+		if (dl_list_size (mi->test_case_list_) < caseid) {
+			MIN_DEBUG ("matching caseid %d not found (%d)",
+				  caseid, dl_list_size (mi->test_case_list_));
+			return INITPTR;
+		}
+		mc = dl_list_data (dl_list_at (mi->test_case_list_,caseid-1));
+	}
+	
+	return mc;
 }
 /* ------------------------------------------------------------------------- */
 /* ======================== FUNCTIONS ====================================== */
@@ -828,12 +855,15 @@ int min_if_remote_run (char *module, char *casefile, int caseid,
 		       char *casetitle)
 {
 
-	DLListIterator it;
-	internal_module_info *mi;
 	min_case *mc = INITPTR;
 	int ret = -1;
+
 	MIN_DEBUG ("module %s caseid %d", module, caseid);
 
+	mc = min_if_case_find (module, casefile, caseid, casetitle);
+
+	if (mc != INITPTR)
+		goto execute;
 	if (min_if_module_add (module, 
 			       strcmp (casefile, 
 				       "dummy.cfg") ? 
@@ -842,37 +872,14 @@ int min_if_remote_run (char *module, char *casefile, int caseid,
 			MIN_WARN ("Module adding failed");
 			return ret;
 		}
-	it = dl_list_find (dl_list_head (tfwif_modules_),
-			   dl_list_tail (tfwif_modules_),
-			   _find_mod_by_name,
-			   (const void *)module);
-	if (it == INITPTR) {
-		MIN_WARN  ("internal error");
-		return -1;
-	}
-	mi = dl_list_data (it);
-	if (casetitle && strlen(casetitle)) {
-		for (it = dl_list_head (mi->test_case_list_);
-		     it != INITPTR;
-		     it = dl_list_next (it)) {
-			mc = dl_list_data (it);
-			if (!strcmp (mc->case_name_, casetitle))
-				break;
-			mc = INITPTR;
-		}
-	} else {
-		if (dl_list_size (mi->test_case_list_) < caseid) {
-			MIN_WARN ("matching caseid %d not found (%d)",
-				  caseid, dl_list_size (mi->test_case_list_));
-			return -1;
-		}
-		mc = dl_list_data (dl_list_at (mi->test_case_list_,caseid-1));
-	}
-	
+	mc = min_if_case_find (module, casefile, caseid, casetitle);
+ execute:
 	if (mc == INITPTR) {
-		MIN_WARN ("case not found - return 1");
+		MIN_WARN ("min case %d from %s not available",
+			  caseid, module);
 		return -1;
 	}
+		
 	ret = min_if_exec_case (module, mc->case_id_);
 	if (ret == 1) {
 		MIN_WARN ("case execution failed - return 1");
