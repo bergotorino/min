@@ -390,7 +390,6 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
         int             opresult = 0;
         char           *case_title = NULL;
         TSBool          case_title_given = ESFalse;
-        TSChar         *f_path = NULL;
         DLList         *module_cases = dl_list_create ();
         ptr2case        get_cases = NULL;
         ptr2run         run_case = NULL;
@@ -416,15 +415,8 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
         if (case_title != NULL) {
                 case_title_given = ESTrue;
         }
-        if (strstr (lib_name, ".so") == NULL) {
-                f_path = NEW2 (char, strlen (lib_name) + 4);
-                sprintf (f_path, "%s.so", lib_name);
-        } else {
-                f_path = NEW2 (char, strlen (lib_name) + 1);
-                sprintf (f_path, "%s", lib_name);
-        }
 
-        dll_handle = tl_open_tc (f_path);
+        dll_handle = tl_open_tc (lib_name);
         if (dll_handle == INITPTR) {
                 opresult = 1;
                 SCRIPTER_SYNTAX_ERROR_ARG ("run",
@@ -487,7 +479,6 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
         }
       EXIT:
 	if (dll_handle) dlclose (dll_handle);
-        DELETE (f_path);
         DELETE (lib_name);
         DELETE (case_title);
         DELETE (cfg_name);
@@ -1362,7 +1353,6 @@ LOCAL int validate_symbols (DLList *symblist, DLList *testclasses,
 	ScripterDataItem *library;
         TestClassDetails *test_class = INITPTR;
 	TestCaseInfo *tc;
-	char *libpath = NULL;
         void *dll_handle = NULL;
         char *callname = NULL;
 
@@ -1374,26 +1364,11 @@ LOCAL int validate_symbols (DLList *symblist, DLList *testclasses,
                 switch (library->DLL_type_) {
 			
                 case EDLLTypeClass:
-                        if (strstr (library->DLL_name_, ".so") == NULL) {
-				if (libpath) free (libpath);
-                                libpath =
-					NEW2 (char,
-					      strlen (library->DLL_name_) + 4);
-                                sprintf (libpath, "%s.so",
-                                         library->DLL_name_);
-                        } else {
-				if (libpath) free (libpath);
-                                libpath =
-					NEW2 (char,
-					      strlen (library->DLL_name_) + 1);
-                                sprintf (libpath, "%s", library->DLL_name_);
-                        }
-                        dll_handle = tl_open_tc (libpath);
+                        dll_handle = tl_open_tc (library->DLL_name_);
                         if (dll_handle == INITPTR) {
                                 SCRIPTER_ERROR ("Unable to load "
 						"test library",
-						libpath);
-				DELETE (libpath);
+						library->DLL_name_);
 				return 1;
                         }
                         test_class = NEW (TestClassDetails);
@@ -1412,7 +1387,6 @@ LOCAL int validate_symbols (DLList *symblist, DLList *testclasses,
 						dlerror ());
 				DELETE (test_class->classname_);
 				DELETE (test_class);
-				DELETE (libpath);
 				return 1;
                         }
                         test_class->runtc_ =
@@ -1423,7 +1397,6 @@ LOCAL int validate_symbols (DLList *symblist, DLList *testclasses,
 						dlerror ());
 				DELETE (test_class->classname_);
 				DELETE (test_class);
-				DELETE (libpath);
                                 return 1;
                         }
                         dl_list_add (testclasses, (void *)test_class);
@@ -1434,7 +1407,6 @@ LOCAL int validate_symbols (DLList *symblist, DLList *testclasses,
                                 MIN_WARN ("Could not get list of "
 					  "functions from %s",
 					  test_class->classname_);
-				DELETE (libpath);
 				return 1;
                         }
                         call_item = dl_list_head (library->symbol_list_);
@@ -1453,7 +1425,6 @@ LOCAL int validate_symbols (DLList *symblist, DLList *testclasses,
 							 "in class",
 							 callname);
                                                 dlclose (dll_handle);
-						DELETE (libpath);
 						return 1;
                                         }
 					
@@ -1469,7 +1440,6 @@ LOCAL int validate_symbols (DLList *symblist, DLList *testclasses,
                 }
                 it = dl_list_next (it);
         }
-	DELETE (libpath);
 				
 	return ENOERR;
 }

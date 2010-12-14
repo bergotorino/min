@@ -60,7 +60,7 @@
 /* ------------------------------------------------------------------------- */
 /* LOCAL FUNCTION PROTOTYPES */
 /* ------------------------------------------------------------------------- */
-LOCAL void* tl_load_lib( const char *libname );
+LOCAL void* tl_load_lib (const char *libname, const char *extension);
 /* ------------------------------------------------------------------------- */
 /* FORWARD DECLARATIONS */
 /* None */
@@ -69,12 +69,13 @@ LOCAL void* tl_load_lib( const char *libname );
 /* ------------------------------------------------------------------------- */
 /** Loads .so library.
  *  @param libname[in] the name of the library
+ *  @param extension[in] extension to try
  *  @return pointer to dll handler, or INITPTR in case of failure.
  *
- *  It loads the library. .so extension is added automatically, settings
- *  system is used to fetch lobrary paths.
+ *  It loads the library. Extension is added to filename, settings
+ *  system is used to fetch library paths.
  */
-LOCAL void* tl_load_lib( const char *libname )
+LOCAL void* tl_load_lib( const char *libname, const char *extension )
 {
         void *retval = INITPTR;
         void *shmaddr = INITPTR;
@@ -89,12 +90,17 @@ LOCAL void* tl_load_lib( const char *libname )
 
         /* If path specified try to open. */
         if(strrchr(libname,'/')!=NULL) {
-                retval = dlopen(libname,RTLD_LOCAL|RTLD_LAZY);
+		fullpath = tx_create (libname);
+		if(!strchr(libname,'.')) {tx_c_append(fullpath,
+						      extension);}
+		
+                retval = dlopen(tx_share_buf(fullpath),RTLD_LOCAL|RTLD_LAZY);
                 if(retval==NULL) {
                         MIN_NOTICE ("Library [%s] not opened because: %s"
                                    ,libname,dlerror());
                         retval = INITPTR;
                 }
+		tx_destroy (&fullpath);
                 return retval;
         }
 
@@ -124,12 +130,14 @@ LOCAL void* tl_load_lib( const char *libname )
                 if( *(c-1) == '/' ) {
                         tx_c_append(fullpath,c2);
                         tx_c_append(fullpath,libname);
-                        if(!strchr(libname,'.')) {tx_c_append(fullpath,".so");}
+                        if(!strchr(libname,'.')) {tx_c_append(fullpath,
+							      extension);}
                 } else {
                         tx_c_append(fullpath,c2);
                         tx_c_append(fullpath,"/");
                         tx_c_append(fullpath,libname);
-                        if(!strchr(libname,'.')) {tx_c_append(fullpath,".so");}
+                        if(!strchr(libname,'.')) {tx_c_append(fullpath,
+							      extension);}
                 }
                 c=c+1;
                 c2=c;
@@ -177,7 +185,10 @@ int tl_open (test_libl_t *tlibl, const char *lib_name)
         memset(tlibl->date_,'\0',12);
         memset(tlibl->time_,'\0',9);
 
-        test_lib = tl_load_lib(lib_name);
+        test_lib = tl_load_lib(lib_name, ".so");
+	if (test_lib == INITPTR)
+		test_lib = tl_load_lib(lib_name, ".so.0");
+	
 	if (test_lib == INITPTR) { return 1; }
 
 	tlibl->test_library_ = test_lib;
@@ -267,7 +278,8 @@ void* tl_open_tc( const char* file )
         flen = strlen(file);
         if( flen == 0 )         { goto EXIT; }
 
-        retval = tl_load_lib(file);
+        retval = tl_load_lib(file, ".so");
+        if(retval==INITPTR) { retval=tl_load_lib(file, ".so.0"); }
         if(retval==INITPTR) { return retval; }
 
         /* Get version and type */

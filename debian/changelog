@@ -1,3 +1,9 @@
+min-all (2010w50) unstable; urgency=low
+
+  * MIN accepts test libraries with filename *.so and *.so.0 (BMC#10821)
+
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Tue, 14 Dec 2010 13:34:48 +0200
+
 min-all (2010w47) unstable; urgency=low
 
   * Fixed: iterative master/slave testing problems (BMC#9694)

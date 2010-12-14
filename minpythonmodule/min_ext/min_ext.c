@@ -164,9 +164,12 @@ LOCAL char           *find_lib (char *l_name)
                         *end_pos = '\0';
                 }
                 path_to_check = NEW2 (char, 
-                                      strlen (start_pos) + strlen (l_name) + 5);
+                                      strlen (start_pos) + strlen (l_name) + 7);
                 /*check if it's library */
                 sprintf (path_to_check, "%s/%s.so", start_pos, l_name);
+                if (access (path_to_check, F_OK) == 0)
+                        break;
+                sprintf (path_to_check, "%s/%s.so.0", start_pos, l_name);
                 if (access (path_to_check, F_OK) == 0)
                         break;
                 DELETE (path_to_check);

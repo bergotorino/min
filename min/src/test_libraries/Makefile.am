@@ -46,7 +46,7 @@ testlibevents_la_LIBADD = $(top_builddir)/src/tmc/test_module_api/libmintmapi.la
 		$(top_builddir)/src/services/event_system/libminevent.la         \
 		$(top_builddir)/src/utils/libminutils.la	
 
-minDemoModule_la_LDFLAGS = -shared -module -avoid-version
+minDemoModule_la_LDFLAGS = -shared -module -avoid-version 
 minDemoModule_la_SOURCES = Demo.c DemoCases.c Demo.h
 minDemoModule_la_LIBADD = $(top_builddir)/src/tmc/test_module_api/libmintmapi.la \
 		$(top_builddir)/src/utils/libminutils.la \

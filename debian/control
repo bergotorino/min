@@ -46,7 +46,7 @@ Priority: optional
 Architecture: any
 XB-Maemo-CI-Packages: min
 XB-Maemo-CI-Stage: staging
-Depends: ${shlibs:Depends}, min, minpythonmodule, ci-testing
+Depends: ${shlibs:Depends}, min, minpythonmodule
 Description: Tests for MIN utilities used for CI
  This package includes MIN test modules that can be used to test MIN itself.
 

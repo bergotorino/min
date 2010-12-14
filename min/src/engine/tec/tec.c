@@ -1567,12 +1567,19 @@ LOCAL pid_t ec_start_tmc (DLListIterator work_module_item)
                     NEW2 (char,
                           strlen (((test_module_info_s *)
                                    dl_list_data (work_module_item))->
-                                  module_filename_) + 4);
+                                  module_filename_) + 6);
                 sprintf (mod_name, "%s.so",
                          ((test_module_info_s *)
                           dl_list_data (work_module_item))->module_filename_);
                 path_pos = ec_search_lib (mod_name);
-
+		if (path_pos == -1) {
+			sprintf (mod_name, "%s.so.0",
+				 ((test_module_info_s *)
+				  dl_list_data 
+				  (work_module_item))->module_filename_);
+			path_pos = ec_search_lib (mod_name);
+		}
+			
                 if (path_pos != -1) {
                         dir =
                             (char *)

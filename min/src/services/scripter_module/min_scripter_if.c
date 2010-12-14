@@ -1401,7 +1401,6 @@ int testclass_create (filename_t dllName, char *className)
 {
         int             retval = ENOERR;
         pid_t           pid = -1;
-        char           *dllpath = NEW2 (char, strlen (dllName) + 3 + 1);
         ScriptedTestProcessDetails *stpd = INITPTR;
         MsgBuffer       input_buffer;
 
@@ -1418,9 +1417,6 @@ int testclass_create (filename_t dllName, char *className)
                 goto EXIT;
         }
 
-        memcpy (dllpath, dllName, strlen (dllName));
-        strcpy (&dllpath[strlen (dllName)], ".so");
-
         pid = fork ();
         if (pid == 0) {
                 /* Child process, lets enter event loop */
@@ -1431,7 +1427,7 @@ int testclass_create (filename_t dllName, char *className)
                 signal (SIGUSR2, stp_handle_sigusr2);
                 signal (SIGSEGV, stp_handle_sigsegv);
 		signal (SIGABRT, stp_handle_sigabort);
-                fetch_ptr2run (dllpath, className);
+                fetch_ptr2run (dllName, className);
 
                 while (stprun) {
 			retval = mq_peek_message (scripter_mod.mqid, getpid()); 
@@ -1457,7 +1453,7 @@ int testclass_create (filename_t dllName, char *className)
                 stpd->status_ = TP_NONE;
 		stpd->has_crashed_ = ESFalse;
                 STRCPY (stpd->testclass_, className, 128);
-                STRCPY (stpd->dllname_, dllpath, MaxFileName);
+                STRCPY (stpd->dllname_, dllName, MaxFileName);
                 dl_list_add (scripter_mod.tp_details, (void *)stpd);
         } else {
                 /* Error */
@@ -1466,7 +1462,6 @@ int testclass_create (filename_t dllName, char *className)
         }
 
       EXIT:
-        DELETE (dllpath);
 
         return retval;
 }
