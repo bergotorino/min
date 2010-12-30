@@ -43,7 +43,7 @@ Summary:  MIN tests for CI
 Provides: Meego-CI-Packages(min)
 Provides: Meego-CI-Stage(staging)
 Provides: Meego-CI-Stage(acceptance)
-Requires: min, min-pythonmodule, ci-testing
+Requires: min, min-pythonmodule
 
 %description ci-tests
 This package includes MIN test modules that can be used to test MIN itself.
