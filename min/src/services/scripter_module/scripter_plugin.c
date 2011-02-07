@@ -1707,12 +1707,12 @@ char      *validate_test_case (MinSectionParser * testcase, char **description)
         }
 
         /*ok, finished fetching symbols from script, now let's validate them */
-	if ((env = getenv ("SCRIPTER_NO_SYMBOL_VALIDATION"))){
+	if ((env = getenv ("SCRIPTER_SYMBOL_VALIDATION"))){
 		skip_symbol_validation = atoi (env);
 		
 	}
-	if (skip_symbol_validation) {
-		MIN_DEBUG ("$SCRIPTER_NO_SYMBOL_VALIDATION set");
+	if (!skip_symbol_validation) {
+		MIN_DEBUG ("$SCRIPTER_SYMBOL_VALIDATION in not set");
 	} else {
 		errors += validate_symbols (symblist, 
 					    testclasses, 

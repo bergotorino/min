@@ -1,3 +1,10 @@
+min-all (2011w06) unstable; urgency=low
+
+  * Scripter testclass symbol validation now off by default (BMC#13284)
+  * Proper exit after catching SIGINT or SIGTERM (BMC#12671)
+
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon, 07 Feb 2011 15:13:34 +0200
+
 min-all (2010w50) unstable; urgency=low
 
   * MIN accepts test libraries with filename *.so and *.so.0 (BMC#10821)
@@ -23,7 +30,7 @@ min-all (2010w41) unstable; urgency=low
   * Fixed: --slave parameter causes MIN to crash (BMC#7213)
   * Fixed: SIGCHLD handling in scripter (use SIG_DFL) (BMC#6692)
 
- -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Wed, 13 Oct 2010 09:07:55 +0300
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Wed, 13 Oct 2010 09:07:55 +0300
 
 min-all (2010w35) unstable; urgency=low
 
@@ -31,7 +38,7 @@ min-all (2010w35) unstable; urgency=low
   * Fixed: minor fix to one sql-query in minqt (by Markku Hulkkonen)
   * Fixed: mq_peek_message error handling fixes (by Markku Hulkkonen)
 
- -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Wed, 01 Sep 2010 09:23:40 +0300
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Wed, 01 Sep 2010 09:23:40 +0300
 
 min-all (2010w26) unstable; urgency=low
 
@@ -40,13 +47,13 @@ min-all (2010w26) unstable; urgency=low
   * Fixed: illegal use of sprintf() in scripter module
   * Added: error handling for mq_peek_message
 
- -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Thu, 01 Jul 2010 08:50:36 +0300
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Thu, 01 Jul 2010 08:50:36 +0300
 
 min-all (2010w24) unstable; urgency=low
 
   * Fixed: still some rpmlint problems
 
- -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Mon, 14 Jun 2010 16:40:19 +0300
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon, 14 Jun 2010 16:40:19 +0300
 
 min-all (2010w23) unstable; urgency=low
 
@@ -55,7 +62,7 @@ min-all (2010w23) unstable; urgency=low
   * Fixed: linking issues with MIN cui
   * Fixed: sigsegv/sigabrt signal handlers (enable default action for core dumps)
 
- -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Thu, 10 Jun 2010 17:00:30 +0300
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Thu, 10 Jun 2010 17:00:30 +0300
 
 min-all (2010w16) unstable; urgency=low
 
@@ -64,16 +71,16 @@ min-all (2010w16) unstable; urgency=low
   * Fixed: python parallel execution
   * Fixed: a TMC process continues running after exiting MIN.
 
- -- Sampo Saaristo <ext-sampo.2.saaristo@nokia.com>  Wed, 21 Apr 2010 10:39:16 +0300
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Wed, 21 Apr 2010 10:39:16 +0300
 
 min-all (2010w10) unstable; urgency=low
 
   * Twentysecond MIN release
   * Added: Support for python2.6 in MIN python module.
-  * Fixes: NB#157310 - testclass symbol validation can be turned off with env var. 
+  * Fixes: NB#157310 - testclass symbol validation can be turned off with env var.
   * Fixes: NB#156981 - MIN cui high cpu usage in hw.
 
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Fri, 12 Mar 2010 09:26:29 +0200
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Fri, 12 Mar 2010 09:26:29 +0200
 
 min-all (2010w04) unstable; urgency=low
   * Twentyfirst MIN release
@@ -81,15 +88,15 @@ min-all (2010w04) unstable; urgency=low
   * Fixed: logger settings overwriting only for min debug log.
   * Fixed: build rules for min-ci-tests:minqtdbtests
 
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Wed, 27 Jan 2010 11:45:09 +0200
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Wed, 27 Jan 2010 11:45:09 +0200
 
 min-all (2010w03) unstable; urgency=low
   * Twentieth MIN Release
   * Added: indication to consoleUI when the menu contains more than visible items.
   * Added: scripter command line interface for prototyping test scripts.
   * Added: Qt GUI displays previous test runs.
-	
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Fri,   15 Jan 2010  15:21:47 +0100 
+
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Fri,   15 Jan 2010  15:21:47 +0100
 
 min-all (2009w51) unstable; urgency=low
   * Nineteenth MIN Release
@@ -97,7 +104,7 @@ min-all (2009w51) unstable; urgency=low
   * Fixed: refactored rcp-message handling so that it uses MIN Engine api
   * Added: test case description feature
 
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Wed,   9 Dec 2009 11:46:00 +0100 
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Wed,   9 Dec 2009 11:46:00 +0100
 
 
 min-all (2009w46) unstable; urgency=low
@@ -107,7 +114,7 @@ min-all (2009w46) unstable; urgency=low
   * Added: min-ci-tests debian package for ci testing.
   * Added: min settings utility.
 
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   9 Nov 2009 09:23:44 +0100 
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon,   9 Nov 2009 09:23:44 +0100
 
 min-all (2009w44) unstable; urgency=low
   * Seventeenth MIN Release
@@ -119,10 +126,10 @@ min-all (2009w44) unstable; urgency=low
   * Added: stdout and stderr outputs to MIN logger.
   * Added: Make test case execution possible scratchbox armel emulation (sbox2).
   * Added: Display case result in "all cases" view when the case has finnished.
-  * Added: Qt GUI: Display number of errors in the label of log messages tab. 
+  * Added: Qt GUI: Display number of errors in the label of log messages tab.
 
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   26 Oct 2009 11:58:02 +0100
-	
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon,   26 Oct 2009 11:58:02 +0100
+
 min-all (2009w42) unstable; urgency=low
   * Sixteenth MIN Release
   * Fixed: Aborting paused test case fails.
@@ -131,18 +138,18 @@ min-all (2009w42) unstable; urgency=low
   * Added: Log messages menu to Qt GUI.
   * Added: Debian packaging to test module templates.
   * Added: Aborting/pausing/resuming possible also from "all cases" view in Qt GUI.
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   12 Oct 2009 10:11:31 +0100
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon,   12 Oct 2009 10:11:31 +0100
 
 min-all (2009w40) unstable; urgency=low
   * Fifteenth MIN Release
-  * Fixed: The wrapper macro around strncpy  (STRCPY) and checked it's usage. 
+  * Fixed: The wrapper macro around strncpy  (STRCPY) and checked it's usage.
   * Fixed: Remaining resource leaks reported by static analysis tool.
   * Fixed: Scripter: error in loop keyword syntax validation
   * Fixed: Bug in remote run handling.
   * Fixed: ConsoleUI: View output for ongoing case does not update automatically.
   * Added: Debian package for Embedded version of Qt GUI
   * Added: Mechanism to get the name of currently running test case from c-code.
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   28 Sep 2009 13:39:36 +0100
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon,   28 Sep 2009 13:39:36 +0100
 
 min-all (2009w38) unstable; urgency=low
   * Fourteenth MIN Release
@@ -153,24 +160,17 @@ min-all (2009w38) unstable; urgency=low
   * Fixed: MIN Qt GUI: problems in ongoing cases view.
   * Fixed: MIN crashes if .min directory does not exist.
   * Added: Qt test class for C++ Test Module Template Wizard.
-	
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   14 Sep 2009 11:39:40 +0100
-
-min-all (2009w36) unstable; urgency=low
-  * Thirteenth MIN Release
-  * Fixed: Around 300 defects from static analysis tool.
-  * Fixed: MIN Qt GUI missed start time for "ongoing cases".
-  * Fixed: State event set causes crash when event not requested. 
+  * Fixed: State event set causes crash when event not requested.
   * Added: tcp/ip plugin for MIN and the use of plugin from GUI.
 
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   31 Aug 2009 13:03:21 +0100
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon,   31 Aug 2009 13:03:21 +0100
 
 min-all (2009w34) unstable; urgency=low
   * Twelfth MIN Release
   * Fixed: Doxygen tags updated and harmonized.
   * Added: Test case debugging from ConsoleUI
 	
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   17 Aug 2009 13:37:13 +0100
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon,   17 Aug 2009 13:37:13 +0100
 
 min-all (2009w28) unstable; urgency=low
   * Eleventh MIN Release
@@ -180,14 +180,14 @@ min-all (2009w28) unstable; urgency=low
   * Added: Timeout for blocking scripter commands.
   * Added: Support for debugging test cases: commandline mode.
 	
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   06 Jul 2009 10:45:55 +0100
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon,   06 Jul 2009 10:45:55 +0100
 
 min-all (2009w26) unstable; urgency=low
   * Tenth MIN Release
   * Fixed: Remote run error not handled properly on master side
   * Fixed: MIN events are not working properly when looping
   * Added: CLI interface plugin
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   22 Jun 2009 12:26:56 +0100
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon,   22 Jun 2009 12:26:56 +0100
 
 min-all (2009w24) unstable; urgency=low
   * Ninth MIN Release
@@ -201,14 +201,14 @@ min-all (2009w24) unstable; urgency=low
   * Added: Support C++ in Test Module Template Wizard (4150)
   * Added: IP slave registration to dbus plugin. (4180)
 
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Wed,   10 Jun 2009 11:12:15 +0100
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Wed,   10 Jun 2009 11:12:15 +0100
 
 min-all (2009w19) unstable; urgency=low
   * Seventh MIN Release
   * Fixed: Console-ui doesn't show all the test cases on first view
   * Fixed: undefined g_cclosure__VOID_STRING occuring on armel.
 
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   04 May 2009 08:37:10 +0100
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon,   04 May 2009 08:37:10 +0100
 
 min-all (2009w22) unstable; urgency=low
   * Eight MIN Release
@@ -226,4 +226,4 @@ min-all (2009w19) unstable; urgency=low
   * Fixed: Console-ui doesn't show all the test cases on first view
   * Fixed: undefined g_cclosure__VOID_STRING occuring on armel.
 
- -- Sampo Saaristo <ext-sampo.1.saaristo@nokia.com>  Mon,   04 May 2009 08:37:10 +0100
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Mon,   04 May 2009 08:37:10 +0100
