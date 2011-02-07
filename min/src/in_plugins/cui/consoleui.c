@@ -905,7 +905,7 @@ void add_copyright_info ()
 	tx = tx_create ("licensed under the Gnu General "
 			"Public License version 2,");
 	dl_list_add (error_list_, tx);
-	tx = tx_create ("MIN Test Framework, (c) Nokia 2008,2008,2010"
+	tx = tx_create ("MIN Test Framework, (c) Nokia 2008,2009,2010,2011"
 			" All rights reserved,");
 	dl_list_add (error_list_, tx);
 	cui_refresh_log_view ();
