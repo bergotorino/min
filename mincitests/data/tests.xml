@@ -12,7 +12,12 @@
         <step expected_result="8">min -cx /usr/lib/min/dllist_tests.so -cx /usr/lib/min/logger_tests.so -cx /usr/lib/min/min_unit_selftest.so -cx /usr/lib/min/item_parser_tests.so -cx /usr/lib/min/settings_tests.so</step>
       </case>
 
-      <case name="tests_for_MIN_qt_db" description="test MIN Qt database" type="Robustness" timeout="100">
+      <case name="test_scripter" description="test different scripter features" type="Robustness" timeout="100">
+        <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min/scripter_tests.cfg </step>
+        <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min/scripter_with_scripter.cfg </step>
+      </case>
+
+      <case name="tests_for_MIN_qt_db" description="scripter tests base" type="Robustness" timeout="100">
         <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min/minqtdbtests.cfg </step>
       </case>
 

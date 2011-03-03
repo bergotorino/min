@@ -8,6 +8,8 @@ usr/lib/min/settings_tests*
 usr/lib/min/minqtdbtests*
 usr/lib/min/minqtdbtests.cfg
 usr/lib/min/python_tests.py
+usr/lib/min/scripter_tests.cfg
+usr/lib/min/scripter_with_scripter.cfg 
 usr/share/min-ci-tests/tests.xml
 usr/share/min-ci-tests/test.cfg
 usr/bin/min_scripter_cli_test.sh

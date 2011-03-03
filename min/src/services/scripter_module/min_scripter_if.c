@@ -1609,42 +1609,6 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
         /* 1) Fetch possible optional parameters. */
         read_optional_run_params (mip, &stpd->options_);
 
-        testlib.test_library_ = tl_open_tc (modulename);
-        strncpy (testlib.fname_, modulename, 254);
-        testlib.get_cases_fun_ = (ptr2case) dlsym (testlib.test_library_,
-                                                   "tm_get_test_cases");
-        testlib.run_case_fun_ = (ptr2run) dlsym (testlib.test_library_,
-                                                 "tm_run_test_case");
-
-        if (tl_is_ok (&testlib) == 0) {
-                retval = -1;
-                SCRIPTER_RTERR_ARG ("Error opening", modulename);
-		dl_list_free (&stpd->tcr_list_);
-		DELETE (stpd);
-                goto EXIT;
-        }
-        /* Now we can execute a test. If test case title is
-         * specified then we have to use it, otherwise the 
-         * id can be used */
-        if (strlen (stpd->options_.title_) > 0) {
-                /* Use title, so first we have to find out
-                 * what is the id of the case of given name. */
-                cases = dl_list_create ();
-                testlib.get_cases_fun_ (configfile, &cases);
-                it = dl_list_head (cases);
-                id = 1;
-                while (it != DLListNULLIterator) {
-                        tci = (TestCaseInfo *) dl_list_data (it);
-                        tmp = strcmp (tci->name_, stpd->options_.title_);
-                        if (tmp == 0) {
-                                break;
-                        }
-                        it = dl_list_next (it);
-                        id++;
-                }
-                dl_list_free_data (&cases);
-                dl_list_free (&cases);
-        }
 
         /* 3) Run a test */
         stpd->pid_ = fork ();
@@ -1660,9 +1624,48 @@ int test_run (const char *modulename, const char *configfile, unsigned int id,
                 dl_list_add (scripter_mod.tp_details, (void *)stpd);
         } else if (stpd->pid_ == 0) {
                 /* Child */
-                ctprun = ESTrue;
                 min_log_open ("Combined Test Process", 3);
                 MIN_INFO ("Combined Test Process created, pid: %d",getpid());
+
+		testlib.test_library_ = tl_open_tc (modulename);
+		strncpy (testlib.fname_, modulename, 254);
+		testlib.get_cases_fun_ = (ptr2case) dlsym (testlib.test_library_,
+							   "tm_get_test_cases");
+		testlib.run_case_fun_ = (ptr2run) dlsym (testlib.test_library_,
+							 "tm_run_test_case");
+		
+		if (tl_is_ok (&testlib) == 0) {
+			retval = -1;
+			SCRIPTER_RTERR_ARG ("Error opening", modulename);
+			dl_list_free (&stpd->tcr_list_);
+			DELETE (stpd);
+			goto EXIT;
+		}
+		/* Now we can execute a test. If test case title is
+		 * specified then we have to use it, otherwise the 
+		 * id can be used */
+		if (strlen (stpd->options_.title_) > 0) {
+			/* Use title, so first we have to find out
+			 * what is the id of the case of given name. */
+			cases = dl_list_create ();
+			testlib.get_cases_fun_ (configfile, &cases);
+			it = dl_list_head (cases);
+			id = 1;
+			while (it != DLListNULLIterator) {
+				tci = (TestCaseInfo *) dl_list_data (it);
+				tmp = strcmp (tci->name_, stpd->options_.title_);
+				if (tmp == 0) {
+					break;
+				}
+                        it = dl_list_next (it);
+                        id++;
+			}
+			dl_list_free_data (&cases);
+			dl_list_free (&cases);
+		}
+		
+
+                ctprun = ESTrue;
                 mq_init_buffer ();
                 sched_yield ();
                 signal (SIGUSR2, ctp_handle_sigusr2);
