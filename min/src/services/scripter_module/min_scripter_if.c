@@ -621,7 +621,16 @@ LOCAL void uengine_handle_message (int mqid, const MsgBuffer * msg)
                 break;
         case MSG_EXTIF:
                 MIN_DEBUG ("Recieved MSG_EXTIF");
-                uengine_handle_extif (mqid, msg);
+		if (msg->extif_msg_type_ == EAllocateSlave || 
+		    msg->extif_msg_type_ == EFreeSlave || 
+		    msg->extif_msg_type_ == ERemoteSlave) {
+			memcpy (&out, msg, sizeof (MsgBuffer));
+			out.sender_ = msg->sender_;
+			out.receiver_ = getppid ();
+			mq_send_message (mqid, &out);
+			
+		} else
+			uengine_handle_extif (mqid, msg);
                 break;
         case MSG_SNDRCV:
                 MIN_DEBUG ("Recieved MSG_SNDRCV");
@@ -844,7 +853,7 @@ LOCAL void uengine_handle_extif (int mqid, const MsgBuffer * msg)
                 break;
         default:
                 MIN_WARN ("Unknown EXTIF command response: [%d]",
-                             msg->param_);
+			  msg->extif_msg_type_);
         }
         return;
 }

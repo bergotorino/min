@@ -626,7 +626,8 @@ int tcp_msg_handle_response (MinItemParser * extif_message)
                 ipc_message.special_ = 0;
                 ipc_message.extif_msg_type_ = EResponseSlave;
                 ipc_message.param_ = result;
-                MIN_DEBUG ("ipc sending with result %d", result);
+                MIN_DEBUG ("ipc sending with result %d to %d", result,
+			   slave_entry->pid_);
                 mq_send_message (mq_id, &ipc_message);
                 retval = 0;
         } else if (strcasecmp (command, "release") == 0) {

@@ -229,7 +229,6 @@ LOCAL void gu_handle_extif (TMC_t * tmc, const MsgBuffer * msg)
         }
         memcpy (&send_msg,msg, sizeof (MsgBuffer));
 
-        send_msg.sender_ = getpid ();
 
         /* Action depends on type of external controller command */
         switch (msg->extif_msg_type_) {
