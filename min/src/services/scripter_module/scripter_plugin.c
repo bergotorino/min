@@ -396,6 +396,8 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
         void           *dll_handle = NULL;
         DLListIterator  work_case_item = DLListNULLIterator;
         TestCaseInfo   *work_case = INITPTR;
+	char           *env;
+	int             skip_symbol_validation = 0;
 
         opresult = mip_get_next_string (line, &lib_name);
         if (opresult != 0) {
@@ -415,7 +417,14 @@ LOCAL int check_run_line (MinItemParser * line, int line_number, char *tc_title)
         if (case_title != NULL) {
                 case_title_given = ESTrue;
         }
-
+	opresult = 0;
+	if ((env = getenv ("SCRIPTER_SYMBOL_VALIDATION"))){
+		skip_symbol_validation = atoi (env);
+	}
+	if (!skip_symbol_validation) {
+		MIN_DEBUG ("$SCRIPTER_SYMBOL_VALIDATION in not set");
+		goto EXIT;
+	}
         dll_handle = tl_open_tc (lib_name);
         if (dll_handle == INITPTR) {
                 opresult = 1;
