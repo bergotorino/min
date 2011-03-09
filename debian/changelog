@@ -1,3 +1,11 @@
+min-all (2011w10) unstable; urgency=low
+
+  * Fixed: calling scripter from scripter with run keyword (BMC#14033)
+  * Fixed: master/slave execution when executed with run scripter (BMC#14029)
+  * Fixed: using run keyword to execute script from same file (BMC#14147)
+
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Wed, 09 Mar 2011 11:10:16 +0200
+
 min-all (2011w06) unstable; urgency=low
 
   * Scripter testclass symbol validation now off by default (BMC#13284)
