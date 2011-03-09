@@ -3,7 +3,7 @@ usr/share/min/minbaselib.lua
 usr/share/man/man1/min.1 
 usr/share/man/man5/min.conf.5
 usr/lib/min/luascripter*
-usr/lib/min/scripter*
+usr/lib/min/scripter.*
 usr/lib/min/scripter_cli*
 usr/lib/min/minDemoModule*
 usr/lib/min/min_cui*
