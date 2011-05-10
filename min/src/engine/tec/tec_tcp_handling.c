@@ -195,13 +195,6 @@ LOCAL void free_tcp_slave (slave_info *slave)
 		master = find_slave_by_fd (slave->fd_, &it);
 		close (master->fd_);
 		slave_exit = 1;
-#if 0
-		tx_destroy (&master->slave_type_);
-		tx_destroy (&master->slave_name_);
-		dl_list_free (&master->write_queue_);
-		dl_list_remove_it (it);
-		DELETE (master);
-#endif
 		return;
 	} 
 
@@ -561,6 +554,7 @@ void new_tcp_master (int socket)
 	master->fd_ = socket;
 	master->write_queue_ = dl_list_create ();
 	master->status_ = SLAVE_STAT_RESERVED;
+	master->addrinfo_ = NULL;
 
 	dl_list_add (ms_assoc, master);
 

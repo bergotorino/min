@@ -743,9 +743,9 @@ LOCAL int extif_msg_handle_response (MinItemParser * extif_message)
                 splithex (srcid, &slave_id, &case_id);
                 slave_entry_item = dl_list_head (ms_assoc);
                 while (slave_entry_item != DLListNULLIterator) {
-			
                         slave_entry =
                             (slave_info *) dl_list_data (slave_entry_item);
+
                         if (slave_entry->slave_id_ == slave_id) {
                                 DELETE (slave_entry);
                                 dl_list_remove_it (slave_entry_item);
@@ -1259,7 +1259,6 @@ int tec_add_ip_slave_to_pool (struct addrinfo **ai, char *slavetype)
        slave->slave_name_ = INITPTR;
        slave->fd_ = -1;
        slave->write_queue_ = dl_list_create ();
-       
        dl_list_add (ms_assoc, slave);
 
        return 0;
