@@ -59,7 +59,7 @@
 #define MIND_LOG(__str__, __arg__) \
 	do {\
 		tx = tx_create (__str__); \
-		tx_c_append (tx, " ");	     \
+		tx_c_append (tx, " "); \
 		tx_c_append (tx, __arg__); \
 		syslog (LOG_INFO, "%s", tx_share_buf (tx));	\
 		tx_destroy (&tx);\
@@ -68,7 +68,6 @@
 /* ------------------------------------------------------------------------- */
 /* LOCAL GLOBAL VARIABLES */
 int eapi_listen_socket, rcp_listen_socket;
-int mins_running = 0;
 int exit_ = 0;
 
 /* ------------------------------------------------------------------------- */
@@ -85,8 +84,6 @@ int exit_ = 0;
 LOCAL int create_listen_socket (unsigned short port);
 /* ------------------------------------------------------------------------- */
 LOCAL int poll_sockets (char *envp[]);
-/* ------------------------------------------------------------------------- */
-LOCAL void handle_sigchld (int sig);
 /* ------------------------------------------------------------------------- */
 LOCAL void handle_sigint (int sig);
       
@@ -176,10 +173,11 @@ LOCAL int poll_sockets (char *envp[])
 			memset (&client_addr, 0, len = sizeof(client_addr));
 			rcp_socket = accept (rcp_listen_socket, 
 					     (struct sockaddr *) &client_addr, 
-				     &len);
+					     &len);
 			if (rcp_socket < 0) {
 				MIND_LOG ("accept() failed", 
 					 strerror (errno));
+				  
 				return -1;
 			}
 			sprintf (args[1], "-m %u", rcp_socket);
@@ -195,9 +193,7 @@ LOCAL int poll_sockets (char *envp[])
 				return 0;
 				break;
 			default:
-				sl_set_sighandler (SIGCHLD, handle_sigchld);
 				close (rcp_socket);
-				mins_running++;
 				break;
 			}
 
@@ -212,7 +208,6 @@ LOCAL int poll_sockets (char *envp[])
 				} */
 		}
 		if (FD_ISSET(eapi_listen_socket, &rd)) {
-
 			
 			memset (&client_addr, 0, len = sizeof(client_addr));
 			
@@ -239,15 +234,12 @@ LOCAL int poll_sockets (char *envp[])
 				return 0;
 				break;
 			default:
-				sl_set_sighandler (SIGCHLD, handle_sigchld);
 				close (eapi_socket);
-				mins_running++;
 				break;
 			}
 			
 			MIND_LOG ("EAPI connect from",
 				  inet_ntoa (client_addr.sin_addr));
-
 
 			if (listen (eapi_listen_socket, 100)) {
 				MIND_LOG("Listen failed", 
@@ -263,20 +255,6 @@ LOCAL int poll_sockets (char *envp[])
 	close (rcp_listen_socket);
 
 	return 0;
-}
-/* ------------------------------------------------------------------------- */
-/** Signal handler for SIGCHLD
- * @param sig the signal number
- */
-LOCAL void handle_sigchld (int sig)
-{
-        int             pid, status;
-        while ((pid = waitpid (-1, &status, 0)) > 0) {
-		usleep (500000);
-        }
-
-	mins_running--;
-
 }
 /* ------------------------------------------------------------------------- */
 /** Signal handler for SIGINT and SIGHUP
@@ -308,6 +286,7 @@ int main (int argc, char *argv[], char *envp[])
 
         sl_set_sighandler (SIGINT,  handle_sigint);
         sl_set_sighandler (SIGHUP,  handle_sigint);
+	signal (SIGCHLD, SIG_IGN);
         retval = poll_sockets (envp);
 	MIND_LOG ("closing", "...");
 	closelog();
