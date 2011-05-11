@@ -1,3 +1,6 @@
+Wed May 11 2011 Sampo Saaristo <sampo.saaristo@sofica.fi> 2011w19
+  - Fixed: random crashes on slave side during cleanup in m/s cases (BMC#17321)
+  - Fixed: mind sometimes shuts down on slave side during m/s cases (BMC#17322)
 * Wed Mar 09 2011 Sampo Saaristo <sampo.saaristo@sofica.fi> 2011w10
   - Fixed: calling scripter from scripter with run keyword (BMC#14033)
   - Fixed: master/slave execution when executed with run scripter (BMC#14029)
