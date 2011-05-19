@@ -110,6 +110,7 @@ extern int      event_system_cleanup (void);
 typedef struct {
 	Text *filter_;
 	int regexp_;
+	int hit_;
 } title_filter;
 
 /* ----------------------------------------------------------------------------
@@ -319,7 +320,7 @@ LOCAL void ec_settings_send ()
 }
 
 /* ------------------------------------------------------------------------- */
-/** Check test case title agains filters.
+/** Check test case title against filters.
  * @param test case title string
  * @return 0 if the test case matches filter, 1 if not
  */
@@ -343,8 +344,10 @@ ec_filter_it(char *title)
 		filt = dl_list_data (it);
 		if (filt->regexp_ == 0 && !strcmp (title, 
 						   tx_share_buf 
-						   (filt->filter_)))
+						   (filt->filter_))) {
+			filt->hit_++;
 			return 0;
+		}
 		if (filt->regexp_) {
 			val = regcomp (&re, tx_share_buf (filt->filter_), 
 				       REG_EXTENDED);
@@ -354,8 +357,10 @@ ec_filter_it(char *title)
 			}
 			val = regexec (&re, title, 0, NULL, 0);
 			regfree (&re);
-			if (val == 0)
+			if (val == 0) {
+				filt->hit_++;
 				return 0; /* Match */
+			}
 		}
 	}
 
@@ -2418,6 +2423,7 @@ void ec_reinit()
         test_case_s    *work_case = INITPTR;
         DLList         *work_list;
 	title_filter   *filter;
+        Text *error;
 
         work_module_item = dl_list_head (instantiated_modules);
 	/*shutdown all running tmcs and free list*/
@@ -2461,6 +2467,14 @@ void ec_reinit()
 	filter_item = dl_list_head (filters);
 	while (filter_item != DLListNULLIterator) {
 		filter = (title_filter *) dl_list_data (filter_item);
+		if (filter->hit_ == 0) {
+			error = tx_create ("Error - no such case: ");
+			tx_append (error, filter->filter_);
+			MINAPI_PLUGIN_CALL (error_report,
+					    error_report (tx_share_buf(error)));
+			min_return_value ++;
+			tx_destroy (&error);
+		}
 		tx_destroy (&filter->filter_);
 		DELETE (filter);
 		dl_list_remove_it (filter_item);
@@ -2747,7 +2761,7 @@ ec_add_title_filter (char *filter_str, int regexp)
 
 	filter->filter_ = tx_create (filter_str);
 	filter->regexp_ = regexp;
-
+	filter->hit_    = 0;
 	if (filters == INITPTR) filters = dl_list_create();
 
 	dl_list_add (filters, filter);

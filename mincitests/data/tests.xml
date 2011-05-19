@@ -33,6 +33,14 @@
 	<step>/usr/bin/check_cli.sh</step>
       </case>
 
+      <case name="title_option_tests" description="test that non existant case produces error with -t and -r" type="Robustness" timeout="100">
+	<step expected_result="1">min -ct non_existant_case</step>
+	<step expected_result="1">min -cr non_existant_case</step>
+	<step expected_result="2">min -cr non_existant_case -t not_found_case</step>
+
+      </case>
+
+
     </set>
   </suite>
 </testdefinition>
