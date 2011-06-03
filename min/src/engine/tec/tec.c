@@ -53,6 +53,11 @@
  * GLOBAL VARIABLES
  */
 pthread_mutex_t tec_mutex_ = PTHREAD_MUTEX_INITIALIZER;
+#ifndef MIN_EXTIF
+pthread_t       socket_thread;
+#endif
+pthread_t       listener_thread;
+
 char          **envp;
 #ifdef MIN_UNIT_TEST
 int             unit_test_result;
@@ -118,8 +123,6 @@ typedef struct {
  */
 /* ------------------------------------------------------------------------- */
 LOCAL void      wait_for_pid (void *pid);
-/* ------------------------------------------------------------------------- */
-LOCAL void      handle_sigquit (int signum);
 /* ------------------------------------------------------------------------- */
 LOCAL void      handle_sigterm (int signum);
 /* ------------------------------------------------------------------------- */
@@ -1982,10 +1985,6 @@ LOCAL void handle_sigint (int signum)
 void ec_min_init (char *envp_[], int operation_mode)
 {
         int             thread_creation_result, ret;
-        pthread_t       listener_thread;
-#ifndef MIN_EXTIF
-        pthread_t       socket_thread;
-#endif
 	long            tmp = 0;
   
         operation_mode_ = operation_mode;
@@ -2488,6 +2487,7 @@ void ec_reinit()
  */
 void ec_cleanup ()
 {
+	void *tmp;
         event_system_cleanup ();
 	rcp_handling_cleanup ();
 	ec_reinit();
@@ -2506,6 +2506,12 @@ void ec_cleanup ()
         mq_close_queue (mq_id);
         min_log_close();
         usleep (30000);
+	ec_poll_sockets_exit ();
+#ifndef MIN_EXTIF
+	pthread_join (socket_thread, &tmp);
+#endif
+	pthread_join (listener_thread, &tmp);
+
 }
 /* ------------------------------------------------------------------------- */
 /** Called by user to execute a sequence of test cases

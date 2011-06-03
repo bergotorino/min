@@ -82,6 +82,7 @@ DLList *run_queue = INITPTR;
 
 /* ------------------------------------------------------------------------- */
 /* LOCAL CONSTANTS AND MACROS */
+LOCAL int exit_ = 0;
 
 /* ------------------------------------------------------------------------- */
 /* MODULE DATA STRUCTURES */
@@ -417,9 +418,8 @@ void *ec_poll_sockets (void *arg)
 	int nfds = 0;
 	struct timeval tv;
         int ret;
-
 	
-	while (1) {
+	while (!exit_) {
 		FD_ZERO (&rd);
 		FD_ZERO (&wr);
 		FD_ZERO (&er);
@@ -437,6 +437,13 @@ void *ec_poll_sockets (void *arg)
 	}
 
 	return NULL;
+}
+/* ------------------------------------------------------------------------- */
+/** Causes socket polling to cease
+ */
+void ec_poll_sockets_exit ()
+{
+	exit_ = 1;
 }
 /* ------------------------------------------------------------------------- */
 /** Build rcp message and adds it to the write queue of slave
