@@ -797,14 +797,14 @@ int sm_destroy (int shmid)
  */
 void           *sm_attach (int shmid)
 {
-        int            retval;
-        retval = (int)shmat (shmid, (void *)NULL, 0);
-        if (retval == -1) {
+        void            *retval;
+        retval = shmat (shmid, (void *)NULL, 0);
+        if ((int)retval == -1) {
                 MIN_WARN ("Could not find allocated memory segment");
                 return INITPTR;
         }
 	
-	return (void *)retval;
+	return retval;
 }
 
 /* ------------------------------------------------------------------------- */
