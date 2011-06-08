@@ -1,46 +1,34 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version='1.0' encoding='ISO-8859-1'?>
 <testdefinition version="0.1">
-  
-  <!-- Test suite, name mandatory - the same as test package name -->
-  <suite name="min_tests" domain="example-domain"> 
-    <description>"Test MIN with MIN"</description>
-    <!-- At least one set per suite, name and description mandatory -->
-    <set name="min_tests_set"  description="execute min tests from commandline" timeout="600">   
-
-      <case name="tests_for_MIN_utils" description="execute tests for dllit logger minunit item-parser and settings" type="Robustness" 
-	    timeout="100">
-        <step expected_result="8">min -cx /usr/lib/min/dllist_tests.so -cx /usr/lib/min/logger_tests.so -cx /usr/lib/min/min_unit_selftest.so -cx /usr/lib/min/item_parser_tests.so -cx /usr/lib/min/settings_tests.so</step>
-      </case>
-
-      <case name="test_scripter" description="test different scripter features" type="Robustness" timeout="100">
-        <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min/scripter_tests.cfg </step>
-        <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min/scripter_with_scripter.cfg </step>
-      </case>
-
-      <case name="tests_for_MIN_qt_db" description="scripter tests base" type="Robustness" timeout="100">
-        <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min/minqtdbtests.cfg </step>
-      </case>
-
-      <case name="tests_for_MIN_Python" description="test MIN pythonscripter" type="Robustness" timeout="100">
-	<step expected_result="1">min -cx /usr/lib/min/pythonscripter.so:/usr/lib/min/python_tests.py</step>
-      </case>
-
-      <case name="parallel_test_for_MIN_Python" description="test MIN pythonscripter parallel execution" type="Robustness" timeout="10">
-	<step expected_result="1">min -Px /usr/lib/min/pythonscripter.so:/usr/lib/min/python_tests.py</step>
-      </case>
-
-      <case name="cli_option_tests" description="test MIN commandline options" type="Robustness" timeout="100">
-	<step>/usr/bin/check_cli.sh</step>
-      </case>
-
-      <case name="title_option_tests" description="test that non existant case produces error with -t and -r" type="Robustness" timeout="100">
-	<step expected_result="1">min -ct non_existant_case</step>
-	<step expected_result="1">min -cr non_existant_case</step>
-	<step expected_result="2">min -cr non_existant_case -t not_found_case</step>
-
-      </case>
-
-
-    </set>
-  </suite>
+ <!-- Test suite, name mandatory - the same as test package name -->
+ <suite domain="example-domain" name="min_tests">
+  <description>"Test MIN with MIN"</description>
+  <!-- At least one set per suite, name and description mandatory -->
+  <set description="execute min tests from commandline" timeout="600" name="min_tests_set">
+   <case description="execute tests for dllist, logger, minunit, item-parser and settings" timeout="100" type="Functional positive" name="tests_for_MIN_utils">
+    <step expected_result="8">min -cx /usr/lib/min/dllist_tests.so -cx /usr/lib/min/logger_tests.so -cx /usr/lib/min/min_unit_selftest.so -cx /usr/lib/min/item_parser_tests.so -cx /usr/lib/min/settings_tests.so</step>
+   </case>
+   <case description="test different scripter features" timeout="100" type="Functional positive" name="test_scripter">
+    <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min/scripter_tests.cfg </step>
+    <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min/scripter_with_scripter.cfg </step>
+   </case>
+   <case description="scripter tests base" timeout="100" type="Functional positive" name="tests_for_MIN_qt_db">
+    <step expected_result="0">min -cx /usr/lib/min/scripter.so:/usr/lib/min/minqtdbtests.cfg </step>
+   </case>
+   <case description="test MIN pythonscripter" timeout="100" type="Functional positive" name="tests_for_MIN_Python">
+    <step expected_result="1">min -cx /usr/lib/min/pythonscripter.so:/usr/lib/min/python_tests.py</step>
+   </case>
+   <case description="test MIN pythonscripter parallel execution" timeout="10" type="Functional positive" name="parallel_test_for_MIN_Python">
+    <step expected_result="1">min -Px /usr/lib/min/pythonscripter.so:/usr/lib/min/python_tests.py</step>
+   </case>
+   <case description="test MIN commandline options" timeout="100" type="Functional positive" name="cli_option_tests">
+    <step>/usr/bin/check_cli.sh</step>
+   </case>
+   <case description="test that non existant case produces error with -t and -r" timeout="100" type="Functional negative" name="title_option_tests">
+    <step expected_result="1">min -ct non_existant_case</step>
+    <step expected_result="1">min -cr non_existant_case</step>
+    <step expected_result="2">min -cr non_existant_case -t not_found_case</step>
+   </case>
+  </set>
+ </suite>
 </testdefinition>
