@@ -1,3 +1,10 @@
+min-all (2011w23) unstable; urgency=low
+
+  * Invalid pointer handling fixed in ipc utils (BMC#18742)
+  * Thread handling improved, all threads are joined before exiting MIN engine
+
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Fri, 10 Jun 2011 13:18:51 +0300
+
 min-all (2011w20) unstable; urgency=low
 
   * Return error when no case matches title given with -r or -t (BMC#11926)
