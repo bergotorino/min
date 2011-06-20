@@ -1,5 +1,5 @@
 Name:           min
-Version:        2011w23
+Version:        2011w25
 Release:        1%{?dist}
 Summary:        A test framework for C/C++
 

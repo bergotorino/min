@@ -1,3 +1,9 @@
+min-all (2011w25) unstable; urgency=low
+
+  * Min does not compile with gcc 4.6 (BMC#19574)
+
+ -- Joonas Kylänpää <joonas.kylanpaa@digia.com>  Mon, 20 Jun 2011 12:41:38 +0300
+
 min-all (2011w23) unstable; urgency=low
 
   * Invalid pointer handling fixed in ipc utils (BMC#18742)

@@ -1,3 +1,5 @@
+* Mon Jun 20 2011 Joonas Kylänpää <joonas.kylanpaa@digia.com> 2011w25
+  - Min does not compile with gcc 4.6 (BMC#19574)
 * Fri Jun 10 2011 Sampo Saaristo <sampo.saaristo@sofica.fi> 2011w23
   - Invalid pointer handling fixed in ipc utils (BMC#18742)
   - Thread handling improved, all threads are joined before exiting MIN engine
