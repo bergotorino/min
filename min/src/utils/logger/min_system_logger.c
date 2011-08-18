@@ -260,7 +260,7 @@ int min_log_open (const char *identifier, unsigned int debug_level)
 		tx_c_copy(__component_name__,identifier);
 	}
 
-        if (__logger__!=INITPTR) { mnl_destroy(&__logger__); }
+        // This is risky: if (__logger__!=INITPTR) { mnl_destroy(&__logger__); }
 
         /* Contact the settings system and get settings
          * for logger. */

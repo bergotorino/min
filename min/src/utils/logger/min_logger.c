@@ -837,7 +837,6 @@ void mnl_destroy (MinLogger ** mnl)
         struct min_txt_logger_t *txtlog = INITPTR;
         struct min_html_logger_t *htmllog = INITPTR;
         struct min_data_logger_t *datalog = INITPTR;
-
         if (*mnl == INITPTR) {
                 goto EXIT;
         }
@@ -875,6 +874,7 @@ void mnl_destroy (MinLogger ** mnl)
 
         dl_list_free (&(*mnl)->endpoint_);
         DELETE (*mnl);
+
       EXIT:
         return;
 }

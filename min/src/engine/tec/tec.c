@@ -2504,13 +2504,13 @@ void ec_cleanup ()
         usleep (50000);
         sm_destroy (sh_mem_id_);
         mq_close_queue (mq_id);
-        min_log_close();
         usleep (30000);
 	ec_poll_sockets_exit ();
 #ifndef MIN_EXTIF
 	pthread_join (socket_thread, &tmp);
 #endif
 	pthread_join (listener_thread, &tmp);
+        min_log_close();
 
 }
 /* ------------------------------------------------------------------------- */
