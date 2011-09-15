@@ -855,6 +855,7 @@ MinLoggerFileOutput *fo_create (const TSChar * path,
 
         /* Attach pointers */
         retval = NEW (MinLoggerFileOutput);
+	memset (retval, 0x0, sizeof (MinLoggerFileOutput));
         retval->write_ = fo_write;
         retval->destroy_ = fo_destroy;
 
@@ -945,6 +946,7 @@ MinLoggerNullOutput *no_create (const TSChar * path,
 
         /* Attach pointers */
         retval = NEW (MinLoggerNullOutput);
+	memset (retval, 0x0, sizeof (MinLoggerNullOutput));
         retval->write_ = no_write;
         retval->destroy_ = no_destroy;
 
@@ -1002,6 +1004,7 @@ MinLoggerSyslogOutput *so_create (const TSChar * path,
 
         /* Attach pointers */
         retval = NEW (MinLoggerSyslogOutput);
+	memset (retval, 0x0, sizeof(MinLoggerSyslogOutput));
         retval->write_ = so_write;
         retval->destroy_ = so_destroy;
 
@@ -1097,6 +1100,7 @@ MinLoggerStdOutput *stdo_create (const TSChar * path,
 
         /* Attach pointers */
         retval = NEW (MinLoggerStdOutput);
+	memset (retval, 0x0, sizeof (MinLoggerStdOutput));
         retval->write_ = stdo_write;
         retval->destroy_ = stdo_destroy;
 
@@ -1142,6 +1146,7 @@ MinLoggerStdOutput *stde_create (const TSChar * path,
 
         /* Attach pointers */
         retval = NEW (MinLoggerStdOutput);
+	memset (retval, 0x0, sizeof (MinLoggerStdOutput));
         retval->write_ = stde_write;
         retval->destroy_ = stde_destroy;
 
