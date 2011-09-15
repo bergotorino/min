@@ -164,7 +164,7 @@ void ip_send_tcd (const TMCIPCInterface * tmcipi, const char *file,
                 MIN_ERROR ("TMCIPInterface is not initialized.");
                 return;
         }
-
+	memset (&out, 0x0, sizeof (MsgBuffer));
         MIN_DEBUG ("%s:%s(%p,%s,%p)",__FILE__,__FUNCTION__,tmcipi,file,it);
 
         out.receiver_ = tmcipi->receiver_;

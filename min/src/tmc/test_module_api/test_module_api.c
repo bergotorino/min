@@ -107,6 +107,8 @@ int tm_printf (int priority, char *desc, char *format, ...)
         MsgBuffer       buff;
         char            tmp_msg[MaxUsrMessage];
 
+        memset (&buff, 0x0, sizeof (MsgBuffer));
+
         if (strlen (desc) > (MaxUsrMessage - 1))
                 desc[MaxUsrMessage - 1] = '\0';
         if (strlen (format) > (MaxUsrMessage - 1))
