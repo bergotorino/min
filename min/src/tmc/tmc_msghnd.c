@@ -122,6 +122,7 @@ LOCAL void gu_handle_exe (TMC_t * tmc, int id, const char *cfg_file, int delay)
         long            tmp = -1;
 	MsgBuffer msg;
 
+	memset (&msg, 0x0, sizeof (MsgBuffer));
         /*if( id == 2 ) */ tp_set_timeout (&tmc->tpc_, 0);
         tp_set_timeout_handler ();
         tmp = fork ();

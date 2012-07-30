@@ -3191,7 +3191,10 @@ void scripter_final_verdict (TestCaseResult * tcr)
                 if (num_fail > 1) {
 			sprintf (tmp, " (%d other errors/failures)", 
 				 num_fail - 1);
-                        strcat (tcr->desc_, tmp);
+			
+                        strncat (tcr->desc_, tmp, 
+				 MaxTestResultDescription - 1 - 
+				 strlen (tcr->desc_));
 		}
                 tcr->result_ = TP_FAILED;
         } else {

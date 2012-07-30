@@ -434,6 +434,7 @@ int mq_send_message2 (int msqid, long adress, MINMsgType type, int param,
         MsgBuffer       buf;
 
         /* construct the message */
+	memset (&buf, 0x0, sizeof (MsgBuffer));
         buf.receiver_ = adress;
         buf.sender_ = getpid ();
         buf.type_ = type;

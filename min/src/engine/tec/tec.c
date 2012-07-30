@@ -488,6 +488,7 @@ LOCAL int ec_exec_case_temp (DLListIterator work_module_item)
         DLListIterator  work_case_item =
                 dl_list_head (tm_get_tclist (work_module_item));
         test_case_s    *work_case = dl_list_data (work_case_item);
+	memset (&message, 0x0, sizeof (MsgBuffer));
 
         /*let's look for test case in "selected list" */
         pthread_mutex_lock (&tec_mutex_);
@@ -720,6 +721,7 @@ LOCAL int ec_msg_ok_handler (MsgBuffer * message)
             tm_get_ptr_by_pid (instantiated_modules, sender);
         MsgBuffer       message_gtc;
 
+	memset (&message_gtc, 0x0, sizeof (MsgBuffer));
         /*Possible error handling will be inserted here */
 	retry_count = 0;
         while (work_module == DLListNULLIterator) {
@@ -1479,6 +1481,8 @@ LOCAL void     *ec_message_listener (void *arg)
                                            with no IPC traffic */
         MsgBuffer       received_msg;
 
+	memset (&received_msg, 0x0, sizeof (MsgBuffer));
+
         pthread_mutex_lock (&tec_mutex_);
         /* Engine's process id was made global, because passing it to message
 	 * listener function as a pointer has proven to be unreliable, 
@@ -2187,7 +2191,7 @@ int ec_exec_case (DLListIterator work_case_item)
         int             res = -1;
         DLListIterator  work_module_item =
             tc_get_test_module_ptr (work_case_item);
-
+	memset (&message, 0x0, sizeof (MsgBuffer));
         if (work_module_item == INITPTR) {
                 MIN_DEBUG (" exec case %x", work_case_item);
                 MIN_WARN ("Faulty test case data");
@@ -2256,6 +2260,8 @@ int ec_debug_case (DLListIterator work_case_item)
         int             res = -1;
         DLListIterator  work_module_item =
             tc_get_test_module_ptr (work_case_item);
+
+	memset (&message, 0x0, sizeof (MsgBuffer));
 
         if (work_module_item == INITPTR) {
                 MIN_DEBUG ("debug case %x", work_case_item);
