@@ -1,3 +1,12 @@
+min-all (2012w49) unstable; urgency=low
+
+  * Possible buffer overwrite fixed in scripter
+  * Valgrind warnings fixed (with memset())
+  * Fix logger crashes during logger closing 
+  * Use pkg-config to get proper includes and libs (Fixes Mer bug #371)
+
+ -- Sampo Saaristo <sampo.saaristo@sofica.fi>  Fri, 07 Dec 2012 15:34:36 +0200
+
 min-all (2011w25) unstable; urgency=low
 
   * Min does not compile with gcc 4.6 (BMC#19574)

@@ -1,3 +1,8 @@
+* Fri Dec 07 2012 Sampo Saaristo <sampo.saaristo@sofica.fi> 2012w49
+  - Possible buffer overwrite fixed in scripter
+  - Valgrind warnings fixed (with memset())
+  - Fix logger crashes during logger closing 
+  - Use pkg-config to get proper includes and libs (Fixes Mer bug #371)
 * Mon Jun 20 2011 Joonas Kylänpää <joonas.kylanpaa@digia.com> 2011w25
   - Min does not compile with gcc 4.6 (BMC#19574)
 * Fri Jun 10 2011 Sampo Saaristo <sampo.saaristo@sofica.fi> 2011w23
