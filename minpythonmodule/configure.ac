@@ -9,12 +9,8 @@ AM_PROG_LIBTOOL
 AM_PATH_PYTHON
 mintestmoddir=${libdir}/min
 AC_SUBST(mintestmoddir)
-if  test -f /usr/include/python2.6/Python.h; then 
-pythoncheckhack="python2.6"
-else
-pythoncheckhack="python2.5"
-fi
 AC_SUBST(pythoncheckhack)
+PKG_CHECK_MODULES([PYTHON],[python])
 
 
 LT_CURRENT=0

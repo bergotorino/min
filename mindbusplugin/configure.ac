@@ -9,7 +9,9 @@ AM_PROG_LIBTOOL
 
 mintestmoddir=${libdir}/min
 AC_SUBST(mintestmoddir)
-
+PKG_CHECK_MODULES([GLIB],[glib-2.0])
+PKG_CHECK_MODULES([DBUS_GLIB],[dbus-glib-1])
+PKG_CHECK_MODULES([GOBJECT],[gobject-2.0])
 
 LT_CURRENT=0
 LT_REVISION=0

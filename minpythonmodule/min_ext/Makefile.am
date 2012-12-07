@@ -9,14 +9,13 @@ INCLUDES = -I. \
 	   -I../../min/src/utils/dllist \
 	   -I../../min/src/utils/lib_loader \
 	   -I../../min/src/utils/ipc \
-	   -I../../min/src/utils/text \
-	   -I/usr/include/$(pythoncheckhack)
+	   -I../../min/src/utils/text 
 
 
 pkglib_LTLIBRARIES 	= min_ext.la
 
-min_ext_la_CFLAGS = $(AM_CFLAGS)
-min_ext_la_LDFLAGS = -module -lpthread -l$(pythoncheckhack)
+min_ext_la_CFLAGS = $(AM_CFLAGS) $(PYTHON_CFLAGS)
+min_ext_la_LDFLAGS = -module -lpthread $(PYTHON_LIBS)
 min_ext_la_SOURCES = min_ext.c
 min_ext_la_LIBADD = ../../min/src/utils/libminutils.la \
 	    	    ../../min/src/tmc/test_module_api/libmintmapi.la \
