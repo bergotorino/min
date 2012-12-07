@@ -28,7 +28,7 @@ Package: minpythonmodule
 Section: devel
 Priority: extra
 Architecture: any
-Depends: ${shlibs:Depends}, min, python2.5 | python2.6
+Depends: ${shlibs:Depends}, min, python
 Description: Python scripter module for MIN
  Python scripter for MIN.
 
